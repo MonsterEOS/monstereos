@@ -8,9 +8,9 @@ import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as JD
 import Time
+import Json.Decode.Pipeline as JDP
 
 
--- import Json.Decode.Pipeline as JDP
 -- import Json.Encode as JE
 -- import FormatNumber
 -- import FormatNumber.Locales exposing (usLocale)
@@ -44,9 +44,10 @@ initialModel =
     , showHelp = False
     , user = User "" ""
     , error = Nothing
-    , content = Monster
+    , content = MonsterPage
     , socketsConnected = False
     , currentTime = 0
+    , monsters = []
     }
 
 
@@ -79,7 +80,7 @@ type NotificationType
 
 
 type Content
-    = Monster
+    = MonsterPage
     | About
 
 
@@ -94,6 +95,25 @@ type alias User =
     }
 
 
+type alias Monster =
+    { id : Int
+    , owner : String
+    , name : String
+    , mtype : Int
+    , created_at : Int
+    , death_at : Int
+    , health : Int
+    , hunger : Int
+    , last_fed_at : Int
+    , awake : Int
+    , last_bed_at : Int
+    , happiness : Int
+    , last_play_at : Int
+    , clean : Int
+    , last_shower_at : Int
+    }
+
+
 type alias Model =
     { isLoading : Bool
     , isMuted : Bool
@@ -105,6 +125,7 @@ type alias Model =
     , content : Content
     , socketsConnected : Bool
     , currentTime : Time.Time
+    , monsters : List Monster
     }
 
 
@@ -124,7 +145,19 @@ port feedMonster : Int -> Cmd msg
 port updateMonster : Int -> Cmd msg
 
 
+port listMonsters : () -> Cmd msg
+
+
+port setMonsters : (JD.Value -> msg) -> Sub msg
+
+
 port createMonster : String -> Cmd msg
+
+
+port monsterCreatedSucceed : (String -> msg) -> Sub msg
+
+
+port monsterCreationFailed : (String -> msg) -> Sub msg
 
 
 port setScatterInstalled : (Bool -> msg) -> Sub msg
@@ -139,12 +172,6 @@ port scatterRejected : (String -> msg) -> Sub msg
 port setScatterIdentity : (JD.Value -> msg) -> Sub msg
 
 
-port monsterCreatedSucceed : (String -> msg) -> Sub msg
-
-
-port monsterCreationFailed : (String -> msg) -> Sub msg
-
-
 port refreshPage : () -> Cmd msg
 
 
@@ -155,6 +182,7 @@ subscriptions model =
         , setScatterIdentity ScatterSignIn
         , setScatterInstalled ScatterLoaded
         , scatterRejected ScatterRejection
+        , setMonsters SetMonsters
         ]
 
 
@@ -171,6 +199,8 @@ type Msg
     | ScatterRequestIdentity
     | ScatterInstallPressed
     | ScatterRejection String
+    | SetMonsters JD.Value
+    | SetMonstersFailure String
     | ToggleHelp
     | Logout
 
@@ -193,17 +223,21 @@ update msg model =
         ScatterSignIn userJson ->
             case (JD.decodeValue userDecoder userJson) of
                 Ok user ->
-                    ( { model | user = user, isLoading = False }
-                    , Cmd.none
-                      -- here we should load monster and other inits
-                      -- , Cmd.batch
-                      --     [ loadMonsterCmd
-                      --     , etcCmd
-                      --     ]
-                    )
+                    ( { model | user = user }, listMonsters () )
 
                 Err err ->
                     ( { model | error = Just err, isLoading = False }, Cmd.none )
+
+        SetMonsters monsterList ->
+            case (JD.decodeValue monstersDecoder monsterList) of
+                Ok monsters ->
+                    ( { model | monsters = monsters, isLoading = False }, Cmd.none )
+
+                Err err ->
+                    ( { model | error = Just err, isLoading = False }, Cmd.none )
+
+        SetMonstersFailure err ->
+            ( { model | error = Just err, isLoading = False }, Cmd.none )
 
         RefreshPage ->
             ( model, refreshPage () )
@@ -221,6 +255,26 @@ update msg model =
             ( initialModel, signOut () )
 
 
+handleResponseErrors : Model -> Http.Error -> String -> ( Model, Cmd Msg )
+handleResponseErrors model err msg =
+    let
+        _ =
+            Debug.log msg err
+
+        error =
+            case err of
+                Http.BadStatus res ->
+                    (toString res.status.code) ++ " - " ++ (toString res.body)
+
+                Http.BadPayload msg _ ->
+                    msg
+
+                _ ->
+                    "Http/Network Fail"
+    in
+        ( { model | error = Just error, isLoading = False }, Cmd.none )
+
+
 userDecoder : JD.Decoder User
 userDecoder =
     JD.map2
@@ -229,39 +283,66 @@ userDecoder =
         (JD.field "publicKey" JD.string)
 
 
-updateUserSetup : Model -> ( Model, Cmd Msg )
-updateUserSetup model =
-    if String.isEmpty model.user.eosAccount then
-        ( { model | error = Just "Please enter ...." }, Cmd.none )
-    else
-        let
-            apiKey =
-                Http.header "X-API-KEY" "banana"
-
-            apiSecret =
-                Http.header "X-API-SECRET" "apple"
-
-            url =
-                "/api/test"
-
-            request =
-                Http.request
-                    { method = "POST"
-                    , headers = [ apiKey, apiSecret ]
-                    , url = url
-                    , body = Http.emptyBody
-                    , expect = Http.expectJson userDecoder
-                    , timeout = Nothing
-                    , withCredentials = False
-                    }
-
-            -- cmd =
-            --     Http.send UserKeysResponse request
-        in
-            ( { model | error = Nothing, isLoading = True }, Cmd.none )
+monstersDecoder : JD.Decoder (List Monster)
+monstersDecoder =
+    JD.list
+        (JDP.decode Monster
+            |> JDP.required "id" JD.int
+            |> JDP.required "owner" JD.string
+            |> JDP.required "name" JD.string
+            |> JDP.required "type" JD.int
+            |> JDP.required "created_at" JD.int
+            |> JDP.required "death_at" JD.int
+            |> JDP.required "health" JD.int
+            |> JDP.required "hunger" JD.int
+            |> JDP.required "last_fed_at" JD.int
+            |> JDP.required "awake" JD.int
+            |> JDP.required "last_bed_at" JD.int
+            |> JDP.required "happiness" JD.int
+            |> JDP.required "last_play_at" JD.int
+            |> JDP.required "clean" JD.int
+            |> JDP.required "last_shower_at" JD.int
+        )
 
 
 
+-- listMonsters : Model -> ( Model, Cmd Msg )
+-- listMonsters model =
+--     if String.isEmpty model.user.eosAccount then
+--         ( { model | error = Just "Please enter with Scatter" }, Cmd.none )
+--     else
+--         let
+--             -- apiKey =
+--             --     Http.header "X-API-KEY" "banana"
+--             --
+--             -- apiSecret =
+--             --     Http.header "X-API-SECRET" "apple"
+--             monsters =
+--                 JE.object
+--                     [ ( "code", JE.string "pet" )
+--                     , ( "scope", JE.string "pet" )
+--                     , ( "table", JE.string "pets" )
+--                     , ( "json", JE.bool True )
+--                     ]
+--
+--             url =
+--                 "http://127.0.0.1:8888/v1/chain/get_table_rows"
+--
+--             request =
+--                 Http.request
+--                     { method = "POST"
+--                     , headers = []
+--                     , url = url
+--                     , body = (Http.jsonBody monsters)
+--                     , expect = Http.expectJson monstersDecoder
+--                     , timeout = Nothing
+--                     , withCredentials = False
+--                     }
+--
+--             cmd =
+--                 Http.send MonstersResponse request
+--         in
+--             ( { model | error = Nothing, isLoading = True }, cmd )
 -- helper functions and attributes
 
 
@@ -676,13 +757,13 @@ mainContent model =
                     [ ul []
                         [ li
                             [ class
-                                (if model.content == Monster then
+                                (if model.content == MonsterPage then
                                     "is-active"
                                  else
                                     ""
                                 )
                             ]
-                            [ a [ onClick (SetContent Monster) ]
+                            [ a [ onClick (SetContent MonsterPage) ]
                                 [ icon "paw" False False
                                 , text "My Monsters"
                                 ]
@@ -705,7 +786,7 @@ mainContent model =
 
             content =
                 case model.content of
-                    Monster ->
+                    MonsterPage ->
                         monsterContent model
 
                     About ->
@@ -728,55 +809,75 @@ aboutContent model =
         ]
 
 
-monsterContent : Model -> Html Msg
-monsterContent model =
-    div []
-        [ div [ class "card" ]
+monsterCard : Monster -> Html Msg
+monsterCard monster =
+    let
+        isDead =
+            monster.death_at > 0 || monster.health <= 0
+
+        deadClass =
+            if isDead then
+                " is-danger"
+            else
+                ""
+
+        deathInfo =
+            if isDead then
+                p [ class "is-6 is-danger" ]
+                    [ text "DEAD IN "
+                    , time [ datetime "2016-1-1" ]
+                        [ text "Jan, 1st 2016 @ 11:09 PM" ]
+                    ]
+            else
+                text ""
+    in
+        div [ class "card" ]
             [ div
                 [ class "card-content" ]
                 [ div [ class "columns" ]
                     [ div [ class "column " ]
                         [ figure [ class "image is-square" ]
-                            [ img [ alt "spiderman", src "/images/monsters/pipo-enemy002a.png" ]
+                            [ img [ alt monster.name, src ("/images/monsters/monster-" ++ (toString monster.mtype) ++ ".png") ]
                                 []
                             ]
                         ]
                     , div
                         [ class "column" ]
-                        [ p [ class "title is-4" ]
-                            [ text "spiderman" ]
+                        [ p [ class ("title is-4" ++ deadClass) ]
+                            [ text monster.name ]
                         , p [ class "is-6" ]
-                            [ b [] [ text "Owner: " ], text "leo" ]
+                            [ b [] [ text "Owner: " ], text monster.owner ]
                         , p [ class "is-6" ]
                             [ text "Born in "
                             , time [ datetime "2016-1-1" ]
                                 [ text "Jan, 1st 2016 @ 11:09 PM" ]
                             , text " alive for 3 days and 17 hours "
                             ]
+                        , deathInfo
                         , p [ class "is-6" ]
                             [ b [] [ text "HP: " ]
-                            , progress [ class "progress is-danger", Html.Attributes.max "100", value "15" ]
-                                [ text "30%" ]
+                            , progress [ class "progress is-danger", Html.Attributes.max "100", value (toString monster.health) ]
+                                [ text (toString monster.health) ]
                             ]
                         , p [ class "is-6" ]
                             [ b [] [ text "Food: " ]
-                            , progress [ class "progress is-primary", Html.Attributes.max "100", value "15" ]
-                                [ text "30%" ]
+                            , progress [ class "progress is-primary", Html.Attributes.max "100", value (toString monster.hunger) ]
+                                [ text (toString monster.hunger) ]
                             ]
                         , p [ class "is-6" ]
                             [ b [] [ text "Happiness: " ]
-                            , progress [ class "progress is-warning", Html.Attributes.max "100", value "15" ]
-                                [ text "30%" ]
+                            , progress [ class "progress is-warning", Html.Attributes.max "100", value (toString monster.happiness) ]
+                                [ text (toString monster.happiness) ]
                             ]
                         , p [ class "is-6" ]
                             [ b [] [ text "Awake: " ]
-                            , progress [ class "progress is-success", Html.Attributes.max "100", value "15" ]
-                                [ text "30%" ]
+                            , progress [ class "progress is-success", Html.Attributes.max "100", value (toString monster.awake) ]
+                                [ text (toString monster.awake) ]
                             ]
                         , p [ class "is-6" ]
                             [ b [] [ text "Clean: " ]
-                            , progress [ class "progress is-info", Html.Attributes.max "100", value "15" ]
-                                [ text "30%" ]
+                            , progress [ class "progress is-info", Html.Attributes.max "100", value (toString monster.clean) ]
+                                [ text (toString monster.clean) ]
                             ]
                         , p [] [ text "" ]
                         , div [ class "footer buttons" ]
@@ -793,7 +894,14 @@ monsterContent model =
                     ]
                 ]
             ]
-        ]
+
+
+monsterContent : Model -> Html Msg
+monsterContent model =
+    div []
+        (model.monsters
+            |> List.map monsterCard
+        )
 
 
 view : Model -> Html Msg

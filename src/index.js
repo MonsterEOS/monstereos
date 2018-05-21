@@ -76,4 +76,18 @@ app.ports.scatterRequestIdentity.subscribe(async () => {
     })
 })
 
+app.ports.listMonsters.subscribe(async () => {
+    const localNet = Eos.Localnet({httpEndpoint: "http://127.0.0.1:8888"})
+
+    const monsters = await localNet.getTableRows({
+                "json": true,
+                "scope": 'pet',
+                "code": 'pet',
+                "table": "pets",
+                "limit": 5000
+            }).then(res => res.rows)
+
+    app.ports.setMonsters.send(monsters)
+})
+
 registerServiceWorker();
