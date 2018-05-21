@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css?family=Gloria+Hallelujah');
+
+@import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+
+@import "bulma/sass/utilities/initial-variables";
+@import "bulma/sass/utilities/functions";
+
+@import "./spacing.scss";
+
+// layout
+form {
+  margin-bottom: 20px;
+}
+
+.filter-link {
+  margin: 20px;
+}
+
+.filter-link a {
+  color: $blue;
+  border-bottom: 1px dashed $blue;
+}
+
+.logo {
+  font-family: 'Gloria Hallelujah', cursive;
+  font-size: 40px;
+  margin: 24px;
+}
+
+.exchange-selector {
+  height: 100px;
+  cursor: pointer;
+}
+
+.exchange-selector.selected {
+  background-color: $green;
+  color: white;
+}
+
+.footer {
+  margin-top: 50px;
+}
+
+@media screen and (min-width: 769px) {
+  // .sound-link {
+  //   margin-top: -20px;
+  //   margin-left: 20px;
+  // }
+
+  .coin-column {
+    min-width: 500px;
+    max-width: 550px;
+  }
+}
