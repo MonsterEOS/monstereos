@@ -139,12 +139,6 @@ port signOut : () -> Cmd msg
 port setTitle : String -> Cmd msg
 
 
-port feedMonster : Int -> Cmd msg
-
-
-port updateMonster : Int -> Cmd msg
-
-
 port listMonsters : () -> Cmd msg
 
 
@@ -158,6 +152,15 @@ port monsterCreatedSucceed : (String -> msg) -> Sub msg
 
 
 port monsterCreationFailed : (String -> msg) -> Sub msg
+
+
+port requestFeed : Int -> Cmd msg
+
+
+port feedSucceed : (String -> msg) -> Sub msg
+
+
+port feedFailed : (String -> msg) -> Sub msg
 
 
 port setScatterInstalled : (Bool -> msg) -> Sub msg
@@ -183,6 +186,8 @@ subscriptions model =
         , setScatterInstalled ScatterLoaded
         , scatterRejected ScatterRejection
         , setMonsters SetMonsters
+        , feedFailed MonsterFeedFailed
+        , feedSucceed MonsterFeedSucceed
         ]
 
 
@@ -201,6 +206,9 @@ type Msg
     | ScatterRejection String
     | SetMonsters JD.Value
     | SetMonstersFailure String
+    | MonsterFeedSucceed String
+    | MonsterFeedFailed String
+    | RequestMonsterFeed Int
     | ToggleHelp
     | Logout
 
@@ -219,6 +227,15 @@ update msg model =
 
         ScatterRejection _ ->
             ( { model | isLoading = False }, Cmd.none )
+
+        RequestMonsterFeed petId ->
+            ( { model | isLoading = True }, requestFeed (petId) )
+
+        MonsterFeedSucceed _ ->
+            ( { model | isLoading = False }, Cmd.none )
+
+        MonsterFeedFailed err ->
+            ( { model | error = Just err, isLoading = False }, Cmd.none )
 
         ScatterSignIn userJson ->
             case (JD.decodeValue userDecoder userJson) of
@@ -881,7 +898,7 @@ monsterCard monster =
                             ]
                         , p [] [ text "" ]
                         , div [ class "footer buttons" ]
-                            [ a [ class "button is-primary" ]
+                            [ a [ class "button is-primary", onClick (RequestMonsterFeed monster.id) ]
                                 [ text "Feed" ]
                             , a [ class "button is-warning" ]
                                 [ text "Play" ]

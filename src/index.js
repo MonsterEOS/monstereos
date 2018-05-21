@@ -18,6 +18,9 @@ const network = {
   port: 8888
 }
 
+const monstersAccount = 'pet'
+const monstersTable = 'pets'
+
 let scatter = null;
 
 const scatterDetection = setTimeout(() => {
@@ -81,13 +84,30 @@ app.ports.listMonsters.subscribe(async () => {
 
     const monsters = await localNet.getTableRows({
                 "json": true,
-                "scope": 'pet',
-                "code": 'pet',
-                "table": "pets",
+                "scope": monstersAccount,
+                "code": monstersAccount,
+                "table": monstersTable,
                 "limit": 5000
             }).then(res => res.rows)
 
     app.ports.setMonsters.send(monsters)
+})
+
+app.ports.requestFeed.subscribe(async (petId) => {
+  const account = scatter.identity.accounts.find(account => account.blockchain === 'eos');
+
+  const contract = await scatter.eos(network, Eos.Localnet, {})
+    .contract(monstersAccount);
+
+  const authorization = { authorization: [ `${account.name}@${account.authority}` ]};
+
+  const feedpet = await contract.feedpet(petId, authorization)
+    .catch(e => {
+        console.error('error on feedpet ', e)
+        app.ports.feedFailed.send('An error happened while feeding the pet')
+      })
+
+  if(feedpet) app.ports.feedSucceed.send(feedpet.transaction_id)
 })
 
 registerServiceWorker();
