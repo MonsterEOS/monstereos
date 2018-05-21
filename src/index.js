@@ -13,7 +13,7 @@ const app = Main.embed(document.getElementById('root'), flags)
 
 /* Eos and Scatter Setup */
 const network = {
-  blockchain: 'eos',
+  blockchain: "eos",
   host: "localhost",
   port: 8888
 }
@@ -42,12 +42,17 @@ document.addEventListener('scatterLoaded', scatterExtension => {
         publicKey: scatter.identity.publicKey
     }
 
-    app.ports.setIdentity.send(user)
+    app.ports.setScatterIdentity.send(user)
   }
 })
 
 app.ports.refreshPage.subscribe(() => {
   location.reload()
+})
+
+app.ports.signOut.subscribe(() => {
+  scatter.forgetIdentity()
+  app.ports.setScatterInstalled.send(true)
 })
 
 app.ports.scatterRequestIdentity.subscribe(async () => {

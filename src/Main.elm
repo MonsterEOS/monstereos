@@ -44,7 +44,7 @@ initialModel =
     , showHelp = False
     , user = User "" ""
     , error = Nothing
-    , content = About
+    , content = Monster
     , socketsConnected = False
     , currentTime = 0
     }
@@ -225,7 +225,7 @@ userDecoder : JD.Decoder User
 userDecoder =
     JD.map2
         User
-        (JD.field "accountName" JD.string)
+        (JD.field "eosAccount" JD.string)
         (JD.field "publicKey" JD.string)
 
 
@@ -268,6 +268,11 @@ updateUserSetup model =
 scatterExtensionLink : String
 scatterExtensionLink =
     "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"
+
+
+jungleTestNetLink : String
+jungleTestNetLink =
+    "http://dev.cryptolions.io"
 
 
 calcTimeDiff : Time.Time -> Time.Time -> String
@@ -556,7 +561,18 @@ helpModal model =
             --     ]
             -- ]
             [ div []
-                [ p [] [ text "Help modal" ] ]
+                [ p [] [ text "It's a fun game where you create your pet and you must take care of him so he does not die." ]
+                , p []
+                    [ text "You will need to have Scatter installed and create an account on EOS JungleTestNet, so after the scatter installation please follow the below instructions:"
+                    , ol []
+                        [ li [] [ text "Open your Scatter, click in Private Keys and generate a KeyPair, save it as 'MonsterEosTest' or anything you want" ]
+                        , li [] [ text "After saving your private key in safe place, please copy your public key, you will need it for registration on JungleNet in the next step" ]
+                        , li [] [ a [ href jungleTestNetLink, target "_blank" ] [ text "Click here to open JungleNet and click in Create an account there" ] ]
+                        , li [] [ text "Now open your Scatter again, click on Identities, import your key pair and type the account name of the account you created on Junglenet and save" ]
+                        , li [] [ text "That's it! You are all set, close this help window and click in Enter with Scatter to start playing! Have fun!" ]
+                        ]
+                    ]
+                ]
             ]
             Nothing
             Nothing
@@ -567,6 +583,15 @@ topMenu model =
     let
         loggedOut =
             String.isEmpty model.user.eosAccount
+
+        helpButton =
+            a
+                [ class "navbar-item"
+                , onClick ToggleHelp
+                ]
+                [ span [ class "navbar-item icon is-small" ]
+                    [ i [ class "fa fa-2x fa-question-circle has-text-info" ] [] ]
+                ]
 
         content =
             if loggedOut then
@@ -593,13 +618,7 @@ topMenu model =
                 in
                     [ p [ class "navbar-item" ] [ loadingIcon model ]
                     , scatterButton
-                    , a
-                        [ class "navbar-item"
-                        , onClick ToggleHelp
-                        ]
-                        [ span [ class "navbar-item icon is-small" ]
-                            [ i [ class "fa fa-2x fa-question-circle has-text-info" ] [] ]
-                        ]
+                    , helpButton
                     ]
             else
                 let
@@ -617,17 +636,12 @@ topMenu model =
                     , a
                         [ class "navbar-item"
                         , onClick Logout
+                        , href "javascript:;"
                         ]
                         [ icon "sign-out" False False
                         , text "Logout"
                         ]
-                    , a
-                        [ class "navbar-item"
-                        , onClick ToggleHelp
-                        ]
-                        [ span [ class "navbar-item icon is-small" ]
-                            [ i [ class soundIcon ] [] ]
-                        ]
+                    , helpButton
                     ]
     in
         nav
@@ -669,8 +683,8 @@ mainContent model =
                                 )
                             ]
                             [ a [ onClick (SetContent Monster) ]
-                                [ icon "bullhorn" False False
-                                , text "My Monster"
+                                [ icon "paw" False False
+                                , text "My Monsters"
                                 ]
                             ]
                         , li
