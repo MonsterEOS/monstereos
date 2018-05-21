@@ -7,10 +7,10 @@ import Html.Attributes exposing (attribute, class, defaultValue, href, placehold
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as JD
-import Json.Decode.Pipeline as JDP
 import Time
 
 
+-- import Json.Decode.Pipeline as JDP
 -- import Json.Encode as JE
 -- import FormatNumber
 -- import FormatNumber.Locales exposing (usLocale)
@@ -39,8 +39,10 @@ initialModel : Model
 initialModel =
     { isLoading = False
     , isMuted = False
+    , scatterInstalled = False
+    , scatterInstallPressed = False
     , showHelp = False
-    , user = User ""
+    , user = User "" ""
     , error = Nothing
     , content = About
     , socketsConnected = False
@@ -88,6 +90,7 @@ type alias Flags =
 
 type alias User =
     { eosAccount : String
+    , publicKey : String
     }
 
 
@@ -95,6 +98,8 @@ type alias Model =
     { isLoading : Bool
     , isMuted : Bool
     , showHelp : Bool
+    , scatterInstalled : Bool
+    , scatterInstallPressed : Bool
     , user : User
     , error : Maybe String
     , content : Content
@@ -122,14 +127,35 @@ port updateMonster : Int -> Cmd msg
 port createMonster : String -> Cmd msg
 
 
+port setScatterInstalled : (Bool -> msg) -> Sub msg
+
+
+port scatterRequestIdentity : () -> Cmd msg
+
+
+port scatterRejected : (String -> msg) -> Sub msg
+
+
+port setScatterIdentity : (JD.Value -> msg) -> Sub msg
+
+
+port monsterCreatedSucceed : (String -> msg) -> Sub msg
+
+
+port monsterCreationFailed : (String -> msg) -> Sub msg
+
+
+port refreshPage : () -> Cmd msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    if not (String.isEmpty model.user.eosAccount) then
-        Sub.batch
-            [ Time.every Time.second Tick
-            ]
-    else
-        Sub.none
+    Sub.batch
+        [ Time.every Time.second Tick
+        , setScatterIdentity ScatterSignIn
+        , setScatterInstalled ScatterLoaded
+        , scatterRejected ScatterRejection
+        ]
 
 
 
@@ -139,6 +165,12 @@ subscriptions model =
 type Msg
     = Tick Time.Time
     | SetContent Content
+    | ScatterLoaded Bool
+    | ScatterSignIn JD.Value
+    | RefreshPage
+    | ScatterRequestIdentity
+    | ScatterInstallPressed
+    | ScatterRejection String
     | ToggleHelp
     | Logout
 
@@ -146,6 +178,36 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        ScatterLoaded isLoaded ->
+            ( { model | scatterInstalled = isLoaded }, Cmd.none )
+
+        ScatterInstallPressed ->
+            ( { model | scatterInstallPressed = True }, Cmd.none )
+
+        ScatterRequestIdentity ->
+            ( { model | isLoading = True }, scatterRequestIdentity () )
+
+        ScatterRejection _ ->
+            ( { model | isLoading = False }, Cmd.none )
+
+        ScatterSignIn userJson ->
+            case (JD.decodeValue userDecoder userJson) of
+                Ok user ->
+                    ( { model | user = user, isLoading = False }
+                    , Cmd.none
+                      -- here we should load monster and other inits
+                      -- , Cmd.batch
+                      --     [ loadMonsterCmd
+                      --     , etcCmd
+                      --     ]
+                    )
+
+                Err err ->
+                    ( { model | error = Just err, isLoading = False }, Cmd.none )
+
+        RefreshPage ->
+            ( model, refreshPage () )
+
         Tick time ->
             ( { model | currentTime = time }, Cmd.none )
 
@@ -161,10 +223,10 @@ update msg model =
 
 userDecoder : JD.Decoder User
 userDecoder =
-    JD.field "data"
-        (JDP.decode User
-            |> JDP.required "account" JD.string
-        )
+    JD.map2
+        User
+        (JD.field "accountName" JD.string)
+        (JD.field "publicKey" JD.string)
 
 
 updateUserSetup : Model -> ( Model, Cmd Msg )
@@ -200,7 +262,12 @@ updateUserSetup model =
 
 
 
--- helper functions
+-- helper functions and attributes
+
+
+scatterExtensionLink : String
+scatterExtensionLink =
+    "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"
 
 
 calcTimeDiff : Time.Time -> Time.Time -> String
@@ -449,66 +516,50 @@ errorAlert model =
             text ""
 
 
+helpModal : Model -> Html Msg
+helpModal model =
+    let
+        modalClass =
+            if model.showHelp then
+                "modal is-active"
+            else
+                "modal"
 
--- leaving this modal here as an example
--- filterModal : Model -> Html Msg
--- filterModal model =
---     let
---         periodOptions =
---             [ ( "3m", "3 Minutes Period" )
---             , ( "5m", "5 Minutes Period" )
---             , ( "10m", "10 Minutes Period" )
---             , ( "15m", "15 Minutes Period" )
---             , ( "30m", "30 Minutes Period" )
---             ]
---
---         modalClass =
---             if model.showFilter then
---                 "modal is-active"
---             else
---                 "modal"
---
---         filterData =
---             model.filter
---
---         percentage =
---             (toString filterData.percentage)
---
---         period =
---             filterData.period
---
---         volume =
---             (toString filterData.volume)
---     in
---         modalCard model
---             "Update Scanner Filter"
---             ResetFilter
---             [ form []
---                 [ selectInput
---                     model
---                     periodOptions
---                     "Period"
---                     (periodToString period)
---                     "clock-o"
---                     UpdatePeriod
---                 , fieldInput
---                     model
---                     "Percentage"
---                     percentage
---                     "-9"
---                     "percent"
---                     UpdatePercentage
---                 , fieldInput
---                     model
---                     "Current Period Volume (BTC)"
---                     volume
---                     "50000"
---                     "btc"
---                     UpdateVolume
---                 ]
---             ]
---             (Just ( "Submit", SetFilter ))
---             (Just ( "Cancel", ResetFilter ))
+        scatterInstalled =
+            model.scatterInstalled
+    in
+        modalCard model
+            "Help"
+            ToggleHelp
+            -- [ form []
+            --     [ selectInput
+            --         model
+            --         periodOptions
+            --         "Period"
+            --         (periodToString period)
+            --         "clock-o"
+            --         UpdatePeriod
+            --     , fieldInput
+            --         model
+            --         "Percentage"
+            --         percentage
+            --         "-9"
+            --         "percent"
+            --         UpdatePercentage
+            --     , fieldInput
+            --         model
+            --         "Current Period Volume (BTC)"
+            --         volume
+            --         "50000"
+            --         "btc"
+            --         UpdateVolume
+            --     ]
+            -- ]
+            [ div []
+                [ p [] [ text "Help modal" ] ]
+            ]
+            Nothing
+            Nothing
 
 
 topMenu : Model -> Html Msg
@@ -519,10 +570,37 @@ topMenu model =
 
         content =
             if loggedOut then
-                [ p [ class "navbar-item" ] [ loadingIcon model ]
-                , a [ class "navbar-item", onClick ToggleHelp ]
-                    [ text "Login" ]
-                ]
+                let
+                    scatterButton =
+                        if model.scatterInstallPressed then
+                            a [ class "navbar-item", onClick RefreshPage ]
+                                [ text "Refresh page after Scatter Installation" ]
+                        else if model.scatterInstalled then
+                            a
+                                [ class "navbar-item"
+                                , onClick ScatterRequestIdentity
+                                , href "javascript:;"
+                                ]
+                                [ text "Enter with Scatter" ]
+                        else
+                            a
+                                [ class "navbar-item"
+                                , onClick ScatterInstallPressed
+                                , href scatterExtensionLink
+                                , target "_blank"
+                                ]
+                                [ text "Install Scatter Wallet" ]
+                in
+                    [ p [ class "navbar-item" ] [ loadingIcon model ]
+                    , scatterButton
+                    , a
+                        [ class "navbar-item"
+                        , onClick ToggleHelp
+                        ]
+                        [ span [ class "navbar-item icon is-small" ]
+                            [ i [ class "fa fa-2x fa-question-circle has-text-info" ] [] ]
+                        ]
+                    ]
             else
                 let
                     soundIcon =
@@ -558,7 +636,7 @@ topMenu model =
             , attribute "role" "navigation"
             ]
             [ div [ class "navbar-brand logo" ]
-                [ text "Monstereos" ]
+                [ text "MonsterEOS" ]
             , div [ class "navbar-menu" ]
                 [ div [ class "navbar-end" ]
                     content
@@ -572,10 +650,8 @@ mainContent model =
         section [ class "hero is-info is-large" ]
             [ div [ class "hero-body" ]
                 [ div [ class "container" ]
-                    [ h2 [ class "subtitle" ]
-                        [ text "Monstereos" ]
-                    , h1 [ class "title logo" ]
-                        [ text "I'm a Tamagotchi alike monster for EOS blockchain! :)" ]
+                    [ h1 [ class "title logo" ]
+                        [ text "I'm a Monster Tamagotchi alike game for EOS blockchain! :)" ]
                     ]
                 ]
             ]
@@ -631,7 +707,7 @@ mainContent model =
 
 aboutContent : Model -> Html Msg
 aboutContent model =
-    p [] [ text "Just an Tamagotchi Game to show off eos blockchain power, even in TestNet! :D" ]
+    p [] [ text "Just a Tamagotchi Game to show off EOS blockchain power, even in a TestNet! :D" ]
 
 
 monsterContent : Model -> Html Msg
@@ -643,7 +719,10 @@ view : Model -> Html Msg
 view model =
     let
         modal =
-            text ""
+            if model.showHelp then
+                helpModal model
+            else
+                text ""
 
         -- if model.showFilter then
         --     filterModal model
@@ -660,7 +739,7 @@ view model =
                     [ div [ class "content has-text-centered" ]
                         [ p []
                             [ strong []
-                                [ text "Monstereos" ]
+                                [ text "MonsterEOS" ]
                             , text " by "
                             , a [ href "http://leordev.github.io" ]
                                 [ text "Leo Ribeiro" ]
