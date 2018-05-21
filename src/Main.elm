@@ -3,7 +3,7 @@ port module Main exposing (..)
 import Date.Distance as Distance
 import Date
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, defaultValue, href, placeholder, target, type_, value)
+import Html.Attributes exposing (attribute, class, defaultValue, href, placeholder, target, type_, value, datetime, alt, src, max)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as JD
@@ -696,7 +696,7 @@ mainContent model =
                                 )
                             ]
                             [ a [ onClick (SetContent About) ]
-                                [ icon "line-chart" False False
+                                [ icon "book" False False
                                 , text "About"
                                 ]
                             ]
@@ -721,12 +721,79 @@ mainContent model =
 
 aboutContent : Model -> Html Msg
 aboutContent model =
-    p [] [ text "Just a Tamagotchi Game to show off EOS blockchain power, even in a TestNet! :D" ]
+    div []
+        [ p [] [ text "Just a Tamagotchi Game to show off EOS blockchain power, even in a TestNet! :D" ]
+        , p [] [ text "To keep your pet alive you must feed him, play with him, take him to the bed and wash him!" ]
+        , p [] [ text "Only the feeding feature is done for now... There's a lot of interesting stuff that we can do here to improve the gameplay like experience points, iventory of items, multiplayer options, breeding, ownership transfering and tokenization." ]
+        ]
 
 
 monsterContent : Model -> Html Msg
 monsterContent model =
-    p [] [ text "Hello!!!" ]
+    div []
+        [ div [ class "card" ]
+            [ div
+                [ class "card-content" ]
+                [ div [ class "columns" ]
+                    [ div [ class "column " ]
+                        [ figure [ class "image is-square" ]
+                            [ img [ alt "spiderman", src "/images/monsters/pipo-enemy002a.png" ]
+                                []
+                            ]
+                        ]
+                    , div
+                        [ class "column" ]
+                        [ p [ class "title is-4" ]
+                            [ text "spiderman" ]
+                        , p [ class "is-6" ]
+                            [ b [] [ text "Owner: " ], text "leo" ]
+                        , p [ class "is-6" ]
+                            [ text "Born in "
+                            , time [ datetime "2016-1-1" ]
+                                [ text "Jan, 1st 2016 @ 11:09 PM" ]
+                            , text " alive for 3 days and 17 hours "
+                            ]
+                        , p [ class "is-6" ]
+                            [ b [] [ text "HP: " ]
+                            , progress [ class "progress is-danger", Html.Attributes.max "100", value "15" ]
+                                [ text "30%" ]
+                            ]
+                        , p [ class "is-6" ]
+                            [ b [] [ text "Food: " ]
+                            , progress [ class "progress is-primary", Html.Attributes.max "100", value "15" ]
+                                [ text "30%" ]
+                            ]
+                        , p [ class "is-6" ]
+                            [ b [] [ text "Happiness: " ]
+                            , progress [ class "progress is-warning", Html.Attributes.max "100", value "15" ]
+                                [ text "30%" ]
+                            ]
+                        , p [ class "is-6" ]
+                            [ b [] [ text "Awake: " ]
+                            , progress [ class "progress is-success", Html.Attributes.max "100", value "15" ]
+                                [ text "30%" ]
+                            ]
+                        , p [ class "is-6" ]
+                            [ b [] [ text "Clean: " ]
+                            , progress [ class "progress is-info", Html.Attributes.max "100", value "15" ]
+                                [ text "30%" ]
+                            ]
+                        , p [] [ text "" ]
+                        , div [ class "footer buttons" ]
+                            [ a [ class "button is-primary" ]
+                                [ text "Feed" ]
+                            , a [ class "button is-warning" ]
+                                [ text "Play" ]
+                            , a [ class "button is-info" ]
+                                [ text "Wash" ]
+                            , a [ class "button is-success" ]
+                                [ text "Take to Bed" ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
 
 
 view : Model -> Html Msg
