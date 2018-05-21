@@ -42,12 +42,14 @@ initialModel =
     , scatterInstalled = False
     , scatterInstallPressed = False
     , showHelp = False
+    , showMonsterCreation = False
     , user = User "" ""
     , error = Nothing
-    , content = MonsterPage
+    , content = MyMonsters
     , socketsConnected = False
     , currentTime = 0
     , monsters = []
+    , newMonsterName = ""
     }
 
 
@@ -80,7 +82,7 @@ type NotificationType
 
 
 type Content
-    = MonsterPage
+    = MyMonsters
     | About
 
 
@@ -118,6 +120,7 @@ type alias Model =
     { isLoading : Bool
     , isMuted : Bool
     , showHelp : Bool
+    , showMonsterCreation : Bool
     , scatterInstalled : Bool
     , scatterInstallPressed : Bool
     , user : User
@@ -126,6 +129,7 @@ type alias Model =
     , socketsConnected : Bool
     , currentTime : Time.Time
     , monsters : List Monster
+    , newMonsterName : String
     }
 
 
@@ -145,10 +149,10 @@ port listMonsters : () -> Cmd msg
 port setMonsters : (JD.Value -> msg) -> Sub msg
 
 
-port createMonster : String -> Cmd msg
+port submitNewMonster : String -> Cmd msg
 
 
-port monsterCreatedSucceed : (String -> msg) -> Sub msg
+port monsterCreationSucceed : (String -> msg) -> Sub msg
 
 
 port monsterCreationFailed : (String -> msg) -> Sub msg
@@ -188,6 +192,8 @@ subscriptions model =
         , setMonsters SetMonsters
         , feedFailed MonsterFeedFailed
         , feedSucceed MonsterFeedSucceed
+        , monsterCreationSucceed MonsterCreationSucceed
+        , monsterCreationFailed MonsterCreationFailed
         ]
 
 
@@ -208,8 +214,13 @@ type Msg
     | SetMonstersFailure String
     | MonsterFeedSucceed String
     | MonsterFeedFailed String
+    | MonsterCreationSucceed String
+    | MonsterCreationFailed String
     | RequestMonsterFeed Int
+    | UpdateNewMonsterName String
+    | SubmitNewMonster
     | ToggleHelp
+    | ToggleMonsterCreation
     | Logout
 
 
@@ -235,6 +246,12 @@ update msg model =
             ( { model | isLoading = False }, Cmd.none )
 
         MonsterFeedFailed err ->
+            ( { model | error = Just err, isLoading = False }, Cmd.none )
+
+        MonsterCreationSucceed _ ->
+            ( { model | isLoading = False }, listMonsters () )
+
+        MonsterCreationFailed err ->
             ( { model | error = Just err, isLoading = False }, Cmd.none )
 
         ScatterSignIn userJson ->
@@ -265,8 +282,22 @@ update msg model =
         SetContent content ->
             ( { model | content = content }, Cmd.none )
 
+        UpdateNewMonsterName name ->
+            ( { model | newMonsterName = name }, Cmd.none )
+
+        SubmitNewMonster ->
+            ( { model | isLoading = True }, submitNewMonster (model.newMonsterName) )
+
         ToggleHelp ->
             ( { model | showHelp = (not model.showHelp) }, Cmd.none )
+
+        ToggleMonsterCreation ->
+            ( { model
+                | newMonsterName = ""
+                , showMonsterCreation = (not model.showMonsterCreation)
+              }
+            , Cmd.none
+            )
 
         Logout ->
             ( initialModel, signOut () )
@@ -619,6 +650,35 @@ errorAlert model =
             text ""
 
 
+monsterCreationModal : Model -> Html Msg
+monsterCreationModal model =
+    let
+        modalClass =
+            if model.showHelp then
+                "modal is-active"
+            else
+                "modal"
+
+        scatterInstalled =
+            model.scatterInstalled
+    in
+        modalCard model
+            "Help"
+            ToggleHelp
+            [ form []
+                [ fieldInput
+                    model
+                    "New Monster Name"
+                    model.newMonsterName
+                    "Pikachu"
+                    "paw"
+                    UpdateNewMonsterName
+                ]
+            ]
+            (Just ( "Submit", SubmitNewMonster ))
+            Nothing
+
+
 helpModal : Model -> Html Msg
 helpModal model =
     let
@@ -691,6 +751,15 @@ topMenu model =
                     [ i [ class "fa fa-2x fa-question-circle has-text-info" ] [] ]
                 ]
 
+        aboutButton =
+            a
+                [ class "navbar-item"
+                , onClick (SetContent About)
+                , href "javascript:;"
+                ]
+                [ text "About"
+                ]
+
         content =
             if loggedOut then
                 let
@@ -716,6 +785,7 @@ topMenu model =
                 in
                     [ p [ class "navbar-item" ] [ loadingIcon model ]
                     , scatterButton
+                    , aboutButton
                     , helpButton
                     ]
             else
@@ -731,6 +801,15 @@ topMenu model =
                         [ loadingIcon model
                         , text ("Hello, " ++ model.user.eosAccount)
                         ]
+                    , a
+                        [ class "navbar-item"
+                        , onClick (SetContent MyMonsters)
+                        , href "javascript:;"
+                        ]
+                        [ icon "paw" False False
+                        , text "My Monsters"
+                        ]
+                    , aboutButton
                     , a
                         [ class "navbar-item"
                         , onClick Logout
@@ -759,51 +838,23 @@ topMenu model =
 mainContent : Model -> Html Msg
 mainContent model =
     if String.isEmpty model.user.eosAccount then
-        section [ class "hero is-info is-large" ]
-            [ div [ class "hero-body" ]
-                [ div [ class "container" ]
-                    [ h1 [ class "title logo" ]
-                        [ text "I'm a Monster Tamagotchi alike game for EOS blockchain! :)" ]
-                    ]
-                ]
-            ]
-    else
-        let
-            menu =
-                div [ class "tabs" ]
-                    [ ul []
-                        [ li
-                            [ class
-                                (if model.content == MonsterPage then
-                                    "is-active"
-                                 else
-                                    ""
-                                )
-                            ]
-                            [ a [ onClick (SetContent MonsterPage) ]
-                                [ icon "paw" False False
-                                , text "My Monsters"
-                                ]
-                            ]
-                        , li
-                            [ class
-                                (if model.content == About then
-                                    "is-active"
-                                 else
-                                    ""
-                                )
-                            ]
-                            [ a [ onClick (SetContent About) ]
-                                [ icon "book" False False
-                                , text "About"
-                                ]
-                            ]
+        if model.isLoading then
+            section [ class "is-large" ]
+                [ loadingIcon model ]
+        else
+            section [ class "hero is-info is-large" ]
+                [ div [ class "hero-body" ]
+                    [ div [ class "container" ]
+                        [ h1 [ class "title logo" ]
+                            [ text "I'm a Monster Tamagotchi alike game for EOS blockchain! :)" ]
                         ]
                     ]
-
+                ]
+    else
+        let
             content =
                 case model.content of
-                    MonsterPage ->
+                    MyMonsters ->
                         monsterContent model
 
                     About ->
@@ -811,8 +862,7 @@ mainContent model =
         in
             section [ class "section" ]
                 [ div [ class "container" ]
-                    [ menu
-                    , content
+                    [ content
                     ]
                 ]
 
@@ -917,6 +967,7 @@ monsterContent : Model -> Html Msg
 monsterContent model =
     div []
         (model.monsters
+            |> List.filter (\monster -> monster.owner == model.user.eosAccount)
             |> List.map monsterCard
         )
 
@@ -927,15 +978,10 @@ view model =
         modal =
             if model.showHelp then
                 helpModal model
+            else if model.showMonsterCreation then
+                monsterCreationModal model
             else
                 text ""
-
-        -- if model.showFilter then
-        --     filterModal model
-        -- else if model.setupStep /= None then
-        --     setupModal model
-        -- else
-        -- text ""
     in
         div []
             [ topMenu model

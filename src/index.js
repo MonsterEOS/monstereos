@@ -29,6 +29,12 @@ const scatterDetection = setTimeout(() => {
   }
 }, 5000)
 
+const getAuthorization = async () => {
+  const account = scatter.identity.accounts.find(account => account.blockchain === 'eos')
+
+  return [{ authorization: [ `${account.name}@${account.authority}` ]}, account]
+}
+
 document.addEventListener('scatterLoaded', scatterExtension => {
   clearTimeout(scatterDetection)
   scatter = window.scatter
@@ -93,15 +99,29 @@ app.ports.listMonsters.subscribe(async () => {
     app.ports.setMonsters.send(monsters)
 })
 
-app.ports.requestFeed.subscribe(async (petId) => {
-  const account = scatter.identity.accounts.find(account => account.blockchain === 'eos');
+app.ports.submitNewMonster.subscribe(async (petId) => {
+
+  const authorization = await getAuthorization()
 
   const contract = await scatter.eos(network, Eos.Localnet, {})
-    .contract(monstersAccount);
+    .contract(monstersAccount)
 
-  const authorization = { authorization: [ `${account.name}@${account.authority}` ]};
+  const createpet = await contract.createpet(petId, authorization[1].name, authorization[0])
+    .catch(e => {
+        console.error('error on pet creation ', e)
+        app.ports.monsterCreationFailed.send('An error happened while creating the pet')
+      })
 
-  const feedpet = await contract.feedpet(petId, authorization)
+  if(feedpet) app.ports.monsterCreationSucceed.send(feedpet.transaction_id)
+})
+
+app.ports.requestFeed.subscribe(async (petId) => {
+  const authorization = await getAuthorization()[0]
+
+  const contract = await scatter.eos(network, Eos.Localnet, {})
+    .contract(monstersAccount)
+
+  const feedpet = await contract.feedpet(petId, authorization[0])
     .catch(e => {
         console.error('error on feedpet ', e)
         app.ports.feedFailed.send('An error happened while feeding the pet')
