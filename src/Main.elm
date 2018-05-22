@@ -88,6 +88,14 @@ type NotificationType
     | Error String
 
 
+type MonsterRequest
+    = Feed
+    | Awake
+    | Sleep
+    | Play
+    | Wash
+
+
 type Content
     = Home
     | MyMonsters
@@ -149,6 +157,38 @@ type alias Model =
     , newMonsterName : String
     , notifications : List Notification
     }
+
+
+
+-- Helper Constants
+
+
+monsterMinFeedInterval : Float
+monsterMinFeedInterval =
+    -- TODO: move it to chain and make it dynamic so frontends are all aligned?
+    3 * Time.hour
+
+
+monsterMinAwakeInterval : Float
+monsterMinAwakeInterval =
+    -- TODO: move it to chain and make it dynamic so frontends are all aligned?
+    8 * Time.hour
+
+
+monsterMinSleepPeriod : Float
+monsterMinSleepPeriod =
+    -- TODO: move it to chain and make it dynamic so frontends are all aligned?
+    4 * Time.hour
+
+
+scatterExtensionLink : String
+scatterExtensionLink =
+    "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"
+
+
+jungleTestNetLink : String
+jungleTestNetLink =
+    "http://dev.cryptolions.io"
 
 
 
@@ -304,7 +344,11 @@ update msg model =
             )
 
         RequestMonsterFeed petId ->
-            ( { model | isLoading = True }, requestFeed (petId) )
+            let
+                newModel =
+                    handleMonsterRequest model Feed petId
+            in
+                ( { newModel | isLoading = True }, requestFeed (petId) )
 
         MonsterFeedSucceed trxId ->
             handleMonsterAction model trxId "Feed" True
@@ -319,7 +363,11 @@ update msg model =
             ( { model | isLoading = True }, requestWash (petId) )
 
         RequestMonsterBed petId ->
-            ( { model | isLoading = True }, requestBed (petId) )
+            let
+                newModel =
+                    handleMonsterRequest model Sleep petId
+            in
+                ( { newModel | isLoading = True }, requestBed (petId) )
 
         MonsterBedSucceed trxId ->
             handleMonsterAction model trxId "Bed" True
@@ -328,7 +376,11 @@ update msg model =
             handleMonsterAction model err "Bed" False
 
         RequestMonsterAwake petId ->
-            ( { model | isLoading = True }, requestAwake (petId) )
+            let
+                newModel =
+                    handleMonsterRequest model Awake petId
+            in
+                ( { newModel | isLoading = True }, requestAwake (petId) )
 
         MonsterAwakeSucceed trxId ->
             handleMonsterAction model trxId "Awake" True
@@ -431,6 +483,44 @@ update msg model =
             ( initialModel, signOut () )
 
 
+handleMonsterRequest : Model -> MonsterRequest -> Int -> Model
+handleMonsterRequest model requestType petId =
+    let
+        monster =
+            model.monsters |> List.filter (\m -> m.id == petId) |> List.head
+
+        currentTime =
+            model.currentTime
+
+        warnNotification msg req =
+            Notification (Warning msg) currentTime req
+
+        newNotification =
+            case monster of
+                Just monster ->
+                    if requestType == Feed && (currentTime - monster.last_fed_at) < monsterMinFeedInterval then
+                        Just (warnNotification "I'm Not hungry..." "notHungryWarning")
+                    else if requestType == Sleep && (currentTime - monster.last_awake_at) < monsterMinAwakeInterval then
+                        Just (warnNotification "I don't want to Sleep!!!" "notSleepyWarning")
+                    else if requestType == Awake && (currentTime - monster.last_bed_at) < monsterMinSleepPeriod then
+                        Just (warnNotification "Zzzzz... leave me alone!" "notAwaking")
+                    else
+                        Nothing
+
+                Nothing ->
+                    Nothing
+
+        newModel =
+            case newNotification of
+                Just notification ->
+                    { model | notifications = [ notification ] ++ model.notifications }
+
+                Nothing ->
+                    model
+    in
+        newModel
+
+
 handleMonsterAction : Model -> String -> String -> Bool -> ( Model, Cmd Msg )
 handleMonsterAction model msg action isSuccess =
     let
@@ -504,16 +594,6 @@ monstersDecoder =
             |> JDP.required "clean" JD.int
             |> JDP.required "last_shower_at" JD.float
         )
-
-
-scatterExtensionLink : String
-scatterExtensionLink =
-    "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"
-
-
-jungleTestNetLink : String
-jungleTestNetLink =
-    "http://dev.cryptolions.io"
 
 
 calcTimeDiff : Time.Time -> Time.Time -> String
