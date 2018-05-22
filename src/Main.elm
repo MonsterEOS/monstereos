@@ -191,10 +191,19 @@ port requestWash : Int -> Cmd msg
 port requestBed : Int -> Cmd msg
 
 
+port requestAwake : Int -> Cmd msg
+
+
 port feedSucceed : (String -> msg) -> Sub msg
 
 
 port feedFailed : (String -> msg) -> Sub msg
+
+
+port awakeSucceed : (String -> msg) -> Sub msg
+
+
+port awakeFailed : (String -> msg) -> Sub msg
 
 
 port setScatterInstalled : (Bool -> msg) -> Sub msg
@@ -222,6 +231,8 @@ subscriptions model =
         , setMonsters SetMonsters
         , feedFailed MonsterFeedFailed
         , feedSucceed MonsterFeedSucceed
+        , awakeFailed MonsterAwakeFailed
+        , awakeSucceed MonsterAwakeSucceed
         , monsterCreationSucceed MonsterCreationSucceed
         , monsterCreationFailed MonsterCreationFailed
         , setMonstersFailed SetMonstersFailure
@@ -245,11 +256,14 @@ type Msg
     | SetMonstersFailure String
     | MonsterFeedSucceed String
     | MonsterFeedFailed String
+    | MonsterAwakeSucceed String
+    | MonsterAwakeFailed String
     | MonsterCreationSucceed String
     | MonsterCreationFailed String
     | RequestMonsterFeed Int
     | RequestMonsterPlay Int
     | RequestMonsterBed Int
+    | RequestMonsterAwake Int
     | RequestMonsterWash Int
     | UpdateNewMonsterName String
     | SubmitNewMonster
@@ -282,6 +296,12 @@ update msg model =
         RequestMonsterFeed petId ->
             ( { model | isLoading = True }, requestFeed (petId) )
 
+        MonsterFeedSucceed trxId ->
+            handleMonsterAction model trxId "Fed" True
+
+        MonsterFeedFailed err ->
+            handleMonsterAction model err "Fed" False
+
         RequestMonsterPlay petId ->
             ( { model | isLoading = True }, requestPlay (petId) )
 
@@ -291,21 +311,14 @@ update msg model =
         RequestMonsterBed petId ->
             ( { model | isLoading = True }, requestBed (petId) )
 
-        MonsterFeedSucceed trxId ->
-            ( { model
-                | isLoading = False
-                , notifications = [ Notification (Success ("Monster was Fed! TrxId: " ++ trxId)) model.currentTime (toString model.currentTime) ] ++ model.notifications
-              }
-            , listMonsters ()
-            )
+        RequestMonsterAwake petId ->
+            ( { model | isLoading = True }, requestAwake (petId) )
 
-        MonsterFeedFailed err ->
-            ( { model
-                | isLoading = False
-                , notifications = [ Notification (Error ("Fail to Fed Monster: " ++ err)) model.currentTime (toString model.currentTime) ] ++ model.notifications
-              }
-            , Cmd.none
-            )
+        MonsterAwakeSucceed trxId ->
+            handleMonsterAction model trxId "Awake" True
+
+        MonsterAwakeFailed err ->
+            handleMonsterAction model err "Awake" False
 
         MonsterCreationSucceed trxId ->
             ( { model
@@ -318,12 +331,7 @@ update msg model =
             )
 
         MonsterCreationFailed err ->
-            ( { model
-                | isLoading = False
-                , notifications = [ Notification (Error ("Fail to create Monster: " ++ err)) model.currentTime (toString model.currentTime) ] ++ model.notifications
-              }
-            , Cmd.none
-            )
+            handleMonsterAction model err "Create" False
 
         ScatterSignIn userJson ->
             case (JD.decodeValue userDecoder userJson) of
@@ -405,6 +413,29 @@ update msg model =
 
         Logout ->
             ( initialModel, signOut () )
+
+
+handleMonsterAction : Model -> String -> String -> Bool -> ( Model, Cmd Msg )
+handleMonsterAction model msg action isSuccess =
+    let
+        time =
+            model.currentTime
+
+        timeTxt =
+            toString time
+
+        ( notification, cmd ) =
+            if isSuccess then
+                ( Notification (Success ("Monster was " ++ action ++ " ! TrxId: " ++ msg)) time timeTxt, listMonsters () )
+            else
+                ( Notification (Error ("Fail to " ++ action ++ " Monster: " ++ msg)) time timeTxt, Cmd.none )
+    in
+        ( { model
+            | isLoading = False
+            , notifications = [ notification ] ++ model.notifications
+          }
+        , cmd
+        )
 
 
 handleResponseErrors : Model -> Http.Error -> String -> ( Model, Cmd Msg )
@@ -964,8 +995,8 @@ monsterCard monster currentTime isLoading =
                 , footer [ class "card-footer" ]
                     (if monster.is_sleeping then
                         [ a
-                            [ class "card-footer-item is-loading"
-                            , onClick (RequestMonsterBed monster.id)
+                            [ class "card-footer-item"
+                            , onClick (RequestMonsterAwake monster.id)
                             , disabledAttribute isLoading
                             ]
                             [ text "Wake Up!" ]

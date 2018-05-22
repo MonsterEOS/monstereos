@@ -14,10 +14,10 @@ const app = Main.embed(document.getElementById('root'), flags)
 /* Eos and Scatter Setup */
 const network = {
   blockchain: "eos",
-  host: 'dev.cryptolions.io', //"localhost",
-  port: 28888 //8888
+  host: 'localhost', // 'dev.cryptolions.io', //"localhost",
+  port: 8888
 }
-const localNet = Eos.Localnet({httpEndpoint: 'http://dev.cryptolions.io:28888'}) //"http://127.0.0.1:8888"})
+const localNet = Eos.Localnet({httpEndpoint: 'http://127.0.0.1:8888'})
 
 const monstersAccount = 'monstereosio'
 const monstersTable = 'pets'
@@ -130,7 +130,8 @@ app.ports.submitNewMonster.subscribe(async (monsterName) => {
   const createpet = await contract.createpet(auth.account.name, monsterName, auth.permission)
     .catch(e => {
         console.error('error on pet creation ', e)
-        const errorMsg = e && e.message || 'An error happened while creating the pet';
+        const errorMsg = (e && e.message) ||
+        'An error happened while creating the monster'
         app.ports.monsterCreationFailed.send(errorMsg)
       })
 
@@ -145,12 +146,33 @@ app.ports.requestFeed.subscribe(async (petId) => {
   const feedpet = await contract.feedpet(petId, auth.permission)
     .catch(e => {
         console.error('error on feedpet ', e)
-        app.ports.feedFailed.send('An error happened while feeding the pet')
+        const errorMsg = (e && e.message) ||
+        'An error happened while feeding the monster'
+        app.ports.feedFailed.send(errorMsg)
       })
 
   console.log(feedpet)
 
   if(feedpet) app.ports.feedSucceed.send(feedpet.transaction_id)
+})
+
+app.ports.requestAwake.subscribe(async (petId) => {
+
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const awakepet = await contract.awakepet(petId, auth.permission)
+    .catch(e => {
+        console.error('error on waking pet ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while awaking the monster'
+        app.ports.awakeFailed.send(errorMsg)
+      })
+
+  console.log(awakepet)
+
+  if(awakepet) app.ports.awakeSucceed.send(awakepet.transaction_id)
 })
 
 app.ports.requestPlay.subscribe(async (petId) => {
