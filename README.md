@@ -17,9 +17,9 @@ I would love to have another developers to get in touch in GitHub repository, op
 
 I love EOS Community and I think we can build a better world together!
 
-Monsters Pictures Package: Itch.io @Pipoya - Free RPG Monster Pack
+Monsters Pictures Package: [Itch.io @Pipoya - Free RPG Monster Pack](https://pipoya.itch.io/free-rpg-monster-pack)
 
-Sleeping GIF Credits: Giphy @AlabasterPizzo
+Sleeping GIF Credits: [Giphy @AlabasterPizzo](https://giphy.com/stickers/zzz-snore-51WvIEoUKKHlGwgmgy)
 
 ## Help Instructions
 
@@ -29,6 +29,6 @@ You will need to have Scatter installed and create an account on EOS JungleTestN
 
 1. Open your Scatter, click in Private Keys and generate a KeyPair, save it as 'MonsterEosTest' or anything you want
 1. After saving your private key in safe place, please copy your public key, you will need it for registration on JungleNet in the next step
-1. ![Click here to open JungleNet and click in Create an account there](http://dev.cryptolions.io)
+1. [Click here to open JungleNet and click in Create an account there](http://dev.cryptolions.io)
 1. Now open your Scatter again, click on Identities, import your key pair and type the account name of the account you created on Junglenet and save
 1. That's it! You are all set, close this help window and click in Enter with Scatter to start playing! Have fun!
