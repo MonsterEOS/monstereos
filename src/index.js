@@ -175,16 +175,30 @@ app.ports.requestAwake.subscribe(async (petId) => {
   if(awakepet) app.ports.awakeSucceed.send(awakepet.transaction_id)
 })
 
+app.ports.requestBed.subscribe(async (petId) => {
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const bedpet = await contract.bedpet(petId, auth.permission)
+    .catch(e => {
+        console.error('error on bed pet ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while attempting to bed the monster'
+        app.ports.bedFailed.send(errorMsg)
+      })
+
+  console.log(bedpet)
+
+  if(bedpet) app.ports.bedSucceed.send(bedpet.transaction_id)
+})
+
 app.ports.requestPlay.subscribe(async (petId) => {
   app.ports.feedSucceed.send('lazy developer must build "Play" action')
 })
 
 app.ports.requestWash.subscribe(async (petId) => {
   app.ports.feedSucceed.send('lazy developer must build "Wash" action')
-})
-
-app.ports.requestBed.subscribe(async (petId) => {
-  app.ports.feedSucceed.send('lazy developer must build "Sleeping" action')
 })
 
 registerServiceWorker();

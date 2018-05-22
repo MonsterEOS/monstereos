@@ -200,6 +200,12 @@ port feedSucceed : (String -> msg) -> Sub msg
 port feedFailed : (String -> msg) -> Sub msg
 
 
+port bedSucceed : (String -> msg) -> Sub msg
+
+
+port bedFailed : (String -> msg) -> Sub msg
+
+
 port awakeSucceed : (String -> msg) -> Sub msg
 
 
@@ -233,6 +239,8 @@ subscriptions model =
         , feedSucceed MonsterFeedSucceed
         , awakeFailed MonsterAwakeFailed
         , awakeSucceed MonsterAwakeSucceed
+        , bedFailed MonsterBedFailed
+        , bedSucceed MonsterBedSucceed
         , monsterCreationSucceed MonsterCreationSucceed
         , monsterCreationFailed MonsterCreationFailed
         , setMonstersFailed SetMonstersFailure
@@ -258,6 +266,8 @@ type Msg
     | MonsterFeedFailed String
     | MonsterAwakeSucceed String
     | MonsterAwakeFailed String
+    | MonsterBedSucceed String
+    | MonsterBedFailed String
     | MonsterCreationSucceed String
     | MonsterCreationFailed String
     | RequestMonsterFeed Int
@@ -297,10 +307,10 @@ update msg model =
             ( { model | isLoading = True }, requestFeed (petId) )
 
         MonsterFeedSucceed trxId ->
-            handleMonsterAction model trxId "Fed" True
+            handleMonsterAction model trxId "Feed" True
 
         MonsterFeedFailed err ->
-            handleMonsterAction model err "Fed" False
+            handleMonsterAction model err "Feed" False
 
         RequestMonsterPlay petId ->
             ( { model | isLoading = True }, requestPlay (petId) )
@@ -310,6 +320,12 @@ update msg model =
 
         RequestMonsterBed petId ->
             ( { model | isLoading = True }, requestBed (petId) )
+
+        MonsterBedSucceed trxId ->
+            handleMonsterAction model trxId "Bed" True
+
+        MonsterBedFailed err ->
+            handleMonsterAction model err "Bed" False
 
         RequestMonsterAwake petId ->
             ( { model | isLoading = True }, requestAwake (petId) )
@@ -426,7 +442,7 @@ handleMonsterAction model msg action isSuccess =
 
         ( notification, cmd ) =
             if isSuccess then
-                ( Notification (Success ("Monster was " ++ action ++ " ! TrxId: " ++ msg)) time timeTxt, listMonsters () )
+                ( Notification (Success ("Monster attempt to " ++ action ++ " ! TrxId: " ++ msg)) time timeTxt, listMonsters () )
             else
                 ( Notification (Error ("Fail to " ++ action ++ " Monster: " ++ msg)) time timeTxt, Cmd.none )
     in
