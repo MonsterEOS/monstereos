@@ -14,11 +14,12 @@ const app = Main.embed(document.getElementById('root'), flags)
 /* Eos and Scatter Setup */
 const network = {
   blockchain: "eos",
-  host: "localhost",
-  port: 8888
+  host: 'dev.cryptolions.io', //"localhost",
+  port: 28888 //8888
 }
+const localNet = Eos.Localnet({httpEndpoint: 'http://dev.cryptolions.io:28888'}) //"http://127.0.0.1:8888"})
 
-const monstersAccount = 'pet'
+const monstersAccount = 'monstereosio'
 const monstersTable = 'pets'
 
 let scatter = null;
@@ -29,10 +30,20 @@ const scatterDetection = setTimeout(() => {
   }
 }, 5000)
 
-const getAuthorization = async () => {
+const getAuthorization = () => {
   const account = scatter.identity.accounts.find(account => account.blockchain === 'eos')
 
-  return [{ authorization: [ `${account.name}@${account.authority}` ]}, account]
+  return {
+    permission: {
+      authorization: [ `${account.name}@${account.authority}` ]
+    },
+    account
+  }
+}
+
+const getContract = async () => {
+  return scatter.eos(network, Eos.Localnet, {})
+    .contract(monstersAccount);
 }
 
 document.addEventListener('scatterLoaded', scatterExtension => {
@@ -86,7 +97,6 @@ app.ports.scatterRequestIdentity.subscribe(async () => {
 })
 
 app.ports.listMonsters.subscribe(async () => {
-    const localNet = Eos.Localnet({httpEndpoint: "http://127.0.0.1:8888"})
 
     const monsters = await localNet.getTableRows({
                 "json": true,
@@ -94,40 +104,65 @@ app.ports.listMonsters.subscribe(async () => {
                 "code": monstersAccount,
                 "table": monstersTable,
                 "limit": 5000
-            }).then(res => res.rows)
+            }).then(res => res.rows.map(row =>
+              Object.assign({}, row, {
+              created_at: row.created_at * 1000,
+              death_at: row.death_at * 1000,
+              last_bed_at: row.last_bed_at * 1000,
+              last_fed_at: row.last_fed_at * 1000,
+              last_play_at: row.last_play_at * 1000,
+              last_shower_at: row.last_shower_at * 1000,
+              last_awake_at: row.last_awake_at * 1000,
+              is_sleeping: row.is_sleeping === 1
+            }))).catch(e => {
+              app.ports.setMonstersFailed.send('Error while listing Monsters')
+            })
 
     app.ports.setMonsters.send(monsters)
 })
 
-app.ports.submitNewMonster.subscribe(async (petId) => {
+app.ports.submitNewMonster.subscribe(async (monsterName) => {
 
-  const authorization = await getAuthorization()
+  const auth = getAuthorization()
 
-  const contract = await scatter.eos(network, Eos.Localnet, {})
-    .contract(monstersAccount)
+  const contract = await getContract()
 
-  const createpet = await contract.createpet(petId, authorization[1].name, authorization[0])
+  const createpet = await contract.createpet(auth.account.name, monsterName, auth.permission)
     .catch(e => {
         console.error('error on pet creation ', e)
-        app.ports.monsterCreationFailed.send('An error happened while creating the pet')
+        const errorMsg = e && e.message || 'An error happened while creating the pet';
+        app.ports.monsterCreationFailed.send(errorMsg)
       })
 
-  if(feedpet) app.ports.monsterCreationSucceed.send(feedpet.transaction_id)
+  if (createpet) app.ports.monsterCreationSucceed.send(createpet.transaction_id)
 })
 
 app.ports.requestFeed.subscribe(async (petId) => {
-  const authorization = await getAuthorization()[0]
+  const auth = getAuthorization()
 
-  const contract = await scatter.eos(network, Eos.Localnet, {})
-    .contract(monstersAccount)
+  const contract = await getContract()
 
-  const feedpet = await contract.feedpet(petId, authorization[0])
+  const feedpet = await contract.feedpet(petId, auth.permission)
     .catch(e => {
         console.error('error on feedpet ', e)
         app.ports.feedFailed.send('An error happened while feeding the pet')
       })
 
+  console.log(feedpet)
+
   if(feedpet) app.ports.feedSucceed.send(feedpet.transaction_id)
+})
+
+app.ports.requestPlay.subscribe(async (petId) => {
+  app.ports.feedSucceed.send('lazy developer must build "Play" action')
+})
+
+app.ports.requestWash.subscribe(async (petId) => {
+  app.ports.feedSucceed.send('lazy developer must build "Wash" action')
+})
+
+app.ports.requestBed.subscribe(async (petId) => {
+  app.ports.feedSucceed.send('lazy developer must build "Sleeping" action')
 })
 
 registerServiceWorker();

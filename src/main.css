@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Gloria+Hallelujah");
+@import url("https://fonts.googleapis.com/css?family=Freckle+Face");
 @import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 .m-none {
   margin: 0; }
@@ -240,33 +240,69 @@
 .p-l-xxl {
   padding-left: 8rem; }
 
-form {
-  margin-bottom: 20px; }
-
-.filter-link {
-  margin: 20px; }
-
-.filter-link a {
-  color: #3273dc;
-  border-bottom: 1px dashed #3273dc; }
-
 .logo {
-  font-family: 'Gloria Hallelujah', cursive;
+  font-family: 'Freckle Face', cursive;
   font-size: 40px;
   margin: 24px; }
 
-.exchange-selector {
-  height: 100px;
-  cursor: pointer; }
+form {
+  margin-bottom: 20px; }
 
-.exchange-selector.selected {
-  background-color: #23d160;
-  color: white; }
+.help-button {
+  margin-right: 40px;
+  margin-left: 40px; }
+
+.new-monster-button {
+  margin: 25px; }
 
 .footer {
   margin-top: 50px; }
+
+.greetings span {
+  margin-left: 6px !important; }
 
 @media screen and (min-width: 769px) {
   .coin-column {
     min-width: 500px;
     max-width: 550px; } }
+
+.grayscale {
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  filter: grayscale(100%);
+  transition: all 200ms ease-in-out;
+  opacity: 0.3; }
+  .grayscale:hover {
+    -webkit-filter: grayscale(30%);
+    -moz-filter: grayscale(30%);
+    filter: grayscale(30%); }
+
+.sleeping {
+  -webkit-filter: brightness(5%);
+  -moz-filter: brightness(5%);
+  -ms-filter: brightness(5%);
+  -o-filter: brightness(5%);
+  filter: brightness(5%); }
+
+.monster-image {
+  max-height: 300px !important; }
+
+.monster-column {
+  min-width: 360px;
+  max-width: 400px; }
+
+.has-top-margin {
+  margin-top: 16px; }
+
+/* toast */
+.toast {
+  position: fixed;
+  width: 365px;
+  right: -365px;
+  top: 5em;
+  z-index: 9999; }
+  .toast .notification {
+    transition: 0.15s ease-in-out;
+    width: 325px; }
+  .toast .notification.on {
+    transform: translateX(-365px); }

@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Gloria+Hallelujah');
+// @import url('https://fonts.googleapis.com/css?family=Gloria+Hallelujah');
+@import url('https://fonts.googleapis.com/css?family=Freckle+Face');
 
 @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 
@@ -7,38 +8,32 @@
 
 @import "./spacing.scss";
 
+.logo {
+  font-family: 'Freckle Face', cursive;
+  font-size: 40px;
+  margin: 24px;
+}
+
 // layout
 form {
   margin-bottom: 20px;
 }
 
-.filter-link {
-  margin: 20px;
+.help-button {
+  margin-right: 40px;
+  margin-left: 40px;
 }
 
-.filter-link a {
-  color: $blue;
-  border-bottom: 1px dashed $blue;
-}
-
-.logo {
-  font-family: 'Gloria Hallelujah', cursive;
-  font-size: 40px;
-  margin: 24px;
-}
-
-.exchange-selector {
-  height: 100px;
-  cursor: pointer;
-}
-
-.exchange-selector.selected {
-  background-color: $green;
-  color: white;
+.new-monster-button {
+  margin: 25px;
 }
 
 .footer {
   margin-top: 50px;
+}
+
+.greetings {
+  span { margin-left: 6px !important; }
 }
 
 @media screen and (min-width: 769px) {
@@ -50,5 +45,64 @@ form {
   .coin-column {
     min-width: 500px;
     max-width: 550px;
+  }
+}
+
+// dead monsters must be grayscaled
+@mixin filter($filter-type,$filter-amount) {
+  -webkit-filter: $filter-type+unquote('(#{$filter-amount})');
+  -moz-filter: $filter-type+unquote('(#{$filter-amount})');
+  -ms-filter: $filter-type+unquote('(#{$filter-amount})');
+  -o-filter: $filter-type+unquote('(#{$filter-amount})');
+  filter: $filter-type+unquote('(#{$filter-amount})');
+}
+
+@mixin grayscale_element($value) {
+    -webkit-filter: #{"grayscale(#{$value})"};
+    -moz-filter: #{"grayscale(#{$value})"};
+    filter:#{"grayscale(#{$value})"};
+}
+
+.grayscale {
+    @include grayscale_element(100%);
+    transition: all 200ms ease-in-out;
+    opacity: 0.3;
+    &:hover {
+        @include grayscale_element(30%);
+    }
+}
+
+.sleeping {
+  @include filter(brightness, 5%);
+}
+
+.monster-image {
+  max-height: 300px !important;
+}
+
+.monster-column {
+  min-width: 360px;
+  max-width: 400px;
+}
+
+.has-top-margin {
+  margin-top: 16px;
+}
+
+/* toast */
+.toast {
+  position: fixed;
+  width: 365px;
+  right: -365px;
+  top: 5em;
+  z-index: 9999;
+
+  .notification {
+      transition: 0.15s ease-in-out;
+      width: 325px;
+  }
+
+  .notification.on {
+    transform: translateX(-365px);
   }
 }

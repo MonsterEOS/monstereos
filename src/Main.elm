@@ -3,12 +3,14 @@ port module Main exposing (..)
 import Date.Distance as Distance
 import Date
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, defaultValue, href, placeholder, target, type_, value, datetime, alt, src, max)
+import Html.Attributes exposing (attribute, class, defaultValue, href, placeholder, target, type_, value, datetime, alt, src, max, style)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as JD
 import Time
 import Json.Decode.Pipeline as JDP
+import Date.Extra.Format as DateFormat
+import Date.Extra.Config.Config_en_us as DateConfig
 
 
 -- import Json.Encode as JE
@@ -45,21 +47,25 @@ initialModel =
     , showMonsterCreation = False
     , user = User "" ""
     , error = Nothing
-    , content = MyMonsters
+    , content = Home
     , socketsConnected = False
     , currentTime = 0
     , monsters = []
     , newMonsterName = ""
+    , notifications = []
     }
 
 
 initModel : Flags -> Model
 initModel flags =
     let
-        loggedIn =
-            not (String.isEmpty flags.user.eosAccount)
+        content =
+            if not (String.isEmpty flags.user.eosAccount) then
+                MyMonsters
+            else
+                Home
     in
-        { initialModel | user = flags.user }
+        { initialModel | user = flags.user, content = content }
 
 
 main : Program Flags Model Msg
@@ -77,12 +83,14 @@ main =
 
 
 type NotificationType
-    = Success
-    | Error
+    = Success String
+    | Warning String
+    | Error String
 
 
 type Content
-    = MyMonsters
+    = Home
+    | MyMonsters
     | About
 
 
@@ -102,17 +110,26 @@ type alias Monster =
     , owner : String
     , name : String
     , mtype : Int
-    , created_at : Int
-    , death_at : Int
+    , created_at : Time.Time
+    , death_at : Time.Time
     , health : Int
     , hunger : Int
-    , last_fed_at : Int
+    , last_fed_at : Time.Time
     , awake : Int
-    , last_bed_at : Int
+    , is_sleeping : Bool
+    , last_bed_at : Time.Time
+    , last_awake_at : Time.Time
     , happiness : Int
-    , last_play_at : Int
+    , last_play_at : Time.Time
     , clean : Int
-    , last_shower_at : Int
+    , last_shower_at : Time.Time
+    }
+
+
+type alias Notification =
+    { notification : NotificationType
+    , time : Time.Time
+    , id : String
     }
 
 
@@ -130,6 +147,7 @@ type alias Model =
     , currentTime : Time.Time
     , monsters : List Monster
     , newMonsterName : String
+    , notifications : List Notification
     }
 
 
@@ -149,6 +167,9 @@ port listMonsters : () -> Cmd msg
 port setMonsters : (JD.Value -> msg) -> Sub msg
 
 
+port setMonstersFailed : (String -> msg) -> Sub msg
+
+
 port submitNewMonster : String -> Cmd msg
 
 
@@ -159,6 +180,15 @@ port monsterCreationFailed : (String -> msg) -> Sub msg
 
 
 port requestFeed : Int -> Cmd msg
+
+
+port requestPlay : Int -> Cmd msg
+
+
+port requestWash : Int -> Cmd msg
+
+
+port requestBed : Int -> Cmd msg
 
 
 port feedSucceed : (String -> msg) -> Sub msg
@@ -194,6 +224,7 @@ subscriptions model =
         , feedSucceed MonsterFeedSucceed
         , monsterCreationSucceed MonsterCreationSucceed
         , monsterCreationFailed MonsterCreationFailed
+        , setMonstersFailed SetMonstersFailure
         ]
 
 
@@ -217,10 +248,14 @@ type Msg
     | MonsterCreationSucceed String
     | MonsterCreationFailed String
     | RequestMonsterFeed Int
+    | RequestMonsterPlay Int
+    | RequestMonsterBed Int
+    | RequestMonsterWash Int
     | UpdateNewMonsterName String
     | SubmitNewMonster
     | ToggleHelp
     | ToggleMonsterCreation
+    | DeleteNotification String
     | Logout
 
 
@@ -236,31 +271,78 @@ update msg model =
         ScatterRequestIdentity ->
             ( { model | isLoading = True }, scatterRequestIdentity () )
 
-        ScatterRejection _ ->
-            ( { model | isLoading = False }, Cmd.none )
+        ScatterRejection txt ->
+            ( { model
+                | isLoading = False
+                , notifications = [ Notification (Error ("Scatter Rejection: " ++ txt)) model.currentTime (toString model.currentTime) ] ++ model.notifications
+              }
+            , Cmd.none
+            )
 
         RequestMonsterFeed petId ->
             ( { model | isLoading = True }, requestFeed (petId) )
 
-        MonsterFeedSucceed _ ->
-            ( { model | isLoading = False }, Cmd.none )
+        RequestMonsterPlay petId ->
+            ( { model | isLoading = True }, requestPlay (petId) )
+
+        RequestMonsterWash petId ->
+            ( { model | isLoading = True }, requestWash (petId) )
+
+        RequestMonsterBed petId ->
+            ( { model | isLoading = True }, requestBed (petId) )
+
+        MonsterFeedSucceed trxId ->
+            ( { model
+                | isLoading = False
+                , notifications = [ Notification (Success ("Monster was Fed! TrxId: " ++ trxId)) model.currentTime (toString model.currentTime) ] ++ model.notifications
+              }
+            , listMonsters ()
+            )
 
         MonsterFeedFailed err ->
-            ( { model | error = Just err, isLoading = False }, Cmd.none )
+            ( { model
+                | isLoading = False
+                , notifications = [ Notification (Error ("Fail to Fed Monster: " ++ err)) model.currentTime (toString model.currentTime) ] ++ model.notifications
+              }
+            , Cmd.none
+            )
 
-        MonsterCreationSucceed _ ->
-            ( { model | isLoading = False }, listMonsters () )
+        MonsterCreationSucceed trxId ->
+            ( { model
+                | isLoading = False
+                , showMonsterCreation = False
+                , newMonsterName = ""
+                , notifications = [ Notification (Success ("Monster  " ++ model.newMonsterName ++ " Created! TrxId: " ++ trxId)) model.currentTime (toString model.currentTime) ] ++ model.notifications
+              }
+            , listMonsters ()
+            )
 
         MonsterCreationFailed err ->
-            ( { model | error = Just err, isLoading = False }, Cmd.none )
+            ( { model
+                | isLoading = False
+                , notifications = [ Notification (Error ("Fail to create Monster: " ++ err)) model.currentTime (toString model.currentTime) ] ++ model.notifications
+              }
+            , Cmd.none
+            )
 
         ScatterSignIn userJson ->
             case (JD.decodeValue userDecoder userJson) of
                 Ok user ->
-                    ( { model | user = user }, listMonsters () )
+                    ( { model
+                        | user = user
+                        , content = MyMonsters
+                        , notifications = [ Notification (Success ("Welcome " ++ user.eosAccount)) model.currentTime "signInSuccess" ] ++ model.notifications
+                      }
+                    , listMonsters ()
+                    )
 
                 Err err ->
-                    ( { model | error = Just err, isLoading = False }, Cmd.none )
+                    ( { model
+                        | notifications = [ Notification (Error ("Fail to SignIn: " ++ err)) model.currentTime "signInFailed" ] ++ model.notifications
+                        , isLoading = False
+                      }
+                    , Cmd.none
+                    )
 
         SetMonsters monsterList ->
             case (JD.decodeValue monstersDecoder monsterList) of
@@ -271,13 +353,35 @@ update msg model =
                     ( { model | error = Just err, isLoading = False }, Cmd.none )
 
         SetMonstersFailure err ->
-            ( { model | error = Just err, isLoading = False }, Cmd.none )
+            ( { model
+                | isLoading = False
+                , notifications = [ Notification (Error ("Fail to load Monsters List: " ++ err)) model.currentTime (toString model.currentTime) ] ++ model.notifications
+              }
+            , Cmd.none
+            )
 
         RefreshPage ->
             ( model, refreshPage () )
 
         Tick time ->
-            ( { model | currentTime = time }, Cmd.none )
+            let
+                -- erase after 10 secs
+                notifications =
+                    model.notifications
+                        |> List.filter
+                            (\notification ->
+                                (model.currentTime - notification.time) < 10000
+                            )
+            in
+                ( { model | currentTime = time, notifications = notifications }, Cmd.none )
+
+        DeleteNotification id ->
+            let
+                notifications =
+                    model.notifications
+                        |> List.filter (\notification -> notification.id /= id)
+            in
+                ( { model | notifications = notifications }, Cmd.none )
 
         SetContent content ->
             ( { model | content = content }, Cmd.none )
@@ -339,59 +443,20 @@ monstersDecoder =
             |> JDP.required "owner" JD.string
             |> JDP.required "name" JD.string
             |> JDP.required "type" JD.int
-            |> JDP.required "created_at" JD.int
-            |> JDP.required "death_at" JD.int
+            |> JDP.required "created_at" JD.float
+            |> JDP.required "death_at" JD.float
             |> JDP.required "health" JD.int
             |> JDP.required "hunger" JD.int
-            |> JDP.required "last_fed_at" JD.int
+            |> JDP.required "last_fed_at" JD.float
             |> JDP.required "awake" JD.int
-            |> JDP.required "last_bed_at" JD.int
+            |> JDP.required "is_sleeping" JD.bool
+            |> JDP.required "last_bed_at" JD.float
+            |> JDP.required "last_awake_at" JD.float
             |> JDP.required "happiness" JD.int
-            |> JDP.required "last_play_at" JD.int
+            |> JDP.required "last_play_at" JD.float
             |> JDP.required "clean" JD.int
-            |> JDP.required "last_shower_at" JD.int
+            |> JDP.required "last_shower_at" JD.float
         )
-
-
-
--- listMonsters : Model -> ( Model, Cmd Msg )
--- listMonsters model =
---     if String.isEmpty model.user.eosAccount then
---         ( { model | error = Just "Please enter with Scatter" }, Cmd.none )
---     else
---         let
---             -- apiKey =
---             --     Http.header "X-API-KEY" "banana"
---             --
---             -- apiSecret =
---             --     Http.header "X-API-SECRET" "apple"
---             monsters =
---                 JE.object
---                     [ ( "code", JE.string "pet" )
---                     , ( "scope", JE.string "pet" )
---                     , ( "table", JE.string "pets" )
---                     , ( "json", JE.bool True )
---                     ]
---
---             url =
---                 "http://127.0.0.1:8888/v1/chain/get_table_rows"
---
---             request =
---                 Http.request
---                     { method = "POST"
---                     , headers = []
---                     , url = url
---                     , body = (Http.jsonBody monsters)
---                     , expect = Http.expectJson monstersDecoder
---                     , timeout = Nothing
---                     , withCredentials = False
---                     }
---
---             cmd =
---                 Http.send MonstersResponse request
---         in
---             ( { model | error = Nothing, isLoading = True }, cmd )
--- helper functions and attributes
 
 
 scatterExtensionLink : String
@@ -418,6 +483,17 @@ calcTimeDiff timeOld timeNew =
                 |> Distance.inWordsWithConfig
     in
         inWords (Date.fromTime timeOld) (Date.fromTime timeNew)
+
+
+formatTime : Time.Time -> String
+formatTime time =
+    if time > 0 then
+        time
+            |> Date.fromTime
+            |> DateFormat.format DateConfig.config
+                "%B, %e %Y @ %H:%M:%S %P"
+    else
+        ""
 
 
 reversedComparison : comparable -> comparable -> Order
@@ -593,61 +669,37 @@ modalCard model title close body ok cancel =
             ]
 
 
-notification : String -> NotificationType -> Maybe Msg -> Html Msg
-notification txt notifType closeMsg =
-    let
-        notifClass =
-            case notifType of
-                Success ->
-                    "is-success"
-
-                Error ->
-                    "is-danger"
-
-        closeButton =
-            case closeMsg of
-                Just msg ->
-                    button [ class "delete", onClick msg ]
-                        [ text "" ]
-
-                Nothing ->
-                    text ""
-    in
-        div [ class ("notification " ++ notifClass) ]
-            [ closeButton
-            , text txt
-            ]
-
-
-message : String -> NotificationType -> Html Msg
-message txt messageType =
-    let
-        messageClass =
-            case messageType of
-                Success ->
-                    "is-success"
-
-                Error ->
-                    "is-danger"
-    in
-        article [ class ("message " ++ messageClass) ]
-            [ div [ class "message-body" ]
-                [ text txt ]
-            ]
-
-
 
 -- view
 
 
-errorAlert : Model -> Html Msg
-errorAlert model =
-    case model.error of
-        Just txt ->
-            message txt Error
+notification : Notification -> Html Msg
+notification notification =
+    let
+        ( txt, messageClass ) =
+            case notification.notification of
+                Success txt ->
+                    ( txt, "is-success" )
 
-        Nothing ->
-            text ""
+                Warning txt ->
+                    ( txt, "is-warning" )
+
+                Error txt ->
+                    ( txt, "is-danger" )
+    in
+        div [ class ("notification on " ++ messageClass) ]
+            [ button
+                [ class "delete"
+                , onClick (DeleteNotification notification.id)
+                ]
+                []
+            , text txt
+            ]
+
+
+notificationsView : Model -> Html Msg
+notificationsView model =
+    div [ class "toast" ] (model.notifications |> List.map notification)
 
 
 monsterCreationModal : Model -> Html Msg
@@ -663,8 +715,8 @@ monsterCreationModal model =
             model.scatterInstalled
     in
         modalCard model
-            "Help"
-            ToggleHelp
+            "Create a New Monster"
+            ToggleMonsterCreation
             [ form []
                 [ fieldInput
                     model
@@ -676,7 +728,7 @@ monsterCreationModal model =
                 ]
             ]
             (Just ( "Submit", SubmitNewMonster ))
-            Nothing
+            (Just ( "Cancel", ToggleMonsterCreation ))
 
 
 helpModal : Model -> Html Msg
@@ -694,34 +746,10 @@ helpModal model =
         modalCard model
             "Help"
             ToggleHelp
-            -- [ form []
-            --     [ selectInput
-            --         model
-            --         periodOptions
-            --         "Period"
-            --         (periodToString period)
-            --         "clock-o"
-            --         UpdatePeriod
-            --     , fieldInput
-            --         model
-            --         "Percentage"
-            --         percentage
-            --         "-9"
-            --         "percent"
-            --         UpdatePercentage
-            --     , fieldInput
-            --         model
-            --         "Current Period Volume (BTC)"
-            --         volume
-            --         "50000"
-            --         "btc"
-            --         UpdateVolume
-            --     ]
-            -- ]
-            [ div []
+            [ div [ class "content" ]
                 [ p [] [ text "It's a fun game where you create your pet and you must take care of him so he does not die." ]
                 , p []
-                    [ text "You will need to have Scatter installed and create an account on EOS JungleTestNet, so after the scatter installation please follow the below instructions:"
+                    [ text "You will need to have Scatter installed and create an account on EOS JungleTestNet, so if you don't have any JungleNet identity, after the Scatter installation please follow the below instructions:"
                     , ol []
                         [ li [] [ text "Open your Scatter, click in Private Keys and generate a KeyPair, save it as 'MonsterEosTest' or anything you want" ]
                         , li [] [ text "After saving your private key in safe place, please copy your public key, you will need it for registration on JungleNet in the next step" ]
@@ -744,7 +772,7 @@ topMenu model =
 
         helpButton =
             a
-                [ class "navbar-item"
+                [ class "navbar-item help-button"
                 , onClick ToggleHelp
                 ]
                 [ span [ class "navbar-item icon is-small" ]
@@ -784,6 +812,13 @@ topMenu model =
                                 [ text "Install Scatter Wallet" ]
                 in
                     [ p [ class "navbar-item" ] [ loadingIcon model ]
+                    , a
+                        [ class "navbar-item"
+                        , onClick (SetContent Home)
+                        , href "javascript:;"
+                        ]
+                        [ text "Home"
+                        ]
                     , scatterButton
                     , aboutButton
                     , helpButton
@@ -797,9 +832,11 @@ topMenu model =
                                else
                                 "fa-volume-up has-text-success"
                 in
-                    [ p [ class "navbar-item" ]
+                    [ p [ class "navbar-item greetings" ]
                         [ loadingIcon model
-                        , text ("Hello, " ++ model.user.eosAccount)
+                        , text "Hello"
+                        , span [] [ b [] [ text model.user.eosAccount ] ]
+                        , text "!"
                         ]
                     , a
                         [ class "navbar-item"
@@ -837,139 +874,242 @@ topMenu model =
 
 mainContent : Model -> Html Msg
 mainContent model =
-    if String.isEmpty model.user.eosAccount then
-        if model.isLoading then
-            section [ class "is-large" ]
-                [ loadingIcon model ]
-        else
-            section [ class "hero is-info is-large" ]
-                [ div [ class "hero-body" ]
-                    [ div [ class "container" ]
-                        [ h1 [ class "title logo" ]
-                            [ text "I'm a Monster Tamagotchi alike game for EOS blockchain! :)" ]
-                        ]
-                    ]
-                ]
-    else
-        let
-            content =
-                case model.content of
-                    MyMonsters ->
-                        monsterContent model
-
-                    About ->
-                        aboutContent model
-        in
+    let
+        defaultContent content =
             section [ class "section" ]
                 [ div [ class "container" ]
                     [ content
                     ]
                 ]
 
+        mainContent =
+            case model.content of
+                Home ->
+                    if model.isLoading then
+                        section [ class "is-large" ]
+                            [ loadingIcon model ]
+                    else
+                        section [ class "hero is-info is-large" ]
+                            [ div [ class "hero-body" ]
+                                [ div [ class "container" ]
+                                    [ h1 [ class "title logo" ]
+                                        [ text "I'm a Monster Tamagotchi alike game for EOS blockchain! :)" ]
+                                    ]
+                                ]
+                            ]
+
+                MyMonsters ->
+                    defaultContent (monsterContent model)
+
+                About ->
+                    defaultContent (aboutContent model)
+    in
+        mainContent
+
 
 aboutContent : Model -> Html Msg
 aboutContent model =
-    div []
-        [ p [] [ text "Just a Tamagotchi Game to show off EOS blockchain power, even in a TestNet! :D" ]
+    div [ class "content" ]
+        [ p [] [ text "I'm Leo and I built this project just as an experiment to play with EOS Testnets available in the community. I have a lot of questions about the EOS RAM Storage, Network Bandwith and Staking in a live chain (also in sidechains), and probably a lot of other developers also have it as I can see in the community. So this is an open source experiment where all of us can play with the contract, architecture and design of tables and see what works the best in terms of performance and good practices." ]
+        , b [] [ text "It's Just a Tamagotchi Game to show off EOS blockchain power, even in a TestNet! :D" ]
         , p [] [ text "To keep your pet alive you must feed him, play with him, take him to the bed and wash him!" ]
-        , p [] [ text "Only the feeding feature is done for now... There's a lot of interesting stuff that we can do here to improve the gameplay like experience points, iventory of items, multiplayer options, breeding, ownership transfering and tokenization." ]
+        , p [] [ text "Only the feeding and sleeping/awake feature is done for now... There's a lot of interesting stuff that we can do here to improve the project like experience points (+ age and evolutions), iventory of items, multiplayer options, breeding, ownership transfering and tokenization." ]
+        , p [] [ text "I would love to have another developers to get in touch in GitHub repository, open issues, open discussions and so on, about what would be the best way to design the architecture and implement the contracts, how things should work in blockchain, how we should integrate Scatter, other wallets and provide top-security, what we should avoid, what's the best practice in terms of coding and everything else." ]
+        , p [] [ text "I love EOS Community and I think we can build a better world together!" ]
+        , p [] [ text "Monsters Pictures Package: ", a [ href "https://pipoya.itch.io/free-rpg-monster-pack", target "_blank" ] [ text "Itch.io @Pipoya - Free RPG Monster Pack" ] ]
+        , p [] [ text "Sleeping GIF Credits: ", a [ href "https://giphy.com/stickers/zzz-snore-51WvIEoUKKHlGwgmgy", target "_blank" ] [ text "Giphy @AlabasterPizzo" ] ]
         ]
 
 
-monsterCard : Monster -> Html Msg
-monsterCard monster =
+monsterCard : Monster -> Time.Time -> Bool -> Html Msg
+monsterCard monster currentTime isLoading =
     let
         isDead =
             monster.death_at > 0 || monster.health <= 0
 
-        deadClass =
-            if isDead then
-                " is-danger"
-            else
-                ""
+        deathTimeTxt =
+            formatTime monster.death_at
 
-        deathInfo =
-            if isDead then
-                p [ class "is-6 is-danger" ]
-                    [ text "DEAD IN "
-                    , time [ datetime "2016-1-1" ]
-                        [ text "Jan, 1st 2016 @ 11:09 PM" ]
-                    ]
+        birthDateTxt =
+            formatTime monster.created_at
+
+        ( sleepingClass, sleepingGif ) =
+            if monster.is_sleeping && not isDead then
+                ( " sleeping", img [ src "/images/zzz.gif" ] [] )
             else
-                text ""
-    in
-        div [ class "card" ]
-            [ div
-                [ class "card-content" ]
-                [ div [ class "columns" ]
-                    [ div [ class "column " ]
-                        [ figure [ class "image is-square" ]
-                            [ img [ alt monster.name, src ("/images/monsters/monster-" ++ (toString monster.mtype) ++ ".png") ]
-                                []
+                ( "", text "" )
+
+        ( deadClass, deadImgClass, deathInfo, aliveInfo, interactionFooter ) =
+            if isDead then
+                ( " has-text-danger"
+                , " grayscale"
+                , span [ class "is-6 has-text-danger" ]
+                    [ br [] []
+                    , text "DEAD IN "
+                    , time [ datetime deathTimeTxt ]
+                        [ text deathTimeTxt ]
+                    ]
+                , span [ class "is-6 has-text-danger" ]
+                    [ text ("Stayed alive for " ++ (calcTimeDiff monster.created_at monster.death_at)) ]
+                , footer [ class "card-footer" ]
+                    [ div [ class "card-footer-item has-text-centered" ] [ text "Sorry but it would be strange to interact with a dead monster... Wouldn't it?" ]
+                    ]
+                )
+            else
+                ( ""
+                , ""
+                , text ""
+                , p [ class "is-6 has-text-success" ]
+                    [ text ("Is alive for " ++ (calcTimeDiff monster.created_at currentTime)) ]
+                , footer [ class "card-footer" ]
+                    (if monster.is_sleeping then
+                        [ a
+                            [ class "card-footer-item is-loading"
+                            , onClick (RequestMonsterBed monster.id)
+                            , disabledAttribute isLoading
                             ]
+                            [ text "Wake Up!" ]
                         ]
-                    , div
-                        [ class "column" ]
-                        [ p [ class ("title is-4" ++ deadClass) ]
-                            [ text monster.name ]
-                        , p [ class "is-6" ]
-                            [ b [] [ text "Owner: " ], text monster.owner ]
-                        , p [ class "is-6" ]
-                            [ text "Born in "
-                            , time [ datetime "2016-1-1" ]
-                                [ text "Jan, 1st 2016 @ 11:09 PM" ]
-                            , text " alive for 3 days and 17 hours "
+                     else
+                        [ a
+                            [ class "card-footer-item"
+                            , onClick (RequestMonsterFeed monster.id)
+                            , disabledAttribute isLoading
                             ]
-                        , deathInfo
-                        , p [ class "is-6" ]
+                            [ text "Feed" ]
+                        , a
+                            [ class "card-footer-item"
+                            , onClick (RequestMonsterPlay monster.id)
+                            , disabledAttribute isLoading
+                            ]
+                            [ text "Play" ]
+                        , a
+                            [ class "card-footer-item"
+                            , onClick (RequestMonsterWash monster.id)
+                            , disabledAttribute isLoading
+                            ]
+                            [ text "Wash" ]
+                        , a
+                            [ class "card-footer-item"
+                            , onClick (RequestMonsterBed monster.id)
+                            , disabledAttribute isLoading
+                            ]
+                            [ text "Bed Time!" ]
+                        ]
+                    )
+                )
+    in
+        div [ class "column monster-column" ]
+            [ div [ class "card" ]
+                [ div [ class "card-image" ]
+                    [ figure [ class ("image monster-image is-square" ++ deadImgClass) ]
+                        [ img [ alt monster.name, class sleepingClass, src ("/images/monsters/monster-" ++ (toString monster.mtype) ++ ".png") ]
+                            []
+                        , sleepingGif
+                        ]
+                    ]
+                , div
+                    [ class "card-content" ]
+                    [ div [ class "content" ]
+                        [ p []
+                            [ span [ class ("title is-4" ++ deadClass) ]
+                                [ text monster.name ]
+                            , span [ class "is-6 is-pulled-right" ]
+                                [ b [] [ text "Owner: " ], text monster.owner ]
+                            ]
+                        , div [ class "is-6" ]
+                            [ p []
+                                [ text "Birth Date: "
+                                , time [ datetime birthDateTxt ]
+                                    [ text birthDateTxt ]
+                                , br [] []
+                                , aliveInfo
+                                , deathInfo
+                                ]
+                            ]
+                        , p [ class "is-large has-top-margin" ]
                             [ b [] [ text "HP: " ]
                             , progress [ class "progress is-danger", Html.Attributes.max "100", value (toString monster.health) ]
                                 [ text (toString monster.health) ]
                             ]
-                        , p [ class "is-6" ]
-                            [ b [] [ text "Food: " ]
-                            , progress [ class "progress is-primary", Html.Attributes.max "100", value (toString monster.hunger) ]
-                                [ text (toString monster.hunger) ]
-                            ]
-                        , p [ class "is-6" ]
-                            [ b [] [ text "Happiness: " ]
-                            , progress [ class "progress is-warning", Html.Attributes.max "100", value (toString monster.happiness) ]
-                                [ text (toString monster.happiness) ]
-                            ]
-                        , p [ class "is-6" ]
-                            [ b [] [ text "Awake: " ]
-                            , progress [ class "progress is-success", Html.Attributes.max "100", value (toString monster.awake) ]
-                                [ text (toString monster.awake) ]
-                            ]
-                        , p [ class "is-6" ]
-                            [ b [] [ text "Clean: " ]
-                            , progress [ class "progress is-info", Html.Attributes.max "100", value (toString monster.clean) ]
-                                [ text (toString monster.clean) ]
-                            ]
-                        , p [] [ text "" ]
-                        , div [ class "footer buttons" ]
-                            [ a [ class "button is-primary", onClick (RequestMonsterFeed monster.id) ]
-                                [ text "Feed" ]
-                            , a [ class "button is-warning" ]
-                                [ text "Play" ]
-                            , a [ class "button is-info" ]
-                                [ text "Wash" ]
-                            , a [ class "button is-success" ]
-                                [ text "Take to Bed" ]
+                        , div [ class "columns is-multiline" ]
+                            [ div [ class "column is-half" ]
+                                [ b [] [ text "Food: " ]
+                                , progress [ class "progress is-primary", Html.Attributes.max "100", value (toString monster.hunger) ]
+                                    [ text (toString monster.hunger) ]
+                                ]
+                            , div [ class "column is-half" ]
+                                [ b [] [ text "Happiness: " ]
+                                , progress [ class "progress is-warning", Html.Attributes.max "100", value (toString monster.happiness) ]
+                                    [ text (toString monster.happiness) ]
+                                ]
+                            , div [ class "column is-half" ]
+                                [ b [] [ text "Awake: " ]
+                                , progress [ class "progress is-success", Html.Attributes.max "100", value (toString monster.awake) ]
+                                    [ text (toString monster.awake) ]
+                                ]
+                            , div [ class "column is-half" ]
+                                [ b [] [ text "Clean: " ]
+                                , progress [ class "progress is-info", Html.Attributes.max "100", value (toString monster.clean) ]
+                                    [ text (toString monster.clean) ]
+                                ]
                             ]
                         ]
                     ]
+                , interactionFooter
                 ]
             ]
 
 
 monsterContent : Model -> Html Msg
 monsterContent model =
-    div []
-        (model.monsters
-            |> List.filter (\monster -> monster.owner == model.user.eosAccount)
-            |> List.map monsterCard
-        )
+    let
+        myMonsters =
+            (model.monsters
+                |> List.filter (\monster -> monster.owner == model.user.eosAccount)
+                |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading)
+            )
+
+        newMonsterMsg =
+            if List.length myMonsters < 1 then
+                "Looks like you don't have any Monster yet... What about create a new monster on the above button?!"
+            else
+                ""
+    in
+        div []
+            [ div [ class "content" ]
+                [ a
+                    [ class "button is-success new-monster-button"
+                    , onClick ToggleMonsterCreation
+                    , disabledAttribute model.isLoading
+                    ]
+                    [ text "New Monster" ]
+                , p [] [ text newMonsterMsg ]
+                ]
+            , div [ class "columns is-multiline" ]
+                myMonsters
+            ]
+
+
+pageFooter : Html Msg
+pageFooter =
+    footer [ class "footer" ]
+        [ div [ class "container" ]
+            [ div [ class "content has-text-centered" ]
+                [ p []
+                    [ strong []
+                        [ text "MonsterEOS" ]
+                    , text " "
+                    , a [ href "https://github.com/leordev/monstereos" ]
+                        [ text "GitHub" ]
+                    , text " - The source code is licensed "
+                    , a [ href "http://opensource.org/licenses/mit-license.php" ]
+                        [ text "MIT" ]
+                    , text "."
+                    ]
+                ]
+            ]
+        ]
 
 
 view : Model -> Html Msg
@@ -985,23 +1125,8 @@ view model =
     in
         div []
             [ topMenu model
+            , notificationsView model
             , mainContent model
-            , footer [ class "footer" ]
-                [ div [ class "container" ]
-                    [ div [ class "content has-text-centered" ]
-                        [ p []
-                            [ strong []
-                                [ text "MonsterEOS" ]
-                            , text " by "
-                            , a [ href "http://leordev.github.io" ]
-                                [ text "Leo Ribeiro" ]
-                            , text ". The source code is licensed "
-                            , a [ href "http://opensource.org/licenses/mit-license.php" ]
-                                [ text "MIT" ]
-                            , text "."
-                            ]
-                        ]
-                    ]
-                ]
+            , pageFooter
             , modal
             ]
