@@ -71,10 +71,12 @@ public:
 
         print("creating pet");
 
+        uuid new_id = _next_id();
+
         // creates the pet
         pets.emplace(_self, [&](auto &r) {
             st_pets pet{};
-            pet.id = _next_id();
+            pet.id = new_id;
             pet.name = pet_name;
             pet.owner = owner;
             pet.created_at = now();
@@ -87,6 +89,16 @@ public:
 
             r = pet;
         });
+
+        // first update in the next minute
+        transaction update{};
+        update.actions.emplace_back(
+          permission_level{_self, N(active)},
+          _self, N(updatepet),
+          std::make_tuple(new_id, 1)
+        );
+        update.delay_sec = 60;
+        update.send(new_id, _self);
     }
 
     void updatepet(uuid pet_id, uint32_t iteration) {
@@ -107,6 +119,18 @@ public:
             r.happiness = pet.happiness;
             r.clean = pet.clean;
         });
+
+        // recursive infinite update if not dead, each minute
+        uint32_t new_iteration = iteration + 1;
+        uint64_t new_trx_id = (pet_id << 32 | new_iteration);
+        transaction update{};
+        update.actions.emplace_back(
+          permission_level{_self, N(active)},
+          _self, N(updatepet),
+          std::make_tuple(pet_id, new_iteration)
+        );
+        update.delay_sec = 60;
+        update.send(new_trx_id, _self);
     }
 
     void feedpet(uuid pet_id) {

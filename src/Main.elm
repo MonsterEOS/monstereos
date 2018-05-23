@@ -271,6 +271,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Time.every Time.second Tick
+        , Time.every Time.minute RefreshMonstersList
         , setScatterIdentity ScatterSignIn
         , setScatterInstalled ScatterLoaded
         , scatterRejected ScatterRejection
@@ -297,6 +298,7 @@ type Msg
     | ScatterLoaded Bool
     | ScatterSignIn JD.Value
     | RefreshPage
+    | RefreshMonstersList Time.Time
     | ScatterRequestIdentity
     | ScatterInstallPressed
     | ScatterRejection String
@@ -342,6 +344,9 @@ update msg model =
               }
             , Cmd.none
             )
+
+        RefreshMonstersList _ ->
+            ( model, listMonsters () )
 
         RequestMonsterFeed petId ->
             let
