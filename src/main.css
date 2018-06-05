@@ -245,6 +245,9 @@
   font-size: 40px;
   margin: 24px; }
 
+.navbar-item.is-active {
+  color: #3273dc !important; }
+
 form {
   margin-bottom: 20px; }
 

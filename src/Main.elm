@@ -99,6 +99,7 @@ type MonsterRequest
 type Content
     = Home
     | MyMonsters
+    | Rank
     | About
 
 
@@ -902,6 +903,12 @@ topMenu model =
         loggedOut =
             String.isEmpty model.user.eosAccount
 
+        aboutActiveClass =
+            if model.content == About then
+                " is-active"
+            else
+                ""
+
         helpButton =
             a
                 [ class "navbar-item help-button"
@@ -913,7 +920,7 @@ topMenu model =
 
         aboutButton =
             a
-                [ class "navbar-item"
+                [ class ("navbar-item" ++ aboutActiveClass)
                 , onClick (SetContent About)
                 , href "javascript:;"
                 ]
@@ -963,6 +970,18 @@ topMenu model =
                                 "fa-volume-off has-text-danger"
                                else
                                 "fa-volume-up has-text-success"
+
+                    monstersActiveClass =
+                        if model.content == MyMonsters then
+                            " is-active"
+                        else
+                            ""
+
+                    rankActiveClass =
+                        if model.content == Rank then
+                            " is-active"
+                        else
+                            ""
                 in
                     [ p [ class "navbar-item greetings" ]
                         [ loadingIcon model
@@ -971,12 +990,20 @@ topMenu model =
                         , text "!"
                         ]
                     , a
-                        [ class "navbar-item"
+                        [ class ("navbar-item" ++ monstersActiveClass)
                         , onClick (SetContent MyMonsters)
                         , href "javascript:;"
                         ]
                         [ icon "paw" False False
                         , text "My Monsters"
+                        ]
+                    , a
+                        [ class ("navbar-item" ++ rankActiveClass)
+                        , onClick (SetContent Rank)
+                        , href "javascript:;"
+                        ]
+                        [ icon "trophy" False False
+                        , text "Rank"
                         ]
                     , aboutButton
                     , a
@@ -1033,6 +1060,9 @@ mainContent model =
                 MyMonsters ->
                     defaultContent (monsterContent model)
 
+                Rank ->
+                    defaultContent (rankContent model)
+
                 About ->
                     defaultContent (aboutContent model)
     in
@@ -1053,8 +1083,8 @@ aboutContent model =
         ]
 
 
-monsterCard : Monster -> Time.Time -> Bool -> Html Msg
-monsterCard monster currentTime isLoading =
+monsterCard : Monster -> Time.Time -> Bool -> Bool -> Html Msg
+monsterCard monster currentTime isLoading readOnly =
     let
         isDead =
             monster.death_at > 0 || monster.health <= 0
@@ -1188,7 +1218,11 @@ monsterCard monster currentTime isLoading =
                             ]
                         ]
                     ]
-                , interactionFooter
+                , (if readOnly then
+                    text ""
+                   else
+                    interactionFooter
+                  )
                 ]
             ]
 
@@ -1199,7 +1233,7 @@ monsterContent model =
         myMonsters =
             (model.monsters
                 |> List.filter (\monster -> monster.owner == model.user.eosAccount)
-                |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading)
+                |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading False)
             )
 
         newMonsterMsg =
@@ -1220,6 +1254,25 @@ monsterContent model =
                 ]
             , div [ class "columns is-multiline" ]
                 myMonsters
+            ]
+
+
+rankContent : Model -> Html Msg
+rankContent model =
+    let
+        monsters =
+            (model.monsters
+                |> List.filter (\monster -> monster.death_at == 0)
+                |> List.sortBy .created_at
+                |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading True)
+            )
+    in
+        div []
+            [ div [ class "content" ]
+                [ h2 [] [ text "Eldest Alive Monsters" ]
+                ]
+            , div [ class "columns is-multiline" ]
+                monsters
             ]
 
 
