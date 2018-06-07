@@ -13,16 +13,17 @@ const app = Main.embed(document.getElementById('root'), flags)
 
 /* Eos and Scatter Setup */
 const network = {
-  blockchain: "eos",
-  host: '127.0.0.1',
-  port: 8888
+  blockchain: 'eos',
+  host: 'dev.cryptolions.io',
+  port: 38888,
+  chainId: '7d47aae09c97dbc21d52c6d9f17bb70a1f1f2fda5f81b3ef18979b74b2070d8c'
 }
-const localNet = Eos({httpEndpoint: 'http://127.0.0.1:8888'})
+const localNet = Eos({httpEndpoint: 'http://dev.cryptolions.io:38888', chainId: '7d47aae09c97dbc21d52c6d9f17bb70a1f1f2fda5f81b3ef18979b74b2070d8c'})
 
-const monstersAccount = 'monstereosio'
+const monstersAccount = 'monstereosi1'
 const monstersTable = 'pets'
 
-let scatter = null;
+let scatter = null
 
 const scatterDetection = setTimeout(() => {
   if (scatter == null) {
@@ -42,7 +43,7 @@ const getAuthorization = () => {
 }
 
 const getContract = async () => {
-  return scatter.eos(network, Eos, {})
+  return scatter.eos(network, Eos, {chainId: '7d47aae09c97dbc21d52c6d9f17bb70a1f1f2fda5f81b3ef18979b74b2070d8c'})
     .contract(monstersAccount);
 }
 

@@ -22,26 +22,26 @@ using std::hash;
 
 typedef uint64_t uuid;
 
-const uint8_t PET_TYPES = 109;
-const uint32_t DAY = 86400;
-const uint32_t HOUR = 3600;
-const uint8_t  MAX_HEALTH = 100;
-const uint32_t HUNGER_TO_ZERO = 10 * HOUR;
-const uint32_t MIN_HUNGER_INTERVAL = 3 * HOUR;
-const uint8_t  MAX_HUNGER_POINTS = 100;
-const uint8_t  HUNGER_HP_MODIFIER = 1;
-const uint32_t HAPPINESS_TO_ZERO = 20 * HOUR;
-const uint8_t  MAX_HAPPINESS_POINTS = 100;
-const uint8_t  HAPPINESS_HP_MODIFIER = 2;
-const uint32_t AWAKE_TO_ZERO = 20 * HOUR;
-const uint32_t SLEEP_TO_ZERO = 8 * HOUR;
-const uint32_t MIN_AWAKE_INTERVAL = 8 * HOUR;
-const uint32_t MIN_SLEEP_PERIOD = 4 * HOUR;
-const uint8_t  MAX_AWAKE_POINTS = 100;
-const uint8_t  AWAKE_HP_MODIFIER = 2;
-const uint32_t CLEAN_TO_ZERO = 24 * HOUR;
-const uint8_t  MAX_CLEAN_POINTS = 100;
-const uint8_t  CLEAN_HP_MODIFIER = 3;
+constexpr uint8_t PET_TYPES = 109;
+constexpr uint32_t DAY = 86400;
+constexpr uint32_t HOUR = 3600;
+constexpr uint8_t  MAX_HEALTH = 100;
+constexpr uint32_t HUNGER_TO_ZERO = 10 * HOUR;
+constexpr uint32_t MIN_HUNGER_INTERVAL = 3 * HOUR;
+constexpr uint8_t  MAX_HUNGER_POINTS = 100;
+constexpr uint8_t  HUNGER_HP_MODIFIER = 1;
+constexpr uint32_t HAPPINESS_TO_ZERO = 20 * HOUR;
+constexpr uint8_t  MAX_HAPPINESS_POINTS = 100;
+constexpr uint8_t  HAPPINESS_HP_MODIFIER = 2;
+constexpr uint32_t AWAKE_TO_ZERO = 20 * HOUR;
+constexpr uint32_t SLEEP_TO_ZERO = 8 * HOUR;
+constexpr uint32_t MIN_AWAKE_INTERVAL = 8 * HOUR;
+constexpr uint32_t MIN_SLEEP_PERIOD = 4 * HOUR;
+constexpr uint8_t  MAX_AWAKE_POINTS = 100;
+constexpr uint8_t  AWAKE_HP_MODIFIER = 2;
+constexpr uint32_t CLEAN_TO_ZERO = 24 * HOUR;
+constexpr uint8_t  MAX_CLEAN_POINTS = 100;
+constexpr uint8_t  CLEAN_HP_MODIFIER = 3;
 
 
 
@@ -67,13 +67,24 @@ public:
 
         require_auth(owner);
 
+        // initialize config
         st_pet_config pc = _get_pet_config();
 
-        print("creating pet");
+        // check balance
+        _tb_balances balances(_self, owner);
+        symbol_type eos{S(4,EOS)};
+        auto itr_balance = balances.find(eos);
+        eosio_assert(itr_balance != balances.end(), "Your wallet is empty");
 
-        uuid new_id = _next_id();
+        // calculate cost and save it, if have enough funds
+        asset new_balance = itr_balance->funds - pc.creation_fee;
+        eosio_assert(new_balance.amount >= 0, "You don't have enough funds to create a Monster!");
+        balances.modify(itr_balance, owner, [&](auto& r){
+            r.funds = new_balance;
+        });
 
         // creates the pet
+        uuid new_id = _next_id();
         pets.emplace(_self, [&](auto &r) {
             st_pets pet{};
             pet.id = new_id;
@@ -243,8 +254,54 @@ public:
         print("wash lazy developer");
     }
 
+    void transfer(uint64_t sender, uint64_t receiver) {
+        print("\n>>> sender >>>", sender, " - name: ", name{sender});
+        print("\n>>> receiver >>>", receiver, " - name: ", name{receiver});
+
+        // ??? Don't need to verify because we already did it in EOSIO_ABI_EX ???
+        // eosio_assert(code == N(eosio.token), "I reject your non-eosio.token deposit");
+
+        auto transfer_data = unpack_action_data<st_transfer>();
+        if(transfer_data.from == _self || transfer_data.to != _self) {
+            return;
+        }
+
+        print("\n>>> transfer data quantity >>> ", transfer_data.quantity);
+
+        eosio_assert(transfer_data.quantity.symbol == string_to_symbol(4, "EOS"),
+        "MonsterEOS only accepts EOS for deposits");
+        eosio_assert(transfer_data.quantity.is_valid(), "Invalid token transfer");
+        eosio_assert(transfer_data.quantity.amount > 0, "Quantity must be positive");
+
+        _tb_balances balances(_self, transfer_data.from);
+        asset new_balance;
+        auto itr_balance = balances.find(transfer_data.quantity.symbol);
+        if(itr_balance != balances.end()) {
+            balances.modify(itr_balance, transfer_data.from, [&](auto& r){
+                // Assumption: total currency issued by eosio.token will not overflow asset
+                r.funds += transfer_data.quantity;
+                new_balance = r.funds;
+            });
+        } else {
+            balances.emplace(transfer_data.from, [&](auto& r){
+                r.funds = transfer_data.quantity;
+                new_balance = r.funds;
+            });
+        }
+
+        print("\n", name{transfer_data.from}, " deposited:       ", transfer_data.quantity);
+        print("\n", name{transfer_data.from}, " funds available: ", new_balance);
+    }
+
 
 private:
+
+    struct st_transfer {
+        account_name from;
+        account_name to;
+        asset        quantity;
+        string       memo;
+    };
 
 
     /* ****************************************** */
@@ -277,6 +334,12 @@ private:
     typedef multi_index<N(pets), st_pets> _tb_pet;
     _tb_pet pets;
 
+    // @abi table balances i64
+    struct st_balance {
+        asset    funds;
+        uint64_t primary_key() const { return funds.symbol; }
+    };
+    typedef multi_index<N(balances), st_balance> _tb_balances;
 
 
     /* ****************************************** */
@@ -354,8 +417,27 @@ private:
         return effect_hp_hunger;
     }
 
-
-
 };
 
-EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet))
+// EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet)(transfer))
+
+// extend from EOSIO_ABI
+#define EOSIO_ABI_EX( TYPE, MEMBERS ) \
+extern "C" { \
+   void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
+      if( action == N(onerror)) { \
+         /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
+         eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
+      } \
+      auto self = receiver; \
+      if( code == self || code == N(eosio.token) || action == N(onerror) ) { \
+         TYPE thiscontract( self ); \
+         switch( action ) { \
+            EOSIO_API( TYPE, MEMBERS ) \
+         } \
+         /* does not allow destructor of thiscontract to run: eosio_exit(0); */ \
+      } \
+   } \
+}
+
+EOSIO_ABI_EX(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet)(transfer))
