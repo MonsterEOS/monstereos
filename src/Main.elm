@@ -53,6 +53,9 @@ initialModel =
     , monsters = []
     , newMonsterName = ""
     , notifications = []
+    , wallet = Wallet 0
+    , depositAmount = 3
+    , showWallet = False
     }
 
 
@@ -135,6 +138,10 @@ type alias Monster =
     }
 
 
+type alias Wallet =
+    { funds : Float }
+
+
 type alias Notification =
     { notification : NotificationType
     , time : Time.Time
@@ -157,6 +164,9 @@ type alias Model =
     , monsters : List Monster
     , newMonsterName : String
     , notifications : List Notification
+    , wallet : Wallet
+    , showWallet : Bool
+    , depositAmount : Float
     }
 
 
@@ -205,10 +215,19 @@ port setTitle : String -> Cmd msg
 port listMonsters : () -> Cmd msg
 
 
+port getWallet : () -> Cmd msg
+
+
 port setMonsters : (JD.Value -> msg) -> Sub msg
 
 
 port setMonstersFailed : (String -> msg) -> Sub msg
+
+
+port setWallet : (JD.Value -> msg) -> Sub msg
+
+
+port setWalletFailed : (String -> msg) -> Sub msg
 
 
 port submitNewMonster : String -> Cmd msg
@@ -239,6 +258,15 @@ port feedSucceed : (String -> msg) -> Sub msg
 
 
 port feedFailed : (String -> msg) -> Sub msg
+
+
+port depositSucceed : (String -> msg) -> Sub msg
+
+
+port depositFailed : (String -> msg) -> Sub msg
+
+
+port requestDeposit : Float -> Cmd msg
 
 
 port bedSucceed : (String -> msg) -> Sub msg
@@ -272,11 +300,16 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Time.every Time.second Tick
-        , Time.every Time.minute RefreshMonstersList
+        , Time.every Time.minute RefreshData
         , setScatterIdentity ScatterSignIn
         , setScatterInstalled ScatterLoaded
         , scatterRejected ScatterRejection
         , setMonsters SetMonsters
+        , setMonstersFailed SetMonstersFailure
+        , setWallet SetWallet
+        , setWalletFailed SetWalletFailure
+        , depositSucceed DepositSucceed
+        , depositFailed DepositFailed
         , feedFailed MonsterFeedFailed
         , feedSucceed MonsterFeedSucceed
         , awakeFailed MonsterAwakeFailed
@@ -285,7 +318,6 @@ subscriptions model =
         , bedSucceed MonsterBedSucceed
         , monsterCreationSucceed MonsterCreationSucceed
         , monsterCreationFailed MonsterCreationFailed
-        , setMonstersFailed SetMonstersFailure
         ]
 
 
@@ -299,10 +331,15 @@ type Msg
     | ScatterLoaded Bool
     | ScatterSignIn JD.Value
     | RefreshPage
-    | RefreshMonstersList Time.Time
+    | RefreshData Time.Time
     | ScatterRequestIdentity
     | ScatterInstallPressed
     | ScatterRejection String
+    | SetWallet JD.Value
+    | SetWalletFailure String
+    | DepositSucceed String
+    | DepositFailed String
+    | RequestDeposit Float
     | SetMonsters JD.Value
     | SetMonstersFailure String
     | MonsterFeedSucceed String
@@ -320,7 +357,10 @@ type Msg
     | RequestMonsterWash Int
     | UpdateNewMonsterName String
     | SubmitNewMonster
+    | UpdateDepositAmount String
+    | SubmitDeposit
     | ToggleHelp
+    | ToggleWallet
     | ToggleMonsterCreation
     | DeleteNotification String
     | Logout
@@ -346,8 +386,8 @@ update msg model =
             , Cmd.none
             )
 
-        RefreshMonstersList _ ->
-            ( model, listMonsters () )
+        RefreshData _ ->
+            ( model, Cmd.batch [ listMonsters (), getWallet () ] )
 
         RequestMonsterFeed petId ->
             let
@@ -361,6 +401,19 @@ update msg model =
 
         MonsterFeedFailed err ->
             handleMonsterAction model err "Feed" False
+
+        DepositSucceed trxId ->
+            handleActionResponse
+                { model | showWallet = False }
+                trxId
+                "Deposit"
+                True
+
+        DepositFailed err ->
+            handleActionResponse model err "Deposit" False
+
+        RequestDeposit amount ->
+            ( { model | isLoading = True }, requestDeposit (amount) )
 
         RequestMonsterPlay petId ->
             ( { model | isLoading = True }, requestPlay (petId) )
@@ -401,7 +454,7 @@ update msg model =
                 , newMonsterName = ""
                 , notifications = [ Notification (Success ("Monster  " ++ model.newMonsterName ++ " Created! TrxId: " ++ trxId)) model.currentTime (toString model.currentTime) ] ++ model.notifications
               }
-            , listMonsters ()
+            , Cmd.batch [ listMonsters (), getWallet () ]
             )
 
         MonsterCreationFailed err ->
@@ -415,7 +468,7 @@ update msg model =
                         , content = MyMonsters
                         , notifications = [ Notification (Success ("Welcome " ++ user.eosAccount)) model.currentTime "signInSuccess" ] ++ model.notifications
                       }
-                    , listMonsters ()
+                    , Cmd.batch [ listMonsters (), getWallet () ]
                     )
 
                 Err err ->
@@ -425,6 +478,29 @@ update msg model =
                       }
                     , Cmd.none
                     )
+
+        SetWallet rawWallet ->
+            case (JD.decodeValue walletDecoder rawWallet) of
+                Ok wallet ->
+                    ( { model | wallet = wallet, isLoading = False }
+                    , Cmd.none
+                    )
+
+                Err err ->
+                    ( { model
+                        | notifications = [ Notification (Error ("Fail to Parse Wallet Funds: " ++ err)) model.currentTime "parseWalletFailed" ] ++ model.notifications
+                        , isLoading = False
+                      }
+                    , Cmd.none
+                    )
+
+        SetWalletFailure err ->
+            ( { model
+                | isLoading = False
+                , notifications = [ Notification (Error ("Fail to load Wallet: " ++ err)) model.currentTime (toString model.currentTime) ] ++ model.notifications
+              }
+            , Cmd.none
+            )
 
         SetMonsters monsterList ->
             case (JD.decodeValue monstersDecoder monsterList) of
@@ -474,8 +550,26 @@ update msg model =
         SubmitNewMonster ->
             ( { model | isLoading = True }, submitNewMonster (model.newMonsterName) )
 
+        UpdateDepositAmount txtAmount ->
+            ( { model
+                | depositAmount =
+                    (Result.withDefault model.depositAmount
+                        (String.toFloat txtAmount)
+                    )
+              }
+            , Cmd.none
+            )
+
+        SubmitDeposit ->
+            ( { model | isLoading = True }, requestDeposit (model.depositAmount) )
+
         ToggleHelp ->
             ( { model | showHelp = (not model.showHelp) }, Cmd.none )
+
+        ToggleWallet ->
+            ( { model | showWallet = (not model.showWallet), depositAmount = 3 }
+            , Cmd.none
+            )
 
         ToggleMonsterCreation ->
             ( { model
@@ -550,6 +644,31 @@ handleMonsterAction model msg action isSuccess =
         )
 
 
+handleActionResponse : Model -> String -> String -> Bool -> ( Model, Cmd Msg )
+handleActionResponse model msg action isSuccess =
+    let
+        time =
+            model.currentTime
+
+        timeTxt =
+            toString time
+
+        ( notification, cmd ) =
+            if isSuccess then
+                ( Notification (Success ("Action attempt to " ++ action ++ " ! TrxId: " ++ msg)) time timeTxt
+                , Cmd.batch [ listMonsters (), getWallet () ]
+                )
+            else
+                ( Notification (Error ("Fail to execute " ++ action ++ " action: " ++ msg)) time timeTxt, Cmd.none )
+    in
+        ( { model
+            | isLoading = False
+            , notifications = [ notification ] ++ model.notifications
+          }
+        , cmd
+        )
+
+
 handleResponseErrors : Model -> Http.Error -> String -> ( Model, Cmd Msg )
 handleResponseErrors model err msg =
     let
@@ -576,6 +695,12 @@ userDecoder =
         User
         (JD.field "eosAccount" JD.string)
         (JD.field "publicKey" JD.string)
+
+
+walletDecoder : JD.Decoder Wallet
+walletDecoder =
+    JDP.decode Wallet
+        |> JDP.required "funds" JD.float
 
 
 monstersDecoder : JD.Decoder (List Monster)
@@ -864,6 +989,36 @@ monsterCreationModal model =
             (Just ( "Cancel", ToggleMonsterCreation ))
 
 
+walletModal : Model -> Html Msg
+walletModal model =
+    let
+        modalClass =
+            if model.showHelp then
+                "modal is-active"
+            else
+                "modal"
+
+        scatterInstalled =
+            model.scatterInstalled
+    in
+        modalCard model
+            "Deposit EOS in Wallet"
+            ToggleWallet
+            [ form []
+                [ p [] [ text ("You have " ++ (toString model.wallet.funds) ++ " EOS available. Each monster has a creation fee of 1 EOS.") ]
+                , fieldInput
+                    model
+                    "Deposit EOS Amount"
+                    (toString model.depositAmount)
+                    "5"
+                    "suitcase"
+                    UpdateDepositAmount
+                ]
+            ]
+            (Just ( "Add Funds", SubmitDeposit ))
+            (Just ( "Cancel", ToggleWallet ))
+
+
 helpModal : Model -> Html Msg
 helpModal model =
     let
@@ -988,6 +1143,14 @@ topMenu model =
                         , text "Hello"
                         , span [] [ b [] [ text model.user.eosAccount ] ]
                         , text "!"
+                        ]
+                    , a
+                        [ class ("navbar-item" ++ monstersActiveClass)
+                        , onClick ToggleWallet
+                        , href "javascript:;"
+                        ]
+                        [ icon "suitcase" False False
+                        , text (toString model.wallet.funds ++ " EOS")
                         ]
                     , a
                         [ class ("navbar-item" ++ monstersActiveClass)
@@ -1314,6 +1477,8 @@ view model =
         modal =
             if model.showHelp then
                 helpModal model
+            else if model.showWallet then
+                walletModal model
             else if model.showMonsterCreation then
                 monsterCreationModal model
             else
