@@ -22,26 +22,26 @@ using std::hash;
 
 typedef uint64_t uuid;
 
-const uint8_t PET_TYPES = 109;
-const uint32_t DAY = 86400;
-const uint32_t HOUR = 3600;
-const uint8_t  MAX_HEALTH = 100;
-const uint32_t HUNGER_TO_ZERO = 10 * HOUR;
-const uint32_t MIN_HUNGER_INTERVAL = 3 * HOUR;
-const uint8_t  MAX_HUNGER_POINTS = 100;
-const uint8_t  HUNGER_HP_MODIFIER = 1;
-const uint32_t HAPPINESS_TO_ZERO = 20 * HOUR;
-const uint8_t  MAX_HAPPINESS_POINTS = 100;
-const uint8_t  HAPPINESS_HP_MODIFIER = 2;
-const uint32_t AWAKE_TO_ZERO = 20 * HOUR;
-const uint32_t SLEEP_TO_ZERO = 8 * HOUR;
-const uint32_t MIN_AWAKE_INTERVAL = 8 * HOUR;
-const uint32_t MIN_SLEEP_PERIOD = 4 * HOUR;
-const uint8_t  MAX_AWAKE_POINTS = 100;
-const uint8_t  AWAKE_HP_MODIFIER = 2;
-const uint32_t CLEAN_TO_ZERO = 24 * HOUR;
-const uint8_t  MAX_CLEAN_POINTS = 100;
-const uint8_t  CLEAN_HP_MODIFIER = 3;
+constexpr uint8_t PET_TYPES = 109;
+constexpr uint32_t DAY = 86400;
+constexpr uint32_t HOUR = 3600;
+constexpr uint8_t  MAX_HEALTH = 100;
+constexpr uint32_t HUNGER_TO_ZERO = 10 * HOUR;
+constexpr uint32_t MIN_HUNGER_INTERVAL = 3 * HOUR;
+constexpr uint8_t  MAX_HUNGER_POINTS = 100;
+constexpr uint8_t  HUNGER_HP_MODIFIER = 1;
+constexpr uint32_t HAPPINESS_TO_ZERO = 20 * HOUR;
+constexpr uint8_t  MAX_HAPPINESS_POINTS = 100;
+constexpr uint8_t  HAPPINESS_HP_MODIFIER = 2;
+constexpr uint32_t AWAKE_TO_ZERO = 20 * HOUR;
+constexpr uint32_t SLEEP_TO_ZERO = 8 * HOUR;
+constexpr uint32_t MIN_AWAKE_INTERVAL = 8 * HOUR;
+constexpr uint32_t MIN_SLEEP_PERIOD = 4 * HOUR;
+constexpr uint8_t  MAX_AWAKE_POINTS = 100;
+constexpr uint8_t  AWAKE_HP_MODIFIER = 2;
+constexpr uint32_t CLEAN_TO_ZERO = 24 * HOUR;
+constexpr uint8_t  MAX_CLEAN_POINTS = 100;
+constexpr uint8_t  CLEAN_HP_MODIFIER = 3;
 
 
 

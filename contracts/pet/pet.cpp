@@ -256,7 +256,7 @@ uint8_t pet::_calc_hunger_hp(st_pets &pet, const uint32_t &current_time) {
 
 void pet::_update(st_pets &pet) {
 
-    eosio_assert(pet.health > 0 && pet.death_at == 0, "E099|Pet is dead");
+    eosio_assert(pet.health > 0 && pet.death_at == 0, "E099|Pet is dead.");
 
     uint32_t current_time = now();
 
@@ -296,9 +296,13 @@ pet::st_pet_config pet::_get_pet_config(){
     return pc;
 }
 
+// we need to sacrifice abi generation for recipient listener
+// keep alternating the comments between EOSIO_ABI (to generate ABI)
+// and EOSIO_ABI_EX to generate the listener action
+// https://eosio.stackexchange.com/q/421/54
+
 // EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet)(transfer))
 
-// extend from EOSIO_ABI
 #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
 extern "C" { \
    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
