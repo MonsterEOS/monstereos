@@ -1,12 +1,26 @@
 #include "pet.hpp"
 
-
 void pet::createpet(name owner,
                 string pet_name) {
 
     require_auth(owner);
 
+    // initialize config
     st_pet_config pc = _get_pet_config();
+
+    // check balance
+    _tb_balances balances(_self, owner);
+    symbol_type eos{S(4,EOS)};
+    auto itr_balance = balances.find(eos);
+    eosio_assert(itr_balance != balances.end(), "Your wallet is empty");
+
+    // calculate cost and save it, if have enough funds
+    asset new_balance = itr_balance->funds - pc.creation_fee;
+    eosio_assert(new_balance.amount >= 0, "You don't have enough funds to create a Monster!");
+    balances.modify(itr_balance, owner, [&](auto& r){
+        r.funds = new_balance;
+    });
+
 
     print("creating pet");
 
@@ -184,6 +198,44 @@ void pet::washpet(uuid pet_id) {
     print("wash lazy developer");
 }
 
+void pet::transfer(uint64_t sender, uint64_t receiver) {
+    print("\n>>> sender >>>", sender, " - name: ", name{sender});
+    print("\n>>> receiver >>>", receiver, " - name: ", name{receiver});
+
+    // ??? Don't need to verify because we already did it in EOSIO_ABI_EX ???
+    // eosio_assert(code == N(eosio.token), "I reject your non-eosio.token deposit");
+
+    auto transfer_data = unpack_action_data<st_transfer>();
+    if(transfer_data.from == _self || transfer_data.to != _self) {
+        return;
+    }
+
+    print("\n>>> transfer data quantity >>> ", transfer_data.quantity);
+
+    eosio_assert(transfer_data.quantity.symbol == string_to_symbol(4, "EOS"),
+    "MonsterEOS only accepts EOS for deposits");
+    eosio_assert(transfer_data.quantity.is_valid(), "Invalid token transfer");
+    eosio_assert(transfer_data.quantity.amount > 0, "Quantity must be positive");
+
+    _tb_balances balances(_self, transfer_data.from);
+    asset new_balance;
+    auto itr_balance = balances.find(transfer_data.quantity.symbol);
+    if(itr_balance != balances.end()) {
+        balances.modify(itr_balance, transfer_data.from, [&](auto& r){
+            // Assumption: total currency issued by eosio.token will not overflow asset
+            r.funds += transfer_data.quantity;
+            new_balance = r.funds;
+        });
+    } else {
+        balances.emplace(transfer_data.from, [&](auto& r){
+            r.funds = transfer_data.quantity;
+            new_balance = r.funds;
+        });
+    }
+
+    print("\n", name{transfer_data.from}, " deposited:       ", transfer_data.quantity);
+    print("\n", name{transfer_data.from}, " funds available: ", new_balance);
+}
 
 uint8_t pet::_calc_hunger_hp(st_pets &pet, const uint32_t &current_time) {
     // how long it's hungry?
@@ -244,4 +296,25 @@ pet::st_pet_config pet::_get_pet_config(){
     return pc;
 }
 
-EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet))
+// EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet)(transfer))
+
+// extend from EOSIO_ABI
+#define EOSIO_ABI_EX( TYPE, MEMBERS ) \
+extern "C" { \
+   void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
+      if( action == N(onerror)) { \
+         /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
+         eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
+      } \
+      auto self = receiver; \
+      if( code == self || code == N(eosio.token) || action == N(onerror) ) { \
+         TYPE thiscontract( self ); \
+         switch( action ) { \
+            EOSIO_API( TYPE, MEMBERS ) \
+         } \
+         /* does not allow destructor of thiscontract to run: eosio_exit(0); */ \
+      } \
+   } \
+}
+
+EOSIO_ABI_EX(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet)(transfer))
