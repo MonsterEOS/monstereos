@@ -66,9 +66,20 @@ public:
     void feedpet(uuid pet_id);
     void updatepet(uuid pet_id, uint32_t iteration);
     void createpet(name owner, string pet_name);
+    void transfer(uint64_t sender, uint64_t receiver);
 
 
     private:
+
+
+    struct st_transfer {
+        account_name from;
+        account_name to;
+        asset        quantity;
+        string       memo;
+    };
+
+
 
     /* ****************************************** */
     /* ------------ Contract Tables ------------- */
@@ -99,6 +110,14 @@ public:
 
     typedef multi_index<N(pets), st_pets> _tb_pet;
     _tb_pet pets;
+
+    // @abi table balances i64
+    struct st_balance {
+        asset    funds;
+        uint64_t primary_key() const { return funds.symbol; }
+    };
+    typedef multi_index<N(balances), st_balance> _tb_balances;
+
 
 
 
@@ -131,4 +150,3 @@ public:
 
 
 };
-
