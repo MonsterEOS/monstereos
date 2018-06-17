@@ -24,7 +24,7 @@ cleos push action eosio.token issue '[ "monstereosio", "1000.0000 EOS", "initial
 # contract deployment
 echo "\nDeploying MonsterEOS Contract..."
 eosiocpp -o pet.wast pet.cpp
-eosiocpp -g pet.abi pet.cpp
+# eosiocpp -g pet.abi pet.cpp ## Consider uncommenting EOSIO_ABI_EX
 cleos set contract monstereosio ../pet
 
 # tests users accounts
@@ -39,12 +39,12 @@ cleos create account eosio friedger ${EOS_KEY} ${EOS_KEY}
 cleos push action eosio.token issue '[ "friedger", "10.0000 EOS", "initial" ]' -p eosio
 
 # depositting in monstereosio account
-cleos push action eosio.token transfer '["leo", "monstereosio", "1.0000 EOS", "deposit"]' -p leo
+cleos push action eosio.token transfer '["leordev", "monstereosio", "1.0000 EOS", "deposit"]' -p leordev
 
 # monsters creation
 echo "\ncreating few monsters"
-cleos push action monstereosio createpet '[ "leo", "Bubble" ]' -p leo
-cleos push action monstereosio createpet '[ "leo", "Cachero" ]' -p leo
+cleos push action monstereosio createpet '[ "leordev", "Bubble" ]' -p leordev
+cleos push action monstereosio createpet '[ "leordev", "Cachero" ]' -p leordev
 
 # monsters stats
 echo "\ngetting leordev balance"

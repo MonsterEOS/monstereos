@@ -167,7 +167,7 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
 
     _tb_accounts accounts(_self, transfer_data.from);
     asset new_balance;
-    auto itr_balance = accounts.find(transfer_data.quantity.symbol);
+    auto itr_balance = accounts.find(transfer_data.quantity.symbol.name());
     if(itr_balance != accounts.end()) {
         accounts.modify(itr_balance, transfer_data.from, [&](auto& r){
             // Assumption: total currency issued by eosio.token will not overflow asset
@@ -252,7 +252,7 @@ extern "C" { \
    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
       if( action == N(onerror)) { \
          /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
-         eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
+         eosio_assert(code == N(eosio), "onerror actions are only valid from the \"eosio\" system account"); \
       } \
       auto self = receiver; \
       if( code == self || code == N(eosio.token) || action == N(onerror) ) { \
