@@ -1254,6 +1254,9 @@ aboutContent model =
         , p [] [ text "I love EOS Community and I think we can build a better world together!" ]
         , p [] [ text "Monsters Pictures Package: ", a [ href "https://pipoya.itch.io/free-rpg-monster-pack", target "_blank" ] [ text "Itch.io @Pipoya - Free RPG Monster Pack" ] ]
         , p [] [ text "Sleeping GIF Credits: ", a [ href "https://giphy.com/stickers/zzz-snore-51WvIEoUKKHlGwgmgy", target "_blank" ] [ text "Giphy @AlabasterPizzo" ] ]
+        , b [] [ text "Disclaimer" ]
+        , p [] [ text "This project remains purely experimental software and is not to be considered in any way production fit nor has any guarantee of any kind. Use at your own risk." ]
+        , p [] [ text "Any transferred tokens sent to account name 'monstereosio' will not return any entitlement of any asset, investment digital or physical including the sent asset itself. Any proceeds received from any user transfers are of the sole control and discretion of the receiver." ]
         ]
 
 
