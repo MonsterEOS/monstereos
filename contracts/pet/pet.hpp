@@ -83,7 +83,7 @@ public:
 
         uint64_t primary_key() const { return id; }
 
-        uint64_t get_pets_by_owner() const { return owner; }
+        uint64_t get_pets_by_owner() const { return owner.value; }
 
         bool is_sleeping() const {
             return last_bed_at > last_awake_at;
@@ -124,7 +124,7 @@ public:
         uint8_t  hunger_hp_modifier = 1;
         uint32_t min_awake_interval = 8 * HOUR;
         uint32_t min_sleep_period = 4 * HOUR;
-        uint32_t creation_tolerance = 1 * MINUTE;
+        uint32_t creation_tolerance = 1 * HOUR;
     };
 
     typedef singleton<N(petconfig), st_pet_config> pet_config_singleton;

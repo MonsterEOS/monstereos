@@ -23,6 +23,17 @@
     "algorithm": "cpp",
     "__bit_reference": "cpp",
     "__hash_table": "cpp",
-    "__string": "cpp"
+    "__string": "cpp",
+    "random": "cpp",
+    "__functional_base": "cpp",
+    "atomic": "cpp",
+    "bitset": "cpp",
+    "chrono": "cpp",
+    "functional": "cpp",
+    "limits": "cpp",
+    "memory": "cpp",
+    "ratio": "cpp",
+    "tuple": "cpp",
+    "type_traits": "cpp"
   }
 }

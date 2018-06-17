@@ -8,16 +8,6 @@ void pet::createpet(name owner,
     // initialize config
     st_pet_config pc = _get_pet_config();
 
-    auto owner_pets = pets.get_index<N(byowner)>();
-    auto last_pet_itr = owner_pets.upper_bound(owner);
-    auto& last_pet = *last_pet_itr;
-    print("\nchecking owner pets");
-    if (last_pet_itr != owner_pets.end()) {
-        uint32_t last_creation_interval = now() - last_pet.created_at;
-        print("\nlast created pet at ", last_pet.created_at);
-        eosio_assert(last_creation_interval > pc.creation_tolerance, "You can't create another pet now");
-    }
-
     // check balance in case fee is active
     if (pc.creation_fee.amount > 0) {
         _tb_accounts accounts(_self, owner);
@@ -31,6 +21,27 @@ void pet::createpet(name owner,
         accounts.modify(itr_balance, owner, [&](auto& r){
             r.balance = new_balance;
         });
+    } else if (pc.creation_tolerance > 0) {
+
+        // check last pet creation tolerance
+        auto owner_pets = pets.get_index<N(byowner)>();
+        auto last_pet_itr = owner_pets.find(owner);
+
+        uint32_t last_created_date = 0;
+
+        for (; last_pet_itr != owner_pets.end(); last_pet_itr++) {
+            auto pet = *last_pet_itr;
+            if (pet.owner != owner) break;
+            last_created_date = pet.created_at > last_created_date ?
+                pet.created_at : last_created_date;
+        }
+
+        if (last_created_date > 0) {
+            print("\nlast created pet at: ", last_created_date);
+        }
+
+        uint32_t last_creation_interval = now() - last_created_date;
+        eosio_assert(last_creation_interval > pc.creation_tolerance, "You can't create another pet now");
     }
 
     uuid new_id = _next_id();
