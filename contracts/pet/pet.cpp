@@ -8,26 +8,25 @@ void pet::createpet(name owner,
     // initialize config
     st_pet_config pc = _get_pet_config();
 
-    // check balance
-    _tb_balances balances(_self, owner);
-    symbol_type eos{S(4,EOS)};
-    auto itr_balance = balances.find(eos);
-    eosio_assert(itr_balance != balances.end(), "Your wallet is empty");
+    // check balance in case fee is active
+    if (pc.creation_fee.amount > 0) {
+        _tb_accounts accounts(_self, owner);
+        symbol_type eos{S(4,EOS)};
+        auto itr_balance = accounts.find(eos);
+        eosio_assert(itr_balance != accounts.end(), "Your wallet is empty");
 
-    // calculate cost and save it, if have enough funds
-    asset new_balance = itr_balance->funds - pc.creation_fee;
-    eosio_assert(new_balance.amount >= 0, "You don't have enough funds to create a Monster!");
-    balances.modify(itr_balance, owner, [&](auto& r){
-        r.funds = new_balance;
-    });
-
-
-    print("creating pet");
+        // calculate cost and save it, if have enough funds
+        asset new_balance = itr_balance->balance - pc.creation_fee;
+        eosio_assert(new_balance.amount >= 0, "You don't have enough funds to create a Monster!");
+        accounts.modify(itr_balance, owner, [&](auto& r){
+            r.balance = new_balance;
+        });
+    }
 
     uuid new_id = _next_id();
 
     // creates the pet
-    pets.emplace(_self, [&](auto &r) {
+    pets.emplace(owner, [&](auto &r) {
         st_pets pet{};
         pet.id = new_id;
         pet.name = pet_name;
@@ -37,21 +36,12 @@ void pet::createpet(name owner,
         pet.last_play_at = pet.created_at;
         pet.last_bed_at = pet.created_at;
         pet.last_shower_at = pet.created_at;
+        pet.last_awake_at = 0;
 
         pet.type = (_hash_str(pet_name) + pet.created_at + pet.id + owner) % PET_TYPES;
 
         r = pet;
     });
-
-    // first update in the next minute
-    transaction update{};
-    update.actions.emplace_back(
-        permission_level{_self, N(active)},
-        _self, N(updatepet),
-        std::make_tuple(new_id, 1)
-    );
-    update.delay_sec = 60;
-    update.send(new_id, _self);
 }
 
 void pet::updatepet(uuid pet_id, uint32_t iteration) {
@@ -65,25 +55,8 @@ void pet::updatepet(uuid pet_id, uint32_t iteration) {
     _update(pet);
 
     pets.modify(itr_pet, 0, [&](auto &r) {
-        r.health = pet.health;
         r.death_at = pet.death_at;
-        r.hunger = pet.hunger;
-        r.awake = pet.awake;
-        r.happiness = pet.happiness;
-        r.clean = pet.clean;
     });
-
-    // recursive infinite update if not dead, each minute
-    uint32_t new_iteration = iteration + 1;
-    uint64_t new_trx_id = (pet_id << 32 | new_iteration);
-    transaction update{};
-    update.actions.emplace_back(
-        permission_level{_self, N(active)},
-        _self, N(updatepet),
-        std::make_tuple(pet_id, new_iteration)
-    );
-    update.delay_sec = 60;
-    update.send(new_trx_id, _self);
 }
 
 void pet::feedpet(uuid pet_id) {
@@ -94,28 +67,23 @@ void pet::feedpet(uuid pet_id) {
 
     _update(pet);
 
+    st_pet_config pc = _get_pet_config();
+
     pets.modify(itr_pet, 0, [&](auto &r) {
-        r.health = pet.health;
         r.death_at = pet.death_at;
-        r.hunger = pet.hunger;
-        r.awake = pet.awake;
-        r.happiness = pet.happiness;
-        r.clean = pet.clean;
 
         uint32_t current_time = now();
-        bool can_eat = (current_time - pet.last_fed_at) > MIN_HUNGER_INTERVAL && r.is_sleeping == 0;
 
-        bool is_alive = r.health > 0;
+        bool can_eat = (current_time - pet.last_fed_at) > pc.min_hunger_interval &&
+            !r.is_sleeping();
 
-        if (can_eat && is_alive) {
-            r.health = MAX_HEALTH;
-            r.hunger = MAX_HUNGER_POINTS;
+        if (can_eat && r.is_alive()) {
             r.last_fed_at = now();
-        } else if (r.is_sleeping > 0) {
+        } else if (r.is_sleeping()) {
             print("I111|Zzzzzzzz...");
         } else if (!can_eat) {
             print("I110|Not hungry");
-        } else if(!is_alive) {
+        } else if(!r.is_alive()) {
             print("I199|Dead don't feed");
         }
     });
@@ -130,25 +98,21 @@ void pet::bedpet(uuid pet_id) {
 
     _update(pet);
 
+    st_pet_config pc = _get_pet_config();
+
     pets.modify(itr_pet, 0, [&](auto &r) {
-        r.health = pet.health;
         r.death_at = pet.death_at;
-        r.hunger = pet.hunger;
-        r.awake = pet.awake;
-        r.happiness = pet.happiness;
-        r.clean = pet.clean;
 
         uint32_t current_time = now();
-        bool can_sleep = (current_time - pet.last_awake_at) > MIN_AWAKE_INTERVAL && r.is_sleeping == 0;
 
-        bool is_alive = r.health > 0;
+        bool can_sleep = (current_time - pet.last_awake_at) > pc.min_awake_interval &&
+            !r.is_sleeping();
 
-        if (can_sleep && is_alive) {
-            r.is_sleeping = 1;
+        if (can_sleep && r.is_alive()) {
             r.last_bed_at = now();
         } else if (!can_sleep) {
             print("I201|Not now sir!");
-        } else if(!is_alive) {
+        } else if(!r.is_alive()) {
             print("I299|Dead don't sleep");
         }
     });
@@ -163,39 +127,23 @@ void pet::awakepet(uuid pet_id) {
 
     _update(pet);
 
+    st_pet_config pc = _get_pet_config();
+
     pets.modify(itr_pet, 0, [&](auto &r) {
-        r.health = pet.health;
         r.death_at = pet.death_at;
-        r.hunger = pet.hunger;
-        r.awake = pet.awake;
-        r.happiness = pet.happiness;
-        r.clean = pet.clean;
 
         uint32_t current_time = now();
-        bool can_awake = (current_time - pet.last_bed_at) > MIN_SLEEP_PERIOD && r.is_sleeping == 1;
+        bool can_awake = (current_time - pet.last_bed_at) > pc.min_sleep_period &&
+            r.is_sleeping();
 
-        bool is_alive = r.health > 0;
-
-        if (can_awake && is_alive) {
-            r.is_sleeping = 0;
+        if (can_awake && r.is_alive()) {
             r.last_awake_at = now();
-            r.awake = MAX_AWAKE_POINTS;
         } else if (!can_awake) {
             print("I301|Zzzzzzz");
-        } else if(!is_alive) {
+        } else if(!r.is_alive()) {
             print("I399|Dead don't awake");
         }
     });
-}
-
-
-// @abi action
-void pet::playpet(uuid pet_id) {
-    print("play lazy developer");
-}
-
-void pet::washpet(uuid pet_id) {
-    print("wash lazy developer");
 }
 
 void pet::transfer(uint64_t sender, uint64_t receiver) {
@@ -217,19 +165,19 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
     eosio_assert(transfer_data.quantity.is_valid(), "Invalid token transfer");
     eosio_assert(transfer_data.quantity.amount > 0, "Quantity must be positive");
 
-    _tb_balances balances(_self, transfer_data.from);
+    _tb_accounts accounts(_self, transfer_data.from);
     asset new_balance;
-    auto itr_balance = balances.find(transfer_data.quantity.symbol);
-    if(itr_balance != balances.end()) {
-        balances.modify(itr_balance, transfer_data.from, [&](auto& r){
+    auto itr_balance = accounts.find(transfer_data.quantity.symbol);
+    if(itr_balance != accounts.end()) {
+        accounts.modify(itr_balance, transfer_data.from, [&](auto& r){
             // Assumption: total currency issued by eosio.token will not overflow asset
-            r.funds += transfer_data.quantity;
-            new_balance = r.funds;
+            r.balance += transfer_data.quantity;
+            new_balance = r.balance;
         });
     } else {
-        balances.emplace(transfer_data.from, [&](auto& r){
-            r.funds = transfer_data.quantity;
-            new_balance = r.funds;
+        accounts.emplace(transfer_data.from, [&](auto& r){
+            r.balance = transfer_data.quantity;
+            new_balance = r.balance;
         });
     }
 
@@ -237,18 +185,15 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
     print("\n", name{transfer_data.from}, " funds available: ", new_balance);
 }
 
-uint8_t pet::_calc_hunger_hp(st_pets &pet, const uint32_t &current_time) {
+uint8_t pet::_calc_hunger_hp(const st_pet_config &pc, const uint32_t &last_fed_at, const uint32_t &current_time) {
     // how long it's hungry?
-    uint32_t hungry_seconds = current_time - pet.last_fed_at;
-    uint8_t hungry_points = (uint8_t) (hungry_seconds * MAX_HUNGER_POINTS / HUNGER_TO_ZERO);
+    uint32_t hungry_seconds = current_time - last_fed_at;
+    uint8_t hungry_points = (uint8_t) (hungry_seconds * pc.max_hunger_points / pc.hunger_to_zero);
 
     // calculates the effective hunger on hp, if pet hunger is 0
     uint8_t effect_hp_hunger = 0;
-    if (hungry_points < MAX_HUNGER_POINTS) {
-        pet.hunger = MAX_HUNGER_POINTS - hungry_points;
-    } else {
-        effect_hp_hunger = (uint8_t) ((hungry_points - MAX_HUNGER_POINTS) / HUNGER_HP_MODIFIER);
-        pet.hunger = 0;
+    if (hungry_points >= pc.max_hunger_points) {
+        effect_hp_hunger = (uint8_t) ((hungry_points - pc.max_hunger_points) / pc.hunger_hp_modifier);
     }
 
     return effect_hp_hunger;
@@ -256,19 +201,18 @@ uint8_t pet::_calc_hunger_hp(st_pets &pet, const uint32_t &current_time) {
 
 void pet::_update(st_pets &pet) {
 
-    eosio_assert(pet.health > 0 && pet.death_at == 0, "E099|Pet is dead.");
+    eosio_assert(pet.is_alive(), "E099|Pet is dead.");
+
+    st_pet_config pc = _get_pet_config();
 
     uint32_t current_time = now();
 
-    uint8_t effect_hp_hunger = _calc_hunger_hp(pet, current_time);
+    uint8_t effect_hp_hunger = _calc_hunger_hp(pc, pet.last_fed_at, current_time);
 
-    int8_t hp = MAX_HEALTH - effect_hp_hunger;
+    int8_t hp = pc.max_health - effect_hp_hunger;
 
     if (hp <= 0) {
-        pet.health = 0;
         pet.death_at = current_time;
-    } else {
-        pet.health = hp;
     }
 }
 
@@ -301,7 +245,7 @@ pet::st_pet_config pet::_get_pet_config(){
 // and EOSIO_ABI_EX to generate the listener action
 // https://eosio.stackexchange.com/q/421/54
 
-// EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet)(transfer))
+// EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(transfer))
 
 #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
 extern "C" { \
@@ -321,4 +265,4 @@ extern "C" { \
    } \
 }
 
-EOSIO_ABI_EX(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(playpet)(washpet)(transfer))
+EOSIO_ABI_EX(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(transfer))
