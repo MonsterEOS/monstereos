@@ -56,6 +56,7 @@ initialModel =
     , wallet = Wallet 0
     , depositAmount = 3
     , showWallet = False
+    , globalConfig = initialConfig
     }
 
 
@@ -117,6 +118,41 @@ type alias User =
     }
 
 
+type alias GlobalConfig =
+    { lastId : Int
+    , creationFee : String
+    , maxHealth : Int
+    , hungerToZero : Int
+    , minHungerInterval : Int
+    , maxHungerPoints : Int
+    , hungerHpModifier : Int
+    , minAwakeInterval : Int
+    , minSleepPeriod : Int
+    , creationTolerance : Int
+    , monstersToActivateFee : Int
+    , monstersPackToIncreaseFee : Int
+    , eosFeePerMonstersPack : Int
+    }
+
+
+initialConfig : GlobalConfig
+initialConfig =
+    { lastId = 0
+    , creationFee = "0.0000 EOS"
+    , maxHealth = 0
+    , hungerToZero = 0
+    , minHungerInterval = 0
+    , maxHungerPoints = 0
+    , hungerHpModifier = 0
+    , minAwakeInterval = 0
+    , minSleepPeriod = 0
+    , creationTolerance = 0
+    , monstersToActivateFee = 0
+    , monstersPackToIncreaseFee = 0
+    , eosFeePerMonstersPack = 0
+    }
+
+
 type alias Monster =
     { id : Int
     , owner : String
@@ -167,6 +203,7 @@ type alias Model =
     , wallet : Wallet
     , showWallet : Bool
     , depositAmount : Float
+    , globalConfig : GlobalConfig
     }
 
 
@@ -215,13 +252,22 @@ port setTitle : String -> Cmd msg
 port listMonsters : () -> Cmd msg
 
 
-port getWallet : () -> Cmd msg
-
-
 port setMonsters : (JD.Value -> msg) -> Sub msg
 
 
 port setMonstersFailed : (String -> msg) -> Sub msg
+
+
+port getGlobalConfig : () -> Cmd msg
+
+
+port setGlobalConfig : (JD.Value -> msg) -> Sub msg
+
+
+port setGlobalConfigFailed : (String -> msg) -> Sub msg
+
+
+port getWallet : () -> Cmd msg
 
 
 port setWallet : (JD.Value -> msg) -> Sub msg
@@ -308,6 +354,8 @@ subscriptions model =
         , setMonstersFailed SetMonstersFailure
         , setWallet SetWallet
         , setWalletFailed SetWalletFailure
+        , setGlobalConfig SetGlobalConfig
+        , setGlobalConfigFailed SetGlobalConfigFailure
         , depositSucceed DepositSucceed
         , depositFailed DepositFailed
         , feedFailed MonsterFeedFailed
@@ -337,6 +385,8 @@ type Msg
     | ScatterRejection String
     | SetWallet JD.Value
     | SetWalletFailure String
+    | SetGlobalConfig JD.Value
+    | SetGlobalConfigFailure String
     | DepositSucceed String
     | DepositFailed String
     | RequestDeposit Float
@@ -387,7 +437,7 @@ update msg model =
             )
 
         RefreshData _ ->
-            ( model, Cmd.batch [ listMonsters (), getWallet () ] )
+            ( model, Cmd.batch [ listMonsters (), getWallet (), getGlobalConfig () ] )
 
         RequestMonsterFeed petId ->
             let
@@ -454,7 +504,7 @@ update msg model =
                 , newMonsterName = ""
                 , notifications = [ Notification (Success ("Monster  " ++ model.newMonsterName ++ " Created! TrxId: " ++ trxId)) model.currentTime (toString model.currentTime) ] ++ model.notifications
               }
-            , Cmd.batch [ listMonsters (), getWallet () ]
+            , Cmd.batch [ listMonsters (), getWallet (), getGlobalConfig () ]
             )
 
         MonsterCreationFailed err ->
@@ -468,7 +518,7 @@ update msg model =
                         , content = MyMonsters
                         , notifications = [ Notification (Success ("Welcome " ++ user.eosAccount)) model.currentTime "signInSuccess" ] ++ model.notifications
                       }
-                    , Cmd.batch [ listMonsters (), getWallet () ]
+                    , Cmd.batch [ listMonsters (), getWallet (), getGlobalConfig () ]
                     )
 
                 Err err ->
@@ -498,6 +548,29 @@ update msg model =
             ( { model
                 | isLoading = False
                 , notifications = [ Notification (Error ("Fail to load Wallet: " ++ err)) model.currentTime (toString model.currentTime) ] ++ model.notifications
+              }
+            , Cmd.none
+            )
+
+        SetGlobalConfig rawGlobalConfig ->
+            case (JD.decodeValue globalConfigDecoder rawGlobalConfig) of
+                Ok globalConfig ->
+                    ( { model | globalConfig = globalConfig, isLoading = False }
+                    , Cmd.none
+                    )
+
+                Err err ->
+                    ( { model
+                        | notifications = [ Notification (Error ("Fail to Parse GlobalConfig: " ++ err)) model.currentTime "parseGlobalConfigFailed" ] ++ model.notifications
+                        , isLoading = False
+                      }
+                    , Cmd.none
+                    )
+
+        SetGlobalConfigFailure err ->
+            ( { model
+                | isLoading = False
+                , notifications = [ Notification (Error ("Fail to load Global Config: " ++ err)) model.currentTime (toString model.currentTime) ] ++ model.notifications
               }
             , Cmd.none
             )
@@ -656,7 +729,7 @@ handleActionResponse model msg action isSuccess =
         ( notification, cmd ) =
             if isSuccess then
                 ( Notification (Success ("Action attempt to " ++ action ++ " ! TrxId: " ++ msg)) time timeTxt
-                , Cmd.batch [ listMonsters (), getWallet () ]
+                , Cmd.batch [ listMonsters (), getWallet (), getGlobalConfig () ]
                 )
             else
                 ( Notification (Error ("Fail to execute " ++ action ++ " action: " ++ msg)) time timeTxt, Cmd.none )
@@ -697,6 +770,24 @@ userDecoder =
         (JD.field "publicKey" JD.string)
 
 
+globalConfigDecoder : JD.Decoder GlobalConfig
+globalConfigDecoder =
+    JDP.decode GlobalConfig
+        |> JDP.required "last_id" JD.int
+        |> JDP.required "creation_fee" JD.string
+        |> JDP.required "max_health" JD.int
+        |> JDP.required "hunger_to_zero" JD.int
+        |> JDP.required "min_hunger_interval" JD.int
+        |> JDP.required "max_hunger_points" JD.int
+        |> JDP.required "hunger_hp_modifier" JD.int
+        |> JDP.required "min_awake_interval" JD.int
+        |> JDP.required "min_sleep_period" JD.int
+        |> JDP.required "creation_tolerance" JD.int
+        |> JDP.required "monsters_to_activate_fee" JD.int
+        |> JDP.required "monsters_pack_to_increase_fee" JD.int
+        |> JDP.required "eos_fee_per_monsters_pack" JD.int
+
+
 walletDecoder : JD.Decoder Wallet
 walletDecoder =
     JDP.decode Wallet
@@ -713,16 +804,16 @@ monstersDecoder =
             |> JDP.required "type" JD.int
             |> JDP.required "created_at" JD.float
             |> JDP.required "death_at" JD.float
-            |> JDP.required "health" JD.int
-            |> JDP.required "hunger" JD.int
+            |> JDP.hardcoded 100
+            |> JDP.hardcoded 100
             |> JDP.required "last_fed_at" JD.float
-            |> JDP.required "awake" JD.int
-            |> JDP.required "is_sleeping" JD.bool
+            |> JDP.hardcoded 100
+            |> JDP.hardcoded True
             |> JDP.required "last_bed_at" JD.float
             |> JDP.required "last_awake_at" JD.float
-            |> JDP.required "happiness" JD.int
+            |> JDP.hardcoded 100
             |> JDP.required "last_play_at" JD.float
-            |> JDP.required "clean" JD.int
+            |> JDP.hardcoded 100
             |> JDP.required "last_shower_at" JD.float
         )
 
@@ -1000,19 +1091,37 @@ walletModal model =
 
         scatterInstalled =
             model.scatterInstalled
+
+        initialDeposit =
+            String.split " " model.globalConfig.creationFee
+                |> List.head
+
+        initialDepositText =
+            case initialDeposit of
+                Just val ->
+                    val
+
+                Nothing ->
+                    "1"
     in
         modalCard model
             "Deposit EOS in Wallet"
             ToggleWallet
             [ form []
-                [ p [] [ text ("You have " ++ (toString model.wallet.funds) ++ " EOS available. Each monster has a creation fee of 1 EOS.") ]
-                , fieldInput
-                    model
-                    "Deposit EOS Amount"
-                    (toString model.depositAmount)
-                    "5"
-                    "suitcase"
-                    UpdateDepositAmount
+                [ p []
+                    [ text ("You have " ++ (toString model.wallet.funds) ++ " EOS available in your MonsterEOS Wallet.")
+                    , br [] []
+                    , text (" Each monster has a creation fee of " ++ model.globalConfig.creationFee ++ ".")
+                    ]
+                , div [ class "has-margin-top" ]
+                    [ fieldInput
+                        model
+                        "Deposit EOS Amount"
+                        initialDepositText
+                        initialDepositText
+                        "suitcase"
+                        UpdateDepositAmount
+                    ]
                 ]
             ]
             (Just ( "Add Funds", SubmitDeposit ))
@@ -1144,13 +1253,19 @@ topMenu model =
                         , span [] [ b [] [ text model.user.eosAccount ] ]
                         , text "!"
                         ]
-                    , a
-                        [ class ("navbar-item" ++ monstersActiveClass)
-                        , onClick ToggleWallet
-                        , href "javascript:;"
-                        ]
-                        [ icon "suitcase" False False
-                        , text (toString model.wallet.funds ++ " EOS")
+                    , div [ class "navbar-item" ]
+                        [ div [ class "field is-grouped" ]
+                            [ p [ class "control" ]
+                                [ a
+                                    [ class "button is-primary"
+                                    , onClick ToggleWallet
+                                    , href "javascript:;"
+                                    ]
+                                    [ span [ class "icon" ] [ icon "suitcase" False False ]
+                                    , span [] [ text (toString model.wallet.funds ++ " EOS") ]
+                                    ]
+                                ]
+                            ]
                         ]
                     , a
                         [ class ("navbar-item" ++ monstersActiveClass)
@@ -1366,7 +1481,7 @@ monsterCard monster currentTime isLoading readOnly =
                                 , deathInfo
                                 ]
                             ]
-                        , p [ class "is-large has-top-margin" ]
+                        , p [ class "is-large has-margin-top" ]
                             [ b [] [ text "HP: " ]
                             , progress [ class "progress is-danger", Html.Attributes.max "100", value (toString monster.health) ]
                                 [ text (toString monster.health) ]
