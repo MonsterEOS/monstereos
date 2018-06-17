@@ -39,17 +39,12 @@ cleos create account eosio friedger ${EOS_KEY} ${EOS_KEY}
 cleos push action eosio.token issue '[ "friedger", "10.0000 EOS", "initial" ]' -p eosio
 
 # depositting in monstereosio account
-
+cleos push action eosio.token transfer '["leo", "monstereosio", "1.0000 EOS", "deposit"]' -p leo
 
 # monsters creation
-echo "\ncreating KARMA Categories"
-cleos push action karmaappioio createcat '[ "Mankind" ]' -p karmaappioio
-cleos push action karmaappioio createcat '[ "Homeless" ]' -p karmaappioio
-cleos push action karmaappioio createcat '[ "Animals" ]' -p karmaappioio
-cleos push action karmaappioio createcat '[ "Kids" ]' -p karmaappioio
-cleos push action karmaappioio createcat '[ "Technologi" ]' -p karmaappioio
-cleos push action karmaappioio createcat '[ "Environment" ]' -p karmaappioio
-cleos push action karmaappioio createcat '[ "Health" ]' -p karmaappioio
+echo "\ncreating few monsters"
+cleos push action monstereosio createpet '[ "leo", "Bubble" ]' -p leo
+cleos push action monstereosio createpet '[ "leo", "Cachero" ]' -p leo
 
 # monsters stats
 echo "\ngetting leordev balance"
