@@ -804,16 +804,16 @@ monstersDecoder =
             |> JDP.required "type" JD.int
             |> JDP.required "created_at" JD.float
             |> JDP.required "death_at" JD.float
-            |> JDP.hardcoded 100
-            |> JDP.hardcoded 100
+            |> JDP.required "health" JD.int
+            |> JDP.required "hunger" JD.int
             |> JDP.required "last_fed_at" JD.float
-            |> JDP.hardcoded 100
-            |> JDP.hardcoded True
+            |> JDP.required "awake" JD.int
+            |> JDP.required "is_sleeping" JD.bool
             |> JDP.required "last_bed_at" JD.float
             |> JDP.required "last_awake_at" JD.float
-            |> JDP.hardcoded 100
+            |> JDP.required "happiness" JD.int
             |> JDP.required "last_play_at" JD.float
-            |> JDP.hardcoded 100
+            |> JDP.required "clean" JD.int
             |> JDP.required "last_shower_at" JD.float
         )
 

@@ -119,17 +119,7 @@ app.ports.listMonsters.subscribe(async () => {
                 "code": MONSTERS_ACCOUNT,
                 "table": MONSTERS_TABLE,
                 "limit": 5000
-            }).then(res => res.rows.map(row =>
-              Object.assign({}, row, {
-              created_at: row.created_at * 1000,
-              death_at: row.death_at * 1000,
-              last_bed_at: row.last_bed_at * 1000,
-              last_fed_at: row.last_fed_at * 1000,
-              last_play_at: row.last_play_at * 1000,
-              last_shower_at: row.last_shower_at * 1000,
-              last_awake_at: row.last_awake_at * 1000,
-              is_sleeping: row.last_bed_at > row.last_awake_at
-            }))).catch(e => {
+            }).then(res => res.rows.map(parseMonster)).catch(e => {
               app.ports.setMonstersFailed.send('Error while listing Monsters')
             })
 
@@ -302,5 +292,40 @@ app.ports.requestPlay.subscribe(async (petId) => {
 app.ports.requestWash.subscribe(async (petId) => {
   app.ports.feedSucceed.send('lazy developer must build "Wash" action')
 })
+
+/**
+ * We should've probably parse the monster inside ELM, but as javascript
+ * is the most widely used among the community we decided to leave this
+ * monter stats calcs here
+ */
+const parseMonster = row => {
+
+  // set default monster attributes
+  const monster = Object.assign({}, row, {
+    created_at: row.created_at * 1000,
+    death_at: row.death_at * 1000,
+    last_bed_at: row.last_bed_at * 1000,
+    last_fed_at: row.last_fed_at * 1000,
+    last_play_at: row.last_play_at * 1000,
+    last_shower_at: row.last_shower_at * 1000,
+    last_awake_at: row.last_awake_at * 1000,
+    is_sleeping: row.last_bed_at > row.last_awake_at
+  })
+
+  // calculates hp
+  monster.health = 100;
+
+  // calculates food bar
+  monster.hunger = 100;
+
+  // calculates awake bar
+  monster.awake = 100;
+
+  // future props
+  monster.happiness = 100;
+  monster.clean = 100;
+
+  return monster;
+}
 
 registerServiceWorker();
