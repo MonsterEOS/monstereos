@@ -12,7 +12,7 @@ void pet::createpet(name owner,
     if (pc.creation_fee.amount > 0) {
         _tb_accounts accounts(_self, owner);
         symbol_type eos{S(4,EOS)};
-        auto itr_balance = accounts.find(eos);
+        auto itr_balance = accounts.find(eos.name());
         eosio_assert(itr_balance != accounts.end(), "Your wallet is empty");
 
         // calculate cost and save it, if have enough funds
@@ -252,6 +252,21 @@ uint64_t pet::_hash_str(const string &str) {
 uuid pet::_next_id(){
     st_pet_config pc = _get_pet_config();
     pc.last_id++;
+
+    // by default, activates pet creation fee after Monster ID 1000, it's
+    // 0.1 EOS per each 100 monsters to help us with our coffee :)
+    if (pc.last_id >= pc.monsters_to_activate_fee) {
+        uint64_t monsters = pc.last_id - pc.monsters_to_activate_fee;
+
+        uint64_t intervals = floor(monsters / pc.monsters_pack_to_increase_fee) + 1;
+        int64_t fee = intervals * pc.eos_fee_per_monsters_pack;
+        if (fee > 0) {
+            pc.creation_fee = asset{fee,S(4,EOS)};
+        } else {
+            pc.creation_fee = asset{0,S(4,EOS)};
+        }
+    }
+
     pet_config.set(pc, _self);
     return pc.last_id;
 }

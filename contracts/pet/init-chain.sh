@@ -39,6 +39,8 @@ cleos create account eosio friedger ${EOS_KEY} ${EOS_KEY}
 cleos push action eosio.token issue '[ "friedger", "10.0000 EOS", "initial" ]' -p eosio
 
 # depositting in monstereosio account
+sleep .5
+echo "\npinging wallet"
 cleos push action eosio.token transfer '["leordev", "monstereosio", "1.0000 EOS", "deposit"]' -p leordev
 
 # monsters creation

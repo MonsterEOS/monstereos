@@ -85,6 +85,15 @@
         },{
           "name": "creation_tolerance",
           "type": "uint32"
+        },{
+          "name": "monsters_to_activate_fee",
+          "type": "uint32"
+        },{
+          "name": "monsters_pack_to_increase_fee",
+          "type": "uint32"
+        },{
+          "name": "eos_fee_per_monsters_pack",
+          "type": "uint32"
         }
       ]
     },{

@@ -10,6 +10,7 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/transaction.hpp>
 #include <eosiolib/singleton.hpp>
+#include <math.h>
 
 using namespace eosio;
 
@@ -115,8 +116,8 @@ public:
 
     // @abi table petconfig i64
     struct st_pet_config {
-        uuid last_id = 0;
-        asset creation_fee = asset{0,S(4,EOS)};
+        uuid     last_id = 0;
+        asset    creation_fee = asset{0,S(4,EOS)};
         uint8_t  max_health = 100;
         uint32_t hunger_to_zero = 10 * HOUR;
         uint32_t min_hunger_interval = 3 * HOUR;
@@ -125,6 +126,9 @@ public:
         uint32_t min_awake_interval = 8 * HOUR;
         uint32_t min_sleep_period = 4 * HOUR;
         uint32_t creation_tolerance = 1 * HOUR;
+        uint32_t monsters_to_activate_fee = 1000;
+        uint32_t monsters_pack_to_increase_fee = 100;
+        uint32_t eos_fee_per_monsters_pack = 1000; // 0.1000 EOS per Pack
     };
 
     typedef singleton<N(petconfig), st_pet_config> pet_config_singleton;
