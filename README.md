@@ -32,3 +32,8 @@ You will need to have Scatter installed and create an account on EOS JungleTestN
 1. [Click here to open JungleNet and click in Create an account there](http://dev.cryptolions.io)
 1. Now open your Scatter again, click on Identities, import your key pair and type the account name of the account you created on Junglenet and save
 1. That's it! You are all set, close this help window and click in Enter with Scatter to start playing! Have fun!
+
+# Disclaimer
+This project remains purely experimental software and is not to be considered in any way production fit nor has any guarantee of any kind. Use at your own risk.
+
+Any transferred tokens sent to account name 'monstereosio' will not return any entitlement of any asset, investment digital or physical including the sent asset itself. Any proceeds received from any user transfers are of the sole control and discretion of the receiver.
