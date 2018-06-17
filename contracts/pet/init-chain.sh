@@ -44,10 +44,14 @@ cleos push action eosio.token transfer '["leordev", "monstereosio", "1.0000 EOS"
 # monsters creation
 echo "\ncreating few monsters"
 cleos push action monstereosio createpet '[ "leordev", "Bubble" ]' -p leordev
+cleos push action monstereosio feedpet '[ 1 ]' -p leordev
 cleos push action monstereosio createpet '[ "leordev", "Cachero" ]' -p leordev
+cleos push action monstereosio updatepet '[ 1 ]' -p monstereosio
 
 # monsters stats
 echo "\ngetting leordev balance"
 cleos get currency balance monstereosio leordev EOS
 echo "\ngetting created monsters"
 cleos get table monstereosio monstereosio pets
+echo "\ngetting monstereosio settings"
+cleos get table monstereosio monstereosio petconfig

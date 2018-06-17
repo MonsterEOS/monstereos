@@ -25,6 +25,7 @@ typedef uint64_t uuid;
 constexpr uint8_t PET_TYPES = 109;
 constexpr uint32_t DAY = 86400;
 constexpr uint32_t HOUR = 3600;
+constexpr uint32_t MINUTE = 60;
 
 
 
@@ -45,7 +46,7 @@ public:
     void awakepet(uuid pet_id);
     void bedpet(uuid pet_id);
     void feedpet(uuid pet_id);
-    void updatepet(uuid pet_id, uint32_t iteration);
+    void updatepet(uuid pet_id);
     void createpet(name owner, string pet_name);
     void transfer(uint64_t sender, uint64_t receiver);
 
@@ -108,6 +109,7 @@ public:
     /* ------------ Contract Config Data -------- */
     /* ****************************************** */
 
+    // @abi table petconfig i64
     struct st_pet_config {
         uuid last_id = 0;
         asset creation_fee = asset{0,S(4,EOS)};
@@ -120,7 +122,7 @@ public:
         uint32_t min_sleep_period = 4 * HOUR;
     };
 
-    typedef singleton<N(pet_config), st_pet_config> pet_config_singleton;
+    typedef singleton<N(petconfig), st_pet_config> pet_config_singleton;
     pet_config_singleton pet_config;
 
     /* ****************************************** */
@@ -135,8 +137,8 @@ public:
 
     void _update(st_pets &pet);
 
-    uint8_t _calc_hunger_hp(const st_pet_config &pc,
-                            const uint32_t &last_fed_at,
-                            const uint32_t &current_time);
+    uint32_t _calc_hunger_hp(const st_pet_config &pc,
+                             const uint32_t &last_fed_at,
+                             const uint32_t &current_time);
 
 };
