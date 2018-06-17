@@ -17,6 +17,12 @@
     "unordered_map": "cpp",
     "unordered_set": "cpp",
     "vector": "cpp",
-    "optional": "cpp"
+    "optional": "cpp",
+    "iosfwd": "cpp",
+    "__tree": "cpp",
+    "algorithm": "cpp",
+    "__bit_reference": "cpp",
+    "__hash_table": "cpp",
+    "__string": "cpp"
   }
 }

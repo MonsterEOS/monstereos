@@ -82,6 +82,9 @@
         },{
           "name": "min_sleep_period",
           "type": "uint32"
+        },{
+          "name": "creation_tolerance",
+          "type": "uint32"
         }
       ]
     },{

@@ -8,6 +8,16 @@ void pet::createpet(name owner,
     // initialize config
     st_pet_config pc = _get_pet_config();
 
+    auto owner_pets = pets.get_index<N(byowner)>();
+    auto last_pet_itr = owner_pets.upper_bound(owner);
+    auto& last_pet = *last_pet_itr;
+    print("\nchecking owner pets");
+    if (last_pet_itr != owner_pets.end()) {
+        uint32_t last_creation_interval = now() - last_pet.created_at;
+        print("\nlast created pet at ", last_pet.created_at);
+        eosio_assert(last_creation_interval > pc.creation_tolerance, "You can't create another pet now");
+    }
+
     // check balance in case fee is active
     if (pc.creation_fee.amount > 0) {
         _tb_accounts accounts(_self, owner);

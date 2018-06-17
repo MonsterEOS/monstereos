@@ -83,6 +83,8 @@ public:
 
         uint64_t primary_key() const { return id; }
 
+        uint64_t get_pets_by_owner() const { return owner; }
+
         bool is_sleeping() const {
             return last_bed_at > last_awake_at;
         }
@@ -92,7 +94,9 @@ public:
         }
     };
 
-    typedef multi_index<N(pets), st_pets> _tb_pet;
+    typedef multi_index<N(pets), st_pets,
+        indexed_by<N(byowner), const_mem_fun<st_pets, uint64_t, &st_pets::get_pets_by_owner>>
+    > _tb_pet;
     _tb_pet pets;
 
     // @abi table accounts i64
@@ -120,6 +124,7 @@ public:
         uint8_t  hunger_hp_modifier = 1;
         uint32_t min_awake_interval = 8 * HOUR;
         uint32_t min_sleep_period = 4 * HOUR;
+        uint32_t creation_tolerance = 1 * MINUTE;
     };
 
     typedef singleton<N(petconfig), st_pet_config> pet_config_singleton;
