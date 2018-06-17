@@ -1218,7 +1218,7 @@ mainContent model =
                                         [ class "columns" ]
                                         [ div [ class "column" ]
                                             [ figure [ class "image" ]
-                                                [ img [ alt "Tamagotchi Monsters", src "/images/monsters/monster-105.png" ]
+                                                [ img [ alt "Tamagotchi Monsters", src "images/monsters/monster-105.png" ]
                                                     []
                                                 ]
                                             ]
@@ -1274,7 +1274,7 @@ monsterCard monster currentTime isLoading readOnly =
 
         ( sleepingClass, sleepingGif ) =
             if monster.is_sleeping && not isDead then
-                ( " sleeping", img [ src "/images/zzz.gif" ] [] )
+                ( " sleeping", img [ src "images/zzz.gif" ] [] )
             else
                 ( "", text "" )
 
@@ -1342,7 +1342,7 @@ monsterCard monster currentTime isLoading readOnly =
             [ div [ class "card" ]
                 [ div [ class "card-image" ]
                     [ figure [ class ("image monster-image is-square" ++ deadImgClass) ]
-                        [ img [ alt monster.name, class sleepingClass, src ("/images/monsters/monster-" ++ (toString monster.mtype) ++ ".png") ]
+                        [ img [ alt monster.name, class sleepingClass, src ("images/monsters/monster-" ++ (toString monster.mtype) ++ ".png") ]
                             []
                         , sleepingGif
                         ]

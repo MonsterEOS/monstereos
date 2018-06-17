@@ -44,9 +44,9 @@ void pet::createpet(name owner,
     });
 }
 
-void pet::updatepet(uuid pet_id, uint32_t iteration) {
+void pet::updatepet(uuid pet_id) {
     require_auth(_self);
-    print(pet_id, "|", iteration, ": updating pet ");
+    print(pet_id, "| updating pet ");
 
     auto itr_pet = pets.find(pet_id);
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
@@ -94,6 +94,7 @@ void pet::bedpet(uuid pet_id) {
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     st_pets pet = *itr_pet;
 
+    // only owners can make pets sleep
     require_auth(pet.owner);
 
     _update(pet);
@@ -123,6 +124,7 @@ void pet::awakepet(uuid pet_id) {
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     st_pets pet = *itr_pet;
 
+    // only owners can wake up pets
     require_auth(pet.owner);
 
     _update(pet);
@@ -167,7 +169,7 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
 
     _tb_accounts accounts(_self, transfer_data.from);
     asset new_balance;
-    auto itr_balance = accounts.find(transfer_data.quantity.symbol);
+    auto itr_balance = accounts.find(transfer_data.quantity.symbol.name());
     if(itr_balance != accounts.end()) {
         accounts.modify(itr_balance, transfer_data.from, [&](auto& r){
             // Assumption: total currency issued by eosio.token will not overflow asset
@@ -185,16 +187,19 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
     print("\n", name{transfer_data.from}, " funds available: ", new_balance);
 }
 
-uint8_t pet::_calc_hunger_hp(const st_pet_config &pc, const uint32_t &last_fed_at, const uint32_t &current_time) {
+uint32_t pet::_calc_hunger_hp(const st_pet_config &pc, const uint32_t &last_fed_at, const uint32_t &current_time) {
     // how long it's hungry?
     uint32_t hungry_seconds = current_time - last_fed_at;
-    uint8_t hungry_points = (uint8_t) (hungry_seconds * pc.max_hunger_points / pc.hunger_to_zero);
+    uint32_t hungry_points = hungry_seconds * pc.max_hunger_points / pc.hunger_to_zero;
 
     // calculates the effective hunger on hp, if pet hunger is 0
-    uint8_t effect_hp_hunger = 0;
+    uint32_t effect_hp_hunger = 0;
     if (hungry_points >= pc.max_hunger_points) {
-        effect_hp_hunger = (uint8_t) ((hungry_points - pc.max_hunger_points) / pc.hunger_hp_modifier);
+        effect_hp_hunger = (hungry_points - pc.max_hunger_points) / pc.hunger_hp_modifier;
     }
+
+    print("\npet hungry_points=", hungry_points);
+    print("\npet hungry_seconds=", hungry_seconds);
 
     return effect_hp_hunger;
 }
@@ -207,9 +212,12 @@ void pet::_update(st_pets &pet) {
 
     uint32_t current_time = now();
 
-    uint8_t effect_hp_hunger = _calc_hunger_hp(pc, pet.last_fed_at, current_time);
+    uint32_t effect_hp_hunger = _calc_hunger_hp(pc, pet.last_fed_at, current_time);
 
-    int8_t hp = pc.max_health - effect_hp_hunger;
+    int32_t hp = pc.max_health - effect_hp_hunger;
+
+    print("\npet hp=", hp);
+    print("\npet effect_hp_hunger=", effect_hp_hunger);
 
     if (hp <= 0) {
         pet.death_at = current_time;
