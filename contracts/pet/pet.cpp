@@ -36,7 +36,7 @@ void pet::createpet(name owner,
     eosio_assert(pet_name.length() >= 1, "name must have at least 1 character");
     eosio_assert(pet_name.length() <= 20, "name cannot exceed 20 chars");
     eosio_assert(pet_name.length() > count_spaces(pet_name), "name cannot be composed of spaces only");
-    eosio_assert(!_pet_name_exists(pet_name), "duplicated pet name");
+    // eosio_assert(!_pet_name_exists(pet_name), "duplicated pet name");
 
     // initialize config
     st_pet_config pc = _get_pet_config();
@@ -296,13 +296,6 @@ uint64_t pet::_hash_str(const string &str) {
 uuid pet::_next_id(){
     st_pet_config pc = _get_pet_config();
     pc.last_id++;
-
-    // by default, activates pet creation fee after Monster ID 1000, it's
-    // 1 EOS per monster to help us to buy some coffee :)
-    if (pc.last_id >= pc.monsters_to_activate_fee) {
-        pc.creation_fee = asset{10000,S(4,EOS)};
-    }
-
     pet_config.set(pc, _self);
     return pc.last_id;
 }
