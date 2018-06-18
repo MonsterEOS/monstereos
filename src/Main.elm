@@ -437,10 +437,19 @@ update msg model =
 
         RequestMonsterFeed petId ->
             let
-                newModel =
+                warnNotification =
                     handleMonsterRequest model Feed petId
             in
-                ( { newModel | isLoading = True }, requestFeed (petId) )
+                case warnNotification of
+                    Just notification ->
+                        ( { model
+                            | notifications = notification :: model.notifications
+                          }
+                        , Cmd.none
+                        )
+
+                    Nothing ->
+                        ( { model | isLoading = True }, requestFeed (petId) )
 
         MonsterFeedSucceed trxId ->
             handleMonsterAction model trxId "Feed" True
@@ -469,10 +478,19 @@ update msg model =
 
         RequestMonsterBed petId ->
             let
-                newModel =
+                warnNotification =
                     handleMonsterRequest model Sleep petId
             in
-                ( { newModel | isLoading = True }, requestBed (petId) )
+                case warnNotification of
+                    Just notification ->
+                        ( { model
+                            | notifications = notification :: model.notifications
+                          }
+                        , Cmd.none
+                        )
+
+                    Nothing ->
+                        ( { model | isLoading = True }, requestBed (petId) )
 
         MonsterBedSucceed trxId ->
             handleMonsterAction model trxId "Bed" True
@@ -482,10 +500,19 @@ update msg model =
 
         RequestMonsterAwake petId ->
             let
-                newModel =
+                warnNotification =
                     handleMonsterRequest model Awake petId
             in
-                ( { newModel | isLoading = True }, requestAwake (petId) )
+                case warnNotification of
+                    Just notification ->
+                        ( { model
+                            | notifications = notification :: model.notifications
+                          }
+                        , Cmd.none
+                        )
+
+                    Nothing ->
+                        ( { model | isLoading = True }, requestAwake (petId) )
 
         MonsterAwakeSucceed trxId ->
             handleMonsterAction model trxId "Awake" True
@@ -657,7 +684,7 @@ update msg model =
             ( initialModel, signOut () )
 
 
-handleMonsterRequest : Model -> MonsterRequest -> Int -> Model
+handleMonsterRequest : Model -> MonsterRequest -> Int -> Maybe Notification
 handleMonsterRequest model requestType petId =
     let
         monster =
@@ -668,31 +695,20 @@ handleMonsterRequest model requestType petId =
 
         warnNotification msg req =
             Notification (Warning msg) currentTime req
-
-        newNotification =
-            case monster of
-                Just monster ->
-                    if requestType == Feed && (currentTime - monster.last_fed_at) < monsterMinFeedInterval then
-                        Just (warnNotification "I'm Not hungry..." "notHungryWarning")
-                    else if requestType == Sleep && (currentTime - monster.last_awake_at) < monsterMinAwakeInterval then
-                        Just (warnNotification "I don't want to Sleep!!!" "notSleepyWarning")
-                    else if requestType == Awake && (currentTime - monster.last_bed_at) < monsterMinSleepPeriod then
-                        Just (warnNotification "Zzzzz... leave me alone!" "notAwaking")
-                    else
-                        Nothing
-
-                Nothing ->
+    in
+        case monster of
+            Just monster ->
+                if requestType == Feed && (currentTime - monster.last_fed_at) < monsterMinFeedInterval then
+                    Just (warnNotification "I'm Not hungry..." "notHungryWarning")
+                else if requestType == Sleep && (currentTime - monster.last_awake_at) < monsterMinAwakeInterval then
+                    Just (warnNotification "I don't want to Sleep!!!" "notSleepyWarning")
+                else if requestType == Awake && (currentTime - monster.last_bed_at) < monsterMinSleepPeriod then
+                    Just (warnNotification "Zzzzz... leave me alone!" "notAwaking")
+                else
                     Nothing
 
-        newModel =
-            case newNotification of
-                Just notification ->
-                    { model | notifications = [ notification ] ++ model.notifications }
-
-                Nothing ->
-                    model
-    in
-        newModel
+            Nothing ->
+                Just (warnNotification "Invalid Monster" "invalidMonster")
 
 
 handleMonsterAction : Model -> String -> String -> Bool -> ( Model, Cmd Msg )
@@ -1122,9 +1138,9 @@ walletModal model =
                         UpdateDepositAmount
                     ]
                 , p [ class "has-text-danger has-margin-top" ]
-                    [ text "The EOS deposited in MonsterEOS wallet will be used to buy future items and create monsters when the Monsters Creation Fee gets activated after the 1000th monster is created (it will be an amount around $10 worth of EOS)." ]
-                , p [ class "has-text-info" ]
-                    [ text "Also it will be used to buy coffee for MonsterEOS Contributors <3 Remember it's also an educational project, open sourced, for the whole community, so please show your love to us!" ]
+                    [ text "The EOS deposited in MonsterEOS wallet will be used to buy future items, monsters add-ons and any other cool feature that we will probably implement. Initially we thought about charging a Monster Creation Fee, but people has been very generous with donations so we are planning to just leave the Monster creation free and everyone will be able to have a pet for free!" ]
+                , p [ class "has-text-info har-margin-top" ]
+                    [ text "All of this will be used to buy coffee for MonsterEOS Contributors <3 Remember it's also an educational project, open sourced, for the whole community, so please show your love to us!" ]
                 ]
             ]
             (Just ( "Add Funds", SubmitDeposit ))
@@ -1147,16 +1163,24 @@ helpModal model =
             "Help"
             ToggleHelp
             [ div [ class "content" ]
-                [ p [] [ text "It's a fun game where you create your pet and you must take care of him so he does not die." ]
+                [ strong [] [ text "Please check our About page to understand the project and to read the Disclaimer. By creating a Monster you are agreeing with it!" ]
                 , p []
-                    [ text "You will need to have Scatter installed and create an account on EOS JungleTestNet, so if you don't have any JungleNet identity, after the Scatter installation please follow the below instructions:"
-                    , ol []
-                        [ li [] [ text "Open your Scatter, click in Private Keys and generate a KeyPair, save it as 'MonsterEosTest' or anything you want" ]
-                        , li [] [ text "After saving your private key in safe place, please copy your public key, you will need it for registration on JungleNet in the next step" ]
-                        , li [] [ a [ href jungleTestNetLink, target "_blank" ] [ text "Click here to open JungleNet and click in Create an account there" ] ]
-                        , li [] [ text "Now open your Scatter again, click on Identities, import your key pair and type the account name of the account you created on Junglenet and save" ]
-                        , li [] [ text "That's it! You are all set, close this help window and click in Enter with Scatter to start playing! Have fun!" ]
-                        ]
+                    [ text "Just install Scatter and you will be able to create your first monster on EOS MainNet!" ]
+                , h2 [ class "title" ] [ text "Quick FAQ" ]
+                , p []
+                    [ strong [] [ text "I created my monster, it's sleeping and I can't interact with, what should I do?" ]
+                    , br [] []
+                    , text "It's the spawning time, every time your pet is sleeping it needs a minimum period of 4 hours to rest and be awake again."
+                    ]
+                , p []
+                    [ strong [] [ text "Why my pet does not want to eat?" ]
+                    , br [] []
+                    , text "Your pet is full, it needs at least an interval of 3 hours before you feed him again."
+                    ]
+                , p []
+                    [ strong [] [ text "Why my pet does not want to sleep?" ]
+                    , br [] []
+                    , text "Your pet is not tired, it needs to be at least 8 hours awake to go sleep again!"
                     ]
                 ]
             ]
@@ -1177,15 +1201,14 @@ topMenu model =
                 ""
 
         helpButton =
-            text ""
+            a
+                [ class "navbar-item help-button"
+                , onClick ToggleHelp
+                ]
+                [ span [ class "navbar-item icon is-small" ]
+                    [ i [ class "fa fa-2x fa-question-circle has-text-info" ] [] ]
+                ]
 
-        -- a
-        --     [ class "navbar-item help-button"
-        --     , onClick ToggleHelp
-        --     ]
-        --     [ span [ class "navbar-item icon is-small" ]
-        --         [ i [ class "fa fa-2x fa-question-circle has-text-info" ] [] ]
-        --     ]
         aboutButton =
             a
                 [ class ("navbar-item" ++ aboutActiveClass)
