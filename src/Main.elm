@@ -130,8 +130,6 @@ type alias GlobalConfig =
     , minSleepPeriod : Int
     , creationTolerance : Int
     , monstersToActivateFee : Int
-    , monstersPackToIncreaseFee : Int
-    , eosFeePerMonstersPack : Int
     }
 
 
@@ -148,8 +146,6 @@ initialConfig =
     , minSleepPeriod = 0
     , creationTolerance = 0
     , monstersToActivateFee = 0
-    , monstersPackToIncreaseFee = 0
-    , eosFeePerMonstersPack = 0
     }
 
 
@@ -789,8 +785,6 @@ globalConfigDecoder =
         |> JDP.required "min_sleep_period" JD.int
         |> JDP.required "creation_tolerance" JD.int
         |> JDP.required "monsters_to_activate_fee" JD.int
-        |> JDP.required "monsters_pack_to_increase_fee" JD.int
-        |> JDP.required "eos_fee_per_monsters_pack" JD.int
 
 
 walletDecoder : JD.Decoder Wallet
@@ -1127,6 +1121,10 @@ walletModal model =
                         "suitcase"
                         UpdateDepositAmount
                     ]
+                , p [ class "has-text-danger has-margin-top" ]
+                    [ text "The EOS deposited in MonsterEOS wallet will be used to buy future items and create monsters when the Monsters Creation Fee gets activated after the 1000th monster is created (it will be an amount around $10 worth of EOS)." ]
+                , p [ class "has-text-info" ]
+                    [ text "Also it will be used to buy coffee for MonsterEOS Contributors <3. Remember it's also an educational project, open sourced, for the whole community, so please show your love to us!" ]
                 ]
             ]
             (Just ( "Add Funds", SubmitDeposit ))
@@ -1179,14 +1177,15 @@ topMenu model =
                 ""
 
         helpButton =
-            a
-                [ class "navbar-item help-button"
-                , onClick ToggleHelp
-                ]
-                [ span [ class "navbar-item icon is-small" ]
-                    [ i [ class "fa fa-2x fa-question-circle has-text-info" ] [] ]
-                ]
+            text ""
 
+        -- a
+        --     [ class "navbar-item help-button"
+        --     , onClick ToggleHelp
+        --     ]
+        --     [ span [ class "navbar-item icon is-small" ]
+        --         [ i [ class "fa fa-2x fa-question-circle has-text-info" ] [] ]
+        --     ]
         aboutButton =
             a
                 [ class ("navbar-item" ++ aboutActiveClass)
@@ -1366,12 +1365,13 @@ mainContent model =
 aboutContent : Model -> Html Msg
 aboutContent model =
     div [ class "content" ]
-        [ p [] [ text "I'm Leo and I built this project just as an experiment to play with EOS Testnets available in the community. I have a lot of questions about the EOS RAM Storage, Network Bandwith and Staking in a live chain (also in sidechains), and probably a lot of other developers also have it as I can see in the community. So this is an open source experiment where all of us can play with the contract, architecture and design of tables and see what works the best in terms of performance and good practices." ]
-        , b [] [ text "It's Just a Tamagotchi Game to show off EOS blockchain power, even in a TestNet! :D" ]
+        [ h1 [ class "title" ] [ text "About" ]
+        , p [] [ b [] [ text "It's Just a Tamagotchi Game to show off EOS blockchain potential! You as an early adopter, will have a chance to carry a very old Monster while the game is in progress, getting cool functionalities and public traction :D" ] ]
+        , p [] [ text "This project is a mini-game experiment for EOS Blockchain, still in progress. It's open sourced and all of us can tweak the contract, architecture and design of tables to see what works the best in terms of performance and good practices for EOS." ]
         , p [] [ text "To keep your pet alive you must feed him, play with him, take him to the bed and wash him!" ]
         , p [] [ text "Only the feeding and sleeping/awake feature is done for now... There's a lot of interesting stuff that we can do here to improve the project like experience points (+ age and evolutions), inventory of items, multiplayer options, breeding, ownership transferring and tokenization." ]
-        , p [] [ text "I would love to have another developers to get in touch in GitHub repository, open issues, open discussions and so on, about what would be the best way to design the architecture and implement the contracts, how things should work in blockchain, how we should integrate Scatter, other wallets and provide top-security, what we should avoid, what's the best practice in terms of coding and everything else." ]
-        , p [] [ text "I love EOS Community and I think we can build a better world together!" ]
+        , p [] [ text "We would love to have more and more developers to get in touch in GitHub repository, open issues, open discussions and so on, about what would be the best way to design the architecture and implement the contracts, how things should work in blockchain, how we should integrate Scatter, other wallets and provide top-security, what we should avoid, what's the best practice in terms of coding and everything else." ]
+        , p [] [ text "We love EOS Community and we think that we can build a better world together!" ]
         , p [] [ text "Monsters Pictures Package: ", a [ href "https://pipoya.itch.io/free-rpg-monster-pack", target "_blank" ] [ text "Itch.io @Pipoya - Free RPG Monster Pack" ] ]
         , p [] [ text "Sleeping GIF Credits: ", a [ href "https://giphy.com/stickers/zzz-snore-51WvIEoUKKHlGwgmgy", target "_blank" ] [ text "Giphy @AlabasterPizzo" ] ]
         , b [] [ text "Disclaimer" ]

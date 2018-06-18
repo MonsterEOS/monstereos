@@ -254,17 +254,9 @@ uuid pet::_next_id(){
     pc.last_id++;
 
     // by default, activates pet creation fee after Monster ID 1000, it's
-    // 0.1 EOS per each 100 monsters to help us with our coffee :)
+    // 1 EOS per monster to help us to buy some coffee :)
     if (pc.last_id >= pc.monsters_to_activate_fee) {
-        uint64_t monsters = pc.last_id - pc.monsters_to_activate_fee;
-
-        uint64_t intervals = floor(monsters / pc.monsters_pack_to_increase_fee) + 1;
-        int64_t fee = intervals * pc.eos_fee_per_monsters_pack;
-        if (fee > 0) {
-            pc.creation_fee = asset{fee,S(4,EOS)};
-        } else {
-            pc.creation_fee = asset{0,S(4,EOS)};
-        }
+        pc.creation_fee = asset{10000,S(4,EOS)};
     }
 
     pet_config.set(pc, _self);
