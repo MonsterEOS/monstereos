@@ -1503,7 +1503,7 @@ monsterCard monster currentTime isLoading readOnly =
                                     [ text (toString monster.happiness) ]
                                 ]
                             , div [ class "column is-half" ]
-                                [ b [] [ text "Awake: " ]
+                                [ b [] [ text "Energy: " ]
                                 , progress [ class "progress is-success", Html.Attributes.max "100", value (toString monster.awake) ]
                                     [ text (toString monster.awake) ]
                                 ]
