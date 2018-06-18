@@ -57,6 +57,7 @@ initialModel =
     , depositAmount = 3
     , showWallet = False
     , globalConfig = initialConfig
+    , currentRankPage = 0
     }
 
 
@@ -200,6 +201,7 @@ type alias Model =
     , showWallet : Bool
     , depositAmount : Float
     , globalConfig : GlobalConfig
+    , currentRankPage : Int
     }
 
 
@@ -405,6 +407,7 @@ type Msg
     | SubmitNewMonster
     | UpdateDepositAmount String
     | SubmitDeposit
+    | UpdateCurrentRankPage String
     | ToggleHelp
     | ToggleWallet
     | ToggleMonsterCreation
@@ -656,6 +659,16 @@ update msg model =
                 | depositAmount =
                     (Result.withDefault model.depositAmount
                         (String.toFloat txtAmount)
+                    )
+              }
+            , Cmd.none
+            )
+
+        UpdateCurrentRankPage txtPage ->
+            ( { model
+                | currentRankPage =
+                    (Result.withDefault model.currentRankPage
+                        (String.toInt txtPage)
                     )
               }
             , Cmd.none
@@ -948,18 +961,30 @@ fieldInput model fieldLabel fieldValue fieldPlaceHolder fieldIcon fieldMsg =
             ]
 
 
-selectInput : Model -> List ( String, String ) -> String -> String -> String -> (String -> Msg) -> Html Msg
-selectInput model optionsType fieldLabel fieldValue fieldIcon fieldMsg =
+selectInput : Bool -> List ( String, String ) -> String -> String -> String -> (String -> Msg) -> Html Msg
+selectInput isLoading optionsType fieldLabel fieldValue fieldIcon fieldMsg =
     let
         options =
             optionsType
                 |> List.map
                     (\( optVal, optText ) ->
-                        option [ value optVal ] [ text optText ]
+                        let
+                            selectedAttr =
+                                if optVal == fieldValue then
+                                    [ value optVal
+                                    , attribute "selected" ""
+                                    ]
+                                else
+                                    [ value optVal ]
+                        in
+                            option
+                                selectedAttr
+                                [ text optText ]
+                     -- option [ value optVal ] [ text optText ]
                     )
 
         loadingClass =
-            if model.isLoading then
+            if isLoading then
                 " is-loading"
             else
                 ""
@@ -969,10 +994,22 @@ selectInput model optionsType fieldLabel fieldValue fieldIcon fieldMsg =
                 [ text fieldLabel ]
             , div [ class ("control has-icons-left" ++ loadingClass) ]
                 [ div [ class "select is-large is-fullwidth" ]
-                    [ select [ onInput fieldMsg, disabledAttribute model.isLoading ] options ]
+                    [ select [ onInput fieldMsg, disabledAttribute isLoading ] options ]
                 , icon fieldIcon False True
                 ]
             ]
+
+
+titleMenu : String -> List (Html msg) -> Html msg
+titleMenu title menu =
+    div [ class "level" ]
+        [ div [ class "level-left" ]
+            [ div [ class "level-item" ] [ h1 [ class "title" ] [ text title ] ] ]
+        , div [ class "level-right" ]
+            (menu
+                |> List.map (\item -> div [ class "level-item" ] [ item ])
+            )
+        ]
 
 
 modalCard : Model -> String -> Msg -> List (Html Msg) -> Maybe ( String, Msg ) -> Maybe ( String, Msg ) -> Html Msg
@@ -1483,7 +1520,8 @@ monsterCard monster currentTime isLoading readOnly =
     in
         div [ class "column monster-column" ]
             [ div [ class "card" ]
-                [ div [ class "card-image" ]
+                [ div [ class "card-content" ] [ p [ class ("title is-4 " ++ deadClass) ] [ text monster.name ] ]
+                , div [ class "card-image" ]
                     [ figure [ class ("image monster-image is-square" ++ deadImgClass) ]
                         [ img [ alt monster.name, class sleepingClass, src ("images/monsters/monster-" ++ (toString monster.mtype) ++ ".png") ]
                             []
@@ -1494,10 +1532,10 @@ monsterCard monster currentTime isLoading readOnly =
                     [ class "card-content" ]
                     [ div [ class "content" ]
                         [ p []
-                            [ span [ class ("title is-4" ++ deadClass) ]
-                                [ text monster.name ]
-                            , span [ class "is-6 is-pulled-right" ]
+                            [ span [ class "is-6" ]
                                 [ b [] [ text "Owner: " ], text monster.owner ]
+                            , span [ class ("is-pulled-right " ++ deadClass) ]
+                                [ text ("#" ++ toString monster.id) ]
                             ]
                         , div [ class "is-6" ]
                             [ p []
@@ -1564,12 +1602,14 @@ monsterContent model =
     in
         div []
             [ div [ class "content" ]
-                [ a
-                    [ class "button is-success new-monster-button"
-                    , onClick ToggleMonsterCreation
-                    , disabledAttribute model.isLoading
+                [ titleMenu "My Monsters"
+                    [ a
+                        [ class "button is-success new-monster-button"
+                        , onClick ToggleMonsterCreation
+                        , disabledAttribute model.isLoading
+                        ]
+                        [ text "New Monster" ]
                     ]
-                    [ text "New Monster" ]
                 , p [] [ text newMonsterMsg ]
                 ]
             , div [ class "columns is-multiline" ]
@@ -1584,15 +1624,49 @@ rankContent model =
             (model.monsters
                 |> List.filter (\monster -> monster.death_at == 0)
                 |> List.sortBy .created_at
-                |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading True)
             )
+
+        monstersSize =
+            List.length monsters
+
+        currentPage =
+            toString model.currentRankPage
+
+        pageSize =
+            30
+
+        pages =
+            ceiling (toFloat (monstersSize) / pageSize)
+
+        pagesOptions =
+            List.range 0 (pages - 1)
+                |> List.map
+                    (\r ->
+                        ( toString r
+                        , ("Page "
+                            ++ toString (r + 1)
+                            ++ ": From "
+                            ++ toString (r * pageSize + 1)
+                            ++ " to "
+                            ++ toString (pageSize + (r * pageSize))
+                          )
+                        )
+                    )
+
+        pagination =
+            selectInput model.isLoading pagesOptions "" currentPage "trophy" UpdateCurrentRankPage
+
+        paginatedMonsters =
+            monsters
+                |> List.drop (pageSize * model.currentRankPage)
+                |> List.take pageSize
+                |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading True)
     in
         div []
-            [ div [ class "content" ]
-                [ h2 [] [ text "Eldest Alive Monsters" ]
-                ]
+            [ titleMenu "Eldest Alive Monsters" [ pagination ]
             , div [ class "columns is-multiline" ]
-                monsters
+                paginatedMonsters
+            , titleMenu "" [ pagination ]
             ]
 
 

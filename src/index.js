@@ -342,8 +342,6 @@ const parseMonster = row => {
 
   }
 
-  console.log(monster);
-
   return monster;
 }
 
