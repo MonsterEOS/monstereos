@@ -1124,7 +1124,7 @@ walletModal model =
                 , p [ class "has-text-danger has-margin-top" ]
                     [ text "The EOS deposited in MonsterEOS wallet will be used to buy future items and create monsters when the Monsters Creation Fee gets activated after the 1000th monster is created (it will be an amount around $10 worth of EOS)." ]
                 , p [ class "has-text-info" ]
-                    [ text "Also it will be used to buy coffee for MonsterEOS Contributors <3. Remember it's also an educational project, open sourced, for the whole community, so please show your love to us!" ]
+                    [ text "Also it will be used to buy coffee for MonsterEOS Contributors <3 Remember it's also an educational project, open sourced, for the whole community, so please show your love to us!" ]
                 ]
             ]
             (Just ( "Add Funds", SubmitDeposit ))
