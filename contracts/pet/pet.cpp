@@ -1,9 +1,42 @@
 #include "pet.hpp"
 
+int count_spaces(string str) {
+    int spaces = 0;
+    for (int i = 0; i < str.length(); i++) {
+        if (isspace(str[i]))
+            spaces++;
+    }
+    return spaces;
+}
+
+void pet::changecrtol(uint32_t new_interval) {
+    require_auth(_self);
+    st_pet_config pc = _get_pet_config();
+    pc.creation_tolerance = new_interval;
+    pet_config.set(pc, _self);
+}
+
+void pet::changecrfee(asset new_fee) {
+    require_auth(_self);
+    st_pet_config pc = _get_pet_config();
+    pc.creation_fee = new_fee;
+    pet_config.set(pc, _self);
+}
+
 void pet::createpet(name owner,
                 string pet_name) {
 
     require_auth(owner);
+
+    // trim name would be nice
+    // eos issue https://github.com/EOSIO/eos/issues/4184
+    // boost::algorithm::trim(pet_name);
+
+    // validates pet naming
+    eosio_assert(pet_name.length() >= 1, "name must have at least 1 character");
+    eosio_assert(pet_name.length() <= 20, "name cannot exceed 20 chars");
+    eosio_assert(pet_name.length() > count_spaces(pet_name), "name cannot be composed of spaces only");
+    eosio_assert(!_pet_name_exists(pet_name), "duplicated pet name");
 
     // initialize config
     st_pet_config pc = _get_pet_config();
@@ -245,6 +278,17 @@ void pet::_update(st_pets &pet) {
     }
 }
 
+bool pet::_pet_name_exists(string pet_name) {
+    // horrible iteration through the whole pets table to find a duplication
+    // need to create an integer hashfield and create an index for that
+    // in pets table
+    for (const auto& pet : pets) {
+        if(pet_name == pet.name) return true;
+    }
+
+    return false;
+}
+
 uint64_t pet::_hash_str(const string &str) {
     return hash<string>{}(str);
 }
@@ -301,4 +345,17 @@ extern "C" { \
    } \
 }
 
-EOSIO_ABI_EX(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(transfer))
+EOSIO_ABI_EX(pet,
+    // pet core
+    (createpet)
+    (updatepet)
+    (feedpet)
+    (bedpet)
+    (awakepet)
+
+    // config setup
+    (changecrtol)
+    (changecrfee)
+
+    // tokens deposits
+    (transfer))

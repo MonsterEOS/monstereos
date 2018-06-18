@@ -137,6 +137,22 @@
         }
       ]
     },{
+      "name": "changecrtol",
+      "base": "",
+      "fields": [{
+          "name": "new_interval",
+          "type": "uint32"
+        }
+      ]
+    },{
+      "name": "changecrfee",
+      "base": "",
+      "fields": [{
+          "name": "new_fee",
+          "type": "asset"
+        }
+      ]
+    },{
       "name": "transfer",
       "base": "",
       "fields": [{
@@ -168,6 +184,14 @@
     },{
       "name": "createpet",
       "type": "createpet",
+      "ricardian_contract": ""
+    },{
+      "name": "changecrtol",
+      "type": "changecrtol",
+      "ricardian_contract": ""
+    },{
+      "name": "changecrfee",
+      "type": "changecrfee",
       "ricardian_contract": ""
     },{
       "name": "transfer",

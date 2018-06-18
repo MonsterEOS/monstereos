@@ -11,6 +11,7 @@
 #include <eosiolib/transaction.hpp>
 #include <eosiolib/singleton.hpp>
 #include <math.h>
+// #include <boost/algorithm/string.hpp>
 
 using namespace eosio;
 
@@ -50,6 +51,8 @@ public:
     void updatepet(uuid pet_id);
     void createpet(name owner, string pet_name);
     void transfer(uint64_t sender, uint64_t receiver);
+    void changecrtol(uint32_t new_interval);
+    void changecrfee(asset new_fee);
 
 
     private:
@@ -147,5 +150,7 @@ public:
     uint32_t _calc_hunger_hp(const st_pet_config &pc,
                              const uint32_t &last_fed_at,
                              const uint32_t &current_time);
+
+    bool _pet_name_exists(string pet_name);
 
 };
