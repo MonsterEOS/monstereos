@@ -1588,6 +1588,8 @@ pageFooter =
                     , a [ href "http://opensource.org/licenses/mit-license.php" ]
                         [ text "MIT" ]
                     , text "."
+                    , a [ href "https://t.me/joinchat/Hel9rgyuHrEwzsjG2SlUNQ" ]
+                        [ text "Telegram" ]
                     ]
                 ]
             ]
