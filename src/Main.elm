@@ -437,7 +437,7 @@ update msg model =
             )
 
         RefreshData _ ->
-            ( model, Cmd.batch [ listMonsters (), getWallet (), getGlobalConfig () ] )
+            ( model, Cmd.batch [ getWallet (), getGlobalConfig () ] )
 
         RequestMonsterFeed petId ->
             let
@@ -504,7 +504,7 @@ update msg model =
                 , newMonsterName = ""
                 , notifications = [ Notification (Success ("Monster  " ++ model.newMonsterName ++ " Created! TrxId: " ++ trxId)) model.currentTime (toString model.currentTime) ] ++ model.notifications
               }
-            , Cmd.batch [ listMonsters (), getWallet (), getGlobalConfig () ]
+            , Cmd.batch [ getWallet (), getGlobalConfig () ]
             )
 
         MonsterCreationFailed err ->
@@ -518,7 +518,7 @@ update msg model =
                         , content = MyMonsters
                         , notifications = [ Notification (Success ("Welcome " ++ user.eosAccount)) model.currentTime "signInSuccess" ] ++ model.notifications
                       }
-                    , Cmd.batch [ listMonsters (), getWallet (), getGlobalConfig () ]
+                    , Cmd.batch [ getWallet (), getGlobalConfig () ]
                     )
 
                 Err err ->
@@ -555,8 +555,8 @@ update msg model =
         SetGlobalConfig rawGlobalConfig ->
             case (JD.decodeValue globalConfigDecoder rawGlobalConfig) of
                 Ok globalConfig ->
-                    ( { model | globalConfig = globalConfig, isLoading = False }
-                    , Cmd.none
+                    ( { model | globalConfig = globalConfig }
+                    , listMonsters ()
                     )
 
                 Err err ->
@@ -581,7 +581,12 @@ update msg model =
                     ( { model | monsters = monsters, isLoading = False }, Cmd.none )
 
                 Err err ->
-                    ( { model | error = Just err, isLoading = False }, Cmd.none )
+                    ( { model
+                        | notifications = [ Notification (Error ("Fail to Parse Monsters: " ++ err)) model.currentTime "parseMonstersFailed" ] ++ model.notifications
+                        , isLoading = False
+                      }
+                    , Cmd.none
+                    )
 
         SetMonstersFailure err ->
             ( { model
@@ -729,7 +734,7 @@ handleActionResponse model msg action isSuccess =
         ( notification, cmd ) =
             if isSuccess then
                 ( Notification (Success ("Action attempt to " ++ action ++ " ! TrxId: " ++ msg)) time timeTxt
-                , Cmd.batch [ listMonsters (), getWallet (), getGlobalConfig () ]
+                , Cmd.batch [ getWallet (), getGlobalConfig () ]
                 )
             else
                 ( Notification (Error ("Fail to execute " ++ action ++ " action: " ++ msg)) time timeTxt, Cmd.none )

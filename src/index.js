@@ -32,6 +32,7 @@ const network = {
 const localNet = Eos({httpEndpoint: CHAIN_ADDRESS, chainId: CHAIN_ID})
 
 let scatter = null
+let globalConfigs = null
 
 const scatterDetection = setTimeout(() => {
   if (scatter == null) {
@@ -144,7 +145,10 @@ app.ports.getGlobalConfig.subscribe(async () => {
       app.ports.setGlobalConfigFailed.send('Error while getting MonsterEOS Global Settings')
     })
 
-    app.ports.setGlobalConfig.send(config)
+    if (config) {
+      globalConfigs = config
+      app.ports.setGlobalConfig.send(config)
+    }
 })
 
 app.ports.getWallet.subscribe(async () => {
@@ -309,21 +313,36 @@ const parseMonster = row => {
     last_play_at: row.last_play_at * 1000,
     last_shower_at: row.last_shower_at * 1000,
     last_awake_at: row.last_awake_at * 1000,
-    is_sleeping: row.last_bed_at > row.last_awake_at
+    is_sleeping: row.last_bed_at > row.last_awake_at,
+    health: row.death_at ? 0 : 100,
+    hunger: row.death_at ? 0 :  100,
+    awake: row.death_at ? 0 : 100,
+    happiness: row.death_at ? 0 : 100,
+    clean: row.death_at ? 0 : 100
   })
 
-  // calculates hp
-  monster.health = 100;
+  // initiate calcs
+  const config = globalConfigs;
+  if (config && !monster.death_at) {
+    // calculates hunger bar
+    monster.hunger = 100;
 
-  // calculates food bar
-  monster.hunger = 100;
+    const currentTime = Date.now();
 
-  // calculates awake bar
-  monster.awake = 100;
+    const hungrySeconds = (currentTime - monster.last_fed_at) / 1000;
+    const hungryPoints = hungrySeconds * config.max_hunger_points / config.hunger_to_zero;
+    monster.hunger = Math.round(config.max_hunger_points - hungryPoints);
+    monster.hunger = monster.hunger < 0 ? 0 : monster.hunger;
 
-  // future props
-  monster.happiness = 100;
-  monster.clean = 100;
+    const effectHpHunger = hungryPoints > config.max_health ?
+      Math.round((hungryPoints - config.max_hunger_points) / config.hunger_hp_modifier) :
+      0;
+
+    monster.health = config.max_health - effectHpHunger;
+
+  }
+
+  console.log(monster);
 
   return monster;
 }
