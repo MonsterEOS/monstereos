@@ -314,20 +314,21 @@ const parseMonster = row => {
     last_shower_at: row.last_shower_at * 1000,
     last_awake_at: row.last_awake_at * 1000,
     is_sleeping: row.last_bed_at > row.last_awake_at,
-    health: row.death_at ? 0 : 100,
-    hunger: row.death_at ? 0 :  100,
-    awake: row.death_at ? 0 : 100,
-    happiness: row.death_at ? 0 : 100,
-    clean: row.death_at ? 0 : 100
+    health: 100,
+    hunger: 100,
+    awake: 100,
+    happiness: 100,
+    clean: 100
   })
 
-  // initiate calcs
+  // calcs params
   const config = globalConfigs;
-  if (config && !monster.death_at) {
+
+  if (config) {
+    const currentTime = Date.now();
+
     // calculates hunger bar
     monster.hunger = 100;
-
-    const currentTime = Date.now();
 
     const hungrySeconds = (currentTime - monster.last_fed_at) / 1000;
     const hungryPoints = hungrySeconds * config.max_hunger_points / config.hunger_to_zero;
@@ -338,7 +339,14 @@ const parseMonster = row => {
       Math.round((hungryPoints - config.max_hunger_points) / config.hunger_hp_modifier) :
       0;
 
+    // calculates health and death time
     monster.health = config.max_health - effectHpHunger;
+    if (monster.health <= 0) {
+      monster.hunger = monster.health = monster.awake = monster.happiness = monster.clean = 0;
+
+      monster.death_at = ((monster.last_fed_at / 1000) + config.hunger_to_zero
+        + (config.hunger_to_zero * config.hunger_hp_modifier)) * 1000;
+    }
 
   }
 
