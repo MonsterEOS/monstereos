@@ -50,6 +50,7 @@ public:
     void feedpet(uuid pet_id);
     void updatepet(uuid pet_id);
     void createpet(name owner, string pet_name);
+    void destroypet(uuid pet_id);
     void transfer(uint64_t sender, uint64_t receiver);
     void changecrtol(uint32_t new_interval);
     void changecrfee(asset new_fee);

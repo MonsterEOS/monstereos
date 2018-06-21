@@ -123,6 +123,14 @@
         }
       ]
     },{
+      "name": "destroypet",
+      "base": "",
+      "fields": [{
+          "name": "pet_id",
+          "type": "uuid"
+        }
+      ]
+    },{
       "name": "createpet",
       "base": "",
       "fields": [{
@@ -170,6 +178,10 @@
       "name": "bedpet",
       "type": "bedpet",
       "ricardian_contract": "# CONTRACT FOR pet::bedpet## ACTION NAME: bedpet\n### Parameters### Parameters\nInput parameters:Input parameters:\n\n* `pet_id` (identifier of monster)* `pet_id` (identifier of monster)\n\n### Intent### Intent\nINTENT. The intent of the `{{ bedpet }}` action is to change the state of the monster with the given id from awake to sleeping. Before bringing to bed, the monster has to have been awake for at least 8 hours. The monster has to sleep for at least 4 hours.INTENT. The intent of the `{{ bedpet }}` action is to change the state of the monster with the given id from awake to sleeping. Before bringing to bed, the monster has to have been awake for at least 8 hours. The monster has to sleep for at least 4 hours.\n\n### Term### Term\nTERM. This Contract expires 4 hours after code execution.TERM. This Contract expires 4 hours after code execution.\n"
+    },{
+      "name": "destroypet",
+      "type": "destroypet",
+      "ricardian_contract": "# CONTRACT FOR pet::destroypet ## ACTION NAME: destroypet\n### Parameters\nInput parameters:\n\n* `pet_id` (identifier of monster)\n\n### Intent\nINTENT. The intent of the `{{ destroypet }}` action is to DELETE the monster with the given id from the pets table and consequently delete the monster from the owner RAM. Once it's used the pet is deleted and NOT RECOVERABLE. Use with caution.\n\n### Term\nTERM. This Contract expires after code execution.\n"
     },{
       "name": "feedpet",
       "type": "feedpet",

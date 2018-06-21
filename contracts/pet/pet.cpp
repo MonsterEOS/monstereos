@@ -1,13 +1,8 @@
 #include "pet.hpp"
 
-int count_spaces(string str) {
-    int spaces = 0;
-    for (int i = 0; i < str.length(); i++) {
-        if (isspace(str[i]))
-            spaces++;
-    }
-    return spaces;
-}
+#include "lib/utils.hpp"
+
+using namespace utils;
 
 void pet::changecrtol(uint32_t new_interval) {
     require_auth(_self);
@@ -41,22 +36,9 @@ void pet::createpet(name owner,
     // initialize config
     st_pet_config pc = _get_pet_config();
 
-    // check balance in case fee is active
-    if (pc.creation_fee.amount > 0) {
-        _tb_accounts accounts(_self, owner);
-        symbol_type eos{S(4,EOS)};
-        auto itr_balance = accounts.find(eos.name());
-        eosio_assert(itr_balance != accounts.end(), "Your wallet is empty");
+    // check last pet creation tolerance
+    if (pc.creation_tolerance > 0) {
 
-        // calculate cost and save it, if have enough funds
-        asset new_balance = itr_balance->balance - pc.creation_fee;
-        eosio_assert(new_balance.amount >= 0, "You don't have enough funds to create a Monster!");
-        accounts.modify(itr_balance, owner, [&](auto& r){
-            r.balance = new_balance;
-        });
-    } else if (pc.creation_tolerance > 0) {
-
-        // check last pet creation tolerance
         auto owner_pets = pets.get_index<N(byowner)>();
         auto last_pet_itr = owner_pets.find(owner);
 
@@ -111,6 +93,16 @@ void pet::updatepet(uuid pet_id) {
     pets.modify(itr_pet, 0, [&](auto &r) {
         r.death_at = pet.death_at;
     });
+}
+
+void pet::destroypet(uuid pet_id) {
+
+    const auto& pet = pets.get(pet_id, "E404|Invalid pet, destroying action is unrecoverable");
+
+    require_auth(pet.owner);
+
+    pets.erase( pet );
+
 }
 
 void pet::feedpet(uuid pet_id) {
@@ -318,7 +310,7 @@ pet::st_pet_config pet::_get_pet_config(){
 // and EOSIO_ABI_EX to generate the listener action
 // https://eosio.stackexchange.com/q/421/54
 
-// EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(changecrtol)(changecrfee)(transfer))
+// EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(changecrtol)(changecrfee)(transfer))
 
 #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
 extern "C" { \
@@ -345,6 +337,7 @@ EOSIO_ABI_EX(pet,
     (feedpet)
     (bedpet)
     (awakepet)
+    (destroypet)
 
     // config setup
     (changecrtol)
