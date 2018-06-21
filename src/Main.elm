@@ -1616,7 +1616,7 @@ monsterContent model =
     let
         myMonsters =
             (model.monsters
-                -- |> List.filter (\monster -> monster.owner == model.user.eosAccount)
+                |> List.filter (\monster -> monster.owner == model.user.eosAccount)
                 |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading False)
             )
 
