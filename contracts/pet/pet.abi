@@ -219,12 +219,8 @@
     },{
       "name": "petconfig",
       "index_type": "i64",
-      "key_names": [
-        "last_id"
-      ],
-      "key_types": [
-        "uuid"
-      ],
+      "key_names": [],
+      "key_types": [],
       "type": "st_pet_config"
     }
   ],
