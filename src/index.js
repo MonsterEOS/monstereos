@@ -289,6 +289,24 @@ app.ports.requestBed.subscribe(async (petId) => {
   if(bedpet) app.ports.bedSucceed.send(bedpet.transaction_id)
 })
 
+app.ports.requestDelete.subscribe(async (petId) => {
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const destroypet = await contract.destroypet(petId, auth.permission)
+    .catch(e => {
+        console.error('error on destroy pet ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while attempting to destroy the monster'
+        app.ports.deleteFailed.send(errorMsg)
+      })
+
+  console.log(destroypet)
+
+  if(destroypet) app.ports.deleteSucceed.send(destroypet.transaction_id)
+})
+
 app.ports.requestPlay.subscribe(async (petId) => {
   app.ports.feedSucceed.send('lazy developer must build "Play" action')
 })

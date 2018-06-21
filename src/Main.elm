@@ -295,6 +295,9 @@ port requestWash : Int -> Cmd msg
 port requestBed : Int -> Cmd msg
 
 
+port requestDelete : Int -> Cmd msg
+
+
 port requestAwake : Int -> Cmd msg
 
 
@@ -317,6 +320,12 @@ port bedSucceed : (String -> msg) -> Sub msg
 
 
 port bedFailed : (String -> msg) -> Sub msg
+
+
+port deleteSucceed : (String -> msg) -> Sub msg
+
+
+port deleteFailed : (String -> msg) -> Sub msg
 
 
 port awakeSucceed : (String -> msg) -> Sub msg
@@ -362,6 +371,8 @@ subscriptions model =
         , awakeSucceed MonsterAwakeSucceed
         , bedFailed MonsterBedFailed
         , bedSucceed MonsterBedSucceed
+        , deleteFailed MonsterDeleteFailed
+        , deleteSucceed MonsterDeleteSucceed
         , monsterCreationSucceed MonsterCreationSucceed
         , monsterCreationFailed MonsterCreationFailed
         ]
@@ -396,12 +407,15 @@ type Msg
     | MonsterAwakeFailed String
     | MonsterBedSucceed String
     | MonsterBedFailed String
+    | MonsterDeleteSucceed String
+    | MonsterDeleteFailed String
     | MonsterCreationSucceed String
     | MonsterCreationFailed String
     | RequestMonsterFeed Int
     | RequestMonsterPlay Int
     | RequestMonsterBed Int
     | RequestMonsterAwake Int
+    | RequestMonsterDelete Int
     | RequestMonsterWash Int
     | UpdateNewMonsterName String
     | SubmitNewMonster
@@ -500,6 +514,15 @@ update msg model =
 
         MonsterBedFailed err ->
             handleMonsterAction model err "Bed" False
+
+        RequestMonsterDelete petId ->
+            ( { model | isLoading = True }, requestDelete (petId) )
+
+        MonsterDeleteSucceed trxId ->
+            handleMonsterAction model trxId "Delete" True
+
+        MonsterDeleteFailed err ->
+            handleMonsterAction model err "Delete" False
 
         RequestMonsterAwake petId ->
             let
@@ -1471,7 +1494,10 @@ monsterCard monster currentTime isLoading readOnly =
                 , span [ class "is-6 has-text-danger" ]
                     [ text ("Stayed alive for " ++ (calcTimeDiff monster.created_at monster.death_at)) ]
                 , footer [ class "card-footer" ]
-                    [ div [ class "card-footer-item has-text-centered" ] [ text "Sorry but it would be strange to interact with a dead monster... Wouldn't it?" ]
+                    [ div [ class "card-footer-item has-text-centered" ]
+                        [ a [ class "is-danger", onClick (RequestMonsterDelete monster.id) ]
+                            [ text "Delete Monster" ]
+                        ]
                     ]
                 )
             else
@@ -1590,7 +1616,7 @@ monsterContent model =
     let
         myMonsters =
             (model.monsters
-                |> List.filter (\monster -> monster.owner == model.user.eosAccount)
+                -- |> List.filter (\monster -> monster.owner == model.user.eosAccount)
                 |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading False)
             )
 
