@@ -35,6 +35,8 @@
     "ratio": "cpp",
     "tuple": "cpp",
     "type_traits": "cpp",
-    "sstream": "cpp"
+    "sstream": "cpp",
+    "initializer_list": "cpp",
+    "utility": "cpp"
   }
 }

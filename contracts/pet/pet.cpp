@@ -1,8 +1,9 @@
 #include "pet.hpp"
-
 #include "lib/utils.hpp"
+#include "lib/battle.cpp"
 
 using namespace utils;
+using namespace types;
 
 void pet::changecrtol(uint32_t new_interval) {
     require_auth(_self);
@@ -310,38 +311,45 @@ pet::st_pet_config pet::_get_pet_config(){
 // and EOSIO_ABI_EX to generate the listener action
 // https://eosio.stackexchange.com/q/421/54
 
-// EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(changecrtol)(changecrfee)(transfer))
+EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(battlecreate)(battlejoin)(battleleave)(battlestart)(battleattack)(battleattrev)(changecrtol)(changecrfee)(transfer))
 
-#define EOSIO_ABI_EX( TYPE, MEMBERS ) \
-extern "C" { \
-   void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-      if( action == N(onerror)) { \
-         /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
-         eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
-      } \
-      auto self = receiver; \
-      if( code == self || code == N(eosio.token) || action == N(onerror) ) { \
-         TYPE thiscontract( self ); \
-         switch( action ) { \
-            EOSIO_API( TYPE, MEMBERS ) \
-         } \
-         /* does not allow destructor of thiscontract to run: eosio_exit(0); */ \
-      } \
-   } \
-}
+// #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
+// extern "C" { \
+//    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
+//       if( action == N(onerror)) { \
+//          /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
+//          eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
+//       } \
+//       auto self = receiver; \
+//       if( code == self || code == N(eosio.token) || action == N(onerror) ) { \
+//          TYPE thiscontract( self ); \
+//          switch( action ) { \
+//             EOSIO_API( TYPE, MEMBERS ) \
+//          } \
+//          /* does not allow destructor of thiscontract to run: eosio_exit(0); */ \
+//       } \
+//    } \
+// }
 
-EOSIO_ABI_EX(pet,
-    // pet core
-    (createpet)
-    (updatepet)
-    (feedpet)
-    (bedpet)
-    (awakepet)
-    (destroypet)
+// EOSIO_ABI_EX(pet,
+//     // pet core
+//     (createpet)
+//     (updatepet)
+//     (feedpet)
+//     (bedpet)
+//     (awakepet)
+//     (destroypet)
 
-    // config setup
-    (changecrtol)
-    (changecrfee)
+//     // battle
+//     (battlecreate)
+//     (battlejoin)
+//     (battlestart)
+//     (battleattack)
+//     (battleattrev)
 
-    // tokens deposits
-    (transfer))
+//     // config setup
+//     (changecrtol)
+//     (changecrfee)
+
+//     // tokens deposits
+//     (transfer))
