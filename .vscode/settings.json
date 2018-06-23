@@ -41,6 +41,13 @@
     "hashtable": "cpp",
     "hash_map": "cpp",
     "hash_set": "cpp",
-    "typeindex": "cpp"
+    "typeindex": "cpp",
+    "__functional_base_03": "cpp",
+    "__tuple": "cpp",
+    "dynarray": "cpp",
+    "regex": "cpp",
+    "valarray": "cpp",
+    "filesystem": "cpp",
+    "propagate_const": "cpp"
   }
 }

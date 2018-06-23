@@ -1,4 +1,37 @@
 ```
+echo "deploy bios and token..."
+cleos set contract eosio ../../../eos-mainnet/build/contracts/eosio.bios -p eosio
+cleos create account eosio eosio.token EOS8Be9m6RgEXHXR4tTYZyorm1fEkMLMTubTd2PJHDeYCH2Ufg3XN EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3
+cleos set contract eosio.token ../../../eos-mainnet/build/contracts/eosio.token -p eosio.token
+cleos push action eosio.token create '[ "eosio", "1000000000.0000 EOS", 0, 0, 0]' -p eosio.token
+sleep .5
+
+cleos create account eosio monstereosio EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3 EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3
+cleos set contract monstereosio ../pet
+echo "add some elements"
+# neutral type 0
+cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 0, "ratio": 8}, {"type": 1, "ratio": 8}, {"type": 2, "ratio": 8}, {"type": 3, "ratio": 8}, {"type": 4, "ratio": 8}, {"type": 5, "ratio": 8}] } }' -p monstereosio
+# wood type 1
+cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 0, "ratio": 8}, {"type": 1, "ratio": 8}, {"type": 2, "ratio": 20}, {"type": 3, "ratio": 15}, {"type": 4, "ratio": 10}, {"type": 5, "ratio": 5}] } }' -p monstereosio
+# earth type 2
+cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 0, "ratio": 8}, {"type": 1, "ratio": 5}, {"type": 2, "ratio": 8}, {"type": 3, "ratio": 20}, {"type": 4, "ratio": 15}, {"type": 5, "ratio": 10}] } }' -p monstereosio
+# water type 3
+cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 0, "ratio": 8}, {"type": 1, "ratio": 10}, {"type": 2, "ratio": 5}, {"type": 3, "ratio": 8}, {"type": 4, "ratio": 20}, {"type": 5, "ratio": 15}] } }' -p monstereosio
+# fire type 4
+cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 0, "ratio": 8}, {"type": 1, "ratio": 15}, {"type": 2, "ratio": 10}, {"type": 3, "ratio": 5}, {"type": 4, "ratio": 8}, {"type": 5, "ratio": 20}] } }' -p monstereosio
+# metal type 5
+cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 0, "ratio": 8}, {"type": 1, "ratio": 20}, {"type": 2, "ratio": 15}, {"type": 3, "ratio": 10}, {"type": 4, "ratio": 5}, {"type": 5, "ratio": 8}] } }' -p monstereosio
+
+# add some pets types
+cleos push action monstereosio addpettype '{ "type": { "elements": [0]} }' -p monstereosio
+cleos push action monstereosio addpettype '{ "type": { "elements": [0,4]} }' -p monstereosio
+cleos push action monstereosio addpettype '{ "type": { "elements": [0,5]} }' -p monstereosio
+cleos push action monstereosio addpettype '{ "type": { "elements": [0]} }' -p monstereosio
+cleos push action monstereosio addpettype '{ "type": { "elements": [0,3]} }' -p monstereosio
+cleos push action monstereosio addpettype '{ "type": { "elements": [0,4]} }' -p monstereosio
+
+cleos create account eosio leordev EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3 EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3
+
 cleos push action monstereosio createpet '[ "leordev", "Bubble" ]' -p leordev
 cleos push action monstereosio createpet '[ "eosio", "Master" ]' -p eosio
 

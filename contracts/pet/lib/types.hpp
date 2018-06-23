@@ -26,6 +26,19 @@ namespace types {
   constexpr battle_mode V3 = 3;
   constexpr battle_mode RAID = 100;
 
+  struct st_element_ratio {
+    element_type type;
+    uint8_t ratio;
+  };
+
+  struct st_element {
+    vector<st_element_ratio> ratios = {};
+  };
+
+  struct st_pet_type {
+    vector<element_type> elements = {};
+  };
+
   struct st_move {
     uuid         pet_id;
     uuid         pet_enemy_id;
@@ -111,7 +124,7 @@ namespace types {
 
     auto primary_key() const { return host; }
 
-    bool pet_exists(uuid new_pet) {
+    bool pet_exists(uuid& new_pet) {
       for (const auto& stat : pets_stats) {
         if(stat.pet_id == new_pet)
           return true;
@@ -120,7 +133,7 @@ namespace types {
       return false;
     }
 
-    bool player_exists(name player) {
+    bool const player_exists(name const& player) {
       for (const auto& commit : commits) {
         if(commit.player == player)
           return true;
@@ -129,25 +142,25 @@ namespace types {
       return false;
     }
 
-    void remove_player(name player) {
+    void remove_player(name const& player) {
       // remove player commitments
       commits.erase(std::remove_if(commits.begin(), commits.end(),
         [&](auto& commit) { return commit.player == player; }),
         commits.end());
     }
 
-    void add_player(name player, checksum256 commitment) {
+    void add_player(name const& player, checksum256 const& commitment) {
       st_commit commit{player, commitment};
       commits.emplace_back(commit);
     }
 
-    void check_turn_and_rotate(name player) {
+    void check_turn_and_rotate(name const& player) {
       st_commit& commit = commits[0];
       eosio_assert(commit.player == player, "its not your turn");
       std::rotate(commits.begin(), commits.begin() + 1, commits.end());
     }
 
-    void add_pet(uuid pet_id, uint8_t pet_type, name player) {
+    void add_pet(uuid const& pet_id, uint8_t const& pet_type, name const& player) {
       st_pet_stat pet_stat{pet_id, pet_type, player, 100};
       pets_stats.emplace_back(pet_stat);
     }

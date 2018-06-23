@@ -49,12 +49,14 @@ public:
     void battleleave  ( name host, name player );
     void battlestart  ( name host, name player, checksum256 source );
     void battleselpet ( name host, name player, uuid pet_id );
-    void battleattack ( name host, uuid pet_id, uuid pet_id_enemy, string secret );
-    void battleattrev ( name host, uuid pet_id, string value );
+    void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
 
     // admin/config interactions
+    void addelemttype ( st_element element );
+    void changeelemtt ( uint8_t index, st_element element );
+    void addpettype   ( st_pet_type type );
+    void changepettyp ( uint8_t index, st_pet_type type );
     void changecrtol  ( uint32_t new_interval );
-    void changecrfee  ( asset new_fee );
 
     private:
 
@@ -75,6 +77,8 @@ public:
         uint32_t min_sleep_period = 4 * HOUR;
         uint32_t creation_tolerance = 1 * HOUR;
         uint32_t monsters_to_activate_fee = 1000;
+        vector<st_element> element_types = {};
+        vector<st_pet_type> pet_types = {};
     };
 
     typedef singleton<N(petconfig), st_pet_config> pet_config_singleton;

@@ -12,10 +12,43 @@ void pet::changecrtol(uint32_t new_interval) {
     pet_config.set(pc, _self);
 }
 
-void pet::changecrfee(asset new_fee) {
+void pet::addelemttype ( st_element element ) {
     require_auth(_self);
+
+    eosio_assert(element.ratios.size() > 0, "each type must have at least 1 ratio");
+
     st_pet_config pc = _get_pet_config();
-    pc.creation_fee = new_fee;
+    pc.element_types.emplace_back(element);
+    pet_config.set(pc, _self);
+}
+
+void pet::changeelemtt(uint8_t index, st_element element) {
+    require_auth(_self);
+
+    eosio_assert(element.ratios.size() > 0, "each type must have at least 1 ratio");
+
+    st_pet_config pc = _get_pet_config();
+    pc.element_types[index] = element;
+    pet_config.set(pc, _self);
+}
+
+void pet::addpettype(st_pet_type type) {
+    require_auth(_self);
+
+    eosio_assert(type.elements.size() > 0, "each type must have at least 1 element");
+
+    st_pet_config pc = _get_pet_config();
+    pc.pet_types.emplace_back(type);
+    pet_config.set(pc, _self);
+}
+
+void pet::changepettyp(uint8_t index, st_pet_type type) {
+    require_auth(_self);
+
+    eosio_assert(type.elements.size() > 0, "each type must have at least 1 element");
+
+    st_pet_config pc = _get_pet_config();
+    pc.pet_types[index] = type;
     pet_config.set(pc, _self);
 }
 
@@ -75,7 +108,8 @@ void pet::createpet(name owner,
         pet.last_shower_at = pet.created_at;
         pet.last_awake_at = 0;
 
-        pet.type = (_hash_str(pet_name) + pet.created_at + pet.id + owner) % PET_TYPES;
+        pet.type = (_hash_str(pet_name) + pet.created_at + pet.id + owner) %
+            pc.pet_types.size();
 
         r = pet;
     });
@@ -311,7 +345,7 @@ pet::st_pet_config pet::_get_pet_config(){
 // and EOSIO_ABI_EX to generate the listener action
 // https://eosio.stackexchange.com/q/421/54
 
-EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(battlecreate)(battlejoin)(battleleave)(battlestart)(battleattack)(battleattrev)(changecrtol)(changecrfee)(battleselpet)(transfer))
+EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(battlecreate)(battlejoin)(battleleave)(battlestart)(battleattack)(addelemttype)(changeelemtt)(addpettype)(changepettyp)(changecrtol)(battleselpet)(transfer))
 
 // #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
 // extern "C" { \

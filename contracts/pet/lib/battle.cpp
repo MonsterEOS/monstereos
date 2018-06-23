@@ -37,10 +37,6 @@ void pet::battlejoin(name host, name player, checksum256 secret) {
 
 void pet::battleleave(name host, name player) {
 
-  // auto itr_pet = pets.find(pet_id);
-  // eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-  // require_auth(itr_pet->owner);
-
   require_auth(player);
 
   battles tb_battles(_self, _self);
@@ -73,7 +69,7 @@ void pet::battlestart(name host, name player, checksum256 source) {
   st_battle battle = *itr_battle;
 
   eosio_assert(battle.started_at == 0, "battle already started");
-  eosio_assert(battle.commits.size == 2, "battle has not enough players");
+  eosio_assert(battle.commits.size() == 2, "battle has not enough players");
 
   // validates and summarize reveals
   bool valid_reveal = false;
@@ -143,38 +139,24 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
 
 }
 
-void pet::battleattack(name host,
+void pet::battleattack(name         host,
+                       name         player,
                        uuid         pet_id,
                        uuid         pet_enemy_id,
-                       string       secret) {
+                       element_type element) {
 
-  auto itr_pet = pets.find(pet_id);
-  eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-  require_auth(itr_pet->owner);
+  require_auth(player);
 
   battles tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
+
+  battle.check_turn_and_rotate(player);
+
+
 
   print("verify if turn is valid, calc attack and save secret");
-
-}
-
-void pet::battleattrev(name   host,
-                       uuid   pet_id,
-                       string value) {
-
-  auto itr_pet = pets.find(pet_id);
-  eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-  require_auth(itr_pet->owner);
-
-  battles tb_battles(_self, _self);
-  auto itr_battle = tb_battles.find(host);
-  eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
-  st_battle battle = *itr_battle;
-
-  print("parsing attack value/secret");
 
 }
 
