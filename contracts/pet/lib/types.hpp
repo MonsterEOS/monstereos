@@ -6,6 +6,7 @@
 #include <eosiolib/asset.hpp>
 
 using std::vector;
+using std::map;
 using std::string;
 
 using namespace eosio;
@@ -37,13 +38,6 @@ namespace types {
 
   struct st_pet_type {
     vector<element_type> elements = {};
-  };
-
-  struct st_move {
-    uuid         pet_id;
-    uuid         pet_enemy_id;
-    string       secret;
-    uint8_t      damage;
   };
 
   struct st_pet_stat {

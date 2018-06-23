@@ -27,6 +27,7 @@ cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 
 cleos push action monstereosio addpettype '{ "type": { "elements": [0]} }' -p monstereosio
 cleos push action monstereosio addpettype '{ "type": { "elements": [0,4]} }' -p monstereosio
 cleos push action monstereosio addpettype '{ "type": { "elements": [0,5]} }' -p monstereosio
+sleep .6
 cleos push action monstereosio addpettype '{ "type": { "elements": [0]} }' -p monstereosio
 cleos push action monstereosio addpettype '{ "type": { "elements": [0,3]} }' -p monstereosio
 cleos push action monstereosio addpettype '{ "type": { "elements": [0,4]} }' -p monstereosio
@@ -54,7 +55,7 @@ cleos push action monstereosio battlestart '[ "leordev", "leordev", "28349b1d4bc
 cleos push action monstereosio battlestart '[ "leordev", "eosio", "15fe76d25e124b08feb835f12e00a879bd15666a33786e64b655891fba7d6c12" ]' -p eosio
 cleos get table monstereosio monstereosio battles -l 5000
 
-echo "selecting pets" #check the turn order here because it may fail
+echo "selecting pets"
 cleos push action monstereosio battleselpet '[ "leordev", "leordev", 1 ]' -p leordev
 cleos push action monstereosio battleselpet '[ "leordev", "eosio", 2 ]' -p eosio
 

@@ -49,6 +49,8 @@
     "valarray": "cpp",
     "filesystem": "cpp",
     "propagate_const": "cpp",
-    "any": "cpp"
+    "any": "cpp",
+    "ios": "cpp",
+    "forward_list": "cpp"
   }
 }

@@ -179,7 +179,6 @@ void pet::battleattack(name         host,
       break;
     }
   }
-
   eosio_assert(valid_element, "invalid attack element");
 
   // cross ratio elements to enemy pet elements
@@ -197,18 +196,60 @@ void pet::battleattack(name         host,
     }
   }
 
-  // add damage and dice randomization based on commits here
+  // random factor to attack
+  checksum256 result;
+  sha256( (char *)&battle.commits[0], sizeof(battle.commits[1])*2, &result);
+  uint8_t factor = (result.hash[1] + result.hash[0] + now()) %
+    (pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
+
+  // damage based on element ratio and factor
+  uint8_t damage = factor * ratio / 10;
+  print("\nattack results ====\nattack damage: ", int{damage},
+    "\nelement ratio: ", int{ratio},
+    "\nattack factor: ", int{factor});
+
+  // updates pet hp and finish attack turn
+  std::map<name, uint8_t> alive_pets{};
   for (auto& pet_stat : battle.pets_stats) {
     if (pet_stat.pet_id == pet_enemy_id) {
-      pet_stat.hp = pet_stat.hp - ratio;
-      break;
+      pet_stat.hp = damage > pet_stat.hp ? 0 : pet_stat.hp - damage;
+    }
+
+    // update alive pets
+    uint8_t alive_counter = pet_stat.hp > 0 ? 1 : 0;
+    auto [it, success] = alive_pets.insert(
+      std::make_pair(pet_stat.player, alive_counter));
+    if (!success) {
+      it-> second = it->second + alive_counter;
+    }
+
+    print("\npet: ", pet_stat.pet_id, " - hp: ", int{pet_stat.hp});
+  }
+
+  // check battle end
+  uint8_t players_alive{0};
+  name winner{};
+  for (auto const& [player, pets_alive] : alive_pets) {
+    if (pets_alive > 0) {
+      players_alive++;
+      winner = player;
+      print("\nplayer is in battle: ", player, " - pets: ", int{pets_alive});
+    } else {
+      print("\nplayer has no more pets to battle: ", player);
     }
   }
 
-  tb_battles.modify(itr_battle, 0, [&](auto& r) {
-    r.pets_stats = battle.pets_stats;
-    r.commits = battle.commits;
-  });
+  // modify stats and goes to next turn or end battle
+  if (players_alive > 1) {
+    tb_battles.modify(itr_battle, 0, [&](auto& r) {
+      r.pets_stats = battle.pets_stats;
+      r.commits = battle.commits;
+    });
+  } else {
+    // we need an action here?
+    print(" and the winner is >>> ", winner);
+    tb_battles.erase( itr_battle );
+  }
 
 }
 
