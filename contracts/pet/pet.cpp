@@ -311,7 +311,7 @@ pet::st_pet_config pet::_get_pet_config(){
 // and EOSIO_ABI_EX to generate the listener action
 // https://eosio.stackexchange.com/q/421/54
 
-EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(battlecreate)(battlejoin)(battleleave)(battlestart)(battleattack)(battleattrev)(changecrtol)(changecrfee)(transfer))
+EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(battlecreate)(battlejoin)(battleleave)(battlestart)(battleattack)(battleattrev)(changecrtol)(changecrfee)(battleselpet)(transfer))
 
 // #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
 // extern "C" { \

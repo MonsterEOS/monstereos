@@ -37,6 +37,10 @@
     "type_traits": "cpp",
     "sstream": "cpp",
     "initializer_list": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "hashtable": "cpp",
+    "hash_map": "cpp",
+    "hash_set": "cpp",
+    "typeindex": "cpp"
   }
 }

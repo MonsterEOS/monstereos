@@ -4,13 +4,24 @@ cleos push action monstereosio createpet '[ "eosio", "Master" ]' -p eosio
 
 cleos get table monstereosio monstereosio pets -l 5000
 
-# id Bubble = 81, id Master = 82
+# id Bubble = 1, id Master = 2
 
+echo "creating battle"
 cleos push action monstereosio battlecreate '[ "leordev", 1 ]' -p leordev
-
-# test fail host
-cleos push action monstereosio battlecreate '[ "leordev", 1 ]' -p leordev
-
 cleos get table monstereosio monstereosio battles -l 5000
+
+echo "joining battle"
+cleos push action monstereosio battlejoin '[ "leordev", "leordev", "d533f24d6f28ddcef3f066474f7b8355383e485681ba8e793e037f5cf36e4883" ]' -p leordev
+cleos push action monstereosio battlejoin '[ "leordev", "eosio", "50ed53fcdaf27f88d51ea4e835b1055efe779bb87e6cfdff47d28c88ffb27129" ]' -p eosio
+cleos get table monstereosio monstereosio battles -l 5000
+
+echo "starting battle"
+cleos push action monstereosio battlestart '[ "leordev", "leordev", "28349b1d4bcdc9905e4ef9719019e55743c84efa0c5e9a0b077f0b54fcd84905aaa" ]' -p leordev
+cleos push action monstereosio battlestart '[ "leordev", "eosio", "15fe76d25e124b08feb835f12e00a879bd15666a33786e64b655891fba7d6c12" ]' -p eosio
+cleos get table monstereosio monstereosio battles -l 5000
+
+echo "selecting pets" #check the turn order here because it may fail
+cleos push action monstereosio battleselpet '[ "leordev", "leordev", 1 ]' -p leordev
+cleos push action monstereosio battleselpet '[ "leordev", "eosio", 2 ]' -p eosio
 
 ```

@@ -48,6 +48,7 @@ public:
     void battlejoin   ( name host, name player, checksum256 secret );
     void battleleave  ( name host, name player );
     void battlestart  ( name host, name player, checksum256 source );
+    void battleselpet ( name host, name player, uuid pet_id );
     void battleattack ( name host, uuid pet_id, uuid pet_id_enemy, string secret );
     void battleattrev ( name host, uuid pet_id, string value );
 

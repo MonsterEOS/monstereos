@@ -35,6 +35,7 @@ namespace types {
 
   struct st_pet_stat {
     uuid    pet_id;
+    uint8_t pet_type;
     name    player;
     uint8_t hp;
   };
@@ -129,6 +130,7 @@ namespace types {
     }
 
     void remove_player(name player) {
+      // remove player commitments
       commits.erase(std::remove_if(commits.begin(), commits.end(),
         [&](auto& commit) { return commit.player == player; }),
         commits.end());
@@ -137,6 +139,17 @@ namespace types {
     void add_player(name player, checksum256 commitment) {
       st_commit commit{player, commitment};
       commits.emplace_back(commit);
+    }
+
+    void check_turn_and_rotate(name player) {
+      st_commit& commit = commits[0];
+      eosio_assert(commit.player == player, "its not your turn");
+      std::rotate(commits.begin(), commits.begin() + 1, commits.end());
+    }
+
+    void add_pet(uuid pet_id, uint8_t pet_type, name player) {
+      st_pet_stat pet_stat{pet_id, pet_type, player, 100};
+      pets_stats.emplace_back(pet_stat);
     }
   };
 

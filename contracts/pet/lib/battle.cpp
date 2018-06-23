@@ -17,10 +17,6 @@ void pet::battlecreate(name host, battle_mode mode) {
 
 void pet::battlejoin(name host, name player, checksum256 secret) {
 
-  // auto itr_pet = pets.find(pet_id);
-  // eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-  // require_auth(itr_pet->owner);
-
   require_auth(player);
 
   battles tb_battles(_self, _self);
@@ -77,6 +73,7 @@ void pet::battlestart(name host, name player, checksum256 source) {
   st_battle battle = *itr_battle;
 
   eosio_assert(battle.started_at == 0, "battle already started");
+  eosio_assert(battle.commits.size == 2, "battle has not enough players");
 
   // validates and summarize reveals
   bool valid_reveal = false;
@@ -113,6 +110,37 @@ void pet::battlestart(name host, name player, checksum256 source) {
     r.commits = battle.commits;
     r.turns = battle.turns;
   });
+}
+
+void pet::battleselpet(name host, name player, uuid pet_id) {
+  require_auth(player);
+
+  battles tb_battles(_self, _self);
+  auto itr_battle = tb_battles.find(host);
+  eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
+  st_battle battle = *itr_battle;
+
+  eosio_assert((battle.mode == V1 && battle.pets_stats.size() < 2) ||
+    (battle.mode == V2 && battle.pets_stats.size() < 4) ||
+    (battle.mode == V3 && battle.pets_stats.size() < 6),
+    "all pets were selected already");
+
+  battle.check_turn_and_rotate(player);
+
+  auto itr_pet = pets.find(pet_id);
+  eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+  st_pets pet = *itr_pet;
+
+  // only owners can make pets sleep
+  require_auth(pet.owner);
+
+  battle.add_pet(pet_id, pet.type, player);
+
+  tb_battles.modify(itr_battle, 0, [&](auto& r) {
+    r.pets_stats = battle.pets_stats;
+    r.commits = battle.commits;
+  });
+
 }
 
 void pet::battleattack(name host,
