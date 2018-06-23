@@ -59,11 +59,6 @@ namespace types {
     checksum256 reveal;
   };
 
-  struct st_turn {
-    vector<st_move> moves;
-    uint32_t        submission_deadline;
-  };
-
   struct st_transfer {
       account_name from;
       account_name to;
@@ -120,7 +115,6 @@ namespace types {
     uint32_t            started_at = 0;
     vector<st_commit>   commits{};
     vector<st_pet_stat> pets_stats{};
-    vector<st_turn>     turns{};
 
     auto primary_key() const { return host; }
 

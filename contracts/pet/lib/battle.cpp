@@ -104,7 +104,6 @@ void pet::battlestart(name host, name player, checksum256 source) {
   tb_battles.modify(itr_battle, 0, [&](auto& r) {
     r.started_at = battle.started_at;
     r.commits = battle.commits;
-    r.turns = battle.turns;
   });
 }
 
@@ -154,24 +153,62 @@ void pet::battleattack(name         host,
 
   battle.check_turn_and_rotate(player);
 
+  uint8_t pet_type{0};
+  uint8_t pet_enemy_type{0};
+  bool valid_pet = false;
+  for (const auto& pet_stat : battle.pets_stats) {
+    if (pet_stat.pet_id == pet_id && pet_stat.player == player) {
+      pet_type = pet_stat.pet_type;
+      valid_pet = true;
+    } else if (pet_stat.pet_id == pet_id && pet_stat.player != player) {
+      eosio_assert(false, "you cannot control this monster");
+    } else if (pet_stat.pet_id == pet_enemy_id) {
+      pet_enemy_type = pet_stat.pet_type;
+    }
+  }
 
+  eosio_assert(valid_pet, "invalid attack");
 
-  print("verify if turn is valid, calc attack and save secret");
+  st_pet_config pc = _get_pet_config();
+  const auto& pet_types = pc.pet_types[pet_type];
+
+  bool valid_element = false;
+  for (const auto& pet_element : pet_types.elements) {
+    if (pet_element == element) {
+      valid_element = true;
+      break;
+    }
+  }
+
+  eosio_assert(valid_element, "invalid attack element");
+
+  // cross ratio elements to enemy pet elements
+  uint8_t ratio{8}; // default ratio
+  const auto& element_types = pc.element_types[element];
+  const auto& pet_enemy_types = pc.pet_types[pet_enemy_type];
+  for (const auto& pet_element : pet_enemy_types.elements) {
+    for (const auto& type_ratio : element_types.ratios) {
+
+      // get the biggest ratio
+      if (type_ratio.type == pet_element && type_ratio.ratio > ratio) {
+        ratio = type_ratio.ratio;
+        break;
+      }
+    }
+  }
+
+  // add damage and dice randomization based on commits here
+  for (auto& pet_stat : battle.pets_stats) {
+    if (pet_stat.pet_id == pet_enemy_id) {
+      pet_stat.hp = pet_stat.hp - ratio;
+      break;
+    }
+  }
+
+  tb_battles.modify(itr_battle, 0, [&](auto& r) {
+    r.pets_stats = battle.pets_stats;
+    r.commits = battle.commits;
+  });
 
 }
 
-void pet::_calc_turn_and_next(st_battle battle) {
-
-  // initialize battle
-  bool has_next_turn = true;
-  if (battle.turns.size() > 0) {
-    print("lazy developer calculates turn results and define if we have a next turn");
-  }
-
-  // initialize next turn
-  if (has_next_turn) {
-    st_turn t{{}, now() + 60};
-    battle.turns.emplace_back(t);
-  }
-
-}

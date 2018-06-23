@@ -102,6 +102,4 @@ public:
 
     bool _pet_name_exists(string pet_name);
 
-    void _calc_turn_and_next(st_battle battle);
-
 };

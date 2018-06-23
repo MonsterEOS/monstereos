@@ -4,6 +4,7 @@ cleos set contract eosio ../../../eos-mainnet/build/contracts/eosio.bios -p eosi
 cleos create account eosio eosio.token EOS8Be9m6RgEXHXR4tTYZyorm1fEkMLMTubTd2PJHDeYCH2Ufg3XN EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3
 cleos set contract eosio.token ../../../eos-mainnet/build/contracts/eosio.token -p eosio.token
 cleos push action eosio.token create '[ "eosio", "1000000000.0000 EOS", 0, 0, 0]' -p eosio.token
+cleos push action eosio.token issue '["eosio", "100.0000 EOS", "initial issue"]' -p eosio
 sleep .5
 
 cleos create account eosio monstereosio EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3 EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3
@@ -57,4 +58,6 @@ echo "selecting pets" #check the turn order here because it may fail
 cleos push action monstereosio battleselpet '[ "leordev", "leordev", 1 ]' -p leordev
 cleos push action monstereosio battleselpet '[ "leordev", "eosio", 2 ]' -p eosio
 
+cleos push action monstereosio battleattack '[ "leordev", "leordev", 1, 2, 0 ]' -p leordev
+cleos push action monstereosio battleattack '[ "leordev", "eosio", 2, 1, 0 ]' -p eosio
 ```

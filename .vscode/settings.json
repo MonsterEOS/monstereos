@@ -48,6 +48,7 @@
     "regex": "cpp",
     "valarray": "cpp",
     "filesystem": "cpp",
-    "propagate_const": "cpp"
+    "propagate_const": "cpp",
+    "any": "cpp"
   }
 }
