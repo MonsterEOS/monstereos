@@ -77,6 +77,9 @@ namespace types {
       uint32_t last_awake_at = 0;
       uint32_t last_play_at;
       uint32_t last_shower_at;
+      uint8_t  in_battle = 0;
+      uint32_t victories = 0;
+      uint32_t defeats = 0;
 
       uint64_t primary_key() const { return id; }
 

@@ -128,12 +128,19 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
 
   // only owners can make pets sleep
   require_auth(pet.owner);
+  eosio_assert(pet.is_alive(), "dead pets don't battle");
+  // TODO: uncomment before release - eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
+  eosio_assert(pet.in_battle == 0, "pet is already in another battle");
 
   battle.add_pet(pet_id, pet.type, player);
 
   tb_battles.modify(itr_battle, 0, [&](auto& r) {
     r.pets_stats = battle.pets_stats;
     r.commits = battle.commits;
+  });
+
+  pets.modify(itr_pet, 0, [&](auto& r) {
+    r.in_battle = 1;
   });
 
 }
@@ -248,8 +255,39 @@ void pet::battleattack(name         host,
   } else {
     // we need an action here?
     print(" and the winner is >>> ", winner);
-    tb_battles.erase( itr_battle );
+    SEND_INLINE_ACTION( *this, battlefinish, {_self,N(active)}, {host, winner} );
   }
 
 }
 
+void pet::battlefinish(name host, name winner) {
+  require_auth(_self);
+
+  battles tb_battles(_self, _self);
+  auto itr_battle = tb_battles.find(host);
+  eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
+  st_battle battle = *itr_battle;
+
+  // update pets stats and remove from battle
+  for (st_pet_stat ps : battle.pets_stats) {
+    auto itr_pet = pets.find(ps.pet_id);
+    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    st_pets pet = *itr_pet;
+
+    if (ps.player == winner) {
+      pet.victories++;
+    } else {
+      pet.defeats++;
+    }
+    pet.in_battle = 0;
+
+    pets.modify(itr_pet, 0, [&](auto& r) {
+      r.in_battle = 0;
+      r.victories = pet.victories;
+      r.defeats = pet.defeats;
+    });
+  }
+
+  tb_battles.erase( itr_battle );
+
+}

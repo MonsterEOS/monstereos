@@ -51,6 +51,7 @@ public:
     void battlestart  ( name host, name player, checksum256 source );
     void battleselpet ( name host, name player, uuid pet_id );
     void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
+    void battlefinish ( name host, name winner );
 
     // admin/config interactions
     void addelemttype ( st_element element );
