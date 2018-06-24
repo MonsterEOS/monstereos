@@ -82,16 +82,13 @@ namespace types {
       indexed_by<N(byowner), const_mem_fun<st_pets, uint64_t, &st_pets::get_pets_by_owner>>
   > _tb_pet;
 
-  // @abi table petbattles i64
-  struct st_pet_battles {
-    uuid     pet_id = 0;
-    uint8_t  in_battle = 0;
-    uint32_t victories = 0;
-    uint32_t defeats = 0;
+  // @abi table petinbattles i64
+  struct st_pet_inbatt {
+    uuid     pet_id;
 
     uint64_t primary_key() const { return pet_id; }
   };
-  typedef multi_index<N(petbattles), st_pet_battles> _tb_pet_battle;
+  typedef multi_index<N(petinbattles), st_pet_inbatt> _tb_pet_in_battle;
 
   // @abi table accounts i64
   struct st_account {

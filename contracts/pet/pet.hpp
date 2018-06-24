@@ -32,14 +32,14 @@ public:
     pettypes(_self,_self),
     elements(_self,_self),
     pets(_self,_self),
-    petbattles(_self,_self),
+    petinbattles(_self,_self),
     pet_config(_self,_self)
     {}
 
     _tb_pet_types pettypes;
     _tb_elements  elements;
     _tb_pet pets;
-    _tb_pet_battle petbattles;
+    _tb_pet_in_battle petinbattles;
 
     // pet interactions
     void awakepet     ( uuid pet_id );

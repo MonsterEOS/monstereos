@@ -104,6 +104,7 @@ void pet::battlestart(name host, name player, checksum256 source) {
 
   tb_battles.modify(itr_battle, 0, [&](auto& r) {
     r.started_at = battle.started_at;
+    r.last_move_at = battle.last_move_at;
     r.commits = battle.commits;
   });
 }
@@ -133,20 +134,11 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
   eosio_assert(pet.is_alive(), "dead pets don't battle");
 // TODO: uncomment before release - eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
 
-
-  auto itr_pet_battle = petbattles.find(pet_id);
-  if (itr_pet_battle == petbattles.end()) {
-    petbattles.emplace(pet.owner, [&](auto& r) {
-      r = st_pet_battles{};
-      r.pet_id = pet_id;
-      r.in_battle = 1;
-    });
-  } else {
-    eosio_assert(itr_pet_battle->in_battle == 0, "pet is already in another battle");
-    petbattles.modify(itr_pet_battle, player, [&](auto& r) {
-      r.in_battle = 1;
-    });
-  }
+  auto itr_pet_battle = petinbattles.find(pet_id);
+  eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");
+  petinbattles.emplace(_self, [&](auto& r) {
+    r.pet_id = pet_id;
+  });
 
   battle.add_pet(pet_id, pet.type, player);
 
@@ -180,11 +172,11 @@ void pet::battleattack(name         host,
   uint8_t pet_enemy_type_id{0};
   bool valid_pet = false;
   for (const auto& pet_stat : battle.pets_stats) {
-    if (pet_stat.pet_id == pet_id && pet_stat.player == player) {
+    if (pet_stat.pet_id == pet_id) {
+      eosio_assert(pet_stat.player == player, "you cannot control this monster");
+      eosio_assert(pet_stat.hp > 0, "this monster is dead");
       pet_type = pet_stat.pet_type;
       valid_pet = true;
-    } else if (pet_stat.pet_id == pet_id && pet_stat.player != player) {
-      eosio_assert(false, "you cannot control this monster");
     } else if (pet_stat.pet_id == pet_enemy_id) {
       pet_enemy_type_id = pet_stat.pet_type;
     }
@@ -279,22 +271,9 @@ void pet::battlefinish(name host, name winner) {
 
   // update pets stats and remove from battle
   for (st_pet_stat ps : battle.pets_stats) {
-    auto itr_pet_battle = petbattles.find(ps.pet_id);
-    eosio_assert(itr_pet_battle != petbattles.end(), "E404|Invalid pet battle stat");
-    st_pet_battles pet_battle = *itr_pet_battle;
-
-    if (ps.player == winner) {
-      pet_battle.victories++;
-    } else {
-      pet_battle.defeats++;
-    }
-    pet_battle.in_battle = 0;
-
-    petbattles.modify(itr_pet_battle, 0, [&](auto& r) {
-      r.in_battle = 0;
-      r.victories = pet_battle.victories;
-      r.defeats = pet_battle.defeats;
-    });
+    auto itr_pet_battle = petinbattles.find(ps.pet_id);
+    eosio_assert(itr_pet_battle != petinbattles.end(), "E404|Invalid pet battle stat");
+    petinbattles.erase( itr_pet_battle );
   }
 
   tb_battles.erase( itr_battle );
