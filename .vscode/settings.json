@@ -51,6 +51,7 @@
     "propagate_const": "cpp",
     "any": "cpp",
     "ios": "cpp",
-    "forward_list": "cpp"
+    "forward_list": "cpp",
+    "variant": "cpp"
   }
 }

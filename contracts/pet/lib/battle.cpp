@@ -4,7 +4,7 @@ using namespace utils;
 void pet::battlecreate(name host, battle_mode mode) {
   require_auth(host);
 
-  battles tb_battles(_self, _self);
+  _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
   eosio_assert(itr_battle == tb_battles.end(), "you already host a battle");
   eosio_assert(mode == V1 || mode == V2 || mode == V3, "invalid battle mode");
@@ -19,7 +19,7 @@ void pet::battlejoin(name host, name player, checksum256 secret) {
 
   require_auth(player);
 
-  battles tb_battles(_self, _self);
+  _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
@@ -39,7 +39,7 @@ void pet::battleleave(name host, name player) {
 
   require_auth(player);
 
-  battles tb_battles(_self, _self);
+  _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
@@ -63,7 +63,7 @@ void pet::battlestart(name host, name player, checksum256 source) {
 
   require_auth(player);
 
-  battles tb_battles(_self, _self);
+  _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
@@ -111,7 +111,7 @@ void pet::battlestart(name host, name player, checksum256 source) {
 void pet::battleselpet(name host, name player, uuid pet_id) {
   require_auth(player);
 
-  battles tb_battles(_self, _self);
+  _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
@@ -128,11 +128,25 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
   eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
   st_pets pet = *itr_pet;
 
-  // only owners can make pets sleep
+  // only owners can make fight with pets
   require_auth(pet.owner);
   eosio_assert(pet.is_alive(), "dead pets don't battle");
-  // TODO: uncomment before release - eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
-  eosio_assert(pet.in_battle == 0, "pet is already in another battle");
+// TODO: uncomment before release - eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
+
+
+  auto itr_pet_battle = petbattles.find(pet_id);
+  if (itr_pet_battle == petbattles.end()) {
+    petbattles.emplace(pet.owner, [&](auto& r) {
+      r = st_pet_battles{};
+      r.pet_id = pet_id;
+      r.in_battle = 1;
+    });
+  } else {
+    eosio_assert(itr_pet_battle->in_battle == 0, "pet is already in another battle");
+    petbattles.modify(itr_pet_battle, player, [&](auto& r) {
+      r.in_battle = 1;
+    });
+  }
 
   battle.add_pet(pet_id, pet.type, player);
 
@@ -141,21 +155,17 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
     r.commits = battle.commits;
   });
 
-  pets.modify(itr_pet, 0, [&](auto& r) {
-    r.in_battle = 1;
-  });
-
 }
 
 void pet::battleattack(name         host,
                        name         player,
                        uuid         pet_id,
                        uuid         pet_enemy_id,
-                       element_type element) {
+                       element_type element_id) {
 
   require_auth(player);
 
-  battles tb_battles(_self, _self);
+  _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
@@ -167,7 +177,7 @@ void pet::battleattack(name         host,
 
   // get current pet and enemy types
   uint8_t pet_type{0};
-  uint8_t pet_enemy_type{0};
+  uint8_t pet_enemy_type_id{0};
   bool valid_pet = false;
   for (const auto& pet_stat : battle.pets_stats) {
     if (pet_stat.pet_id == pet_id && pet_stat.player == player) {
@@ -176,17 +186,16 @@ void pet::battleattack(name         host,
     } else if (pet_stat.pet_id == pet_id && pet_stat.player != player) {
       eosio_assert(false, "you cannot control this monster");
     } else if (pet_stat.pet_id == pet_enemy_id) {
-      pet_enemy_type = pet_stat.pet_type;
+      pet_enemy_type_id = pet_stat.pet_type;
     }
   }
 
   eosio_assert(valid_pet, "invalid attack");
 
-  const auto& pet_types = pc.pet_types[pet_type];
-
+  const auto& attack_pet_types = pettypes.get(pet_type, "invalid pet type");
   bool valid_element = false;
-  for (const auto& pet_element : pet_types.elements) {
-    if (pet_element == element) {
+  for (const auto& pet_element : attack_pet_types.elements) {
+    if (pet_element == element_id) {
       valid_element = true;
       break;
     }
@@ -194,18 +203,12 @@ void pet::battleattack(name         host,
   eosio_assert(valid_element, "invalid attack element");
 
   // cross ratio elements to enemy pet elements
-  uint8_t ratio{8}; // default ratio
-  const auto& element_types = pc.element_types[element];
-  const auto& pet_enemy_types = pc.pet_types[pet_enemy_type];
+  uint8_t ratio{5}; // default ratio
+  const auto& attack_element = elements.get(element_id, "invalid element");
+  const auto& pet_enemy_types = pettypes.get(pet_enemy_type_id, "invalid pet enemy type");
   for (const auto& pet_element : pet_enemy_types.elements) {
-    for (const auto& type_ratio : element_types.ratios) {
-
-      // get the biggest ratio
-      if (type_ratio.type == pet_element && type_ratio.ratio > ratio) {
-        ratio = type_ratio.ratio;
-        break;
-      }
-    }
+    const auto& type_ratio = attack_element.ratios[pet_element];
+    ratio = type_ratio > ratio ? type_ratio : ratio;
   }
 
   // random factor to attack
@@ -269,28 +272,28 @@ void pet::battleattack(name         host,
 void pet::battlefinish(name host, name winner) {
   require_auth(_self);
 
-  battles tb_battles(_self, _self);
+  _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
 
   // update pets stats and remove from battle
   for (st_pet_stat ps : battle.pets_stats) {
-    auto itr_pet = pets.find(ps.pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-    st_pets pet = *itr_pet;
+    auto itr_pet_battle = petbattles.find(ps.pet_id);
+    eosio_assert(itr_pet_battle != petbattles.end(), "E404|Invalid pet battle stat");
+    st_pet_battles pet_battle = *itr_pet_battle;
 
     if (ps.player == winner) {
-      pet.victories++;
+      pet_battle.victories++;
     } else {
-      pet.defeats++;
+      pet_battle.defeats++;
     }
-    pet.in_battle = 0;
+    pet_battle.in_battle = 0;
 
-    pets.modify(itr_pet, 0, [&](auto& r) {
+    petbattles.modify(itr_pet_battle, 0, [&](auto& r) {
       r.in_battle = 0;
-      r.victories = pet.victories;
-      r.defeats = pet.defeats;
+      r.victories = pet_battle.victories;
+      r.defeats = pet_battle.defeats;
     });
   }
 

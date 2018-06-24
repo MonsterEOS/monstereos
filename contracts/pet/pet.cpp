@@ -12,44 +12,54 @@ void pet::changecrtol(uint32_t new_interval) {
     pet_config.set(pc, _self);
 }
 
-void pet::addelemttype ( st_element element ) {
+void pet::addelemttype ( vector<uint8_t> ratios ) {
     require_auth(_self);
 
-    eosio_assert(element.ratios.size() > 0, "each type must have at least 1 ratio");
+    eosio_assert(ratios.size() > 0, "each type must have at least 1 ratio");
 
-    st_pet_config pc = _get_pet_config();
-    pc.element_types.emplace_back(element);
-    pet_config.set(pc, _self);
+    elements.emplace(_self, [&](auto &r) {
+        r.id = _next_element_id();
+        r.ratios = ratios;
+    });
 }
 
-void pet::changeelemtt(uint8_t index, st_element element) {
+void pet::changeelemtt(uint64_t id, vector<uint8_t> ratios) {
     require_auth(_self);
 
-    eosio_assert(element.ratios.size() > 0, "each type must have at least 1 ratio");
+    eosio_assert(ratios.size() > 0, "each type must have at least 1 ratio");
 
-    st_pet_config pc = _get_pet_config();
-    pc.element_types[index] = element;
-    pet_config.set(pc, _self);
+    auto itr_elmt = elements.find(id);
+    eosio_assert(itr_elmt != elements.end(), "E404|Invalid element");
+    st_elements elmt = *itr_elmt;
+
+    elements.modify(itr_elmt, _self, [&](auto &r) {
+        r.ratios = ratios;
+    });
 }
 
-void pet::addpettype(st_pet_type type) {
+void pet::addpettype(vector<uint8_t> elements) {
     require_auth(_self);
 
-    eosio_assert(type.elements.size() > 0, "each type must have at least 1 element");
+    eosio_assert(elements.size() > 0, "each type must have at least 1 element");
 
-    st_pet_config pc = _get_pet_config();
-    pc.pet_types.emplace_back(type);
-    pet_config.set(pc, _self);
+    pettypes.emplace(_self, [&](auto &r) {
+        r.id = _next_pet_type_id();
+        r.elements = elements;
+    });
 }
 
-void pet::changepettyp(uint8_t index, st_pet_type type) {
+void pet::changepettyp(uint64_t id, vector<uint8_t> elements) {
     require_auth(_self);
 
-    eosio_assert(type.elements.size() > 0, "each type must have at least 1 element");
+    eosio_assert(elements.size() > 0, "each type must have at least 1 element");
 
-    st_pet_config pc = _get_pet_config();
-    pc.pet_types[index] = type;
-    pet_config.set(pc, _self);
+    auto itr_pt = pettypes.find(id);
+    eosio_assert(itr_pt != pettypes.end(), "E404|Invalid pet type");
+    st_pet_types pt = *itr_pt;
+
+    pettypes.modify(itr_pt, _self, [&](auto &r) {
+        r.elements = elements;
+    });
 }
 
 void pet::createpet(name owner,
@@ -108,8 +118,7 @@ void pet::createpet(name owner,
         pet.last_shower_at = pet.created_at;
         pet.last_awake_at = 0;
 
-        pet.type = (_hash_str(pet_name) + pet.created_at + pet.id + owner) %
-            pc.pet_types.size();
+        pet.type = (_hash_str(pet_name) + pet.created_at + pet.id + owner) % pc.last_pet_type_id;
 
         r = pet;
     });
@@ -325,6 +334,20 @@ uuid pet::_next_id(){
     pc.last_id++;
     pet_config.set(pc, _self);
     return pc.last_id;
+}
+
+uint64_t pet::_next_element_id(){
+    st_pet_config pc = _get_pet_config();
+    pc.last_element_id++;
+    pet_config.set(pc, _self);
+    return pc.last_element_id-1; // zero based id
+}
+
+uint64_t pet::_next_pet_type_id(){
+    st_pet_config pc = _get_pet_config();
+    pc.last_pet_type_id++;
+    pet_config.set(pc, _self);
+    return pc.last_pet_type_id-1; // zero based id
 }
 
 pet::st_pet_config pet::_get_pet_config(){

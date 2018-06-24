@@ -29,11 +29,17 @@ class pet : public eosio::contract {
 public:
     pet(account_name self)
     :eosio::contract(self),
+    pettypes(_self,_self),
+    elements(_self,_self),
     pets(_self,_self),
+    petbattles(_self,_self),
     pet_config(_self,_self)
     {}
 
+    _tb_pet_types pettypes;
+    _tb_elements  elements;
     _tb_pet pets;
+    _tb_pet_battle petbattles;
 
     // pet interactions
     void awakepet     ( uuid pet_id );
@@ -54,10 +60,10 @@ public:
     void battlefinish ( name host, name winner );
 
     // admin/config interactions
-    void addelemttype ( st_element element );
-    void changeelemtt ( uint8_t index, st_element element );
-    void addpettype   ( st_pet_type type );
-    void changepettyp ( uint8_t index, st_pet_type type );
+    void addelemttype ( vector<uint8_t> ratios );
+    void changeelemtt ( uint64_t id, vector<uint8_t> ratios );
+    void addpettype   ( vector<uint8_t> elements );
+    void changepettyp ( uint64_t id, vector<uint8_t> elements );
     void changecrtol  ( uint32_t new_interval );
 
     private:
@@ -82,8 +88,8 @@ public:
         uint32_t battle_idle_tolerance = 60;
         uint8_t  attack_min_factor = 10;
         uint8_t  attack_max_factor = 16;
-        vector<st_element> element_types = {};
-        vector<st_pet_type> pet_types = {};
+        uint16_t last_element_id = 0;
+        uint16_t last_pet_type_id = 0;
     };
 
     typedef singleton<N(petconfig), st_pet_config> pet_config_singleton;
@@ -96,6 +102,10 @@ public:
     st_pet_config _get_pet_config();
 
     uuid _next_id();
+
+    uint64_t _next_element_id();
+
+    uint64_t _next_pet_type_id();
 
     uint64_t _hash_str(const string &str);
 

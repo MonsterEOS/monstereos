@@ -27,19 +27,6 @@ namespace types {
   constexpr battle_mode V3 = 3;
   constexpr battle_mode RAID = 100;
 
-  struct st_element_ratio {
-    element_type type;
-    uint8_t ratio;
-  };
-
-  struct st_element {
-    vector<st_element_ratio> ratios = {};
-  };
-
-  struct st_pet_type {
-    vector<element_type> elements = {};
-  };
-
   struct st_pet_stat {
     uuid    pet_id;
     uint8_t pet_type;
@@ -101,8 +88,10 @@ namespace types {
     uint8_t  in_battle = 0;
     uint32_t victories = 0;
     uint32_t defeats = 0;
+
+    uint64_t primary_key() const { return pet_id; }
   };
-  typedef multi_index<N(petbattles), st_pet_battles> _tb_pet_battles;
+  typedef multi_index<N(petbattles), st_pet_battles> _tb_pet_battle;
 
   // @abi table accounts i64
   struct st_account {
@@ -110,6 +99,24 @@ namespace types {
       uint64_t primary_key() const { return balance.symbol.name(); }
   };
   typedef multi_index<N(accounts), st_account> _tb_accounts;
+
+  // @abi table elements i64
+  struct st_elements {
+      uint64_t id;
+      vector<uint8_t> ratios = {};
+
+      uint64_t primary_key() const { return id; }
+  };
+  typedef multi_index<N(elements), st_elements> _tb_elements;
+
+  // @abi table pettypes i64
+  struct st_pet_types {
+      uint64_t id;
+      vector<uint8_t> elements = {};
+
+      uint64_t primary_key() const { return id; }
+  };
+  typedef multi_index<N(pettypes), st_pet_types> _tb_pet_types;
 
   // @abi table battles i64
   struct st_battle {
@@ -171,5 +178,5 @@ namespace types {
     }
   };
 
-  typedef multi_index<N(battles), st_battle> battles;
+  typedef multi_index<N(battles), st_battle> _tb_battle;
 }
