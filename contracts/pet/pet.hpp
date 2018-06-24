@@ -79,6 +79,7 @@ public:
         uint32_t min_sleep_period = 4 * HOUR;
         uint32_t creation_tolerance = 1 * HOUR;
         uint32_t monsters_to_activate_fee = 1000;
+        uint32_t battle_idle_tolerance = 60;
         uint8_t  attack_min_factor = 10;
         uint8_t  attack_max_factor = 16;
         vector<st_element> element_types = {};

@@ -23,14 +23,10 @@ cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 
 # metal type 5
 cleos push action monstereosio addelemttype '{ "element": { "ratios": [{"type": 0, "ratio": 8}, {"type": 1, "ratio": 20}, {"type": 2, "ratio": 15}, {"type": 3, "ratio": 10}, {"type": 4, "ratio": 5}, {"type": 5, "ratio": 8}] } }' -p monstereosio
 
-# add some pets types
-cleos push action monstereosio addpettype '{ "type": { "elements": [0]} }' -p monstereosio
-cleos push action monstereosio addpettype '{ "type": { "elements": [0,4]} }' -p monstereosio
-cleos push action monstereosio addpettype '{ "type": { "elements": [0,5]} }' -p monstereosio
-sleep .6
-cleos push action monstereosio addpettype '{ "type": { "elements": [0]} }' -p monstereosio
-cleos push action monstereosio addpettype '{ "type": { "elements": [0,3]} }' -p monstereosio
-cleos push action monstereosio addpettype '{ "type": { "elements": [0,4]} }' -p monstereosio
+# add pets types
+cleos push action monstereosio addpettype '{"type": { "elements": [0,6] } }' -p monstereosio
+cleos push action monstereosio addpettype '{"type": { "elements": [0,6,4] } }' -p monstereosio
+cleos push action monstereosio addpettype '{"type": { "elements": [0,6,9] } }' -p monstereosio
 
 cleos create account eosio leordev EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3 EOS4ywPbXJp1V9AKQpSVKkCCDhgLSj7vvGK5pdowY5zL5s7hJdGn3
 

@@ -98,6 +98,7 @@ void pet::battlestart(name host, name player, checksum256 source) {
         return result.hash[1] < result.hash[0];
       });
     battle.started_at = now();
+    battle.last_move_at = now();
     battle.commits = reveals;
   }
 
@@ -120,7 +121,8 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
     (battle.mode == V3 && battle.pets_stats.size() < 6),
     "all pets were selected already");
 
-  battle.check_turn_and_rotate(player);
+  st_pet_config pc = _get_pet_config();
+  battle.check_turn_and_rotate(player, pc.battle_idle_tolerance);
 
   auto itr_pet = pets.find(pet_id);
   eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
@@ -158,8 +160,12 @@ void pet::battleattack(name         host,
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
 
-  battle.check_turn_and_rotate(player);
+  st_pet_config pc = _get_pet_config();
 
+  // check and rotate turn only if player is not idle
+  battle.check_turn_and_rotate(player, pc.battle_idle_tolerance);
+
+  // get current pet and enemy types
   uint8_t pet_type{0};
   uint8_t pet_enemy_type{0};
   bool valid_pet = false;
@@ -176,7 +182,6 @@ void pet::battleattack(name         host,
 
   eosio_assert(valid_pet, "invalid attack");
 
-  st_pet_config pc = _get_pet_config();
   const auto& pet_types = pc.pet_types[pet_type];
 
   bool valid_element = false;
@@ -251,6 +256,7 @@ void pet::battleattack(name         host,
     tb_battles.modify(itr_battle, 0, [&](auto& r) {
       r.pets_stats = battle.pets_stats;
       r.commits = battle.commits;
+      r.last_move_at = now();
     });
   } else {
     // we need an action here?

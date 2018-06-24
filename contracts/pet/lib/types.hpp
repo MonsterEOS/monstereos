@@ -77,9 +77,6 @@ namespace types {
       uint32_t last_awake_at = 0;
       uint32_t last_play_at;
       uint32_t last_shower_at;
-      uint8_t  in_battle = 0;
-      uint32_t victories = 0;
-      uint32_t defeats = 0;
 
       uint64_t primary_key() const { return id; }
 
@@ -98,6 +95,15 @@ namespace types {
       indexed_by<N(byowner), const_mem_fun<st_pets, uint64_t, &st_pets::get_pets_by_owner>>
   > _tb_pet;
 
+  // @abi table petbattles i64
+  struct st_pet_battles {
+    uuid     pet_id = 0;
+    uint8_t  in_battle = 0;
+    uint32_t victories = 0;
+    uint32_t defeats = 0;
+  };
+  typedef multi_index<N(petbattles), st_pet_battles> _tb_pet_battles;
+
   // @abi table accounts i64
   struct st_account {
       asset    balance;
@@ -110,6 +116,7 @@ namespace types {
     name                host;
     battle_mode         mode; // 1: 1v1, 2: 2v2, 3: 3v3 :)
     uint32_t            started_at = 0;
+    uint32_t            last_move_at = 0;
     vector<st_commit>   commits{};
     vector<st_pet_stat> pets_stats{};
 
@@ -145,10 +152,17 @@ namespace types {
       commits.emplace_back(commit);
     }
 
-    void check_turn_and_rotate(name const& player) {
+    void check_turn_and_rotate(name const& player, uint32_t const& tolerance) {
       st_commit& commit = commits[0];
-      eosio_assert(commit.player == player, "its not your turn");
-      std::rotate(commits.begin(), commits.begin() + 1, commits.end());
+
+      bool is_idle = (now() - last_move_at) > tolerance;
+
+      eosio_assert(commit.player == player || is_idle, "its not your turn");
+
+      // rotates only if it's the current player
+      if (player == commit.player) {
+        std::rotate(commits.begin(), commits.begin() + 1, commits.end());
+      }
     }
 
     void add_pet(uuid const& pet_id, uint8_t const& pet_type, name const& player) {
