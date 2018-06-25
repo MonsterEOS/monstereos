@@ -607,6 +607,7 @@ type Msg
     | BattleAttackSucceed String
     | GenericFailure String
     | JoinBattle Battle
+    | StartBattle Battle
     | LeaveBattle String
     | WatchBattle Battle
     | Logout
@@ -914,7 +915,10 @@ update msg model =
                         ( content, cmd ) =
                             case battle of
                                 Just b ->
-                                    ( ViewBattle b, showChat (b.host) )
+                                    if model.content == (ViewBattle b) then
+                                        ( model.content, Cmd.none )
+                                    else
+                                        ( ViewBattle b, showChat (b.host) )
 
                                 Nothing ->
                                     ( model.content, Cmd.none )
@@ -1007,6 +1011,9 @@ update msg model =
 
                     Nothing ->
                         ( model, battleJoin (battle.host) )
+
+        StartBattle battle ->
+            ( model, battleStart (battle.host) )
 
         WatchBattle battle ->
             ( { model | content = ViewBattle battle }, showChat (battle.host) )
@@ -1909,6 +1916,11 @@ aboutContent model =
         ]
 
 
+monsterImgSrc : Int -> String
+monsterImgSrc mtype =
+    "images/monsters/monster-" ++ (toString mtype) ++ ".png"
+
+
 monsterCard : Monster -> Time.Time -> Bool -> Bool -> Html Msg
 monsterCard monster currentTime isLoading readOnly =
     let
@@ -1995,7 +2007,7 @@ monsterCard monster currentTime isLoading readOnly =
                 [ div [ class "card-content" ] [ p [ class ("title is-4 " ++ deadClass) ] [ text monster.name ] ]
                 , div [ class "card-image" ]
                     [ figure [ class ("image monster-image is-square" ++ deadImgClass) ]
-                        [ img [ alt monster.name, class sleepingClass, src ("images/monsters/monster-" ++ (toString monster.mtype) ++ ".png") ]
+                        [ img [ alt monster.name, class sleepingClass, src (monsterImgSrc monster.mtype) ]
                             []
                         , sleepingGif
                         ]
@@ -2189,24 +2201,69 @@ battleMonstersPick model battle isCommitment =
     let
         myMonsters =
             availableMonstersToBattle model model.user.eosAccount
+
+        monsterIcon monster =
+            div [ class "monster-pick" ]
+                [ figure [ class "image" ]
+                    [ img [ src (monsterImgSrc monster.mtype) ] []
+                    ]
+                ]
+
+        isReady =
+            battle.turns
+                |> List.filter (\t -> t.player == model.user.eosAccount && not (String.contains "00000000" t.reveal))
+                |> List.length
+                |> (==) 1
+
+        commitmentText =
+            p [] [ text "Each player will be able to choose one of the above monsters." ]
+
+        commitmentContent =
+            if isCommitment && not isReady then
+                div [ class "has-text-centered" ]
+                    [ commitmentText
+                    , a [ class "button is-success is-large has-margin-top", onClick (StartBattle battle) ] [ text "I'm Ready to Battle!" ]
+                    ]
+            else if isCommitment && isReady then
+                div [ class "has-text-centered" ]
+                    [ commitmentText
+                    , a [ class "button is-warning", disabledAttribute True ] [ text "Waiting for Opponent" ]
+                    ]
+            else
+                text ""
     in
-        div [ class "columns" ]
-            (battle.turns
-                |> List.map
-                    (\t ->
-                        let
-                            availableMonsters =
-                                availableMonstersToBattle model t.player
-                        in
-                            div [ class "column" ]
-                                [ h3 [ class "title is-4" ] [ text t.player ]
-                                , div []
-                                    (availableMonsters
-                                        |> List.map (\m -> monsterCard m model.currentTime model.isLoading True)
-                                    )
-                                ]
-                    )
-            )
+        div [ class "monster-picks" ]
+            [ div [ class "columns" ]
+                (battle.turns
+                    |> List.map
+                        (\t ->
+                            let
+                                availableMonsters =
+                                    availableMonstersToBattle model t.player
+
+                                isReady =
+                                    not (String.contains "00000000" t.reveal)
+
+                                ( statusTxt, statusClass ) =
+                                    if isReady then
+                                        ( "Ready", "has-text-success" )
+                                    else
+                                        ( "Pending", "has-text-danger" )
+                            in
+                                div [ class "column" ]
+                                    [ h3 [ class "title is-4" ]
+                                        [ text t.player
+                                        , small [ class statusClass ] [ text statusTxt ]
+                                        ]
+                                    , div [ class "player-monsters" ]
+                                        (availableMonsters
+                                            |> List.map monsterIcon
+                                        )
+                                    ]
+                        )
+                )
+            , commitmentContent
+            ]
 
 
 battleContent : Model -> Battle -> Html Msg
@@ -2295,13 +2352,13 @@ battleContent model battle =
                 , p [] [ text statusText ]
                 ]
             , content
-            , lazy webchat "tlk-webchat"
+            , div [ class "tlk-webchat has-margin-top" ] [ text "" ]
             ]
 
 
 webchat : String -> Html msg
 webchat str =
-    div [ id str ] [ text "webchat here" ]
+    div [ id str ] [ text "" ]
 
 
 monsterContent : Model -> Html Msg

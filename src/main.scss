@@ -18,6 +18,25 @@
   color: $blue!important;
 }
 
+.monster-picks {
+  small {
+    margin-left: 15px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .player-monsters {
+    display: flex;
+
+    .monster-pick {
+      max-width: 140px;
+      max-height: 140px;
+      margin: 18px;
+    }
+  }
+
+}
+
 // layout
 form {
   margin-bottom: 20px;

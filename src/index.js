@@ -27,6 +27,8 @@ const initialStorageBody = { user: initialUser, hashInfo: null }
 const storageBody = localStorage.getItem(STORAGE_KEY)
 const flags = !storageBody ? initialStorageBody : JSON.parse(storageBody)
 
+console.log(flags)
+
 const app = Main.embed(document.getElementById('root'), flags)
 
 /* Eos and Scatter Setup */
@@ -549,7 +551,10 @@ app.ports.battleStart.subscribe(async (host) => {
 
   console.log(action)
 
-  if(action) app.ports.battleStartSucceed.send(action.transaction_id)
+  if(action) {
+    destroyHashInfo()
+    app.ports.battleStartSucceed.send(action.transaction_id)
+  }
 })
 
 app.ports.battleSelPet.subscribe(async params => {
@@ -590,9 +595,11 @@ app.ports.battleAttack.subscribe(async params => {
 
 app.ports.showChat.subscribe(chatId => {
   setTimeout(() => {
-    let embedId = document.getElementById("tlk-webchat");
-    if (embedId) {
-      embedId.innerHTML = `<div id="tlkio" data-channel="monstereos-${chatId}" style="width:100%;height:400px;"></div><script async src="http://tlk.io/embed.js" type="text/javascript"></script>`;
+    console.log('opening battle chat: ' + chatId)
+
+    let embedId = document.getElementsByClassName("tlk-webchat");
+    if (embedId && embedId[0]) {
+      embedId[0].innerHTML = `<div id="tlkio" data-channel="monstereos-${chatId}" style="width:100%;height:400px;"></div><script async src="http://tlk.io/embed.js" type="text/javascript"></script>`;
     }
   }, 900)
 
@@ -602,9 +609,9 @@ app.ports.showChat.subscribe(chatId => {
 const generateHashInfo = () => {
   if (!flags.hashInfo) {
     // generate secret
-    const hash = ("meos" + Date.now() + hashInfo.mouseMove.join())
-      .substr(0,32)
+    const hash = ecc.sha256("meos" + Date.now() + hashInfo.mouseMove.join())
     const secret = ecc.sha256(hash)
+
     hashInfo.lastPair = { hash, secret }
 
     flags.hashInfo = hashInfo.lastPair

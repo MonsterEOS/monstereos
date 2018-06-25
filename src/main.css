@@ -248,6 +248,18 @@
 .navbar-item.is-active {
   color: #3273dc !important; }
 
+.monster-picks small {
+  margin-left: 15px;
+  font-size: 14px;
+  font-weight: 400; }
+
+.monster-picks .player-monsters {
+  display: flex; }
+  .monster-picks .player-monsters .monster-pick {
+    max-width: 140px;
+    max-height: 140px;
+    margin: 18px; }
+
 form {
   margin-bottom: 20px; }
 
