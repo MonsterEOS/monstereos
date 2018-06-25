@@ -240,6 +240,24 @@
 .p-l-xxl {
   padding-left: 8rem; }
 
+.grayscale {
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  filter: grayscale(100%);
+  transition: all 200ms ease-in-out;
+  opacity: 0.3; }
+  .grayscale:hover {
+    -webkit-filter: grayscale(30%);
+    -moz-filter: grayscale(30%);
+    filter: grayscale(30%); }
+
+.sleeping {
+  -webkit-filter: brightness(5%);
+  -moz-filter: brightness(5%);
+  -ms-filter: brightness(5%);
+  -o-filter: brightness(5%);
+  filter: brightness(5%); }
+
 .logo {
   font-family: 'Freckle Face', cursive;
   font-size: 40px;
@@ -258,7 +276,21 @@
   .monster-picks .player-monsters .monster-pick {
     max-width: 140px;
     max-height: 140px;
-    margin: 18px; }
+    margin: 18px;
+    -webkit-filter: brightness(80%);
+    -moz-filter: brightness(80%);
+    -ms-filter: brightness(80%);
+    -o-filter: brightness(80%);
+    filter: brightness(80%); }
+    .monster-picks .player-monsters .monster-pick:hover, .monster-picks .player-monsters .monster-pick.active {
+      border: 1px solid #23d160;
+      border-radius: 5%;
+      cursor: pointer;
+      -webkit-filter: brightness(100%);
+      -moz-filter: brightness(100%);
+      -ms-filter: brightness(100%);
+      -o-filter: brightness(100%);
+      filter: brightness(100%); }
 
 form {
   margin-bottom: 20px; }
@@ -280,24 +312,6 @@ form {
   .coin-column {
     min-width: 500px;
     max-width: 550px; } }
-
-.grayscale {
-  -webkit-filter: grayscale(100%);
-  -moz-filter: grayscale(100%);
-  filter: grayscale(100%);
-  transition: all 200ms ease-in-out;
-  opacity: 0.3; }
-  .grayscale:hover {
-    -webkit-filter: grayscale(30%);
-    -moz-filter: grayscale(30%);
-    filter: grayscale(30%); }
-
-.sleeping {
-  -webkit-filter: brightness(5%);
-  -moz-filter: brightness(5%);
-  -ms-filter: brightness(5%);
-  -o-filter: brightness(5%);
-  filter: brightness(5%); }
 
 .monster-image {
   max-height: 300px !important; }

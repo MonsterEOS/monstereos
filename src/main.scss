@@ -8,6 +8,36 @@
 
 @import "./spacing.scss";
 
+// monster images filters
+// dead monsters must be grayscaled
+@mixin filter($filter-type,$filter-amount) {
+  -webkit-filter: $filter-type+unquote('(#{$filter-amount})');
+  -moz-filter: $filter-type+unquote('(#{$filter-amount})');
+  -ms-filter: $filter-type+unquote('(#{$filter-amount})');
+  -o-filter: $filter-type+unquote('(#{$filter-amount})');
+  filter: $filter-type+unquote('(#{$filter-amount})');
+}
+
+@mixin grayscale_element($value) {
+    -webkit-filter: #{"grayscale(#{$value})"};
+    -moz-filter: #{"grayscale(#{$value})"};
+    filter:#{"grayscale(#{$value})"};
+}
+
+.grayscale {
+    @include grayscale_element(100%);
+    transition: all 200ms ease-in-out;
+    opacity: 0.3;
+    &:hover {
+        @include grayscale_element(30%);
+    }
+}
+
+.sleeping {
+  @include filter(brightness, 5%);
+}
+
+// design/layout
 .logo {
   font-family: 'Freckle Face', cursive;
   font-size: 40px;
@@ -32,6 +62,14 @@
       max-width: 140px;
       max-height: 140px;
       margin: 18px;
+      @include filter(brightness, 80%);
+
+      &:hover, &.active {
+        border: 1px solid $green;
+        border-radius: 5%;
+        cursor: pointer;
+        @include filter(brightness, 100%);
+      }
     }
   }
 
@@ -69,34 +107,6 @@ form {
     min-width: 500px;
     max-width: 550px;
   }
-}
-
-// dead monsters must be grayscaled
-@mixin filter($filter-type,$filter-amount) {
-  -webkit-filter: $filter-type+unquote('(#{$filter-amount})');
-  -moz-filter: $filter-type+unquote('(#{$filter-amount})');
-  -ms-filter: $filter-type+unquote('(#{$filter-amount})');
-  -o-filter: $filter-type+unquote('(#{$filter-amount})');
-  filter: $filter-type+unquote('(#{$filter-amount})');
-}
-
-@mixin grayscale_element($value) {
-    -webkit-filter: #{"grayscale(#{$value})"};
-    -moz-filter: #{"grayscale(#{$value})"};
-    filter:#{"grayscale(#{$value})"};
-}
-
-.grayscale {
-    @include grayscale_element(100%);
-    transition: all 200ms ease-in-out;
-    opacity: 0.3;
-    &:hover {
-        @include grayscale_element(30%);
-    }
-}
-
-.sleeping {
-  @include filter(brightness, 5%);
 }
 
 .monster-image {

@@ -12,9 +12,9 @@ import Time
 import Json.Decode.Pipeline as JDP
 import Date.Extra.Format as DateFormat
 import Date.Extra.Config.Config_en_us as DateConfig
+import Json.Encode as JE
 
 
--- import Json.Encode as JE
 -- import FormatNumber
 -- import FormatNumber.Locales exposing (usLocale)
 
@@ -63,6 +63,7 @@ initialModel =
     , battles = []
     , elements = []
     , petTypes = []
+    , battleSelectedMonster = 0
     }
 
 
@@ -261,6 +262,7 @@ type alias Model =
     , battles : List Battle
     , elements : List Element
     , petTypes : List PetType
+    , battleSelectedMonster : Int
     }
 
 
@@ -610,7 +612,10 @@ type Msg
     | StartBattle Battle
     | LeaveBattle String
     | WatchBattle Battle
+    | BattleSelectMonster Int
+    | BattleSelPet Battle Int
     | Logout
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -969,7 +974,7 @@ update msg model =
             handleMonsterAction model trxId "STARTED > SHOW ARENA" True
 
         BattleSelPetSucceed trxId ->
-            handleMonsterAction model trxId "PET SELECTED > SHOW IN ARENA" True
+            ( model, Cmd.none )
 
         BattleAttackSucceed trxId ->
             handleMonsterAction model trxId "ATTACK > SHOW HIT" True
@@ -985,7 +990,7 @@ update msg model =
                         |> (<) 0
 
                 myAvailableMonsters =
-                    availableMonstersToBattle model model.user.eosAccount
+                    availableMonstersToBattle model model.user.eosAccount ""
                         |> List.length
 
                 errorMsg =
@@ -1020,6 +1025,22 @@ update msg model =
 
         GenericFailure err ->
             handleMonsterAction model err "" False
+
+        BattleSelPet battle petId ->
+            let
+                params =
+                    JE.object
+                        [ ( "host", JE.string battle.host )
+                        , ( "petId", JE.int petId )
+                        ]
+            in
+                ( model, battleSelPet (params) )
+
+        BattleSelectMonster monsterId ->
+            ( { model | battleSelectedMonster = monsterId }, Cmd.none )
+
+        NoOp ->
+            ( model, Cmd.none )
 
 
 handleMonsterRequest : Model -> MonsterRequest -> Int -> Maybe Notification
@@ -1117,7 +1138,8 @@ handleResponseErrors model err msg =
         ( { model | error = Just error, isLoading = False }, Cmd.none )
 
 
-availableMonstersToBattle model player =
+availableMonstersToBattle : Model -> String -> String -> List Monster
+availableMonstersToBattle model player currentHost =
     model.monsters
         |> List.filter
             (\m ->
@@ -1129,6 +1151,10 @@ availableMonstersToBattle model player =
                         && not m.is_sleeping
                 then
                     petInBattles model.battles m.id
+                        |> List.filter
+                            (\b ->
+                                currentHost == "" || b.host /= currentHost
+                            )
                         |> List.length
                         |> (==) 0
                 else
@@ -2196,50 +2222,70 @@ battleArenaContent model =
             ]
 
 
-battleMonstersPick : Model -> Battle -> Bool -> Html Msg
-battleMonstersPick model battle isCommitment =
+battleMonstersPick : Model -> Battle -> Maybe BattleCommit -> Html Msg
+battleMonstersPick model battle commitment =
     let
-        myMonsters =
-            availableMonstersToBattle model model.user.eosAccount
+        myAccount =
+            model.user.eosAccount
 
-        monsterIcon monster =
-            div [ class "monster-pick" ]
-                [ figure [ class "image" ]
-                    [ img [ src (monsterImgSrc monster.mtype) ] []
-                    ]
-                ]
+        displayTurns =
+            battle.turns
+                |> List.sortWith
+                    (\a b ->
+                        if a.player == myAccount then
+                            LT
+                        else
+                            EQ
+                    )
 
         isReady =
             battle.turns
-                |> List.filter (\t -> t.player == model.user.eosAccount && not (String.contains "00000000" t.reveal))
+                |> List.filter (\t -> t.player == myAccount && not (String.contains "00000000" t.reveal))
                 |> List.length
                 |> (==) 1
 
-        commitmentText =
-            p [] [ text "Each player will be able to choose one of the above monsters." ]
+        footer =
+            case commitment of
+                Nothing ->
+                    let
+                        commitmentText =
+                            p [] [ text "Each player will be able to choose one of the above monsters." ]
 
-        commitmentContent =
-            if isCommitment && not isReady then
-                div [ class "has-text-centered" ]
-                    [ commitmentText
-                    , a [ class "button is-success is-large has-margin-top", onClick (StartBattle battle) ] [ text "I'm Ready to Battle!" ]
-                    ]
-            else if isCommitment && isReady then
-                div [ class "has-text-centered" ]
-                    [ commitmentText
-                    , a [ class "button is-warning is-large has-margin-top", disabledAttribute True ] [ text "Waiting for Opponent" ]
-                    ]
-            else
-                text ""
+                        commitmentContent =
+                            if not isReady then
+                                [ commitmentText
+                                , a [ class "button is-success is-large has-margin-top", onClick (StartBattle battle) ] [ text "I'm Ready to Battle!" ]
+                                ]
+                            else
+                                [ commitmentText
+                                , a [ class "button is-warning is-large has-margin-top", disabledAttribute True ] [ text "Waiting for Opponent" ]
+                                ]
+                    in
+                        commitmentContent
+
+                Just commit ->
+                    if commit.player == myAccount then
+                        let
+                            ( action, disabled ) =
+                                if model.battleSelectedMonster > 0 then
+                                    ( BattleSelPet battle model.battleSelectedMonster
+                                    , disabledAttribute False
+                                    )
+                                else
+                                    ( NoOp, disabledAttribute True )
+                        in
+                            [ a [ class "button is-success is-large has-margin-top", onClick action, disabled ] [ text "Confirm Pick" ] ]
+                    else
+                        [ p [] [ text ("Wait your turn to pick") ] ]
     in
         div [ class "monster-picks" ]
             [ div [ class "columns" ]
-                (battle.turns
+                (displayTurns
                     |> List.map
                         (\t ->
                             let
                                 availableMonsters =
-                                    availableMonstersToBattle model t.player
+                                    availableMonstersToBattle model t.player battle.host
 
                                 isReady =
                                     not (String.contains "00000000" t.reveal)
@@ -2249,6 +2295,30 @@ battleMonstersPick model battle isCommitment =
                                         ( "Ready", "has-text-success" )
                                     else
                                         ( "Pending", "has-text-danger" )
+
+                                monsterIcon monster =
+                                    let
+                                        monsterClass =
+                                            if
+                                                model.battleSelectedMonster
+                                                    == monster.id
+                                                    || petInBattle battle monster.id
+                                            then
+                                                "active"
+                                            else
+                                                ""
+
+                                        action =
+                                            if monster.owner == myAccount then
+                                                BattleSelectMonster monster.id
+                                            else
+                                                NoOp
+                                    in
+                                        div [ class ("monster-pick " ++ monsterClass) ]
+                                            [ figure [ class "image", onClick action ]
+                                                [ img [ src (monsterImgSrc monster.mtype) ] []
+                                                ]
+                                            ]
                             in
                                 div [ class "column" ]
                                     [ h3 [ class "title is-4" ]
@@ -2262,7 +2332,7 @@ battleMonstersPick model battle isCommitment =
                                     ]
                         )
                 )
-            , commitmentContent
+            , div [ class "has-text-centered" ] footer
             ]
 
 
@@ -2284,13 +2354,25 @@ battleContent model battle =
 
                 BattleStartingPhase ->
                     ( "Starting Phase: Waiting for players confirmation"
-                    , battleMonstersPick model battle True
+                    , battleMonstersPick model battle Nothing
                     )
 
                 BattlePickingPhase ->
-                    ( "Picking Phase: Waiting for player picks"
-                    , battleMonstersPick model battle True
-                    )
+                    let
+                        pickPlayer =
+                            battle.turns
+                                |> List.head
+                    in
+                        case pickPlayer of
+                            Just commit ->
+                                ( "Picking Phase: Waiting for Player " ++ commit.player ++ " pick"
+                                , battleMonstersPick model battle (Just commit)
+                                )
+
+                            Nothing ->
+                                ( "Picking Phase: No players to Pick?"
+                                , battleMonstersPick model battle Nothing
+                                )
 
                 BattleOnGoingPhase ->
                     ( "Battle On Going"
