@@ -3,8 +3,9 @@ port module Main exposing (..)
 import Date.Distance as Distance
 import Date
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, defaultValue, href, placeholder, target, type_, value, datetime, alt, src, max, style)
+import Html.Attributes exposing (attribute, class, defaultValue, href, placeholder, target, type_, value, datetime, alt, src, max, style, id)
 import Html.Events exposing (onClick, onInput)
+import Html.Lazy exposing (lazy)
 import Http
 import Json.Decode as JD
 import Time
@@ -24,15 +25,16 @@ init flags =
         model =
             initModel flags
 
+        cmds =
+            Cmd.batch [ listPetTypes (), listElements () ]
+
         cmd =
             if not (String.isEmpty model.user.eosAccount) then
                 ( { model | isLoading = True }
-                , Cmd.none
-                  -- Cmd.batch [ listExchanges model ]
-                  --, getWatchList model ]
+                , cmds
                 )
             else
-                ( model, Cmd.none )
+                ( model, cmds )
     in
         cmd
 
@@ -58,6 +60,9 @@ initialModel =
     , showWallet = False
     , globalConfig = initialConfig
     , currentRankPage = 0
+    , battles = []
+    , elements = []
+    , petTypes = []
     }
 
 
@@ -103,9 +108,20 @@ type MonsterRequest
 
 type Content
     = Home
+    | ViewBattle Battle
     | MyMonsters
     | Rank
+    | BattleArena
     | About
+
+
+type BattlePhase
+    = BattleJoiningPhase
+    | BattleStartingPhase
+    | BattlePickingPhase
+    | BattleOnGoingPhase
+    | BattleFinishedPhase
+    | BattleUnknownPhase
 
 
 type alias Flags =
@@ -130,7 +146,46 @@ type alias GlobalConfig =
     , minAwakeInterval : Int
     , minSleepPeriod : Int
     , creationTolerance : Int
-    , monstersToActivateFee : Int
+    , maxArenas : Int
+    , battleIdleTolerance : Int
+    }
+
+
+type alias Element =
+    { id : Int
+    , name : String
+    , ratios : List Int
+    }
+
+
+type alias PetType =
+    { id : Int
+    , elements : List Int
+    }
+
+
+type alias BattlePetStat =
+    { petId : Int
+    , petType : Int
+    , player : String
+    , hp : Int
+    }
+
+
+type alias BattleCommit =
+    { player : String
+    , commitment : String
+    , reveal : String
+    }
+
+
+type alias Battle =
+    { host : String
+    , mode : Int
+    , startedAt : Time.Time
+    , lastMoveAt : Time.Time
+    , turns : List BattleCommit
+    , petsStats : List BattlePetStat
     }
 
 
@@ -146,7 +201,8 @@ initialConfig =
     , minAwakeInterval = 0
     , minSleepPeriod = 0
     , creationTolerance = 0
-    , monstersToActivateFee = 0
+    , maxArenas = 0
+    , battleIdleTolerance = 0
     }
 
 
@@ -202,11 +258,19 @@ type alias Model =
     , depositAmount : Float
     , globalConfig : GlobalConfig
     , currentRankPage : Int
+    , battles : List Battle
+    , elements : List Element
+    , petTypes : List PetType
     }
 
 
 
 -- Helper Constants
+
+
+battlePlayersQty : Int
+battlePlayersQty =
+    2
 
 
 monsterMinFeedInterval : Float
@@ -349,6 +413,94 @@ port setScatterIdentity : (JD.Value -> msg) -> Sub msg
 port refreshPage : () -> Cmd msg
 
 
+
+-- battle interface
+
+
+port listBattles : () -> Cmd msg
+
+
+port listBattlesSucceed : (JD.Value -> msg) -> Sub msg
+
+
+port listBattlesFailed : (String -> msg) -> Sub msg
+
+
+port listElements : () -> Cmd msg
+
+
+port listElementsSucceed : (JD.Value -> msg) -> Sub msg
+
+
+port listElementsFailed : (String -> msg) -> Sub msg
+
+
+port listPetTypes : () -> Cmd msg
+
+
+port listPetTypesSucceed : (JD.Value -> msg) -> Sub msg
+
+
+port listPetTypesFailed : (String -> msg) -> Sub msg
+
+
+port battleCreate : Int -> Cmd msg
+
+
+port battleCreateSucceed : (String -> msg) -> Sub msg
+
+
+port battleCreateFailed : (String -> msg) -> Sub msg
+
+
+port showChat : String -> Cmd msg
+
+
+port battleJoin : String -> Cmd msg
+
+
+port battleJoinSucceed : (String -> msg) -> Sub msg
+
+
+port battleJoinFailed : (String -> msg) -> Sub msg
+
+
+port battleLeave : String -> Cmd msg
+
+
+port battleLeaveSucceed : (String -> msg) -> Sub msg
+
+
+port battleLeaveFailed : (String -> msg) -> Sub msg
+
+
+port battleStart : String -> Cmd msg
+
+
+port battleStartSucceed : (String -> msg) -> Sub msg
+
+
+port battleStartFailed : (String -> msg) -> Sub msg
+
+
+port battleSelPet : JD.Value -> Cmd msg
+
+
+port battleSelPetSucceed : (String -> msg) -> Sub msg
+
+
+port battleSelPetFailed : (String -> msg) -> Sub msg
+
+
+port battleAttack : JD.Value -> Cmd msg
+
+
+port battleAttackSucceed : (String -> msg) -> Sub msg
+
+
+port battleAttackFailed : (String -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
@@ -375,6 +527,24 @@ subscriptions model =
         , deleteSucceed MonsterDeleteSucceed
         , monsterCreationSucceed MonsterCreationSucceed
         , monsterCreationFailed MonsterCreationFailed
+        , listBattlesSucceed ListBattlesSucceed
+        , listBattlesFailed GenericFailure
+        , listElementsSucceed ListElementsSucceed
+        , listElementsFailed GenericFailure
+        , listPetTypesSucceed ListPetTypesSucceed
+        , listPetTypesFailed GenericFailure
+        , battleCreateSucceed BattleCreateSucceed
+        , battleCreateFailed GenericFailure
+        , battleJoinSucceed BattleJoinSucceed
+        , battleJoinFailed GenericFailure
+        , battleLeaveSucceed BattleLeaveSucceed
+        , battleLeaveFailed GenericFailure
+        , battleStartSucceed BattleStartSucceed
+        , battleStartFailed GenericFailure
+        , battleSelPetSucceed BattleSelPetSucceed
+        , battleSelPetFailed GenericFailure
+        , battleAttackSucceed BattleAttackSucceed
+        , battleAttackFailed GenericFailure
         ]
 
 
@@ -426,6 +596,19 @@ type Msg
     | ToggleWallet
     | ToggleMonsterCreation
     | DeleteNotification String
+    | ListBattlesSucceed JD.Value
+    | ListElementsSucceed JD.Value
+    | ListPetTypesSucceed JD.Value
+    | BattleCreateSucceed String
+    | BattleJoinSucceed String
+    | BattleLeaveSucceed String
+    | BattleStartSucceed String
+    | BattleSelPetSucceed String
+    | BattleAttackSucceed String
+    | GenericFailure String
+    | JoinBattle Battle
+    | LeaveBattle String
+    | WatchBattle Battle
     | Logout
 
 
@@ -605,7 +788,7 @@ update msg model =
             case (JD.decodeValue globalConfigDecoder rawGlobalConfig) of
                 Ok globalConfig ->
                     ( { model | globalConfig = globalConfig }
-                    , listMonsters ()
+                    , Cmd.batch [ listMonsters () ]
                     )
 
                 Err err ->
@@ -658,7 +841,7 @@ update msg model =
                                 (model.currentTime - notification.time) < 10000
                             )
             in
-                ( { model | currentTime = time, notifications = notifications }, Cmd.none )
+                ( { model | currentTime = time, notifications = notifications }, listBattles () )
 
         DeleteNotification id ->
             let
@@ -718,6 +901,118 @@ update msg model =
 
         Logout ->
             ( initialModel, signOut () )
+
+        ListBattlesSucceed rawList ->
+            case (JD.decodeValue battlesDecoder rawList) of
+                Ok battles ->
+                    let
+                        battle =
+                            playerInBattles battles model.user.eosAccount
+                                |> List.head
+
+                        -- if you are in a battle right redirect to that screen
+                        ( content, cmd ) =
+                            case battle of
+                                Just b ->
+                                    ( ViewBattle b, showChat (b.host) )
+
+                                Nothing ->
+                                    ( model.content, Cmd.none )
+                    in
+                        ( { model | battles = battles, content = content }, cmd )
+
+                Err err ->
+                    ( { model
+                        | notifications = [ Notification (Error ("Fail to Parse Battles: " ++ err)) model.currentTime "parseBattlesFailed" ] ++ model.notifications
+                      }
+                    , Cmd.none
+                    )
+
+        ListElementsSucceed rawList ->
+            case (JD.decodeValue elementsDecoder rawList) of
+                Ok elements ->
+                    ( { model | elements = elements }, Cmd.none )
+
+                Err err ->
+                    ( { model
+                        | notifications = [ Notification (Error ("Fail to Parse Elements: " ++ err)) model.currentTime "parseElementsFailed" ] ++ model.notifications
+                      }
+                    , Cmd.none
+                    )
+
+        ListPetTypesSucceed rawList ->
+            case (JD.decodeValue petTypesDecoder rawList) of
+                Ok petTypes ->
+                    ( { model | petTypes = petTypes }, Cmd.none )
+
+                Err err ->
+                    ( { model
+                        | notifications = [ Notification (Error ("Fail to Parse Pet Types: " ++ err)) model.currentTime "parsePetTypesFailed" ] ++ model.notifications
+                      }
+                    , Cmd.none
+                    )
+
+        BattleCreateSucceed trxId ->
+            handleMonsterAction model trxId "CREATED > Go TO BATTLE SCREEN" True
+
+        BattleJoinSucceed trxId ->
+            handleMonsterAction model trxId "Battle Joined Successfully" True
+
+        BattleLeaveSucceed _ ->
+            ( { model | content = BattleArena }, Cmd.none )
+
+        BattleStartSucceed trxId ->
+            handleMonsterAction model trxId "STARTED > SHOW ARENA" True
+
+        BattleSelPetSucceed trxId ->
+            handleMonsterAction model trxId "PET SELECTED > SHOW IN ARENA" True
+
+        BattleAttackSucceed trxId ->
+            handleMonsterAction model trxId "ATTACK > SHOW HIT" True
+
+        LeaveBattle host ->
+            ( model, battleLeave (host) )
+
+        JoinBattle battle ->
+            let
+                isInBattle =
+                    playerInBattles model.battles model.user.eosAccount
+                        |> List.length
+                        |> (<) 0
+
+                myAvailableMonsters =
+                    availableMonstersToBattle model model.user.eosAccount
+                        |> List.length
+
+                errorMsg =
+                    if isInBattle then
+                        Just "You are already in a battle"
+                    else if myAvailableMonsters < battle.mode then
+                        Just "You don't have enough Available Monsters for this Battle"
+                    else
+                        Nothing
+            in
+                case errorMsg of
+                    Just msg ->
+                        ( { model
+                            | notifications =
+                                [ Notification (Error ("Fail to Join Battle: " ++ msg))
+                                    model.currentTime
+                                    "joinBattleFailed"
+                                ]
+                                    ++ model.notifications
+                          }
+                        , Cmd.none
+                        )
+
+                    Nothing ->
+                        ( model, battleJoin (battle.host) )
+
+        WatchBattle battle ->
+            ( { model | content = ViewBattle battle }, showChat (battle.host) )
+
+        GenericFailure err ->
+            handleMonsterAction model err "" False
 
 
 handleMonsterRequest : Model -> MonsterRequest -> Int -> Maybe Notification
@@ -815,6 +1110,93 @@ handleResponseErrors model err msg =
         ( { model | error = Just error, isLoading = False }, Cmd.none )
 
 
+availableMonstersToBattle model player =
+    model.monsters
+        |> List.filter
+            (\m ->
+                if
+                    m.owner
+                        == player
+                        && m.death_at
+                        == 0
+                        && not m.is_sleeping
+                then
+                    petInBattles model.battles m.id
+                        |> List.length
+                        |> (==) 0
+                else
+                    False
+            )
+
+
+playerInBattle : Battle -> String -> Bool
+playerInBattle battle player =
+    battle.host
+        == player
+        || (battle.turns
+                |> List.filter (\t -> t.player == player)
+                |> List.length
+                |> (<) 0
+           )
+
+
+waitingCommitments : Battle -> Bool
+waitingCommitments battle =
+    battle.turns
+        |> List.filter (\t -> String.contains "0000000000000" t.reveal)
+        |> List.length
+        |> (<) 0
+
+
+waitingPicks : Battle -> Bool
+waitingPicks battle =
+    battle.petsStats
+        |> List.length
+        -- 1v1 = 2 pets, 2v2 = 4 pets, 3v3 = 6 pets
+        |> (/=) (battle.mode * 2)
+
+
+isStarted : Battle -> Bool
+isStarted battle =
+    battle.startedAt > 0 && battle.lastMoveAt > 0
+
+
+battlePhase : Battle -> BattlePhase
+battlePhase battle =
+    if List.length battle.turns < battlePlayersQty then
+        BattleJoiningPhase
+    else if waitingCommitments battle then
+        BattleStartingPhase
+    else if waitingPicks battle then
+        BattlePickingPhase
+    else if isStarted battle then
+        BattleOnGoingPhase
+    else
+        BattleUnknownPhase
+
+
+petInBattle : Battle -> Int -> Bool
+petInBattle battle petId =
+    battle.petsStats
+        |> List.filter (\ps -> ps.petId == petId)
+        |> List.length
+        |> (<) 0
+
+
+playerInBattles : List Battle -> String -> List Battle
+playerInBattles battles player =
+    battles
+        |> List.filter
+            (\b -> playerInBattle b player)
+
+
+petInBattles : List Battle -> Int -> List Battle
+petInBattles battles petId =
+    battles
+        |> List.filter
+            (\b -> petInBattle b petId)
+
+
 userDecoder : JD.Decoder User
 userDecoder =
     JD.map2
@@ -836,7 +1218,65 @@ globalConfigDecoder =
         |> JDP.required "min_awake_interval" JD.int
         |> JDP.required "min_sleep_period" JD.int
         |> JDP.required "creation_tolerance" JD.int
-        |> JDP.required "monsters_to_activate_fee" JD.int
+        |> JDP.hardcoded 30
+        |> JDP.required "battle_idle_tolerance" JD.int
+
+
+
+-- TODO: adjust above hardcode before release
+
+
+elementsDecoder : JD.Decoder (List Element)
+elementsDecoder =
+    JD.list
+        (JDP.decode Element
+            |> JDP.required "id" JD.int
+            |> JDP.required "name" JD.string
+            |> JDP.required "ratios" (JD.list JD.int)
+        )
+
+
+petTypesDecoder : JD.Decoder (List PetType)
+petTypesDecoder =
+    JD.list
+        (JDP.decode PetType
+            |> JDP.required "id" JD.int
+            |> JDP.required "elements" (JD.list JD.int)
+        )
+
+
+petsStatsDecoder : JD.Decoder (List BattlePetStat)
+petsStatsDecoder =
+    JD.list
+        (JDP.decode BattlePetStat
+            |> JDP.required "pet_id" JD.int
+            |> JDP.required "pet_type" JD.int
+            |> JDP.required "player" JD.string
+            |> JDP.required "hp" JD.int
+        )
+
+
+commitsDecoder : JD.Decoder (List BattleCommit)
+commitsDecoder =
+    JD.list
+        (JDP.decode BattleCommit
+            |> JDP.required "player" JD.string
+            |> JDP.required "commitment" JD.string
+            |> JDP.required "reveal" JD.string
+        )
+
+
+battlesDecoder : JD.Decoder (List Battle)
+battlesDecoder =
+    JD.list
+        (JDP.decode Battle
+            |> JDP.required "host" JD.string
+            |> JDP.required "mode" JD.int
+            |> JDP.required "startedAt" JD.float
+            |> JDP.required "lastMoveAt" JD.float
+            |> JDP.required "commits" commitsDecoder
+            |> JDP.required "pets_stats" petsStatsDecoder
+        )
 
 
 walletDecoder : JD.Decoder Wallet
@@ -1433,6 +1873,12 @@ mainContent model =
                                 ]
                             ]
 
+                BattleArena ->
+                    defaultContent (battleArenaContent model)
+
+                ViewBattle battle ->
+                    defaultContent (battleContent model battle)
+
                 MyMonsters ->
                     defaultContent (monsterContent model)
 
@@ -1611,6 +2057,253 @@ monsterCard monster currentTime isLoading readOnly =
             ]
 
 
+battleCard : Model -> Battle -> Html Msg
+battleCard model battle =
+    let
+        started =
+            battle.startedAt > 0
+
+        monstersAlive =
+            battle.petsStats
+                |> List.filter (\ps -> ps.hp > 0)
+                |> List.length
+
+        ( startedAt, lastTurnAt, monstersAliveTxt ) =
+            if battle.startedAt > 0 then
+                ( calcTimeDiff model.currentTime battle.startedAt
+                , calcTimeDiff model.currentTime battle.lastMoveAt
+                , toString monstersAlive
+                )
+            else
+                ( "Pending", "N/A", "N/A" )
+    in
+        div [ class "card" ]
+            [ header [ class "card-header" ]
+                [ p [ class "card-header-title" ]
+                    [ text (battle.host ++ "'s Arena") ]
+                ]
+            , div [ class "card-content" ]
+                [ div [ class "content" ]
+                    [ nav [ class "level" ]
+                        [ div [ class "level-item has-text-centered" ]
+                            [ div []
+                                [ p [ class "heading" ]
+                                    [ text "Start Time" ]
+                                , p [ class "title" ]
+                                    [ text startedAt ]
+                                ]
+                            ]
+                        , div [ class "level-item has-text-centered" ]
+                            [ div []
+                                [ p [ class "heading" ]
+                                    [ text "Last Turn" ]
+                                , p [ class "title" ]
+                                    [ text lastTurnAt ]
+                                ]
+                            ]
+                        , div [ class "level-item has-text-centered" ]
+                            [ div []
+                                [ p [ class "heading" ]
+                                    [ text "Mode" ]
+                                , p [ class "title" ]
+                                    [ text "1v1" ]
+                                ]
+                            ]
+                        , div [ class "level-item has-text-centered" ]
+                            [ div []
+                                [ p [ class "heading" ]
+                                    [ text "Monsters Alive" ]
+                                , p [ class "title" ]
+                                    [ text monstersAliveTxt ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            , footer [ class "card-footer" ]
+                [ a [ class "card-footer-item", onClick (JoinBattle battle) ]
+                    [ text "Join Battle" ]
+                , a [ class "card-footer-item", onClick (WatchBattle battle) ]
+                    [ text "Watch" ]
+                ]
+            ]
+
+
+battleArenaContent : Model -> Html Msg
+battleArenaContent model =
+    let
+        currentPlaying =
+            playerInBattles model.battles model.user.eosAccount
+                |> List.head
+
+        currentBattles =
+            List.length model.battles
+
+        availableArenas =
+            model.globalConfig.maxArenas - currentBattles
+
+        availableArenasTxt =
+            toString availableArenas
+
+        maxArenasTxt =
+            toString model.globalConfig.maxArenas
+
+        hostButton =
+            case currentPlaying of
+                Just battle ->
+                    a
+                        [ class "button is-warning"
+                        , onClick (SetContent (ViewBattle battle))
+                        , disabledAttribute model.isLoading
+                        ]
+                        [ text "Reconnect to Battle" ]
+
+                Nothing ->
+                    a
+                        [ class "button is-success"
+                        , onClick (SetContent BattleArena)
+                        , disabledAttribute model.isLoading
+                        ]
+                        [ text "Create a Battle" ]
+
+        battleListHeader =
+            if currentBattles > 0 then
+                text "Check the current battles below to join or watch!"
+            else
+                text "No one is battling! Why don't you create a new Battle?"
+    in
+        div []
+            [ div [ class "content" ]
+                [ titleMenu "Welcome to the Arena!"
+                    [ span [] [ text ("Available Arenas: " ++ availableArenasTxt ++ "/" ++ maxArenasTxt) ]
+                    , hostButton
+                    ]
+                , p [] [ battleListHeader ]
+                ]
+            , div [] (model.battles |> List.map (\b -> battleCard model b))
+            ]
+
+
+battleMonstersPick : Model -> Battle -> Bool -> Html Msg
+battleMonstersPick model battle isCommitment =
+    let
+        myMonsters =
+            availableMonstersToBattle model model.user.eosAccount
+    in
+        div [ class "columns" ]
+            (battle.turns
+                |> List.map
+                    (\t ->
+                        let
+                            availableMonsters =
+                                availableMonstersToBattle model t.player
+                        in
+                            div [ class "column" ]
+                                [ h3 [ class "title is-4" ] [ text t.player ]
+                                , div []
+                                    (availableMonsters
+                                        |> List.map (\m -> monsterCard m model.currentTime model.isLoading True)
+                                    )
+                                ]
+                    )
+            )
+
+
+battleContent : Model -> Battle -> Html Msg
+battleContent model battle =
+    let
+        myBattle =
+            playerInBattle battle model.user.eosAccount
+
+        phase =
+            battlePhase battle
+
+        ( statusText, content ) =
+            case phase of
+                BattleJoiningPhase ->
+                    ( "Joining Phase: Waiting for players"
+                    , text ""
+                    )
+
+                BattleStartingPhase ->
+                    ( "Starting Phase: Waiting for players confirmation"
+                    , battleMonstersPick model battle True
+                    )
+
+                BattlePickingPhase ->
+                    ( "Picking Phase: Waiting for player picks"
+                    , battleMonstersPick model battle True
+                    )
+
+                BattleOnGoingPhase ->
+                    ( "Battle On Going"
+                    , text ""
+                    )
+
+                BattleFinishedPhase ->
+                    ( "Battle has Finished"
+                    , text ""
+                    )
+
+                BattleUnknownPhase ->
+                    ( "Battle Unknown"
+                    , text ""
+                    )
+
+        turnSeconds =
+            (model.currentTime - battle.lastMoveAt) / 1000
+
+        turnTimeoutSeconds =
+            model.globalConfig.battleIdleTolerance - (floor turnSeconds)
+
+        turnTimeoutClass =
+            if turnTimeoutSeconds < 6 then
+                "has-text-danger"
+            else
+                "has-text-info"
+
+        currentTurnStatus =
+            if phase == BattleOnGoingPhase then
+                span [ class turnTimeoutClass ] [ text ("Turn Countdown: " ++ toString turnTimeoutSeconds) ]
+            else
+                text ""
+
+        backButton =
+            if myBattle then
+                text ""
+            else
+                a
+                    [ class "button is-success"
+                    , onClick (SetContent BattleArena)
+                    , disabledAttribute model.isLoading
+                    ]
+                    [ text "Back to Battles List" ]
+
+        leaveButton =
+            if myBattle && (phase == BattlePickingPhase || phase == BattleStartingPhase) then
+                a [ class "button is-danger", onClick (LeaveBattle battle.host) ] [ text "Leave battle " ]
+            else
+                text ""
+    in
+        div []
+            [ div [ class "content" ]
+                [ titleMenu (battle.host ++ "'s Arena")
+                    [ currentTurnStatus
+                    , leaveButton
+                    , backButton
+                    ]
+                , p [] [ text statusText ]
+                ]
+            , content
+            , lazy webchat "tlk-webchat"
+            ]
+
+
+webchat : String -> Html msg
+webchat str =
+    div [ id str ] [ text "webchat here" ]
+
+
 monsterContent : Model -> Html Msg
 monsterContent model =
     let
@@ -1630,11 +2323,17 @@ monsterContent model =
             [ div [ class "content" ]
                 [ titleMenu "My Monsters"
                     [ a
-                        [ class "button is-success new-monster-button"
+                        [ class "button is-success"
                         , onClick ToggleMonsterCreation
                         , disabledAttribute model.isLoading
                         ]
                         [ text "New Monster" ]
+                    , a
+                        [ class "button is-info"
+                        , onClick (SetContent BattleArena)
+                        , disabledAttribute model.isLoading
+                        ]
+                        [ text "Battle Arena" ]
                     ]
                 , p [] [ text newMonsterMsg ]
                 ]

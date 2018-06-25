@@ -2,28 +2,36 @@ import './main.css';
 import { Main } from './Main.elm';
 import registerServiceWorker from './registerServiceWorker';
 import Eos from 'eosjs'
+import ecc from 'eosjs-ecc'
 
 const STORAGE_KEY = 'MONSTEREOS'
 const CHAIN_PROTOCOL = 'http'
-const CHAIN_HOST = 'mainnet.eoscalgary.io'
-const CHAIN_PORT = 80
+const CHAIN_HOST = '127.0.0.1' //'mainnet.eoscalgary.io'
+const CHAIN_PORT = '8888' //80
 const CHAIN_ADDRESS = CHAIN_PROTOCOL + '://' + CHAIN_HOST + ':' + CHAIN_PORT
-const CHAIN_ID = 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
+const CHAIN_ID = 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f' // 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
 const MONSTERS_ACCOUNT = 'monstereosio'
 const MONSTERS_TABLE = 'pets'
+const BATTLES_TABLE = 'battles'
+const ELEMENTS_TABLE = 'elements'
+const PET_TYPES_TABLE = 'pettypes'
 const CONFIG_TABLE = 'petconfig'
 const BALANCES_TABLE = 'accounts'
 const TOKEN_SYMBOL = 'EOS'
 const MEMO = 'MonsterEOS Wallet Deposit'
 
+const initialHashInfo = { mouseMove: [], lastPair: null }
+const initialUser = { eosAccount: "", publicKey: "" }
+const initialStorageBody = { user: initialUser, hashInfo: null }
+
 const storageBody = localStorage.getItem(STORAGE_KEY)
-const flags = !storageBody ?
-  { user: { eosAccount: "", publicKey: "" } } : JSON.parse(storageBody)
+const flags = !storageBody ? initialStorageBody : JSON.parse(storageBody)
 
 const app = Main.embed(document.getElementById('root'), flags)
 
 /* Eos and Scatter Setup */
 const network = {
+  protocol: CHAIN_PROTOCOL,
   blockchain: 'eos',
   host: CHAIN_HOST,
   port: CHAIN_PORT,
@@ -33,6 +41,7 @@ const localNet = Eos({httpEndpoint: CHAIN_ADDRESS, chainId: CHAIN_ID})
 
 let scatter = null
 let globalConfigs = null
+let hashInfo = initialHashInfo
 
 const scatterDetection = setTimeout(() => {
   if (scatter == null) {
@@ -370,5 +379,275 @@ const parseMonster = row => {
 
   return monster;
 }
+
+/**
+ * BATTLES INTERFACE
+ */
+app.ports.listBattles.subscribe(async () => {
+
+  const data = await localNet.getTableRows({
+              "json": true,
+              "scope": MONSTERS_ACCOUNT,
+              "code": MONSTERS_ACCOUNT,
+              "table": BATTLES_TABLE,
+              "limit": 5000
+          }).then(res => res.rows.map(r => {
+            r.startedAt = r.started_at * 1000;
+            r.lastMoveAt = r.last_move_at * 1000;
+            return r;
+          }))
+          .catch(e => {
+            app.ports.listBattlesFailed.send('Error while listing Battles')
+          })
+
+  app.ports.listBattlesSucceed.send(data)
+})
+
+app.ports.listElements.subscribe(async () => {
+
+  const data = await localNet.getTableRows({
+              "json": true,
+              "scope": MONSTERS_ACCOUNT,
+              "code": MONSTERS_ACCOUNT,
+              "table": ELEMENTS_TABLE,
+              "limit": 5000
+          }).then(res => res.rows.map(r => {
+
+            switch(r.id) {
+              case 0:
+                r.name = "Neutral";
+                break;
+              case 1:
+                r.name = "Wood";
+                break;
+              case 2:
+                r.name = "Earth";
+                break;
+              case 3:
+                r.name = "Water";
+                break;
+              case 4:
+                r.name = "Fire";
+                break;
+              case 5:
+                r.name = "Metal";
+                break;
+              case 6:
+                r.name = "Animal";
+                break;
+              case 7:
+                r.name = "Poison";
+                break;
+              case 8:
+                r.name = "Undead";
+                break;
+              case 9:
+                r.name = "Light";
+                break;
+            }
+
+            return r;
+          }))
+          .catch(e => {
+            app.ports.listElementsFailed.send('Error while listing Elements')
+          })
+
+  app.ports.listElementsSucceed.send(data)
+})
+
+app.ports.listPetTypes.subscribe(async () => {
+
+  const data = await localNet.getTableRows({
+              "json": true,
+              "scope": MONSTERS_ACCOUNT,
+              "code": MONSTERS_ACCOUNT,
+              "table": PET_TYPES_TABLE,
+              "limit": 5000
+          }).then(res => res.rows)
+          .catch(e => {
+            app.ports.listPetTypesFailed.send('Error while listing Monster Types')
+          })
+
+  app.ports.listPetTypesSucceed.send(data)
+})
+
+app.ports.battleCreate.subscribe(async (mode) => {
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const hashInfo = generateHashInfo()
+
+  const action = await contract.battlecreate(auth.account.name, mode, auth.permission, hashInfo.secret)
+    .catch(e => {
+        console.error('error on battlecreate: ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while attempting to Create a Battle: '
+        app.ports.battleCreateFailed.send(errorMsg)
+      })
+
+  console.log(action)
+
+  if(action) app.ports.battleCreateSucceed.send(action.transaction_id)
+})
+
+app.ports.battleJoin.subscribe(async (host) => {
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const hashInfo = generateHashInfo()
+
+  const action = await contract.battlejoin(host, auth.account.name, hashInfo.secret, auth.permission)
+    .catch(e => {
+        console.error('error on battlejoin: ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while attempting to Join a Battle: '
+        app.ports.battleJoinFailed.send(errorMsg)
+      })
+
+  console.log(action)
+
+  if(action) app.ports.battleJoinSucceed.send(action.transaction_id)
+})
+
+app.ports.battleLeave.subscribe(async (host) => {
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const action = await contract.battleleave(host, auth.account.name, auth.permission)
+    .catch(e => {
+        console.error('error on battleleave: ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while attempting to Leave a Battle: '
+        app.ports.battleLeaveFailed.send(errorMsg)
+      })
+
+  console.log(action)
+
+  if(action) {
+    destroyHashInfo()
+    app.ports.battleLeaveSucceed.send(action.transaction_id)
+  }
+})
+
+app.ports.battleStart.subscribe(async (host) => {
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const hashInfo = flags.hashInfo
+
+  const action = await contract.battlestart(host, auth.account.name, hashInfo.hash, auth.permission)
+    .catch(e => {
+        console.error('error on battlestart: ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while attempting to Start a Battle: '
+        app.ports.battleStartFailed.send(errorMsg)
+      })
+
+  console.log(action)
+
+  if(action) app.ports.battleStartSucceed.send(action.transaction_id)
+})
+
+app.ports.battleSelPet.subscribe(async params => {
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const action = await contract.battleselpet(params.host, auth.account.name, params.petId, auth.permission)
+    .catch(e => {
+        console.error('error on battleselpet: ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while attempting to Select a Monster for a Battle: '
+        app.ports.battleSelPetFailed.send(errorMsg)
+      })
+
+  console.log(action)
+
+  if(action) app.ports.battleSelPetSucceed.send(action.transaction_id)
+})
+
+app.ports.battleAttack.subscribe(async params => {
+  const auth = getAuthorization()
+
+  const contract = await getContract()
+
+  const action = await contract.battleattack(params.host, auth.account.name, params.petId, params.petEnemyId, params.element, auth.permission)
+    .catch(e => {
+        console.error('error on battleattack: ', e)
+        const errorMsg = (e && e.message) ||
+        'An error happened while attempting to Attack: '
+        app.ports.battleAttackFailed.send(errorMsg)
+      })
+
+  console.log(action)
+
+  if(action) app.ports.battleAttackSucceed.send(action.transaction_id)
+})
+
+app.ports.showChat.subscribe(chatId => {
+  setTimeout(() => {
+    let embedId = document.getElementById("tlk-webchat");
+    if (embedId) {
+      embedId.innerHTML = `<div id="tlkio" data-channel="monstereos-${chatId}" style="width:100%;height:400px;"></div><script async src="http://tlk.io/embed.js" type="text/javascript"></script>`;
+    }
+  }, 900)
+
+});
+
+// generate secret and hash random pair
+const generateHashInfo = () => {
+  if (!flags.hashInfo) {
+    // generate secret
+    const hash = ("meos" + Date.now() + hashInfo.mouseMove.join())
+      .substr(0,32)
+    const secret = ecc.sha256(hash)
+    hashInfo.lastPair = { hash, secret }
+
+    flags.hashInfo = hashInfo.lastPair
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(flags))
+  }
+
+  return flags.hashInfo
+}
+
+// destroy last battle commitment random pair
+const destroyHashInfo = () => {
+  flags.hashInfo = null
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(flags))
+}
+
+// keep track of mouse to help hash generation
+const handleMouseMove = event => {
+  let dot, eventDoc, doc, body, pageX, pageY;
+
+  event = event || window.event; // IE-ism
+
+  // If pageX/Y aren't available and clientX/Y are,
+  // calculate pageX/Y - logic taken from jQuery.
+  // (This is to support old IE)
+  if (event.pageX == null && event.clientX != null) {
+      eventDoc = (event.target && event.target.ownerDocument) || document;
+      doc = eventDoc.documentElement;
+      body = eventDoc.body;
+
+      event.pageX = event.clientX +
+        (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+        (doc && doc.clientLeft || body && body.clientLeft || 0);
+      event.pageY = event.clientY +
+        (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+        (doc && doc.clientTop  || body && body.clientTop  || 0 );
+  }
+
+  // Use event.pageX / event.pageY here
+  hashInfo.mouseMove.unshift("x" + event.pageX + "y" + event.pageY)
+  hashInfo.mouseMove = hashInfo.mouseMove.slice(0,10);
+}
+document.onmousemove = handleMouseMove;
+
 
 registerServiceWorker();

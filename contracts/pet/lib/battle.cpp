@@ -1,18 +1,20 @@
 using namespace types;
 using namespace utils;
 
-void pet::battlecreate(name host, battle_mode mode) {
+void pet::battlecreate(name host, battle_mode mode, checksum256 secret) {
   require_auth(host);
 
   _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
-  eosio_assert(itr_battle == tb_battles.end(), "you already host a battle");
+  eosio_assert(itr_battle == tb_battles.end(), "you already host a battle!");
   eosio_assert(mode == V1 || mode == V2 || mode == V3, "invalid battle mode");
 
   tb_battles.emplace(_self, [&](auto& r) {
     r.host = host;
     r.mode = mode;
   });
+
+  SEND_INLINE_ACTION( *this, battlejoin, {host,N(active)}, {host, host, secret} );
 }
 
 void pet::battlejoin(name host, name player, checksum256 secret) {
@@ -132,7 +134,7 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
   // only owners can make fight with pets
   require_auth(pet.owner);
   eosio_assert(pet.is_alive(), "dead pets don't battle");
-// TODO: uncomment before release - eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
+  eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
 
   auto itr_pet_battle = petinbattles.find(pet_id);
   eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");

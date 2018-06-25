@@ -51,7 +51,7 @@ public:
     void transfer     ( uint64_t sender, uint64_t receiver );
 
     // battle interface
-    void battlecreate ( name host, battle_mode mode );
+    void battlecreate ( name host, battle_mode mode, checksum256 secret );
     void battlejoin   ( name host, name player, checksum256 secret );
     void battleleave  ( name host, name player );
     void battlestart  ( name host, name player, checksum256 source );

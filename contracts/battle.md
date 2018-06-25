@@ -38,18 +38,13 @@ cleos get table monstereosio monstereosio pets -l 5000
 Create, join & start start a battle:
 
 ```
-echo "creating battle"
-cleos push action monstereosio battlecreate '[ "leordev", 1 ]' -p leordev
-cleos get table monstereosio monstereosio battles -l 5000
-
-
-echo "joining battle"
+echo "creating and joining in a battle"
 HASH1=$(openssl rand 32 -hex)
 SECR1=$(echo -n $HASH1 | xxd -r -p | sha256sum -b | awk '{print $1}')
 echo "join 1 sec/hash"
 echo $SECR1
 echo $HASH1
-cleos push action monstereosio battlejoin "[ \"leordev\", \"leordev\", \"$SECR1\" ]" -p leordev
+cleos push action monstereosio battlecreate "[ \"leordev\", 1, \"$SECR1\" ]" -p leordev
 
 HASH2=$(openssl rand 32 -hex)
 SECR2=$(echo -n $HASH2 | xxd -r -p | sha256sum -b | awk '{print $1}')
