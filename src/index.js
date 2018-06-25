@@ -506,6 +506,7 @@ app.ports.battleJoin.subscribe(async (host) => {
         const errorMsg = (e && e.message) ||
         'An error happened while attempting to Join a Battle: '
         app.ports.battleJoinFailed.send(errorMsg)
+        destroyHashInfo();
       })
 
   console.log(action)
@@ -610,7 +611,8 @@ const generateHashInfo = () => {
   if (!flags.hashInfo) {
     // generate secret
     const hash = ecc.sha256("meos" + Date.now() + hashInfo.mouseMove.join())
-    const secret = ecc.sha256(hash)
+    const hashBinary = Buffer.from(hash, 'hex');
+    const secret = ecc.sha256(hashBinary)
 
     hashInfo.lastPair = { hash, secret }
 
@@ -655,6 +657,5 @@ const handleMouseMove = event => {
   hashInfo.mouseMove = hashInfo.mouseMove.slice(0,10);
 }
 document.onmousemove = handleMouseMove;
-
 
 registerServiceWorker();

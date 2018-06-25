@@ -957,7 +957,7 @@ update msg model =
                     )
 
         BattleCreateSucceed trxId ->
-            handleMonsterAction model trxId "CREATED > Go TO BATTLE SCREEN" True
+            ( model, Cmd.none )
 
         BattleJoinSucceed trxId ->
             handleMonsterAction model trxId "Battle Joined Successfully" True
@@ -2227,7 +2227,7 @@ battleMonstersPick model battle isCommitment =
             else if isCommitment && isReady then
                 div [ class "has-text-centered" ]
                     [ commitmentText
-                    , a [ class "button is-warning", disabledAttribute True ] [ text "Waiting for Opponent" ]
+                    , a [ class "button is-warning is-large has-margin-top", disabledAttribute True ] [ text "Waiting for Opponent" ]
                     ]
             else
                 text ""
