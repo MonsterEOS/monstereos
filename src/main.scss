@@ -24,6 +24,21 @@
     filter:#{"grayscale(#{$value})"};
 }
 
+@mixin arena_bg($value) {
+    background: url('../public/images/arenas/#{$value}.png') no-repeat center center;
+    background-size: cover;
+}
+
+.button.is-purple {
+  background-color: $purple;
+  color: white;
+}
+
+.button.is-brown {
+  background-color: #D2691E;
+  color: white;
+}
+
 .grayscale {
     @include grayscale_element(100%);
     transition: all 200ms ease-in-out;
@@ -73,6 +88,77 @@
     }
   }
 
+}
+
+.monster-hp-name {
+  position: absolute;
+  margin-top: -25px;
+  margin-left: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.battle-actions {
+  height: 30px;
+}
+
+.battle-arena {
+  width: 1020px;
+  height: 600px;
+  margin: auto;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: gray no-repeat center center fixed;
+  background-size: cover;
+
+  .elements {
+    margin-left: 14px;
+  }
+
+  &.arena-0 { @include arena_bg('0'); }
+  &.arena-1 { @include arena_bg('1'); }
+  &.arena-2 { @include arena_bg('2'); }
+  &.arena-3 { @include arena_bg('3'); }
+  &.arena-4 { @include arena_bg('4'); }
+  &.arena-5 { @include arena_bg('5'); }
+  &.arena-6 { @include arena_bg('6'); }
+  &.arena-7 { @include arena_bg('7'); }
+  &.arena-8 { @include arena_bg('8'); }
+  &.arena-9 { @include arena_bg('9'); }
+  &.arena-10 { @include arena_bg('10'); }
+  &.arena-11 { @include arena_bg('11'); }
+  &.arena-12 { @include arena_bg('12'); }
+  &.arena-13 { @include arena_bg('13'); }
+  &.arena-14 { @include arena_bg('14'); }
+  &.arena-15 { @include arena_bg('15'); }
+  &.arena-16 { @include arena_bg('16'); }
+  &.arena-17 { @include arena_bg('17'); }
+
+  .arena-monster {
+    margin-top: 200px;
+    max-width: 200px;
+    max-height: 200px;
+
+    figure {
+      max-height: 180px;
+      max-width: 180px;
+    }
+
+    progress {
+      margin-bottom: 6px!important;
+    }
+  }
+
+  .enemy-monster {
+    cursor: pointer;
+
+    &:hover, &.active {
+      border: 1px solid $red;
+      border-radius: 5%;
+    }
+  }
 }
 
 // layout

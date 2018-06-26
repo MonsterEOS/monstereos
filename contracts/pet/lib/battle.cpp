@@ -147,6 +147,7 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
   tb_battles.modify(itr_battle, 0, [&](auto& r) {
     r.pets_stats = battle.pets_stats;
     r.commits = battle.commits;
+    r.last_move_at = now();
   });
 
 }

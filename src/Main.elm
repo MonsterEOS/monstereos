@@ -5,7 +5,6 @@ import Date
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, defaultValue, href, placeholder, target, type_, value, datetime, alt, src, max, style, id)
 import Html.Events exposing (onClick, onInput)
-import Html.Lazy exposing (lazy)
 import Http
 import Json.Decode as JD
 import Time
@@ -64,6 +63,9 @@ initialModel =
     , elements = []
     , petTypes = []
     , battleSelectedMonster = 0
+    , battleSelectedAttackElement = 0
+    , battleSelectedAttackMonster = 0
+    , battleSelectedAttackEnemy = 0
     }
 
 
@@ -263,6 +265,9 @@ type alias Model =
     , elements : List Element
     , petTypes : List PetType
     , battleSelectedMonster : Int
+    , battleSelectedAttackMonster : Int
+    , battleSelectedAttackElement : Int
+    , battleSelectedAttackEnemy : Int
     }
 
 
@@ -301,6 +306,11 @@ scatterExtensionLink =
 jungleTestNetLink : String
 jungleTestNetLink =
     "http://dev.cryptolions.io"
+
+
+availableArenas : Int
+availableArenas =
+    18
 
 
 
@@ -614,6 +624,11 @@ type Msg
     | WatchBattle Battle
     | BattleSelectMonster Int
     | BattleSelPet Battle Int
+    | BattleAttack Int Int
+    | BattleAttackEnemy Int
+    | BattleAttackSubmit Battle
+    | BattleResetAttack
+    | BattleCreate
     | Logout
     | NoOp
 
@@ -961,6 +976,9 @@ update msg model =
                     , Cmd.none
                     )
 
+        BattleCreate ->
+            ( model, battleCreate (1) )
+
         BattleCreateSucceed trxId ->
             ( model, Cmd.none )
 
@@ -971,13 +989,24 @@ update msg model =
             ( { model | content = BattleArena }, Cmd.none )
 
         BattleStartSucceed trxId ->
-            handleMonsterAction model trxId "STARTED > SHOW ARENA" True
+            ( model, Cmd.none )
 
         BattleSelPetSucceed trxId ->
             ( model, Cmd.none )
 
         BattleAttackSucceed trxId ->
-            handleMonsterAction model trxId "ATTACK > SHOW HIT" True
+            ( { model
+                | notifications =
+                    [ Notification (Success "Attack submitted!")
+                        (model.currentTime - 7000)
+                        "attack"
+                    ]
+                        ++ model.notifications
+                , battleSelectedAttackMonster = 0
+                , battleSelectedAttackEnemy = 0
+              }
+            , Cmd.none
+            )
 
         LeaveBattle host ->
             ( model, battleLeave (host) )
@@ -1038,6 +1067,58 @@ update msg model =
 
         BattleSelectMonster monsterId ->
             ( { model | battleSelectedMonster = monsterId }, Cmd.none )
+
+        BattleResetAttack ->
+            ( { model
+                | battleSelectedAttackElement = 0
+                , battleSelectedAttackMonster = 0
+              }
+            , Cmd.none
+            )
+
+        BattleAttack monsterId elementId ->
+            ( { model
+                | battleSelectedAttackElement = elementId
+                , battleSelectedAttackMonster = monsterId
+              }
+            , Cmd.none
+            )
+
+        BattleAttackEnemy monsterId ->
+            ( { model
+                | battleSelectedAttackEnemy = monsterId
+              }
+            , Cmd.none
+            )
+
+        BattleAttackSubmit battle ->
+            if
+                model.battleSelectedAttackEnemy
+                    > 0
+                    && model.battleSelectedAttackMonster
+                    > 0
+            then
+                let
+                    params =
+                        JE.object
+                            [ ( "host", JE.string battle.host )
+                            , ( "petId", JE.int model.battleSelectedAttackMonster )
+                            , ( "petEnemyId", JE.int model.battleSelectedAttackEnemy )
+                            , ( "element", JE.int model.battleSelectedAttackElement )
+                            ]
+                in
+                    ( model, battleAttack (params) )
+            else
+                ( { model
+                    | notifications =
+                        [ Notification (Error ("Fail to Submit Attack: You need to select your monster power and at least one enemy monster"))
+                            model.currentTime
+                            "attackSubmissionRequestFail"
+                        ]
+                            ++ model.notifications
+                  }
+                , Cmd.none
+                )
 
         NoOp ->
             ( model, Cmd.none )
@@ -1751,6 +1832,17 @@ topMenu model =
                 [ text "About"
                 ]
 
+        battle =
+            case model.content of
+                ViewBattle b ->
+                    if playerInBattle b model.user.eosAccount then
+                        Just b
+                    else
+                        Nothing
+
+                _ ->
+                    Nothing
+
         content =
             if loggedOut then
                 let
@@ -1786,6 +1878,14 @@ topMenu model =
                     , aboutButton
                     , helpButton
                     ]
+            else if battle /= Nothing then
+                [ p [ class "navbar-item greetings" ]
+                    [ loadingIcon model
+                    , text "Hello"
+                    , span [] [ b [] [ text model.user.eosAccount ] ]
+                    , text "! Looks like you are in a battle!"
+                    ]
+                ]
             else
                 let
                     soundIcon =
@@ -2199,7 +2299,7 @@ battleArenaContent model =
                 Nothing ->
                     a
                         [ class "button is-success"
-                        , onClick (SetContent BattleArena)
+                        , onClick BattleCreate
                         , disabledAttribute model.isLoading
                         ]
                         [ text "Create a Battle" ]
@@ -2336,6 +2436,198 @@ battleMonstersPick model battle commitment =
             ]
 
 
+getArena : Float -> String
+getArena startedAt =
+    let
+        arenaCode =
+            (floor startedAt) % availableArenas
+    in
+        toString arenaCode
+
+
+elementButton : Int -> Msg -> String -> Html Msg
+elementButton elementTypeId msg displayText =
+    let
+        ( elementClass, elementIcon ) =
+            case elementTypeId of
+                1 ->
+                    ( "is-brown", "tree" )
+
+                2 ->
+                    ( "is-success", "leaf" )
+
+                3 ->
+                    ( "is-info", "tint" )
+
+                4 ->
+                    ( "is-danger", "fire" )
+
+                5 ->
+                    ( "is-dark", "wrench" )
+
+                6 ->
+                    ( "is-primary", "paw" )
+
+                7 ->
+                    ( "is-purple", "bug" )
+
+                8 ->
+                    ( "is-black", "adjust" )
+
+                9 ->
+                    ( "is-warning", "bolt" )
+
+                _ ->
+                    ( "", "asterisk" )
+
+        textSpan =
+            if String.isEmpty displayText then
+                text ""
+            else
+                span [] [ text displayText ]
+    in
+        a [ class ("button is-small " ++ elementClass), onClick msg ]
+            [ icon elementIcon False False
+            , textSpan
+            ]
+
+
+attackButtons : Model -> BattlePetStat -> Html Msg
+attackButtons model monster =
+    if model.battleSelectedAttackMonster == 0 then
+        let
+            petType =
+                model.petTypes
+                    |> List.filter (\pt -> pt.id == monster.petType)
+                    |> List.head
+
+            buttons =
+                case petType of
+                    Just pt ->
+                        pt.elements
+                            |> List.map (\e -> elementButton e (BattleAttack monster.petId e) "")
+
+                    Nothing ->
+                        [ text "No Available Attacks" ]
+        in
+            div [ class "buttons elements" ] buttons
+    else
+        let
+            element =
+                model.elements
+                    |> List.filter (\el -> el.id == model.battleSelectedAttackElement)
+                    |> List.head
+
+            attackDisplayButton =
+                case element of
+                    Just el ->
+                        elementButton model.battleSelectedAttackElement
+                            NoOp
+                            (el.name ++ " Attack")
+
+                    Nothing ->
+                        text "Error: Element not Found"
+
+            cancelAttackButton =
+                a [ class "button is-danger is-small", onClick BattleResetAttack ] [ icon "ban" False False ]
+        in
+            div [ class "buttons elements" ]
+                [ attackDisplayButton
+                , cancelAttackButton
+                ]
+
+
+hpBar : Int -> String -> Html msg
+hpBar hp monsterName =
+    let
+        hpClass =
+            if hp > 65 then
+                "is-success"
+            else if hp > 30 then
+                "is-warning"
+            else
+                "is-danger"
+    in
+        div []
+            [ progress
+                [ class ("progress " ++ hpClass), attribute "value" (toString hp), attribute "max" "100" ]
+                [ text (toString hp ++ "%") ]
+            , span [ class "monster-hp-name" ] [ text monsterName ]
+            ]
+
+
+battleOnGoingArena : Model -> Battle -> Bool -> Html Msg
+battleOnGoingArena model battle myTurn =
+    let
+        arenaCode =
+            getArena battle.startedAt
+
+        myAccount =
+            model.user.eosAccount
+
+        arenaMonsters =
+            battle.petsStats
+                |> List.map
+                    (\monster ->
+                        let
+                            attacksControl =
+                                if myTurn && monster.player == myAccount then
+                                    attackButtons model monster
+                                else
+                                    text ""
+
+                            ( monsterSelAction, monsterClass ) =
+                                if monster.player == myAccount then
+                                    ( NoOp, "my-monster" )
+                                else
+                                    ( BattleAttackEnemy monster.petId, "enemy-monster" )
+
+                            monsterFinalClass =
+                                if monster.petId == model.battleSelectedAttackEnemy then
+                                    monsterClass ++ " active"
+                                else
+                                    monsterClass
+
+                            monsterData =
+                                model.monsters
+                                    |> List.filter (\m -> m.id == monster.petId)
+                                    |> List.head
+
+                            monsterName =
+                                case monsterData of
+                                    Just m ->
+                                        m.name
+
+                                    Nothing ->
+                                        "Unknown"
+                        in
+                            div [ class ("arena-monster " ++ monsterFinalClass), onClick monsterSelAction ]
+                                [ figure [ class "image" ]
+                                    [ img [ src (monsterImgSrc monster.petType) ] []
+                                    ]
+                                , hpBar monster.hp monsterName
+                                , attacksControl
+                                ]
+                    )
+    in
+        div [ class ("battle-arena arena-" ++ arenaCode) ]
+            arenaMonsters
+
+
+myBattleActions : Model -> Battle -> Html Msg
+myBattleActions model battle =
+    div [ class "battle-actions" ]
+        [ (if model.battleSelectedAttackMonster == 0 then
+            text "Please choose an Attack from your Monsters"
+           else if model.battleSelectedAttackEnemy == 0 then
+            text "Please choose an Enemy Monster that you want to Attack"
+           else
+            a [ class "button is-success", onClick (BattleAttackSubmit battle) ]
+                [ text "Confirm Attack and End Turn" ]
+          )
+        ]
+
+
 battleContent : Model -> Battle -> Html Msg
 battleContent model battle =
     let
@@ -2345,16 +2637,51 @@ battleContent model battle =
         phase =
             battlePhase battle
 
-        ( statusText, content ) =
+        turnSeconds =
+            (model.currentTime - battle.lastMoveAt) / 1000
+
+        turnTimeoutSeconds =
+            model.globalConfig.battleIdleTolerance - (floor turnSeconds)
+
+        isTurnTimeout =
+            turnTimeoutSeconds < 0
+
+        turnTimeoutClass =
+            if turnTimeoutSeconds < 6 then
+                "has-text-danger"
+            else
+                "has-text-info"
+
+        turnTimeoutTxt =
+            if isTurnTimeout then
+                "Turn TIMEOUT! Anyone can ATTACK!"
+            else
+                "Turn Countdown: " ++ toString turnTimeoutSeconds
+
+        currentTurnStatus =
+            if phase == BattleOnGoingPhase then
+                span [ class turnTimeoutClass ] [ text turnTimeoutTxt ]
+            else
+                text ""
+
+        leftStatusClass =
+            if phase == BattleOnGoingPhase && isTurnTimeout then
+                "has-text-danger"
+            else
+                ""
+
+        ( statusText, content, turnActions ) =
             case phase of
                 BattleJoiningPhase ->
                     ( "Joining Phase: Waiting for players"
+                    , text ""
                     , text ""
                     )
 
                 BattleStartingPhase ->
                     ( "Starting Phase: Waiting for players confirmation"
                     , battleMonstersPick model battle Nothing
+                    , text ""
                     )
 
                 BattlePickingPhase ->
@@ -2367,45 +2694,66 @@ battleContent model battle =
                             Just commit ->
                                 ( "Picking Phase: Waiting for Player " ++ commit.player ++ " pick"
                                 , battleMonstersPick model battle (Just commit)
+                                , text ""
                                 )
 
                             Nothing ->
                                 ( "Picking Phase: No players to Pick?"
                                 , battleMonstersPick model battle Nothing
+                                , text ""
                                 )
 
                 BattleOnGoingPhase ->
-                    ( "Battle On Going"
-                    , text ""
-                    )
+                    let
+                        attackPlayer =
+                            battle.turns
+                                |> List.head
+
+                        myAccount =
+                            model.user.eosAccount
+                    in
+                        case attackPlayer of
+                            Just commit ->
+                                let
+                                    statusMsg =
+                                        if isTurnTimeout then
+                                            "Battle On Going: Waiting for ANY PLAYER attack"
+                                        else
+                                            "Battle On Going: Waiting for Player " ++ commit.player ++ "'s attack"
+
+                                    myTurn =
+                                        (commit.player == myAccount || isTurnTimeout)
+
+                                    myTurnActions =
+                                        if myTurn then
+                                            myBattleActions model battle
+                                        else
+                                            text ""
+                                in
+                                    ( statusMsg
+                                    , battleOnGoingArena model
+                                        battle
+                                        myTurn
+                                    , myTurnActions
+                                    )
+
+                            Nothing ->
+                                ( "Battle On Going: No Players to Attack?"
+                                , battleOnGoingArena model battle True
+                                , text ""
+                                )
 
                 BattleFinishedPhase ->
                     ( "Battle has Finished"
+                    , text ""
                     , text ""
                     )
 
                 BattleUnknownPhase ->
                     ( "Battle Unknown"
                     , text ""
+                    , text ""
                     )
-
-        turnSeconds =
-            (model.currentTime - battle.lastMoveAt) / 1000
-
-        turnTimeoutSeconds =
-            model.globalConfig.battleIdleTolerance - (floor turnSeconds)
-
-        turnTimeoutClass =
-            if turnTimeoutSeconds < 6 then
-                "has-text-danger"
-            else
-                "has-text-info"
-
-        currentTurnStatus =
-            if phase == BattleOnGoingPhase then
-                span [ class turnTimeoutClass ] [ text ("Turn Countdown: " ++ toString turnTimeoutSeconds) ]
-            else
-                text ""
 
         backButton =
             if myBattle then
@@ -2419,7 +2767,7 @@ battleContent model battle =
                     [ text "Back to Battles List" ]
 
         leaveButton =
-            if myBattle && (phase == BattlePickingPhase || phase == BattleStartingPhase) then
+            if myBattle && (phase == BattlePickingPhase || phase == BattleStartingPhase || phase == BattleJoiningPhase) then
                 a [ class "button is-danger", onClick (LeaveBattle battle.host) ] [ text "Leave battle " ]
             else
                 text ""
@@ -2431,7 +2779,16 @@ battleContent model battle =
                     , leaveButton
                     , backButton
                     ]
-                , p [] [ text statusText ]
+                , div [ class "level" ]
+                    [ div [ class "level-left" ]
+                        [ div [ class ("level-item " ++ leftStatusClass) ]
+                            [ text statusText ]
+                        ]
+                    , div [ class "level-right" ]
+                        [ div [ class "level-item" ]
+                            [ turnActions ]
+                        ]
+                    ]
                 ]
             , content
             , div [ class "tlk-webchat has-margin-top" ] [ text "" ]

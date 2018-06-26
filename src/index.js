@@ -480,7 +480,7 @@ app.ports.battleCreate.subscribe(async (mode) => {
 
   const hashInfo = generateHashInfo()
 
-  const action = await contract.battlecreate(auth.account.name, mode, auth.permission, hashInfo.secret)
+  const action = await contract.battlecreate(auth.account.name, mode, hashInfo.secret, auth.permission)
     .catch(e => {
         console.error('error on battlecreate: ', e)
         const errorMsg = (e && e.message) ||
@@ -490,7 +490,10 @@ app.ports.battleCreate.subscribe(async (mode) => {
 
   console.log(action)
 
-  if(action) app.ports.battleCreateSucceed.send(action.transaction_id)
+  if(action) {
+    destroyHashInfo()
+    app.ports.battleCreateSucceed.send(action.transaction_id)
+  }
 })
 
 app.ports.battleJoin.subscribe(async (host) => {
