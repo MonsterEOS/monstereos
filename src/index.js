@@ -421,8 +421,8 @@ app.ports.getBattleWinner.subscribe(async (host) => {
     const actionData = data.actions
       .reverse()
       .filter(a => {
-        return a.action_trace &&
-          a.action_trace.act && a.action_trace.act.data &&
+        return a.action_trace && a.action_trace.act &&
+          a.action_trace.act.name == 'battlefinish' &&
           a.action_trace.act.data.host == host
       }).map(a => a.action_trace.act.data)
 

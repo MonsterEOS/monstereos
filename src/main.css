@@ -395,12 +395,21 @@
       color: #ff3860;
       font-weight: bold;
       font-family: "Freckle Face", cursive;
+      font-size: 30px;
       margin-left: 40px;
       margin-top: -180px;
-      font-size: 30px;
       position: absolute;
       text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
       animation: 2s ease-out 0s 1 slideInFromBottom; }
+  .battle-arena .battle-winner-banner {
+    position: absolute;
+    z-index: 999;
+    font-weight: bold;
+    font-family: "Freckle Face", cursive;
+    font-size: 92px;
+    margin: auto;
+    margin-top: -100px;
+    text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black; }
   .battle-arena .enemy-monster {
     cursor: pointer; }
     .battle-arena .enemy-monster:hover, .battle-arena .enemy-monster.active {
