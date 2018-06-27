@@ -998,14 +998,27 @@ update msg model =
                             playerInBattles battles model.user.eosAccount
                                 |> List.head
 
-                        -- check current battle
+                        -- check player current battle
                         ( content, currentBattle ) =
                             case battle of
                                 Just b ->
                                     ( ViewBattle b, Just b )
 
                                 Nothing ->
-                                    ( model.content, model.currentBattle )
+                                    -- update current battle for watchers
+                                    case model.currentBattle of
+                                        Just b ->
+                                            let
+                                                newBattle =
+                                                    battles
+                                                        |> List.filter (\nb -> nb.host == b.host)
+                                                        |> List.head
+                                                        |> Maybe.withDefault b
+                                            in
+                                                ( ViewBattle newBattle, Just newBattle )
+
+                                        Nothing ->
+                                            ( model.content, model.currentBattle )
 
                         -- auto redirect to your battle in case you were not there
                         ( doRedirect, redirectCmd ) =
@@ -1140,7 +1153,7 @@ update msg model =
             )
 
         BattleLeaveSucceed _ ->
-            ( { model | content = BattleArena }, Cmd.none )
+            ( { model | content = BattleArena, currentBattle = Nothing }, Cmd.none )
 
         BattleStartSucceed trxId ->
             ( model, Cmd.none )
@@ -1204,7 +1217,7 @@ update msg model =
             ( model, battleStart (battle.host) )
 
         WatchBattle battle ->
-            ( { model | content = ViewBattle battle }, showChat (battle.host) )
+            ( { model | content = ViewBattle battle, currentBattle = Just battle }, showChat (battle.host) )
 
         GenericFailure err ->
             handleMonsterAction model err "" False
@@ -1409,10 +1422,13 @@ addBattleLog model newBattleLog oldBattle =
 
 isBattleOver : List Battle -> Battle -> Bool
 isBattleOver battles battle =
-    battles
-        |> List.filter (\b -> b.host == battle.host)
-        |> List.length
-        |> (==) 0
+    List.length battle.petsStats
+        > 0
+        && (battles
+                |> List.filter (\b -> b.host == battle.host && b.startedAt > 0)
+                |> List.length
+                |> (==) 0
+           )
 
 
 availableMonstersToBattle : Model -> String -> String -> List Monster
@@ -1530,7 +1546,7 @@ globalConfigDecoder =
         |> JDP.required "min_awake_interval" JD.int
         |> JDP.required "min_sleep_period" JD.int
         |> JDP.required "creation_tolerance" JD.int
-        |> JDP.hardcoded 30
+        |> JDP.required "battle_max_arenas" JD.int
         |> JDP.required "battle_idle_tolerance" JD.int
 
 
@@ -2306,18 +2322,6 @@ monsterCard monster currentTime isLoading readOnly =
                             [ text "Feed" ]
                         , a
                             [ class "card-footer-item"
-                            , onClick (RequestMonsterPlay monster.id)
-                            , disabledAttribute isLoading
-                            ]
-                            [ text "Play" ]
-                        , a
-                            [ class "card-footer-item"
-                            , onClick (RequestMonsterWash monster.id)
-                            , disabledAttribute isLoading
-                            ]
-                            [ text "Wash" ]
-                        , a
-                            [ class "card-footer-item"
                             , onClick (RequestMonsterBed monster.id)
                             , disabledAttribute isLoading
                             ]
@@ -2412,6 +2416,12 @@ battleCard model battle =
                 )
             else
                 ( "Pending", "N/A", "N/A" )
+
+        ( joinButtonText, joinButtonAction ) =
+            if List.length battle.turns >= 2 then
+                ("Full, you can Watch", (WatchBattle battle))
+            else
+                ("Join Battle", (JoinBattle battle))
     in
         div [ class "card" ]
             [ header [ class "card-header" ]
@@ -2457,8 +2467,8 @@ battleCard model battle =
                     ]
                 ]
             , footer [ class "card-footer" ]
-                [ a [ class "card-footer-item", onClick (JoinBattle battle) ]
-                    [ text "Join Battle" ]
+                [ a [ class "card-footer-item", onClick joinButtonAction ]
+                    [ text joinButtonText ]
                 , a [ class "card-footer-item", onClick (WatchBattle battle) ]
                     [ text "Watch" ]
                 ]
@@ -2536,6 +2546,9 @@ battleMonstersPick model battle commitment =
                             EQ
                     )
 
+        myBattle =
+            playerInBattle battle myAccount
+
         isReady =
             battle.turns
                 |> List.filter (\t -> t.player == myAccount && not (String.contains "00000000" t.reveal))
@@ -2550,13 +2563,13 @@ battleMonstersPick model battle commitment =
                             p [] [ text "Each player will be able to choose one of the above monsters." ]
 
                         commitmentContent =
-                            if not isReady then
+                            if not isReady && myBattle then
                                 [ commitmentText
                                 , a [ class "button is-success is-large has-margin-top", onClick (StartBattle battle) ] [ text "I'm Ready to Battle!" ]
                                 ]
                             else
                                 [ commitmentText
-                                , a [ class "button is-warning is-large has-margin-top", disabledAttribute True ] [ text "Waiting for Opponent" ]
+                                , a [ class "button is-warning is-large has-margin-top", disabledAttribute True ] [ text "Waiting for Players" ]
                                 ]
                     in
                         commitmentContent
@@ -2822,13 +2835,25 @@ battleOnGoingArena model battle myTurn =
 
                                     Nothing ->
                                         text ""
+
+                            winner =
+                                Maybe.withDefault "" model.battleWinner
+
+                            hasWinner =
+                                winner /= ""
+
+                            monsterHp =
+                                if hasWinner && winner /= monster.player then
+                                    0
+                                else
+                                    monster.hp
                         in
                             div [ class ("arena-monster " ++ monsterFinalClass), onClick monsterSelAction ]
                                 [ figure [ class "image" ]
                                     [ img [ src (monsterImgSrc monster.petType) ] []
                                     ]
                                 , monsterHpNotificationSpan
-                                , hpBar monster.hp monsterName
+                                , hpBar monsterHp monsterName
                                 , attacksControl
                                 ]
                     )
@@ -2991,7 +3016,7 @@ battleContent model battle =
                                 )
 
                 BattleFinishedPhase ->
-                    ( "Battle is OVER - Now you can leave safely!"
+                    ( "Battle is OVER - Now you can leave!"
                     , battleOnGoingArena model battle False
                     , text ""
                     )
@@ -3025,7 +3050,7 @@ battleContent model battle =
                     [ class "button is-danger"
                     , onClick leaveAction
                     ]
-                    [ text "Leave battle " ]
+                    [ text "Leave Battle" ]
             else
                 text ""
     in

@@ -1,4 +1,8 @@
-benchmark before changes - big singleton with all types and elements:
+## separated singleton from pet element types
+
+the cpu reduced from 20k avg (see below) to 4k. (5x less)
+
+## benchmark before changes - big singleton with all types and elements:
 
 start battle and select pets:
 ```

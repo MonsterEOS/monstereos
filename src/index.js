@@ -15,7 +15,7 @@ const MONSTERS_TABLE = 'pets'
 const BATTLES_TABLE = 'battles'
 const ELEMENTS_TABLE = 'elements'
 const PET_TYPES_TABLE = 'pettypes'
-const CONFIG_TABLE = 'petconfig'
+const CONFIG_TABLE = 'petconfig2'
 const BALANCES_TABLE = 'accounts'
 const TOKEN_SYMBOL = 'EOS'
 const MEMO = 'MonsterEOS Wallet Deposit'
@@ -50,6 +50,23 @@ const scatterDetection = setTimeout(() => {
     app.ports.setScatterInstalled.send(false)
   }
 }, 5000)
+
+const handleErrorMessages = (e, genericMessage, cb) => {
+  console.error(genericMessage, e)
+
+  let errorMsg = genericMessage
+  if (e && e.message) {
+    errorMsg = e.message
+  } else {
+    const errorObj = JSON.parse(e)
+    if (errorObj && errorObj.error && errorObj.error.details &&
+      errorObj.error.details.length) {
+      errorMsg = errorObj.error.details[0].message
+    }
+  }
+
+  cb(errorMsg)
+}
 
 const getAuthorization = () => {
   if (!scatter || !scatter.identity || !scatter.identity.accounts)
@@ -135,7 +152,7 @@ app.ports.listMonsters.subscribe(async () => {
               app.ports.setMonstersFailed.send('Error while listing Monsters')
             })
 
-    app.ports.setMonsters.send(monsters)
+    if(monsters) app.ports.setMonsters.send(monsters)
 })
 
 app.ports.getGlobalConfig.subscribe(async () => {
@@ -186,7 +203,7 @@ app.ports.getWallet.subscribe(async () => {
         app.ports.setWalletFailed.send('Error while getting current Wallet')
       })
 
-    app.ports.setWallet.send(funds)
+    if(funds) app.ports.setWallet.send(funds)
 })
 
 app.ports.requestDeposit.subscribe(async (depositAmount) => {
@@ -233,14 +250,7 @@ app.ports.submitNewMonster.subscribe(async (monsterName) => {
   const contract = await getContract()
 
   const createpet = await contract.createpet(auth.account.name, monsterName, auth.permission)
-    .catch(e => {
-        console.error('error on pet creation ', e)
-        const errorObj = JSON.parse(e)
-        const errorMsg = (e && e.message) ||
-        (errorObj && errorObj.error && errorObj.error.details && errorObj.error.details.length && errorObj.error.details[0].message) ||
-        'An error happened while creating the monster'
-        app.ports.monsterCreationFailed.send(errorMsg)
-      })
+    .catch(e => handleErrorMessages(e, 'An error happened while creating the monster', app.ports.monsterCreationFailed.send))
 
   if (createpet) app.ports.monsterCreationSucceed.send(createpet.transaction_id)
 })
@@ -251,14 +261,7 @@ app.ports.requestFeed.subscribe(async (petId) => {
   const contract = await getContract()
 
   const feedpet = await contract.feedpet(petId, auth.permission)
-    .catch(e => {
-        console.error('error on feedpet ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while feeding the monster'
-        app.ports.feedFailed.send(errorMsg)
-      })
-
-  console.log(feedpet)
+    .catch(e => handleErrorMessages(e, 'An error happened while feeding the monster', app.ports.feedFailed.send))
 
   if(feedpet) app.ports.feedSucceed.send(feedpet.transaction_id)
 })
@@ -270,14 +273,7 @@ app.ports.requestAwake.subscribe(async (petId) => {
   const contract = await getContract()
 
   const awakepet = await contract.awakepet(petId, auth.permission)
-    .catch(e => {
-        console.error('error on waking pet ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while awaking the monster'
-        app.ports.awakeFailed.send(errorMsg)
-      })
-
-  console.log(awakepet)
+    .catch(e => handleErrorMessages(e, 'An error happened while awaking the monster', app.ports.awakeFailed.send))
 
   if(awakepet) app.ports.awakeSucceed.send(awakepet.transaction_id)
 })
@@ -288,14 +284,7 @@ app.ports.requestBed.subscribe(async (petId) => {
   const contract = await getContract()
 
   const bedpet = await contract.bedpet(petId, auth.permission)
-    .catch(e => {
-        console.error('error on bed pet ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while attempting to bed the monster'
-        app.ports.bedFailed.send(errorMsg)
-      })
-
-  console.log(bedpet)
+    .catch(e => handleErrorMessages(e, 'An error happened while attempting to bed the monster', app.ports.bedFailed.send))
 
   if(bedpet) app.ports.bedSucceed.send(bedpet.transaction_id)
 })
@@ -306,12 +295,7 @@ app.ports.requestDelete.subscribe(async (petId) => {
   const contract = await getContract()
 
   const destroypet = await contract.destroypet(petId, auth.permission)
-    .catch(e => {
-        console.error('error on destroy pet ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while attempting to destroy the monster'
-        app.ports.deleteFailed.send(errorMsg)
-      })
+    .catch(e => handleErrorMessages(e, 'An error happened while attempting to destroy the monster', app.ports.deleteFailed.send))
 
   console.log(destroypet)
 
@@ -398,14 +382,14 @@ app.ports.listBattles.subscribe(async () => {
             r.lastMoveAt = r.last_move_at * 1000;
             return r;
           }))
-          .catch(e => {
-            app.ports.listBattlesFailed.send('Error while listing Battles')
-          })
+          .catch(e => handleErrorMessages(e, 'Error while listing Battles', app.ports.listBattlesFailed.send))
 
-  app.ports.listBattlesSucceed.send(data)
+  if(data) app.ports.listBattlesSucceed.send(data)
 })
 
 app.ports.getBattleWinner.subscribe(async (host) => {
+
+  console.error('getting winner for ' + host)
 
   const genericError = 'Battle is finished but failed to get the winner'
 
@@ -417,7 +401,7 @@ app.ports.getBattleWinner.subscribe(async (host) => {
     app.ports.getBattleWinnerFailed.send(genericError)
   })
 
-  if (data.actions) {
+  if (data && data.actions) {
     const actionData = data.actions
       .reverse()
       .filter(a => {
@@ -427,12 +411,10 @@ app.ports.getBattleWinner.subscribe(async (host) => {
       }).map(a => a.action_trace.act.data)
 
     if (actionData.length) {
-      console.log('and the winner is >>>> ' + actionData[0].winner)
       return app.ports.getBattleWinnerSucceed.send(actionData[0].winner)
     }
   }
 
-  console.log(genericError)
   app.ports.getBattleWinnerFailed.send(genericError)
 })
 
@@ -481,11 +463,9 @@ app.ports.listElements.subscribe(async () => {
 
             return r;
           }))
-          .catch(e => {
-            app.ports.listElementsFailed.send('Error while listing Elements')
-          })
+          .catch(e => handleErrorMessages(e, 'Error while listing Elements', app.ports.listElementsFailed.send))
 
-  app.ports.listElementsSucceed.send(data)
+  if(data) app.ports.listElementsSucceed.send(data)
 })
 
 app.ports.listPetTypes.subscribe(async () => {
@@ -497,11 +477,9 @@ app.ports.listPetTypes.subscribe(async () => {
               "table": PET_TYPES_TABLE,
               "limit": 5000
           }).then(res => res.rows)
-          .catch(e => {
-            app.ports.listPetTypesFailed.send('Error while listing Monster Types')
-          })
+          .catch(e => handleErrorMessages(e, 'Error while listing Monster Types', app.ports.listPetTypesFailed.send))
 
-  app.ports.listPetTypesSucceed.send(data)
+  if(data) app.ports.listPetTypesSucceed.send(data)
 })
 
 app.ports.battleCreate.subscribe(async (mode) => {
@@ -512,17 +490,12 @@ app.ports.battleCreate.subscribe(async (mode) => {
   const hashInfo = generateHashInfo()
 
   const action = await contract.battlecreate(auth.account.name, mode, hashInfo.secret, auth.permission)
-    .catch(e => {
-        console.error('error on battlecreate: ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while attempting to Create a Battle: '
-        app.ports.battleCreateFailed.send(errorMsg)
-      })
-
-  console.log(action)
+  .catch(e => handleErrorMessages(e, 'An error happened while attempting to Create a Battle', app.ports.battleCreateFailed.send))
 
   if(action) {
     app.ports.battleCreateSucceed.send(action.transaction_id)
+  } else {
+    destroyHashInfo()
   }
 })
 
@@ -534,17 +507,13 @@ app.ports.battleJoin.subscribe(async (host) => {
   const hashInfo = generateHashInfo()
 
   const action = await contract.battlejoin(host, auth.account.name, hashInfo.secret, auth.permission)
-    .catch(e => {
-        console.error('error on battlejoin: ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while attempting to Join a Battle: '
-        app.ports.battleJoinFailed.send(errorMsg)
-        destroyHashInfo();
-      })
+  .catch(e => handleErrorMessages(e, 'An error happened while attempting to Join a Battle', app.ports.battleJoinFailed.send))
 
-  console.log(action)
-
-  if(action) app.ports.battleJoinSucceed.send(action.transaction_id)
+  if(action) {
+    app.ports.battleJoinSucceed.send(action.transaction_id)
+  } else {
+    destroyHashInfo()
+  }
 })
 
 app.ports.battleLeave.subscribe(async (host) => {
@@ -553,14 +522,7 @@ app.ports.battleLeave.subscribe(async (host) => {
   const contract = await getContract()
 
   const action = await contract.battleleave(host, auth.account.name, auth.permission)
-    .catch(e => {
-        console.error('error on battleleave: ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while attempting to Leave a Battle: '
-        app.ports.battleLeaveFailed.send(errorMsg)
-      })
-
-  console.log(action)
+  .catch(e => handleErrorMessages(e, 'An error happened while attempting to Leave a Battle', app.ports.battleLeaveFailed.send))
 
   if(action) {
     destroyHashInfo()
@@ -576,14 +538,7 @@ app.ports.battleStart.subscribe(async (host) => {
   const hashInfo = flags.hashInfo
 
   const action = await contract.battlestart(host, auth.account.name, hashInfo.hash, auth.permission)
-    .catch(e => {
-        console.error('error on battlestart: ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while attempting to Start a Battle: '
-        app.ports.battleStartFailed.send(errorMsg)
-      })
-
-  console.log(action)
+  .catch(e => handleErrorMessages(e, 'An error happened while attempting to Start a Battle', app.ports.battleStartFailed.send))
 
   if(action) {
     destroyHashInfo()
@@ -597,14 +552,7 @@ app.ports.battleSelPet.subscribe(async params => {
   const contract = await getContract()
 
   const action = await contract.battleselpet(params.host, auth.account.name, params.petId, auth.permission)
-    .catch(e => {
-        console.error('error on battleselpet: ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while attempting to Select a Monster for a Battle: '
-        app.ports.battleSelPetFailed.send(errorMsg)
-      })
-
-  console.log(action)
+  .catch(e => handleErrorMessages(e, 'An error happened while attempting to Select a Monster for a Battle', app.ports.battleSelPetFailed.send))
 
   if(action) app.ports.battleSelPetSucceed.send(action.transaction_id)
 })
@@ -615,26 +563,20 @@ app.ports.battleAttack.subscribe(async params => {
   const contract = await getContract()
 
   const action = await contract.battleattack(params.host, auth.account.name, params.petId, params.petEnemyId, params.element, auth.permission)
-    .catch(e => {
-        console.error('error on battleattack: ', e)
-        const errorMsg = (e && e.message) ||
-        'An error happened while attempting to Attack: '
-        app.ports.battleAttackFailed.send(errorMsg)
-      })
-
-  console.log(action)
+  .catch(e => handleErrorMessages(e, 'An error happened while attempting to Attack', app.ports.battleAttackFailed.send))
 
   if(action) app.ports.battleAttackSucceed.send(action.transaction_id)
 })
 
 app.ports.showChat.subscribe(chatId => {
   setTimeout(() => {
-    console.log('opening battle chat: ' + chatId)
+    // console.log('opening battle chat: ' + chatId)
 
-    let embedId = document.getElementsByClassName("tlk-webchat");
-    if (embedId && embedId[0]) {
-      embedId[0].innerHTML = `<div id="tlkio" data-channel="monstereos-${chatId}" style="width:100%;height:400px;"></div><script async src="http://tlk.io/embed.js" type="text/javascript"></script>`;
-    }
+    // does not work :P
+    // let embedId = document.getElementsByClassName("tlk-webchat");
+    // if (embedId && embedId[0]) {
+    //   embedId[0].innerHTML = `<div id="tlkio" data-channel="monstereos-${chatId}" style="width:100%;height:400px;"></div><script async src="http://tlk.io/embed.js" type="text/javascript"></script>`;
+    // }
   }, 900)
 
 });

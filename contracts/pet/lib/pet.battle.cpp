@@ -6,13 +6,20 @@ void pet::battlecreate(name host, battle_mode mode, checksum256 secret) {
 
   _tb_battle tb_battles(_self, _self);
   auto itr_battle = tb_battles.find(host);
+
   eosio_assert(itr_battle == tb_battles.end(), "you already host a battle!");
   eosio_assert(mode == V1 || mode == V2 || mode == V3, "invalid battle mode");
+
+  // check and increase busy arenas counter
+  auto pc = _get_pet_config();
+  pc.battle_busy_arenas++;
+  eosio_assert(pc.battle_busy_arenas <= pc.battle_max_arenas, "all arenas are busy");
 
   tb_battles.emplace(_self, [&](auto& r) {
     r.host = host;
     r.mode = mode;
   });
+  _update_pet_config(pc);
 
   SEND_INLINE_ACTION( *this, battlejoin, {host,N(active)}, {host, host, secret} );
 }
@@ -52,6 +59,12 @@ void pet::battleleave(name host, name player) {
 
   if (player == host) {
     tb_battles.erase( itr_battle );
+
+    // decrease busy arenas counter
+    auto pc = _get_pet_config();
+    pc.battle_busy_arenas--;
+    _update_pet_config(pc);
+
   } else {
     battle.remove_player(player);
     tb_battles.modify(itr_battle, 0, [&](auto& r) {
@@ -124,7 +137,7 @@ void pet::battleselpet(name host, name player, uuid pet_id) {
     (battle.mode == V3 && battle.pets_stats.size() < 6),
     "all pets were selected already");
 
-  st_pet_config pc = _get_pet_config();
+  auto pc = _get_pet_config();
   battle.check_turn_and_rotate(player, pc.battle_idle_tolerance);
 
   auto itr_pet = pets.find(pet_id);
@@ -165,7 +178,7 @@ void pet::battleattack(name         host,
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
 
-  st_pet_config pc = _get_pet_config();
+  auto pc = _get_pet_config();
 
   // check and rotate turn only if player is not idle
   battle.check_turn_and_rotate(player, pc.battle_idle_tolerance);
@@ -243,9 +256,6 @@ void pet::battleattack(name         host,
     if (pets_alive > 0) {
       players_alive++;
       winner = player;
-      print("\nplayer is in battle: ", player, " - pets: ", int{pets_alive});
-    } else {
-      print("\nplayer has no more pets to battle: ", player);
     }
   }
 
@@ -264,7 +274,7 @@ void pet::battleattack(name         host,
 
 }
 
-void pet::battlefinish(name host, name winner) {
+void pet::battlefinish(name host, name /* winner */) {
   require_auth(_self);
 
   _tb_battle tb_battles(_self, _self);
@@ -280,5 +290,10 @@ void pet::battlefinish(name host, name winner) {
   }
 
   tb_battles.erase( itr_battle );
+
+  // decrease busy arenas counter
+  auto pc = _get_pet_config();
+  pc.battle_busy_arenas--;
+  _update_pet_config(pc);
 
 }

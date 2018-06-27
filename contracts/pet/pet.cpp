@@ -1,66 +1,10 @@
 #include "pet.hpp"
 #include "lib/utils.hpp"
-#include "lib/battle.cpp"
+#include "lib/pet.admin.cpp"
+#include "lib/pet.battle.cpp"
 
 using namespace utils;
 using namespace types;
-
-void pet::changecrtol(uint32_t new_interval) {
-    require_auth(_self);
-    st_pet_config pc = _get_pet_config();
-    pc.creation_tolerance = new_interval;
-    pet_config.set(pc, _self);
-}
-
-void pet::addelemttype ( vector<uint8_t> ratios ) {
-    require_auth(_self);
-
-    eosio_assert(ratios.size() > 0, "each type must have at least 1 ratio");
-
-    elements.emplace(_self, [&](auto &r) {
-        r.id = _next_element_id();
-        r.ratios = ratios;
-    });
-}
-
-void pet::changeelemtt(uint64_t id, vector<uint8_t> ratios) {
-    require_auth(_self);
-
-    eosio_assert(ratios.size() > 0, "each type must have at least 1 ratio");
-
-    auto itr_elmt = elements.find(id);
-    eosio_assert(itr_elmt != elements.end(), "E404|Invalid element");
-    st_elements elmt = *itr_elmt;
-
-    elements.modify(itr_elmt, _self, [&](auto &r) {
-        r.ratios = ratios;
-    });
-}
-
-void pet::addpettype(vector<uint8_t> elements) {
-    require_auth(_self);
-
-    eosio_assert(elements.size() > 0, "each type must have at least 1 element");
-
-    pettypes.emplace(_self, [&](auto &r) {
-        r.id = _next_pet_type_id();
-        r.elements = elements;
-    });
-}
-
-void pet::changepettyp(uint64_t id, vector<uint8_t> elements) {
-    require_auth(_self);
-
-    eosio_assert(elements.size() > 0, "each type must have at least 1 element");
-
-    auto itr_pt = pettypes.find(id);
-    eosio_assert(itr_pt != pettypes.end(), "E404|Invalid pet type");
-    st_pet_types pt = *itr_pt;
-
-    pettypes.modify(itr_pt, _self, [&](auto &r) {
-        r.elements = elements;
-    });
-}
 
 void pet::createpet(name owner,
                 string pet_name) {
@@ -78,7 +22,7 @@ void pet::createpet(name owner,
     // eosio_assert(!_pet_name_exists(pet_name), "duplicated pet name");
 
     // initialize config
-    st_pet_config pc = _get_pet_config();
+    auto pc = _get_pet_config();
 
     // check last pet creation tolerance
     if (pc.creation_tolerance > 0) {
@@ -123,7 +67,7 @@ void pet::createpet(name owner,
         // TODO: remove before release
         pet.last_bed_at = now() - 5 * HOUR;
 
-        pet.type = (_hash_str(pet_name) + pet.created_at + pet.id + owner) % pc.last_pet_type_id;
+        pet.type = (hash_str(pet_name) + pet.created_at + pet.id + owner) % pc.last_pet_type_id;
 
         r = pet;
     });
@@ -162,7 +106,7 @@ void pet::feedpet(uuid pet_id) {
 
     _update(pet);
 
-    st_pet_config pc = _get_pet_config();
+    auto pc = _get_pet_config();
 
     pets.modify(itr_pet, 0, [&](auto &r) {
         r.death_at = pet.death_at;
@@ -194,7 +138,7 @@ void pet::bedpet(uuid pet_id) {
 
     _update(pet);
 
-    st_pet_config pc = _get_pet_config();
+    auto pc = _get_pet_config();
 
     pets.modify(itr_pet, 0, [&](auto &r) {
         r.death_at = pet.death_at;
@@ -224,7 +168,7 @@ void pet::awakepet(uuid pet_id) {
 
     _update(pet);
 
-    st_pet_config pc = _get_pet_config();
+    auto pc = _get_pet_config();
 
     pets.modify(itr_pet, 0, [&](auto &r) {
         r.death_at = pet.death_at;
@@ -282,15 +226,16 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
     print("\n", name{transfer_data.from}, " funds available: ", new_balance);
 }
 
-uint32_t pet::_calc_hunger_hp(const st_pet_config &pc, const uint32_t &last_fed_at, const uint32_t &current_time) {
+uint32_t pet::_calc_hunger_hp(const uint8_t &max_hunger_points, const uint32_t &hunger_to_zero,
+    const uint8_t &hunger_hp_modifier, const uint32_t &last_fed_at, const uint32_t &current_time) {
     // how long it's hungry?
     uint32_t hungry_seconds = current_time - last_fed_at;
-    uint32_t hungry_points = hungry_seconds * pc.max_hunger_points / pc.hunger_to_zero;
+    uint32_t hungry_points = hungry_seconds * max_hunger_points / hunger_to_zero;
 
     // calculates the effective hunger on hp, if pet hunger is 0
     uint32_t effect_hp_hunger = 0;
-    if (hungry_points >= pc.max_hunger_points) {
-        effect_hp_hunger = (hungry_points - pc.max_hunger_points) / pc.hunger_hp_modifier;
+    if (hungry_points >= max_hunger_points) {
+        effect_hp_hunger = (hungry_points - max_hunger_points) / hunger_hp_modifier;
     }
 
     print("\npet hungry_points=", hungry_points);
@@ -303,11 +248,13 @@ void pet::_update(st_pets &pet) {
 
     eosio_assert(pet.is_alive(), "E099|Pet is dead.");
 
-    st_pet_config pc = _get_pet_config();
+    auto pc = _get_pet_config();
 
     uint32_t current_time = now();
 
-    uint32_t effect_hp_hunger = _calc_hunger_hp(pc, pet.last_fed_at, current_time);
+    uint32_t effect_hp_hunger = _calc_hunger_hp(pc.max_hunger_points,
+        pc.hunger_to_zero, pc.hunger_hp_modifier,
+        pet.last_fed_at, current_time);
 
     int32_t hp = pc.max_health - effect_hp_hunger;
 
@@ -319,99 +266,60 @@ void pet::_update(st_pets &pet) {
     }
 }
 
-bool pet::_pet_name_exists(string pet_name) {
-    // horrible iteration through the whole pets table to find a duplication
-    // need to create an integer hashfield and create an index for that
-    // in pets table
-    for (const auto& pet : pets) {
-        if(pet_name == pet.name) return true;
-    }
-
-    return false;
-}
-
-uint64_t pet::_hash_str(const string &str) {
-    return hash<string>{}(str);
-}
-
-uuid pet::_next_id(){
-    st_pet_config pc = _get_pet_config();
-    pc.last_id++;
-    pet_config.set(pc, _self);
-    return pc.last_id;
-}
-
-uint64_t pet::_next_element_id(){
-    st_pet_config pc = _get_pet_config();
-    pc.last_element_id++;
-    pet_config.set(pc, _self);
-    return pc.last_element_id-1; // zero based id
-}
-
-uint64_t pet::_next_pet_type_id(){
-    st_pet_config pc = _get_pet_config();
-    pc.last_pet_type_id++;
-    pet_config.set(pc, _self);
-    return pc.last_pet_type_id-1; // zero based id
-}
-
-pet::st_pet_config pet::_get_pet_config(){
-    st_pet_config pc;
-
-    if (pet_config.exists()) {
-        pc = pet_config.get();
-    }  else {
-        pc = st_pet_config{};
-        pet_config.set(pc, _self);
-    }
-
-    return pc;
-}
-
 // we need to sacrifice abi generation for recipient listener
 // keep alternating the comments between EOSIO_ABI (to generate ABI)
 // and EOSIO_ABI_EX to generate the listener action
 // https://eosio.stackexchange.com/q/421/54
 
-EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(battlecreate)(battlejoin)(battleleave)(battleselpet)(battlestart)(battleattack)(battlefinish)(addelemttype)(changeelemtt)(addpettype)(changepettyp)(changecrtol)(transfer))
+// EOSIO_ABI(pet, (createpet)(updatepet)(feedpet)(bedpet)(awakepet)(destroypet)(battlecreate)(battlejoin)(battleleave)(battlestart)(battleselpet)(battleattack)(battlefinish)(addelemttype)(changeelemtt)(addpettype)(changepettyp)(changecrtol)(changebatma)(changebatidt)(changebatami)(changebatama)(transfer))
 
-// #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
-// extern "C" { \
-//    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-//       if( action == N(onerror)) { \
-//          /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
-//          eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
-//       } \
-//       auto self = receiver; \
-//       if( code == self || code == N(eosio.token) || action == N(onerror) ) { \
-//          TYPE thiscontract( self ); \
-//          switch( action ) { \
-//             EOSIO_API( TYPE, MEMBERS ) \
-//          } \
-//          /* does not allow destructor of thiscontract to run: eosio_exit(0); */ \
-//       } \
-//    } \
-// }
+#define EOSIO_ABI_EX( TYPE, MEMBERS ) \
+extern "C" { \
+   void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
+      if( action == N(onerror)) { \
+         /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
+         eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
+      } \
+      auto self = receiver; \
+      if( code == self || code == N(eosio.token) || action == N(onerror) ) { \
+         TYPE thiscontract( self ); \
+         switch( action ) { \
+            EOSIO_API( TYPE, MEMBERS ) \
+         } \
+         /* does not allow destructor of thiscontract to run: eosio_exit(0); */ \
+      } \
+   } \
+}
 
-// EOSIO_ABI_EX(pet,
-//     // pet core
-//     (createpet)
-//     (updatepet)
-//     (feedpet)
-//     (bedpet)
-//     (awakepet)
-//     (destroypet)
+EOSIO_ABI_EX(pet,
+    // pet core
+    (createpet)
+    (updatepet)
+    (feedpet)
+    (bedpet)
+    (awakepet)
+    (destroypet)
 
-//     // battle
-//     (battlecreate)
-//     (battlejoin)
-//     (battlestart)
-//     (battleattack)
-//     (battleattrev)
+    // battles
+    (battlecreate)
+    (battlejoin)
+    (battleleave)
+    (battlestart)
+    (battleselpet)
+    (battleattack)
+    (battlefinish)
 
-//     // config setup
-//     (changecrtol)
-//     (changecrfee)
+    // admins and config setup
+    (addelemttype)
+    (changeelemtt)
+    (addpettype)
+    (changepettyp)
+    (changecrtol)
+    (changebatma)
+    (changebatidt)
+    (changebatami)
+    (changebatama)
 
-//     // tokens deposits
-//     (transfer))
+    // tokens deposits
+    (transfer)
+)

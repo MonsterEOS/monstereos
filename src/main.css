@@ -297,7 +297,7 @@
     -o-filter: brightness(80%);
     filter: brightness(80%); }
     .monster-picks .player-monsters .monster-pick:hover, .monster-picks .player-monsters .monster-pick.active {
-      border: 1px solid #23d160;
+      border: 2px solid #23d160;
       border-radius: 5%;
       cursor: pointer;
       -webkit-filter: brightness(100%);
@@ -413,7 +413,7 @@
   .battle-arena .enemy-monster {
     cursor: pointer; }
     .battle-arena .enemy-monster:hover, .battle-arena .enemy-monster.active {
-      border: 1px solid #ff3860;
+      border: 2px solid #ff3860;
       border-radius: 5%; }
 
 form {

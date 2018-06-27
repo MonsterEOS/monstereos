@@ -1,6 +1,25 @@
-deploy basic contracts and monstereosio contract
+# Battle Release notes
+
+## Migration Plan for the current pet contract on the Mainnet Live monstereosio account
+
+1. pet.cpp: uncomment/comment abi extension function
+1. eosiocpp -g pet.abi pet.cpp
+1. pet.cpp: uncomment/comment abi extension function
+1. eosiocpp -o pet.wast pet.cpp
+1. cleos set contract monstereosio ../pet
+1. ../load-elements.sh
+1. ../load-pet-types.sh
+
+Running the above steps will conclude the Migration
+
+## deploy basic contracts and monstereosio contract
+
+Run the below commands from the pet folder (also you need to adjust your eos relative path)
 
 ```
+
+# starting node, BE CAREFUL it's deleting blocks to start from a fresh environment
+nodeos -e -p eosio --plugin eosio::wallet_api_plugin --plugin eosio::chain_api_plugin --plugin eosio::history_api_plugin --plugin eosio::net_api_plugin --access-control-allow-origin "*" --access-control-allow-headers "*" --access-control-allow-credentials true --contracts-console --max-transaction-time 100 -f "*" --delete-all-blocks
 
 echo "deploy bios and token..."
 cleos set contract eosio ../../../eos-mainnet/build/contracts/eosio.bios -p eosio
@@ -18,8 +37,8 @@ cleos set contract monstereosio ../pet
 Add elements and pet types:
 
 ```
-./load-elements.sh
-./load-pet-types.sh
+../load-elements.sh
+../load-pet-types.sh # it has some delays to avoid transaction duplication
 ```
 
 Create accounts and create pets:
