@@ -69,6 +69,7 @@ initialModel =
     , currentBattle = Nothing
     , battleLog = []
     , battleNotifications = []
+    , battleWinner = Nothing
     }
 
 
@@ -292,6 +293,7 @@ type alias Model =
     , currentBattle : Maybe Battle
     , battleLog : List BattleLog
     , battleNotifications : List BattleNotification
+    , battleWinner : Maybe String
     }
 
 
@@ -1022,6 +1024,24 @@ update msg model =
 
                                 _ ->
                                     ( model.battleLog, model.battleNotifications )
+
+                        -- if battle is over, we need to read the winner
+                        finalCmd =
+                            case currentBattle of
+                                Just battle ->
+                                    let
+                                        battleIsOver =
+                                            isBattleOver model.battles battle && model.battleWinner == Nothing
+
+                                    in
+                                        if battleIsOver then
+                                            getBattleWinner (battle.host)
+                                        else
+                                            cmd
+
+                                Nothing ->
+                                    cmd
+
                     in
                         ( { model
                             | battles = battles
@@ -1030,7 +1050,7 @@ update msg model =
                             , battleNotifications = battleNotifications
                             , content = content
                           }
-                        , cmd
+                        , finalCmd
                         )
 
                 Err err ->
@@ -1349,6 +1369,12 @@ addBattleLog model newBattleLog oldBattle =
     in
         ( battleLogs, battleNotifications )
 
+isBattleOver : List Battle -> Battle -> Bool
+isBattleOver battles battle =
+    battles
+        |> List.filter (\b -> b.host == battle.host)
+        |> List.length
+        |> (==) 0
 
 availableMonstersToBattle : Model -> String -> String -> List Monster
 availableMonstersToBattle model player currentHost =
@@ -2790,11 +2816,7 @@ battleContent model battle =
         phase =
             battlePhase battle
 
-        battleIsOver =
-            model.battles
-                |> List.filter (\b -> b.host == battle.host)
-                |> List.length
-                |> (==) 0
+        battleIsOver = isBattleOver model.battles battle
 
         turnSeconds =
             (model.currentTime - battle.lastMoveAt) / 1000
