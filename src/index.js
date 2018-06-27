@@ -405,6 +405,37 @@ app.ports.listBattles.subscribe(async () => {
   app.ports.listBattlesSucceed.send(data)
 })
 
+app.ports.getBattleWinner.subscribe(async (host) => {
+
+  const genericError = 'Battle is finished but failed to get the winner'
+
+  const data = await localNet.getActions({
+    "account_name": MONSTERS_ACCOUNT,
+    "offset": -1000
+  }).catch(e => {
+    console.error(e)
+    app.ports.getBattleWinnerFailed.send(genericError)
+  })
+
+  if (data.actions) {
+    const actionData = data.actions
+      .reverse()
+      .filter(a => {
+        return a.action_trace &&
+          a.action_trace.act && a.action_trace.act.data &&
+          a.action_trace.act.data.host == host
+      }).map(a => a.action_trace.act.data)
+
+    if (actionData.length) {
+      console.log('and the winner is >>>> ' + actionData[0].winner)
+      return app.ports.getBattleWinnerSucceed.send(actionData[0].winner)
+    }
+  }
+
+  console.log(genericError)
+  app.ports.getBattleWinnerFailed.send(genericError)
+})
+
 app.ports.listElements.subscribe(async () => {
 
   const data = await localNet.getTableRows({

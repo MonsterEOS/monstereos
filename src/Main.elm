@@ -515,6 +515,15 @@ port battleLeaveSucceed : (String -> msg) -> Sub msg
 port battleLeaveFailed : (String -> msg) -> Sub msg
 
 
+port getBattleWinner : String -> Cmd msg
+
+
+port getBattleWinnerSucceed : (String -> msg) -> Sub msg
+
+
+port getBattleWinnerFailed : (String -> msg) -> Sub msg
+
+
 port battleStart : String -> Cmd msg
 
 
@@ -2803,7 +2812,9 @@ battleContent model battle =
                 "has-text-info"
 
         turnTimeoutTxt =
-            if isTurnTimeout then
+            if battleIsOver then
+                ""
+            else if isTurnTimeout then
                 "Turn TIMEOUT! Anyone can ATTACK!"
             else
                 "Turn Countdown: " ++ toString turnTimeoutSeconds

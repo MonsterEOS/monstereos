@@ -399,6 +399,7 @@
       margin-top: -180px;
       font-size: 30px;
       position: absolute;
+      text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
       animation: 2s ease-out 0s 1 slideInFromBottom; }
   .battle-arena .enemy-monster {
     cursor: pointer; }
