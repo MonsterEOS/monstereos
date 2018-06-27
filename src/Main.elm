@@ -66,6 +66,9 @@ initialModel =
     , battleSelectedAttackElement = 0
     , battleSelectedAttackMonster = 0
     , battleSelectedAttackEnemy = 0
+    , currentBattle = Nothing
+    , battleLog = []
+    , battleNotifications = []
     }
 
 
@@ -241,6 +244,24 @@ type alias Notification =
     }
 
 
+type alias BattleLog =
+    { time : Time.Time
+    , battle : Battle
+    }
+
+
+type BattleNotificationType
+    = HealthPoints
+
+
+type alias BattleNotification =
+    { time : Time.Time
+    , petId : Int
+    , nType : BattleNotificationType
+    , hp : Int
+    }
+
+
 type alias Model =
     { isLoading : Bool
     , isMuted : Bool
@@ -268,6 +289,9 @@ type alias Model =
     , battleSelectedAttackMonster : Int
     , battleSelectedAttackElement : Int
     , battleSelectedAttackEnemy : Int
+    , currentBattle : Maybe Battle
+    , battleLog : List BattleLog
+    , battleNotifications : List BattleNotification
     }
 
 
@@ -311,6 +335,11 @@ jungleTestNetLink =
 availableArenas : Int
 availableArenas =
     18
+
+
+hpNotificationSeconds : Time.Time
+hpNotificationSeconds =
+    3000
 
 
 
@@ -873,7 +902,16 @@ update msg model =
                 ( { model | notifications = notifications }, Cmd.none )
 
         SetContent content ->
-            ( { model | content = content }, Cmd.none )
+            let
+                currentBattle =
+                    case content of
+                        ViewBattle b ->
+                            Just b
+
+                        _ ->
+                            model.currentBattle
+            in
+                ( { model | content = content, currentBattle = currentBattle }, Cmd.none )
 
         UpdateNewMonsterName name ->
             ( { model | newMonsterName = name }, Cmd.none )
@@ -927,23 +965,64 @@ update msg model =
             case (JD.decodeValue battlesDecoder rawList) of
                 Ok battles ->
                     let
+                        -- filter current player battle
                         battle =
                             playerInBattles battles model.user.eosAccount
                                 |> List.head
 
                         -- if you are in a battle right redirect to that screen
-                        ( content, cmd ) =
+                        ( content, currentBattle, cmd ) =
                             case battle of
                                 Just b ->
-                                    if model.content == (ViewBattle b) then
-                                        ( model.content, Cmd.none )
-                                    else
-                                        ( ViewBattle b, showChat (b.host) )
+                                    let
+                                        redirectCmd =
+                                            case model.content of
+                                                ViewBattle _ ->
+                                                    Cmd.none
+
+                                                _ ->
+                                                    showChat (b.host)
+                                    in
+                                        ( ViewBattle b, Just b, redirectCmd )
 
                                 Nothing ->
-                                    ( model.content, Cmd.none )
+                                    ( model.content, model.currentBattle, Cmd.none )
+
+                        -- update battle status
+                        ( battleLog, battleNotifications ) =
+                            case model.content of
+                                ViewBattle battle ->
+                                    let
+                                        updatedBattle =
+                                            battles
+                                                |> List.filter (\b -> b.host == battle.host)
+                                                |> List.head
+
+                                        newBattleLog =
+                                            case updatedBattle of
+                                                Just newB ->
+                                                    if newB /= battle then
+                                                        addBattleLog model newB battle
+                                                    else
+                                                        ( model.battleLog, model.battleNotifications )
+
+                                                Nothing ->
+                                                    ( model.battleLog, model.battleNotifications )
+                                    in
+                                        newBattleLog
+
+                                _ ->
+                                    ( model.battleLog, model.battleNotifications )
                     in
-                        ( { model | battles = battles, content = content }, cmd )
+                        ( { model
+                            | battles = battles
+                            , currentBattle = currentBattle
+                            , battleLog = battleLog
+                            , battleNotifications = battleNotifications
+                            , content = content
+                          }
+                        , cmd
+                        )
 
                 Err err ->
                     ( { model
@@ -983,7 +1062,16 @@ update msg model =
             ( model, Cmd.none )
 
         BattleJoinSucceed trxId ->
-            handleMonsterAction model trxId "Battle Joined Successfully" True
+            ( { model
+                | notifications =
+                    [ Notification (Success "Battle Joined Successfully")
+                        (model.currentTime - 7000)
+                        "battleJoined"
+                    ]
+                        ++ model.notifications
+              }
+            , Cmd.none
+            )
 
         BattleLeaveSucceed _ ->
             ( { model | content = BattleArena }, Cmd.none )
@@ -1217,6 +1305,40 @@ handleResponseErrors model err msg =
                     "Http/Network Fail"
     in
         ( { model | error = Just error, isLoading = False }, Cmd.none )
+
+
+addBattleLog : Model -> Battle -> Battle -> ( List BattleLog, List BattleNotification )
+addBattleLog model newBattleLog oldBattle =
+    let
+        battleLogs =
+            (BattleLog model.currentTime newBattleLog) :: model.battleLog
+
+        newNotifications =
+            newBattleLog.petsStats
+                |> List.foldl
+                    (\ps notifs ->
+                        let
+                            oldPs =
+                                oldBattle.petsStats
+                                    |> List.filter (\ops -> ops.petId == ps.petId)
+                                    |> List.head
+                        in
+                            case oldPs of
+                                Just ops ->
+                                    if ps.hp /= ops.hp then
+                                        (BattleNotification model.currentTime ps.petId HealthPoints (ps.hp - ops.hp)) :: notifs
+                                    else
+                                        notifs
+
+                                Nothing ->
+                                    notifs
+                    )
+                    []
+
+        battleNotifications =
+            newNotifications ++ model.battleNotifications
+    in
+        ( battleLogs, battleNotifications )
 
 
 availableMonstersToBattle : Model -> String -> String -> List Monster
@@ -2600,11 +2722,33 @@ battleOnGoingArena model battle myTurn =
 
                                     Nothing ->
                                         "Unknown"
+
+                            monsterHpNotification =
+                                model.battleNotifications
+                                    |> List.filter
+                                        (\bn ->
+                                            bn.petId
+                                                == monster.petId
+                                                && bn.time
+                                                > (model.currentTime - hpNotificationSeconds)
+                                                && bn.nType
+                                                == HealthPoints
+                                        )
+                                    |> List.head
+
+                            monsterHpNotificationSpan =
+                                case monsterHpNotification of
+                                    Just notif ->
+                                        span [ class "monster-hp-notification" ] [ text (toString notif.hp) ]
+
+                                    Nothing ->
+                                        text ""
                         in
                             div [ class ("arena-monster " ++ monsterFinalClass), onClick monsterSelAction ]
                                 [ figure [ class "image" ]
                                     [ img [ src (monsterImgSrc monster.petType) ] []
                                     ]
+                                , monsterHpNotificationSpan
                                 , hpBar monster.hp monsterName
                                 , attacksControl
                                 ]
@@ -2637,6 +2781,12 @@ battleContent model battle =
         phase =
             battlePhase battle
 
+        battleIsOver =
+            model.battles
+                |> List.filter (\b -> b.host == battle.host)
+                |> List.length
+                |> (==) 0
+
         turnSeconds =
             (model.currentTime - battle.lastMoveAt) / 1000
 
@@ -2665,7 +2815,7 @@ battleContent model battle =
                 text ""
 
         leftStatusClass =
-            if phase == BattleOnGoingPhase && isTurnTimeout then
+            if (phase == BattleOnGoingPhase && isTurnTimeout) || battleIsOver then
                 "has-text-danger"
             else
                 ""
@@ -2766,9 +2916,21 @@ battleContent model battle =
                     ]
                     [ text "Back to Battles List" ]
 
+        ( finalStatusTxt, leaveAction ) =
+            if battleIsOver then
+                ( "Battle is OVER - Now you can leave safely!"
+                , SetContent BattleArena
+                )
+            else
+                ( statusText, LeaveBattle battle.host )
+
         leaveButton =
-            if myBattle && (phase == BattlePickingPhase || phase == BattleStartingPhase || phase == BattleJoiningPhase) then
-                a [ class "button is-danger", onClick (LeaveBattle battle.host) ] [ text "Leave battle " ]
+            if myBattle && (phase == BattleStartingPhase || phase == BattleJoiningPhase || battleIsOver) then
+                a
+                    [ class "button is-danger"
+                    , onClick leaveAction
+                    ]
+                    [ text "Leave battle " ]
             else
                 text ""
     in
@@ -2782,7 +2944,7 @@ battleContent model battle =
                 , div [ class "level" ]
                     [ div [ class "level-left" ]
                         [ div [ class ("level-item " ++ leftStatusClass) ]
-                            [ text statusText ]
+                            [ text finalStatusTxt ]
                         ]
                     , div [ class "level-right" ]
                         [ div [ class "level-item" ]

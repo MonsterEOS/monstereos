@@ -29,6 +29,16 @@
     background-size: cover;
 }
 
+// hp animation
+@keyframes slideInFromBottom {
+  0% {
+    transform: translateY(150%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 .button.is-purple {
   background-color: $purple;
   color: white;
@@ -53,8 +63,10 @@
 }
 
 // design/layout
+$logo-font: 'Freckle Face', cursive;
+
 .logo {
-  font-family: 'Freckle Face', cursive;
+  font-family: $logo-font;
   font-size: 40px;
   margin: 24px;
 }
@@ -148,6 +160,17 @@
 
     progress {
       margin-bottom: 6px!important;
+    }
+
+    .monster-hp-notification {
+      color: $red;
+      font-weight: bold;
+      font-family: $logo-font;
+      margin-left: 40px;
+      margin-top: -180px;
+      font-size: 30px;
+      position: absolute;
+      animation: 2s ease-out 0s 1 slideInFromBottom;
     }
   }
 

@@ -240,6 +240,12 @@
 .p-l-xxl {
   padding-left: 8rem; }
 
+@keyframes slideInFromBottom {
+  0% {
+    transform: translateY(150%); }
+  100% {
+    transform: translateY(0); } }
+
 .button.is-purple {
   background-color: #b86bff;
   color: white; }
@@ -267,7 +273,7 @@
   filter: brightness(5%); }
 
 .logo {
-  font-family: 'Freckle Face', cursive;
+  font-family: "Freckle Face", cursive;
   font-size: 40px;
   margin: 24px; }
 
@@ -385,6 +391,15 @@
       max-width: 180px; }
     .battle-arena .arena-monster progress {
       margin-bottom: 6px !important; }
+    .battle-arena .arena-monster .monster-hp-notification {
+      color: #ff3860;
+      font-weight: bold;
+      font-family: "Freckle Face", cursive;
+      margin-left: 40px;
+      margin-top: -180px;
+      font-size: 30px;
+      position: absolute;
+      animation: 2s ease-out 0s 1 slideInFromBottom; }
   .battle-arena .enemy-monster {
     cursor: pointer; }
     .battle-arena .enemy-monster:hover, .battle-arena .enemy-monster.active {

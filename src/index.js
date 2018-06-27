@@ -491,7 +491,6 @@ app.ports.battleCreate.subscribe(async (mode) => {
   console.log(action)
 
   if(action) {
-    destroyHashInfo()
     app.ports.battleCreateSucceed.send(action.transaction_id)
   }
 })
