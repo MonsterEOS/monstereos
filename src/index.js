@@ -6,8 +6,8 @@ import ecc from 'eosjs-ecc'
 
 const STORAGE_KEY = 'MONSTEREOS'
 const CHAIN_PROTOCOL = 'http'
-const CHAIN_HOST = 'api.cypherglass.com' //'mainnet.eoscalgary.io'
-const CHAIN_PORT = '8888' //80
+const CHAIN_HOST = 'br.eosrio.io' //'mainnet.eoscalgary.io'
+const CHAIN_PORT = '8080' //80
 const CHAIN_ADDRESS = CHAIN_PROTOCOL + '://' + CHAIN_HOST + ':' + CHAIN_PORT
 const CHAIN_ID = 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
 const MONSTERS_ACCOUNT = 'monstereosio'
@@ -397,7 +397,7 @@ app.ports.getBattleWinner.subscribe(async (host) => {
 
   const data = await localNet.getActions({
     "account_name": MONSTERS_ACCOUNT,
-    "offset": -1000
+    "offset": -300
   }).catch(e => {
     console.error(e)
     app.ports.getBattleWinnerFailed.send(genericError)
