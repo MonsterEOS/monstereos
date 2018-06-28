@@ -1,0 +1,1 @@
+Simple NodeJS script which reads a JSON file submitted from each team member and parses the hours and weight from each time entry, returns a list of rewards for each team member based on the dividend amount. 
