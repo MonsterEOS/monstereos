@@ -19,7 +19,8 @@ const CONFIG_TABLE = 'petconfig2'
 const BALANCES_TABLE = 'accounts'
 const TOKEN_SYMBOL = 'EOS'
 const MEMO = 'MonsterEOS Wallet Deposit'
-const ACTIONS_API = 'https://api.eostracker.io/accounts/monstereosio/actions/to?page=1&size=300'
+// const ACTIONS_API = 'https://api.eostracker.io/accounts/monstereosio/actions/to?page=1&size=300'
+const ACTIONS_API = 'http://br.eosrio.io:8080/v1/history/get_actions'
 
 // resources
 const BATTLE_REQ_CPU = 30 * 1000
@@ -55,6 +56,11 @@ const scatterDetection = setTimeout(() => {
     app.ports.setScatterInstalled.send(false)
   }
 }, 5000)
+
+// timeout helper
+const timeout = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 const handleErrorMessages = (e, genericMessage, cb) => {
   console.error(genericMessage, e)
@@ -396,38 +402,43 @@ app.ports.getBattleWinner.subscribe(async (host) => {
 
   const genericError = 'Battle is finished but failed to get the winner'
 
-  const data = await fetch(ACTIONS_API)
+  const _interval = await timeout(500)
+
+  // const data = await fetch(ACTIONS_API)
+  const body = `{ "account_name": "monstereosio", "offset": -300 }`
+  const data = await fetch(ACTIONS_API, {method: 'POST', body})
   .then(r => r.json())
   .catch(e => {
     console.error(e)
     app.ports.getBattleWinnerFailed.send(genericError)
   })
 
-  // eostracker.io api <3
-  if (data) {
-    const actionData = data.filter(a => {
-      return a.name == 'battlefinish' && a.data && a.data.host == host
-    }).map(a => a.data)
+  // // eostracker.io api <3
+  // if (data) {
+  //   const actionData = data.filter(a => {
+  //     return a.name == 'battlefinish' && a.data && a.data.host == host
+  //   }).map(a => a.data)
 
-    if(actionData.length) {
-      return app.ports.getBattleWinnerSucceed.send(actionData[0].winner)
-    }
-  }
-
-  // original eosrpc api endpoint
-  // if (data && data.actions) {
-  //   const actionData = data.actions
-  //     .reverse()
-  //     .filter(a => {
-  //       return a.action_trace && a.action_trace.act &&
-  //         a.action_trace.act.name == 'battlefinish' &&
-  //         a.action_trace.act.data.host == host
-  //     }).map(a => a.action_trace.act.data)
-
-  //   if (actionData.length) {
+  //   if(actionData.length) {
   //     return app.ports.getBattleWinnerSucceed.send(actionData[0].winner)
   //   }
   // }
+
+  // original eosrpc api endpoint
+  if (data && data.actions) {
+    const actionData = data.actions
+      .reverse()
+      .filter(a => {
+        return a.action_trace && a.action_trace.act &&
+          a.action_trace.act.name == 'battlefinish' &&
+          a.action_trace.act.data.host == host
+      }).map(a => a.action_trace.act.data)
+
+    if (actionData.length) {
+      console.log('and the winner is >>>', actionData[0].winner)
+      return app.ports.getBattleWinnerSucceed.send(actionData[0].winner)
+    }
+  }
 
   app.ports.getBattleWinnerFailed.send(genericError)
 })
