@@ -62,11 +62,6 @@ void pet::createpet(name owner,
         pet.last_shower_at = pet.created_at;
         pet.last_awake_at = 0;
 
-        // TODO: remove before release
-        pet.last_awake_at = now();
-        // TODO: remove before release
-        pet.last_bed_at = now() - 5 * HOUR;
-
         pet.type = (hash_str(pet_name) + pet.created_at + pet.id + owner) % pc.last_pet_type_id;
 
         r = pet;

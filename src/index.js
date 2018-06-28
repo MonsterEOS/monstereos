@@ -6,10 +6,10 @@ import ecc from 'eosjs-ecc'
 
 const STORAGE_KEY = 'MONSTEREOS'
 const CHAIN_PROTOCOL = 'http'
-const CHAIN_HOST = 'node.eosvenezuela.io' //'127.0.0.1' //'mainnet.eoscalgary.io'
-const CHAIN_PORT = '8889' //80
+const CHAIN_HOST = 'api.cypherglass.com' //'mainnet.eoscalgary.io'
+const CHAIN_PORT = '8888' //80
 const CHAIN_ADDRESS = CHAIN_PROTOCOL + '://' + CHAIN_HOST + ':' + CHAIN_PORT
-const CHAIN_ID = '038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca' // local'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f' // mn 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
+const CHAIN_ID = 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
 const MONSTERS_ACCOUNT = 'monstereosio'
 const MONSTERS_TABLE = 'pets'
 const BATTLES_TABLE = 'battles'

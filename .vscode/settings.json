@@ -52,7 +52,9 @@
     "any": "cpp",
     "ios": "cpp",
     "forward_list": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "__mutex_base": "cpp",
+    "shared_mutex": "cpp"
   },
   "terminal.integrated.env.osx": {
     "SFDX_SET_CLIENT_IDS": "sfdx-vscode"
