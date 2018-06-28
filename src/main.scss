@@ -84,6 +84,7 @@ $logo-font: 'Freckle Face', cursive;
 
   .player-monsters {
     display: flex;
+    flex-wrap: wrap;
 
     .monster-pick {
       max-width: 140px;

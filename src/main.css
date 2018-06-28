@@ -286,7 +286,8 @@
   font-weight: 400; }
 
 .monster-picks .player-monsters {
-  display: flex; }
+  display: flex;
+  flex-wrap: wrap; }
   .monster-picks .player-monsters .monster-pick {
     max-width: 140px;
     max-height: 140px;
