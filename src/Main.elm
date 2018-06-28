@@ -1135,7 +1135,24 @@ update msg model =
                     )
 
         BattleCreate ->
-            ( model, battleCreate (1) )
+            let
+                errorMsg = battleMonstersAvailability model 1
+            in
+                case errorMsg of
+                    Just msg ->
+                        ( { model
+                            | notifications =
+                                [ Notification (Error ("Fail to Create Battle: " ++ msg))
+                                    model.currentTime
+                                    "createBattleFailed"
+                                ]
+                                    ++ model.notifications
+                          }
+                        , Cmd.none
+                        )
+
+                    Nothing ->
+                        ( model, battleCreate (1) )
 
         BattleCreateSucceed trxId ->
             ( model, Cmd.none )
@@ -1180,22 +1197,7 @@ update msg model =
 
         JoinBattle battle ->
             let
-                isInBattle =
-                    playerInBattles model.battles model.user.eosAccount
-                        |> List.length
-                        |> (<) 0
-
-                myAvailableMonsters =
-                    availableMonstersToBattle model model.user.eosAccount ""
-                        |> List.length
-
-                errorMsg =
-                    if isInBattle then
-                        Just "You are already in a battle"
-                    else if myAvailableMonsters < battle.mode then
-                        Just "You don't have enough Available Monsters for this Battle"
-                    else
-                        Nothing
+                errorMsg = battleMonstersAvailability model battle.mode
             in
                 case errorMsg of
                     Just msg ->
@@ -1385,6 +1387,25 @@ handleResponseErrors model err msg =
     in
         ( { model | error = Just error, isLoading = False }, Cmd.none )
 
+
+battleMonstersAvailability : Model -> Int -> Maybe String
+battleMonstersAvailability model battleMode =
+    let
+        isInBattle =
+            playerInBattles model.battles model.user.eosAccount
+                |> List.length
+                |> (<) 0
+
+        myAvailableMonsters =
+            availableMonstersToBattle model model.user.eosAccount ""
+                |> List.length
+    in
+        if isInBattle then
+            Just "You are already in a battle"
+        else if myAvailableMonsters < battleMode then
+            Just "You don't have enough Available Monsters for this Battle"
+        else
+            Nothing
 
 addBattleLog : Model -> Battle -> Battle -> ( List BattleLog, List BattleNotification )
 addBattleLog model newBattleLog oldBattle =
@@ -2423,54 +2444,56 @@ battleCard model battle =
             else
                 ("Join Battle", (JoinBattle battle))
     in
-        div [ class "card" ]
-            [ header [ class "card-header" ]
-                [ p [ class "card-header-title" ]
-                    [ text (battle.host ++ "'s Arena") ]
-                ]
-            , div [ class "card-content" ]
-                [ div [ class "content" ]
-                    [ nav [ class "level" ]
-                        [ div [ class "level-item has-text-centered" ]
-                            [ div []
-                                [ p [ class "heading" ]
-                                    [ text "Start Time" ]
-                                , p [ class "title" ]
-                                    [ text startedAt ]
+        div [class "has-margin-top"]
+            [ div [ class "card" ]
+                [ header [ class "card-header" ]
+                    [ p [ class "card-header-title" ]
+                        [ text (battle.host ++ "'s Arena") ]
+                    ]
+                , div [ class "card-content" ]
+                    [ div [ class "content" ]
+                        [ nav [ class "level" ]
+                            [ div [ class "level-item has-text-centered" ]
+                                [ div []
+                                    [ p [ class "heading" ]
+                                        [ text "Start Time" ]
+                                    , p [ class "title" ]
+                                        [ text startedAt ]
+                                    ]
                                 ]
-                            ]
-                        , div [ class "level-item has-text-centered" ]
-                            [ div []
-                                [ p [ class "heading" ]
-                                    [ text "Last Turn" ]
-                                , p [ class "title" ]
-                                    [ text lastTurnAt ]
+                            , div [ class "level-item has-text-centered" ]
+                                [ div []
+                                    [ p [ class "heading" ]
+                                        [ text "Last Turn" ]
+                                    , p [ class "title" ]
+                                        [ text lastTurnAt ]
+                                    ]
                                 ]
-                            ]
-                        , div [ class "level-item has-text-centered" ]
-                            [ div []
-                                [ p [ class "heading" ]
-                                    [ text "Mode" ]
-                                , p [ class "title" ]
-                                    [ text "1v1" ]
+                            , div [ class "level-item has-text-centered" ]
+                                [ div []
+                                    [ p [ class "heading" ]
+                                        [ text "Mode" ]
+                                    , p [ class "title" ]
+                                        [ text "1v1" ]
+                                    ]
                                 ]
-                            ]
-                        , div [ class "level-item has-text-centered" ]
-                            [ div []
-                                [ p [ class "heading" ]
-                                    [ text "Monsters Alive" ]
-                                , p [ class "title" ]
-                                    [ text monstersAliveTxt ]
+                            , div [ class "level-item has-text-centered" ]
+                                [ div []
+                                    [ p [ class "heading" ]
+                                        [ text "Monsters Alive" ]
+                                    , p [ class "title" ]
+                                        [ text monstersAliveTxt ]
+                                    ]
                                 ]
                             ]
                         ]
                     ]
-                ]
-            , footer [ class "card-footer" ]
-                [ a [ class "card-footer-item", onClick joinButtonAction ]
-                    [ text joinButtonText ]
-                , a [ class "card-footer-item", onClick (WatchBattle battle) ]
-                    [ text "Watch" ]
+                , footer [ class "card-footer" ]
+                    [ a [ class "card-footer-item", onClick joinButtonAction ]
+                        [ text joinButtonText ]
+                    , a [ class "card-footer-item", onClick (WatchBattle battle) ]
+                        [ text "Watch" ]
+                    ]
                 ]
             ]
 
