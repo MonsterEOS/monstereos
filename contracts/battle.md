@@ -12,6 +12,151 @@
 
 Running the above steps will conclude the Migration
 
+### Migration costs
+
+before migration contract account stats:
+
+```
+cleos get account monstereosio
+permissions:
+     owner     1:    1 EOS59G44aAf1e6ayDcRnn1gw7dquUoxmiGwhUpXpnA5g9tm13cCop
+        active     1:    1 EOS59G44aAf1e6ayDcRnn1gw7dquUoxmiGwhUpXpnA5g9tm13cCop
+memory:
+     quota:     773.1 KiB    used:     313.9 KiB
+
+net bandwidth:
+     staked:        100.0000 EOS           (total stake delegated from account to self)
+     delegated:       0.0000 EOS           (total staked delegated to account from others)
+     used:             14.14 KiB
+     available:        19.17 MiB
+     limit:            19.18 MiB
+
+cpu bandwidth:
+     staked:        100.0000 EOS           (total stake delegated from account to self)
+     delegated:       0.0000 EOS           (total staked delegated to account from others)
+     used:             10.09 ms
+     available:        3.828 sec
+     limit:            3.838 sec
+
+EOS balances:
+     liquid:        10031.0000 EOS
+     staked:          200.0000 EOS
+     unstaking:         0.0000 EOS
+     total:         10231.0000 EOS
+
+producers:     <not voted>
+```
+
+after deploying new battle contract:
+
+```
+cleos get account monstereosio
+permissions:
+     owner     1:    1 EOS59G44aAf1e6ayDcRnn1gw7dquUoxmiGwhUpXpnA5g9tm13cCop
+        active     1:    1 EOS59G44aAf1e6ayDcRnn1gw7dquUoxmiGwhUpXpnA5g9tm13cCop
+memory:
+     quota:     773.1 KiB    used:     727.2 KiB
+
+net bandwidth:
+     staked:        100.0000 EOS           (total stake delegated from account to self)
+     delegated:       0.0000 EOS           (total staked delegated to account from others)
+     used:             39.83 KiB
+     available:        19.14 MiB
+     limit:            19.18 MiB
+
+cpu bandwidth:
+     staked:        100.0000 EOS           (total stake delegated from account to self)
+     delegated:       0.0000 EOS           (total staked delegated to account from others)
+     used:             14.81 ms
+     available:        3.824 sec
+     limit:            3.838 sec
+
+EOS balances:
+     liquid:        10031.0000 EOS
+     staked:          200.0000 EOS
+     unstaking:         0.0000 EOS
+     total:         10231.0000 EOS
+
+producers:     <not voted>
+```
+
+after loading the element types (took around 21 seconds in Junglenet - node eosgreen):
+
+```
+cleos get account monstereosio
+permissions:
+     owner     1:    1 EOS59G44aAf1e6ayDcRnn1gw7dquUoxmiGwhUpXpnA5g9tm13cCop
+        active     1:    1 EOS59G44aAf1e6ayDcRnn1gw7dquUoxmiGwhUpXpnA5g9tm13cCop
+memory:
+     quota:     773.1 KiB    used:     728.6 KiB
+
+net bandwidth:
+     staked:        100.0000 EOS           (total stake delegated from account to self)
+     delegated:       0.0000 EOS           (total staked delegated to account from others)
+     used:             40.79 KiB
+     available:        19.14 MiB
+     limit:            19.18 MiB
+
+cpu bandwidth:
+     staked:        100.0000 EOS           (total stake delegated from account to self)
+     delegated:       0.0000 EOS           (total staked delegated to account from others)
+     used:                33 ms
+     available:        3.805 sec
+     limit:            3.838 sec
+
+EOS balances:
+     liquid:        10031.0000 EOS
+     staked:          200.0000 EOS
+     unstaking:         0.0000 EOS
+     total:         10231.0000 EOS
+
+producers:     <not voted>
+```
+
+after loading all 109 pet types (took around 6 minutes):
+
+```
+cleos get account monstereosio
+permissions:
+     owner     1:    1 EOS59G44aAf1e6ayDcRnn1gw7dquUoxmiGwhUpXpnA5g9tm13cCop
+        active     1:    1 EOS59G44aAf1e6ayDcRnn1gw7dquUoxmiGwhUpXpnA5g9tm13cCop
+memory:
+     quota:     773.1 KiB    used:     741.9 KiB
+
+net bandwidth:
+     staked:        100.0000 EOS           (total stake delegated from account to self)
+     delegated:       0.0000 EOS           (total staked delegated to account from others)
+     used:             50.92 KiB
+     available:        19.13 MiB
+     limit:            19.18 MiB
+
+cpu bandwidth:
+     staked:        100.0000 EOS           (total stake delegated from account to self)
+     delegated:       0.0000 EOS           (total staked delegated to account from others)
+     used:             170.8 ms
+     available:        3.668 sec
+     limit:            3.838 sec
+
+EOS balances:
+     liquid:        10031.0000 EOS
+     staked:          200.0000 EOS
+     unstaking:         0.0000 EOS
+     total:         10231.0000 EOS
+
+producers:     <not voted>
+```
+
+# battle costs safe values
+
+For MonsterEOS.io:
+RAM: 2kb (during the battle, )
+net/cpu: free
+
+For players:
+RAM: 0kb
+net: 1kb (the avg is 1kb, but lets set 2kb as a safe amount)
+cpu: 30ms (the avg is 14ms, but lets set 30ms as a safe amount)
+
 ## deploy basic contracts and monstereosio contract
 
 Run the below commands from the pet folder (also you need to adjust your eos relative path)
