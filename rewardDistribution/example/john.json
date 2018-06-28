@@ -5,12 +5,7 @@
         {
             "timeSpent": 0.5,
             "weight": 1,
-            "notes": "Meeting with someone"
-        },
-        {
-            "timeSpent": 1,
-            "weight": 1,
-            "notes": "Chatting and shit"
+            "notes": "Meeting"
         }
     ]
 }
