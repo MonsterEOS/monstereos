@@ -906,8 +906,29 @@ update msg model =
                             (\notification ->
                                 (model.currentTime - notification.time) < 10000
                             )
+
+                viewingBattleContent =
+                    case model.content of
+                        ViewBattle _ ->
+                            True
+
+                        BattleArena ->
+                            True
+
+                        _ ->
+                            False
+
+                cmdListBattles =
+                    if
+                        not model.battlesInitialized ||
+                            model.currentBattle /= Nothing ||
+                            viewingBattleContent
+                    then
+                        listBattles ()
+                    else
+                        Cmd.none
             in
-                ( { model | currentTime = time, notifications = notifications }, listBattles () )
+                ( { model | currentTime = time, notifications = notifications }, cmdListBattles )
 
         DeleteNotification id ->
             let
@@ -1136,7 +1157,8 @@ update msg model =
 
         BattleCreate ->
             let
-                errorMsg = battleMonstersAvailability model 1
+                errorMsg =
+                    battleMonstersAvailability model 1
             in
                 case errorMsg of
                     Just msg ->
@@ -1197,7 +1219,8 @@ update msg model =
 
         JoinBattle battle ->
             let
-                errorMsg = battleMonstersAvailability model battle.mode
+                errorMsg =
+                    battleMonstersAvailability model battle.mode
             in
                 case errorMsg of
                     Just msg ->
@@ -1406,6 +1429,7 @@ battleMonstersAvailability model battleMode =
             Just "You don't have enough Available Monsters for this Battle"
         else
             Nothing
+
 
 addBattleLog : Model -> Battle -> Battle -> ( List BattleLog, List BattleNotification )
 addBattleLog model newBattleLog oldBattle =
@@ -2440,11 +2464,11 @@ battleCard model battle =
 
         ( joinButtonText, joinButtonAction ) =
             if List.length battle.turns >= 2 then
-                ("Full, you can Watch", (WatchBattle battle))
+                ( "Full, you can Watch", (WatchBattle battle) )
             else
-                ("Join Battle", (JoinBattle battle))
+                ( "Join Battle", (JoinBattle battle) )
     in
-        div [class "has-margin-top"]
+        div [ class "has-margin-top" ]
             [ div [ class "card" ]
                 [ header [ class "card-header" ]
                     [ p [ class "card-header-title" ]
