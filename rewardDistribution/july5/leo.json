@@ -33,11 +33,6 @@
             "notes": "battle ram improvements and bootstrapui"
         },
         {
-            "timeSpent": 4,
-            "weight": 1,
-            "notes": "battle victory"
-        },
-        {
             "timeSpent": 16,
             "weight": 1,
             "notes": "battle ui"
