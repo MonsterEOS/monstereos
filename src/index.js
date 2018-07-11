@@ -20,7 +20,7 @@ const BALANCES_TABLE = 'accounts'
 const TOKEN_SYMBOL = 'EOS'
 const MEMO = 'MonsterEOS Wallet Deposit'
 // const ACTIONS_API = 'https://api.eostracker.io/accounts/monstereosio/actions/to?page=1&size=300'
-const ACTIONS_API = 'http://br.eosrio.io:8080/v1/history/get_actions'
+const ACTIONS_API = 'https://api.eosrio.io/v1/history/get_actions'
 
 // resources
 const BATTLE_REQ_CPU = 30 * 1000
