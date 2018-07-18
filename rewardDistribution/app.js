@@ -1,7 +1,9 @@
-const john = require("./july5/john.json");
-const leo = require("./july5/leo.json");
-const fried = require('./july5/friedger.json');
-const vertexstudio = require("./july5/vertexstudio.json");
+
+const folder = "july5"
+
+const john = require(`./${folder}/john.json`);
+const leo = require(`./${folder}/leo.json`);
+const fried = require(`./${folder}/friedger.json`);
 const fs = require('fs')
 
 // BlockShare is a framework designed to distribute donations from end users to
@@ -12,12 +14,11 @@ const approvedMembers = {
     1: "John",
     2: "Leo", 
     3: "Frieger",
-    4: "VertexStudio"
 }
 
 const getTotalPoints = timeEntries => timeEntries.reduce((total, obj) => total += obj.timeSpent * obj.weight, 0)
 
-const workSummaries = [john, leo, fried, vertexstudio]
+const workSummaries = [john, leo, fried]
 
 const getResults = (workSummaries, dividendAmount) => {
 
@@ -46,7 +47,7 @@ const getResults = (workSummaries, dividendAmount) => {
     }
 
     const json = JSON.stringify(finalResults)
-    fs.writeFile("awards.json", json, "utf8", () => console.log('wrote file'));
+    fs.writeFile(`./${folder}/awards.json`, json, "utf8", () => console.log('wrote file'));
 }
 
 getResults(workSummaries, 22)
