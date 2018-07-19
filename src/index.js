@@ -6,7 +6,7 @@ import ecc from 'eosjs-ecc'
 
 const STORAGE_KEY = 'MONSTEREOS'
 const CHAIN_PROTOCOL = 'https'
-const CHAIN_HOST = 'eu.eosdac.io' //'mainnet.eoscalgary.io' //'nodes.get-scatter.com' //'br.eosrio.io'
+const CHAIN_HOST = 'mainnet.eoscalgary.io' //'mainnet.eoscalgary.io' //'nodes.get-scatter.com' //'br.eosrio.io'
 const CHAIN_PORT = '443' //8080' //80
 const CHAIN_ADDRESS = CHAIN_PROTOCOL + '://' + CHAIN_HOST + ':' + CHAIN_PORT
 const CHAIN_ID = 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
@@ -153,15 +153,28 @@ app.ports.scatterRequestIdentity.subscribe(async () => {
 
 app.ports.listMonsters.subscribe(async () => {
 
-    const monsters = await localNet.getTableRows({
-                "json": true,
-                "scope": MONSTERS_ACCOUNT,
-                "code": MONSTERS_ACCOUNT,
-                "table": MONSTERS_TABLE,
-                "limit": 5000
-            }).then(res => res.rows.map(parseMonster)).catch(e => {
-              app.ports.setMonstersFailed.send('Error while listing Monsters')
-            })
+    const apiList = (lowerBound = 0) => {
+      return localNet.getTableRows({
+          "json": true,
+          "scope": MONSTERS_ACCOUNT,
+          "code": MONSTERS_ACCOUNT,
+          "table": MONSTERS_TABLE,
+          "lower_bound": lowerBound,
+          "limit": 5000
+      }).then(async res => {
+        if(res.more) {
+          const nextLowerBound = res.rows[res.rows.length-1].id
+          const nextRows = await apiList(nextLowerBound)
+          return res.rows.map(parseMonster).concat(nextRows)
+        } else {
+          return res.rows.map(parseMonster)
+        }
+      }).catch(e => {
+        app.ports.setMonstersFailed.send('Error while listing Monsters')
+      })
+    }
+
+    const monsters = await apiList(0)
 
     if(monsters) app.ports.setMonsters.send(monsters)
 })
