@@ -1,0 +1,10 @@
+{
+    "teamMemberId": 3,
+    "eosAccount": "friedgermuef",
+    "timeEntries": [
+    {
+            "timeSpent": 8,
+            "weight": 0.8,
+            "notes": "validate transfer ownership, automate with buddy.works"
+    }]
+}
