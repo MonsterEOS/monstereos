@@ -1,5 +1,10 @@
 {
     "teamMemberId": 3,
     "eosAccount": "friedgermuef",
-    "timeEntries": []
+    "timeEntries": [
+    {
+            "timeSpent": 10,
+            "weight": 0.8,
+            "notes": "development ownership transfer"
+    }]
 }
