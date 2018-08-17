@@ -1,0 +1,19 @@
+version: "3.4"
+
+services:
+  eosio:
+    build:
+      context: ./services/eos-node
+      dockerfile: Dockerfile
+    environment:
+      - DATADIR=/root/.local/share
+    image: monstereos/eosio
+    command: /opt/eosio/bin/start-node.sh
+    ports:
+      - "8825:8888"
+      - "9825:9876"
+    volumes:
+      - eosiochaindata:/root/.local/share
+
+volumes:
+  eosiochaindata:
