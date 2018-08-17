@@ -1,11 +1,12 @@
-# Distribution
+# Compiled codes
 build/
+dist/
+*.wasm
+*.wast
 
-# elm-package generated files
-elm-stuff
-
-# elm-repl generated files
-repl-temp-*
+# IDE's
+.vscode
+.idea
 
 # Dependency directories
 node_modules
@@ -13,7 +14,5 @@ node_modules
 # Desktop Services Store on macOS
 .DS_Store
 
-*.wasm
-*.wast
-
+# Temp
 temp
