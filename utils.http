@@ -1,0 +1,7 @@
+curl --request POST \
+  --url https://eu.eosdac.io/v1/history/get_transaction \
+  --data '{"id":"2252122843632a31cc88e06f4d2d0f88fb6c74394930d697e4e69a85a02e6e29"}'
+
+curl --request POST \
+  --url https://localhost:8826/v1/chain/get_block \
+  --data '{"block_num_or_id":"1293913"}'

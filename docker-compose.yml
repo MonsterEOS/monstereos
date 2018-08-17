@@ -1,19 +1,87 @@
 version: "3.4"
 
 services:
-  eosio:
+
+  postgres:
+    image: postgres:10.0
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      DB_NAME: monstereosio
+      DB_USER: user
+      DB_PASSWORD: pass
+      POSTGRES_DB: monstereosio
+
+  eosiojn11:
     build:
       context: ./services/eos-node
       dockerfile: Dockerfile
     environment:
       - DATADIR=/root/.local/share
-    image: monstereos/eosio
+    image: monstereos/eosiojn11
     command: /opt/eosio/bin/start-node.sh
     ports:
       - "8825:8888"
       - "9825:9876"
     volumes:
-      - eosiochaindata:/root/.local/share
+      - eosiochainjn11:/root/.local/share
+
+  eosiojn12:
+    build:
+      context: ./services/eos-nodejn12
+      dockerfile: Dockerfile
+    environment:
+      - DATADIR=/root/.local/share
+    image: monstereos/eosiojn12
+    command: /opt/eosio/bin/start-node.sh
+    ports:
+      - "8827:8888"
+      - "9827:9876"
+    volumes:
+      - eosiochainjn12:/root/.local/share
+
+  eosiomn12:
+    build:
+      context: ./services/eos-node12
+      dockerfile: Dockerfile
+    environment:
+      - DATADIR=/root/.local/share
+    image: monstereos/eosiomn
+    command: /opt/eosio/bin/start-node.sh
+    ports:
+      - "8826:8888"
+      - "9826:9876"
+    volumes:
+      - eosiochainmn:/root/.local/share
+
+  demux:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE: "demux"
+    image: monstereos/demux
+    depends_on:
+      - postgres
+      - eosiojn11
+    environment:
+      DB_USER: user
+      DB_PASSWORD: pass
+      DB_PORT: 5432
+      DB_NAME: monstereosio
+      DB_HOST: postgres
+      DB_SCHEMA: monstereosio
+      CHAIN_HOST: "http://eosiojn11:8825"
+      CHAIN_INIT_BLOCK: 2838000
+    ports:
+      - "4005:4005"
 
 volumes:
-  eosiochaindata:
+  eosiochainjn11:
+  eosiochainjn12:
+  eosiochainmn:
+  postgres:
