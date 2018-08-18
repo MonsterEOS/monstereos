@@ -30,19 +30,19 @@ services:
     volumes:
       - eosiochainjn11:/root/.local/share
 
-  eosiojn12:
-    build:
-      context: ./services/eos-nodejn12
-      dockerfile: Dockerfile
-    environment:
-      - DATADIR=/root/.local/share
-    image: monstereos/eosiojn12
-    command: /opt/eosio/bin/start-node.sh
-    ports:
-      - "8827:8888"
-      - "9827:9876"
-    volumes:
-      - eosiochainjn12:/root/.local/share
+  # eosiojn12:
+  #   build:
+  #     context: ./services/eos-nodejn12
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - DATADIR=/root/.local/share
+  #   image: monstereos/eosiojn12
+  #   command: /opt/eosio/bin/start-node.sh
+  #   ports:
+  #     - "8827:8888"
+  #     - "9827:9876"
+  #   volumes:
+  #     - eosiochainjn12:/root/.local/share
 
   eosiomn12:
     build:
