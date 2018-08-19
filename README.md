@@ -21,7 +21,7 @@ docker-compose up -d
 
 Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
 
-- eosiodev: this is the local blockchain with basic data (ready for development) and development of the contracts
+- eosdev: this is the local blockchain with basic data (ready for development) and development of the contracts
 - postgres: this is our database, the chain is the source of truth, and this is just a cache layer to help our application to query nice reports fast
 - demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain, save records to database and also submit emails, notifications, external apis etc <3
 - backend: this is our web api server used to read and present data from the database, also serving websockets to nice realtime interactions in the app, in our case we are using node.js

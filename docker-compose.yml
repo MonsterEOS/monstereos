@@ -16,6 +16,22 @@ services:
       DB_PASSWORD: pass
       POSTGRES_DB: monstereosio
 
+  eosiodev:
+    build:
+      context: ./services/eos-dev
+      dockerfile: Dockerfile
+      args:
+        symbol: "EOS"
+    image: monstereos/eosdev
+    command: /opt/eosio/bin/nodeos --config-dir=/opt/eosio/bin/config-dir --data-dir /root/.local/share
+    ports: 
+      - "8830:8888"
+      - "9830:9876"
+    volumes:
+      - eosiochaindev:/root/.local/share
+      - ./contracts:/opt/contracts
+      - ./config-dir:/opt/eosio/bin/config-dir
+
   eosiojn11:
     build:
       context: ./services/eos-node
@@ -23,7 +39,8 @@ services:
     environment:
       - DATADIR=/root/.local/share
     image: monstereos/eosiojn11
-    command: /opt/eosio/bin/start-node.sh
+    # command: /opt/eosio/bin/start-node.sh
+    command: /opt/eosio/bin/nodeos --config-dir=/opt/eosio/bin/data-dir --data-dir $DATADIR
     ports:
       - "8825:8888"
       - "9825:9876"
@@ -84,4 +101,5 @@ volumes:
   eosiochainjn11:
   eosiochainjn12:
   eosiochainmn:
+  eosiochaindev:
   postgres:
