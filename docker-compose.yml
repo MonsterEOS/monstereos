@@ -20,10 +20,8 @@ services:
     build:
       context: ./services/eos-dev
       dockerfile: Dockerfile
-      args:
-        symbol: "EOS"
     image: monstereos/eosdev
-    command: /opt/eosio/bin/nodeos --config-dir=/opt/eosio/bin/config-dir --data-dir /root/.local/share
+    command: /opt/eosio/bin/nodeos --config-dir /opt/eosio/bin/config-dir --data-dir /root/.local/share -e
     ports: 
       - "8830:8888"
       - "9830:9876"
@@ -36,11 +34,9 @@ services:
     build:
       context: ./services/eos-node
       dockerfile: Dockerfile
-    environment:
-      - DATADIR=/root/.local/share
     image: monstereos/eosiojn11
     # command: /opt/eosio/bin/start-node.sh
-    command: /opt/eosio/bin/nodeos --config-dir=/opt/eosio/bin/data-dir --data-dir $DATADIR
+    command: /opt/eosio/bin/nodeos --config-dir=/opt/eosio/bin/data-dir --data-dir /root/.local/share
     ports:
       - "8825:8888"
       - "9825:9876"

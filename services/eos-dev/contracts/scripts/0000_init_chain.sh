@@ -40,7 +40,7 @@ CONFIG_DIR="$ROOT_DIR/config-dir"
 # move into the executable directory
 cd /opt/eosio/bin/
 
-./nodeos --config-dir /opt/eosio/bin/config-dir --data-dir /root/.local/share -e & echo $! > ./nodeos.pid
+# ./nodeos --config-dir /opt/eosio/bin/config-dir --data-dir /root/.local/share -e & echo $! > ./nodeos.pid
 
 # Only create contract if wallet doesn't exist
 mkdir "$CONFIG_DIR"/keys
@@ -64,15 +64,16 @@ wallet_password=$(./cleos wallet create | awk 'FNR > 3 { print $1 }' | tr -d '"'
 echo $wallet_password > "$CONFIG_DIR"/keys/default_wallet_password.txt
 
 # import wallet keys
-./cleos wallet import $EOSIO_PRIVATE_KEY
-./cleos wallet import $EOSIO_SYS_PVTKEY
-./cleos wallet import $MONSTERS_ACCOUNT_PRIVATE_OWNER_KEY
-./cleos wallet import $MONSTERS_ACCOUNT_PRIVATE_ACTIVE_KEY
-./cleos wallet import $MONSTERS_USERA_PVTKEY
-./cleos wallet import $MONSTERS_USERB_PVTKEY
-./cleos wallet import $MONSTERS_USERC_PVTKEY
-./cleos wallet import $MONSTERS_USERD_PVTKEY
-./cleos wallet import $MONSTERS_USERE_PVTKEY
+sleep 2s
+./cleos wallet import -n default --private-key $EOSIO_PRIVATE_KEY
+./cleos wallet import  -n default --private-key $EOSIO_SYS_PVTKEY
+./cleos wallet import  -n default --private-key $MONSTERS_ACCOUNT_PRIVATE_OWNER_KEY
+./cleos wallet import  -n default --private-key $MONSTERS_ACCOUNT_PRIVATE_ACTIVE_KEY
+./cleos wallet import  -n default --private-key $MONSTERS_USERA_PVTKEY
+./cleos wallet import  -n default --private-key $MONSTERS_USERB_PVTKEY
+./cleos wallet import  -n default --private-key $MONSTERS_USERC_PVTKEY
+./cleos wallet import  -n default --private-key $MONSTERS_USERD_PVTKEY
+./cleos wallet import  -n default --private-key $MONSTERS_USERE_PVTKEY
 
 # create system accounts
 sleep .5
@@ -137,22 +138,22 @@ echo "Finishing node"
 
 DIR="/opt/eosio/bin"
 
-if [ -f $DIR"/nodeos.pid" ]; then
-    pid=`cat $DIR"/nodeos.pid"`
-    echo $pid
-    kill $pid
-    rm -r $DIR"/nodeos.pid"
+# if [ -f $DIR"/nodeos.pid" ]; then
+#     pid=`cat $DIR"/nodeos.pid"`
+#     echo $pid
+#     kill $pid
+#     rm -r $DIR"/nodeos.pid"
 
-    echo -ne "Stoping Nodeos"
+#     echo -ne "Stoping Nodeos"
 
-    while true; do
-        [ ! -d "/proc/$pid/fd" ] && break
-        echo -ne "."
-        sleep 1
-    done
+#     while true; do
+#         [ ! -d "/proc/$pid/fd" ] && break
+#         echo -ne "."
+#         sleep 1
+#     done
     
-    echo -ne "\rNodeos Stopped.    \n"
-fi
+#     echo -ne "\rNodeos Stopped.    \n"
+# fi
 
 if [ -f $DIR"/keosd.pid" ]; then
     pid=`cat $DIR"/keosd.pid"`
