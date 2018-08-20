@@ -3,7 +3,7 @@ version: "3.4"
 services:
 
   postgres:
-    image: postgres:10.0
+    image: postgres:10.4
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     image: monstereos/eosdev
     command: /opt/eosio/bin/nodeos --config-dir /opt/application/config --data-dir /root/.local/share -e
-    ports: 
+    ports:
       - "8830:8888"
       - "9830:9876"
     volumes:

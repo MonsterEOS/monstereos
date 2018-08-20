@@ -5,3 +5,7 @@ curl --request POST \
 curl --request POST \
   --url https://localhost:8826/v1/chain/get_block \
   --data '{"block_num_or_id":"1293913"}'
+
+curl --request POST \
+  --url http://localhost:8830/v1/chain/get_table_rows \
+  --data '{"scope":"monstereosio","code":"monstereosio","table":"pettypes","json":"true", "limit": 5000}'

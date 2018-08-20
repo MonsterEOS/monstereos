@@ -9,7 +9,7 @@ Input parameters:
 * `receiver` (receiver)
 
 ### Intent
-INTENT. The intent of the `{{ transfer }}` action is to deposit or widthdraw EOS tokens to or from the monster bank.
+INTENT. The intent of the `{{ transfer }}` action is to deposit EOS tokens for in-app purchases.
 
 ### Term
 TERM. This Contract expires after code execution.

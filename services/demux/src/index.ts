@@ -1,5 +1,6 @@
+import { BaseActionWatcher } from "demux"
+import { NodeosActionReader } from "demux-eos"
 import { MassiveActionHandler } from "demux-postgres"
-import { readers, watchers } from "demux-js"
 import massive from "massive"
 import { effects } from "./effects"
 import { updaters } from "./updaters"
@@ -23,16 +24,30 @@ const dbConfig = {
 
 console.info("DB Config >>>\n", dbConfig)
 
-const { eos: { NodeosActionReader } } = readers
-const { BaseActionWatcher } = watchers
+const init = async () => {
 
-massive(dbConfig).then((db: any) => {
+  const db = await massive(dbConfig)
 
-  // console.info("Massive DB result \n", db)
+  const actionHandler = new MassiveActionHandler(
+    updaters,
+    effects,
+    db,
+    dbConfig.schema,
+  )
 
-  const actionHandler = new MassiveActionHandler(updaters, effects, db, dbConfig.schema)
-  const actionReader = new NodeosActionReader(NODEOS, INITIAL_BLOCK)
-  const actionWatcher = new BaseActionWatcher(actionReader, actionHandler, 500)
+  const actionReader = new NodeosActionReader(
+    NODEOS,
+    INITIAL_BLOCK,
+  )
+
+  const actionWatcher = new BaseActionWatcher(
+    actionReader,
+    actionHandler,
+    500,
+  )
 
   actionWatcher.watch()
-})
+
+}
+
+init()
