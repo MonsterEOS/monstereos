@@ -34,11 +34,12 @@ MONSTERS_USERE_PUBKEY="EOS5VdFvRRTtVQAPUJZQCYvpBekYV4nc1cFe7og9aYPTBMXZ38Koy"
 
 ROOT_DIR="/opt/eosio/bin"
 CLEOS_PATH="$ROOT_DIR/cleos"
-SCRIPTS_DIR="$ROOT_DIR/contracts/scripts"
-CONFIG_DIR="$ROOT_DIR/config-dir"
+SCRIPTS_DIR="/opt/application/scripts"
+CONFIG_DIR="/opt/application/config"
+CONTRACTS_DIR="/opt/application/contracts"
 
 # move into the executable directory
-cd /opt/eosio/bin/
+cd $ROOT_DIR
 
 # ./nodeos --config-dir /opt/eosio/bin/config-dir --data-dir /root/.local/share -e & echo $! > ./nodeos.pid
 
@@ -58,22 +59,20 @@ sleep 2s
 echo "Creating accounts and deploying wallets"
 
 # start wallet
-# python3 $SCRIPTS_DIR/utils/bootstrap-chain.py -w
-./keosd --unlock-timeout 50000 > ./keosd-stdout.txt 2> ./keosd-stderr.txt &  echo $! > ./keosd.pid
 wallet_password=$(./cleos wallet create | awk 'FNR > 3 { print $1 }' | tr -d '"')
 echo $wallet_password > "$CONFIG_DIR"/keys/default_wallet_password.txt
 
 # import wallet keys
 sleep 2s
 ./cleos wallet import -n default --private-key $EOSIO_PRIVATE_KEY
-./cleos wallet import  -n default --private-key $EOSIO_SYS_PVTKEY
-./cleos wallet import  -n default --private-key $MONSTERS_ACCOUNT_PRIVATE_OWNER_KEY
-./cleos wallet import  -n default --private-key $MONSTERS_ACCOUNT_PRIVATE_ACTIVE_KEY
-./cleos wallet import  -n default --private-key $MONSTERS_USERA_PVTKEY
-./cleos wallet import  -n default --private-key $MONSTERS_USERB_PVTKEY
-./cleos wallet import  -n default --private-key $MONSTERS_USERC_PVTKEY
-./cleos wallet import  -n default --private-key $MONSTERS_USERD_PVTKEY
-./cleos wallet import  -n default --private-key $MONSTERS_USERE_PVTKEY
+./cleos wallet import -n default --private-key $EOSIO_SYS_PVTKEY
+./cleos wallet import -n default --private-key $MONSTERS_ACCOUNT_PRIVATE_OWNER_KEY
+./cleos wallet import -n default --private-key $MONSTERS_ACCOUNT_PRIVATE_ACTIVE_KEY
+./cleos wallet import -n default --private-key $MONSTERS_USERA_PVTKEY
+./cleos wallet import -n default --private-key $MONSTERS_USERB_PVTKEY
+./cleos wallet import -n default --private-key $MONSTERS_USERC_PVTKEY
+./cleos wallet import -n default --private-key $MONSTERS_USERD_PVTKEY
+./cleos wallet import -n default --private-key $MONSTERS_USERE_PVTKEY
 
 # create system accounts
 sleep .5
@@ -123,51 +122,26 @@ sleep .5
 cleos transfer eosio monstereosio "1000000.0000 SYS"
 cleos transfer eosio monstereosio "1000000.0000 EOS"
 
-sleep 2s
+
+echo "Compiling monsters Contract"
+./eosiocpp -o "$CONTRACTS_DIR"/pet/pet.wast "$CONTRACTS_DIR"/pet/pet.cpp
+
+echo "Deploying Monsters Contract"
+cleos set contract monstereosio "$CONTRACTS_DIR"/pet
+
+sleep .5
+echo "Creating players"
+cleos system newaccount eosio --transfer $MONSTERS_USERA_ACCOUNT $MONSTERS_USERA_PUBKEY $MONSTERS_USERA_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+sleep .5
+cleos system newaccount eosio --transfer $MONSTERS_USERB_ACCOUNT $MONSTERS_USERB_PUBKEY $MONSTERS_USERB_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+sleep .5
+cleos system newaccount eosio --transfer $MONSTERS_USERC_ACCOUNT $MONSTERS_USERC_PUBKEY $MONSTERS_USERC_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+sleep .5
+cleos system newaccount eosio --transfer $MONSTERS_USERD_ACCOUNT $MONSTERS_USERD_PUBKEY $MONSTERS_USERD_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+sleep .5
+cleos system newaccount eosio --transfer $MONSTERS_USERE_ACCOUNT $MONSTERS_USERE_PUBKEY $MONSTERS_USERE_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+
 echo "Waiting for node boostraping to complete"
-
-#     for f in "$SCRIPTS_DIR"/public/*; do
-#         echo "Executing $f..."
-#         $f $CLEOS_PATH $CONFIG_DIR $SCRIPTS_DIR
-#     done
-
-# shut down nodeos, allow 2 seconds to lead out with at least 4 blocks after committing contracts
 sleep 2s
 
-echo "Finishing node"
-
-DIR="/opt/eosio/bin"
-
-# if [ -f $DIR"/nodeos.pid" ]; then
-#     pid=`cat $DIR"/nodeos.pid"`
-#     echo $pid
-#     kill $pid
-#     rm -r $DIR"/nodeos.pid"
-
-#     echo -ne "Stoping Nodeos"
-
-#     while true; do
-#         [ ! -d "/proc/$pid/fd" ] && break
-#         echo -ne "."
-#         sleep 1
-#     done
-    
-#     echo -ne "\rNodeos Stopped.    \n"
-# fi
-
-if [ -f $DIR"/keosd.pid" ]; then
-    pid=`cat $DIR"/keosd.pid"`
-    echo $pid
-    kill $pid
-    rm -r $DIR"/keosd.pid"
-
-    echo -ne "Stoping keosd"
-
-    while true; do
-        [ ! -d "/proc/$pid/fd" ] && break
-        echo -ne "."
-        sleep 1
-    done
-    
-    echo -ne "\rkeosd Stopped.    \n"
-fi
+echo "Initialization Complete"

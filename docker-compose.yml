@@ -21,14 +21,13 @@ services:
       context: ./services/eos-dev
       dockerfile: Dockerfile
     image: monstereos/eosdev
-    command: /opt/eosio/bin/nodeos --config-dir /opt/eosio/bin/config-dir --data-dir /root/.local/share -e
+    command: /opt/eosio/bin/nodeos --config-dir /opt/application/config --data-dir /root/.local/share -e
     ports: 
       - "8830:8888"
       - "9830:9876"
     volumes:
-      - eosiochaindev:/root/.local/share
-      - ./contracts:/opt/contracts
-      - ./config-dir:/opt/eosio/bin/config-dir
+      - eosiodevapp:/root/.local/share
+      - ./services/eos-dev:/opt/application
 
   eosiojn11:
     build:
@@ -97,5 +96,5 @@ volumes:
   eosiochainjn11:
   eosiochainjn12:
   eosiochainmn:
-  eosiochaindev:
+  eosiodevapp:
   postgres:
