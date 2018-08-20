@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -m
 EOSIO_PRIVATE_KEY="5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 EOSIO_PUBLIC_KEY="EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
 
@@ -47,13 +46,13 @@ cd $ROOT_DIR
 mkdir "$CONFIG_DIR"/keys
 
 sleep 1s
-    until curl localhost:8888/v1/chain/get_info
+    until curl eosiodev:8888/v1/chain/get_info
 do
     sleep 1s
 done
 
-# Sleep for 2 secs to allow time to 4 blocks to be 
-# created so we have blocks to reference when 
+# Sleep for 2 secs to allow time to 4 blocks to be
+# created so we have blocks to reference when
 # sending transactions
 sleep 2s
 echo "Creating accounts and deploying wallets"
@@ -76,70 +75,70 @@ sleep 2s
 
 # create system accounts
 sleep .5
-./cleos create account eosio eosio.bpay $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos -u http://eosiodev:8888 create account eosio eosio.bpay $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 sleep .5
-./cleos create account eosio eosio.msig $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos -u http://eosiodev:8888 create account eosio eosio.msig $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 sleep .5
-./cleos create account eosio eosio.names $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos  -u http://eosiodev:8888 create account eosio eosio.names $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 sleep .5
-./cleos create account eosio eosio.ram $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos  -u http://eosiodev:8888 create account eosio eosio.ram $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 sleep .5
-./cleos create account eosio eosio.ramfee $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos  -u http://eosiodev:8888 create account eosio eosio.ramfee $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 sleep .5
-./cleos create account eosio eosio.saving $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos  -u http://eosiodev:8888 create account eosio eosio.saving $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 sleep .5
-./cleos create account eosio eosio.stake $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos  -u http://eosiodev:8888 create account eosio eosio.stake $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 sleep .5
-./cleos create account eosio eosio.token $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos  -u http://eosiodev:8888 create account eosio eosio.token $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 sleep .5
-./cleos create account eosio eosio.vpay $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
+./cleos  -u http://eosiodev:8888 create account eosio eosio.vpay $EOSIO_SYS_PUBKEY $EOSIO_SYS_PUBKEY
 
 # deploy system account contracts
 sleep .5
-./cleos set contract eosio.token /contracts/eosio.token
+./cleos -u http://eosiodev:8888 set contract eosio.token /contracts/eosio.token
 sleep .5
-./cleos set contract eosio.msig /contracts/eosio.msig
+./cleos -u http://eosiodev:8888 set contract eosio.msig /contracts/eosio.msig
 
 # issue tokens
 sleep .5
-./cleos push action eosio.token create '["eosio", "10000000000.0000 SYS"]' -p eosio.token
+./cleos -u http://eosiodev:8888 push action eosio.token create '["eosio", "10000000000.0000 SYS"]' -p eosio.token
 sleep .5
-./cleos push action eosio.token issue '["eosio", "100000000.0000 SYS", "memo"]' -p eosio
+./cleos -u http://eosiodev:8888 push action eosio.token issue '["eosio", "100000000.0000 SYS", "memo"]' -p eosio
 sleep .5
-./cleos push action eosio.token create '["eosio", "10000000000.0000 EOS"]' -p eosio.token
+./cleos -u http://eosiodev:8888 push action eosio.token create '["eosio", "10000000000.0000 EOS"]' -p eosio.token
 sleep .5
-./cleos push action eosio.token issue '["eosio", "100000000.0000 EOS", "memo"]' -p eosio
+./cleos -u http://eosiodev:8888 push action eosio.token issue '["eosio", "100000000.0000 EOS", "memo"]' -p eosio
 
 # deploy the system contract
 sleep 2s
-./cleos set contract eosio /contracts/eosio.system
+./cleos -u http://eosiodev:8888 set contract eosio /contracts/eosio.system
 
 # Create the monstereosio account
 sleep 2s
 echo "Creating MonsterEOS account"
-cleos system newaccount eosio --transfer monstereosio $MONSTERS_ACCOUNT_PUBLIC_OWNER_KEY $MONSTERS_ACCOUNT_PUBLIC_ACTIVE_KEY --stake-net "100000.0000 SYS" --stake-cpu "100000.0000 SYS" --buy-ram "100000.000 SYS"
+cleos -u http://eosiodev:8888 system newaccount eosio --transfer monstereosio $MONSTERS_ACCOUNT_PUBLIC_OWNER_KEY $MONSTERS_ACCOUNT_PUBLIC_ACTIVE_KEY --stake-net "100000.0000 SYS" --stake-cpu "100000.0000 SYS" --buy-ram "100000.000 SYS"
 sleep .5
-cleos transfer eosio monstereosio "1000000.0000 SYS"
-cleos transfer eosio monstereosio "1000000.0000 EOS"
+cleos -u http://eosiodev:8888 transfer eosio monstereosio "1000000.0000 SYS"
+cleos -u http://eosiodev:8888 transfer eosio monstereosio "1000000.0000 EOS"
 
 
 echo "Compiling monsters Contract"
 ./eosiocpp -o "$CONTRACTS_DIR"/pet/pet.wast "$CONTRACTS_DIR"/pet/pet.cpp
 
 echo "Deploying Monsters Contract"
-cleos set contract monstereosio "$CONTRACTS_DIR"/pet
+cleos -u http://eosiodev:8888 set contract monstereosio "$CONTRACTS_DIR"/pet
 
 sleep .5
 echo "Creating players"
-cleos system newaccount eosio --transfer $MONSTERS_USERA_ACCOUNT $MONSTERS_USERA_PUBKEY $MONSTERS_USERA_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+cleos -u http://eosiodev:8888 system newaccount eosio --transfer $MONSTERS_USERA_ACCOUNT $MONSTERS_USERA_PUBKEY $MONSTERS_USERA_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
 sleep .5
-cleos system newaccount eosio --transfer $MONSTERS_USERB_ACCOUNT $MONSTERS_USERB_PUBKEY $MONSTERS_USERB_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+cleos -u http://eosiodev:8888 system newaccount eosio --transfer $MONSTERS_USERB_ACCOUNT $MONSTERS_USERB_PUBKEY $MONSTERS_USERB_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
 sleep .5
-cleos system newaccount eosio --transfer $MONSTERS_USERC_ACCOUNT $MONSTERS_USERC_PUBKEY $MONSTERS_USERC_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+cleos -u http://eosiodev:8888 system newaccount eosio --transfer $MONSTERS_USERC_ACCOUNT $MONSTERS_USERC_PUBKEY $MONSTERS_USERC_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
 sleep .5
-cleos system newaccount eosio --transfer $MONSTERS_USERD_ACCOUNT $MONSTERS_USERD_PUBKEY $MONSTERS_USERD_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+cleos -u http://eosiodev:8888 system newaccount eosio --transfer $MONSTERS_USERD_ACCOUNT $MONSTERS_USERD_PUBKEY $MONSTERS_USERD_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
 sleep .5
-cleos system newaccount eosio --transfer $MONSTERS_USERE_ACCOUNT $MONSTERS_USERE_PUBKEY $MONSTERS_USERE_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
+cleos -u http://eosiodev:8888 system newaccount eosio --transfer $MONSTERS_USERE_ACCOUNT $MONSTERS_USERE_PUBKEY $MONSTERS_USERE_PUBKEY --stake-net "10.0000 SYS" --stake-cpu "10.0000 SYS" --buy-ram "10.000 SYS"
 
 echo "Waiting for node boostraping to complete"
 sleep 2s

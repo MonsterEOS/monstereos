@@ -34,7 +34,7 @@ You can build any Dapp using the above structure. Tweak the structure a little b
 
 ### Initialize Chain and Setup Database
 
-// TODO: improve it!
+// TODO: improve it! (run ./setup.sh after running docker-compose up -d)
 
 1. execute the eosiodev container and run the scripts to initialize the chain with some data
 2. open demux folder and execute `yarn migrate` to create basic tables in database
