@@ -1,5 +1,5 @@
-const logPetCreated = (state: any) => {
-  console.info("Pet Created ===> State updated:\n", JSON.stringify(state, null, 2))
+const logPetCreated = (_state: any, payload: any) => {
+  console.info("Pet Created ===> Payload:\n", payload)
 }
 
 const effects = [

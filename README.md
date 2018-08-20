@@ -13,7 +13,7 @@ cd monstereos
 
 We structured everything in microservices and it can be automagically initialized by docker! Don't be afraid of docker, a lot of people hear docker and run away but we already did the hard part (configuration) for you. You will just need to install docker in your computer (a simple installer that you will press next next next finish lol).
 
-After you installed docker just run the following command (one line of code).
+After you installed docker just run the following single command:
 
 ```
 docker-compose up -d
@@ -31,6 +31,16 @@ Open Kitematic (a nice UI for docker containers management that comes by default
 ### EOS Dream Stack
 
 You can build any Dapp using the above structure. Tweak the structure a little bit to satisfy all your needs, i.e.: you can change the postgres for other database as mongo or mysql; you might not need the backend if your app is very basic, allowing the frontend to read directly from the chain; change the frontend to whatever framework you want to use as Vue or Angular, not only this but your frontend can be a mobile native app, why not?
+
+### Initialize Chain and Setup Database
+
+// TODO: improve it!
+
+1. execute the eosiodev container and run the scripts to initialize the chain with some data
+2. open demux folder and execute `yarn migrate` to create basic tables in database
+3. restart demux
+4. enjoy your app
+
 
 ## About
 

@@ -29,18 +29,18 @@ services:
       - eosiodevapp:/root/.local/share
       - ./services/eos-dev:/opt/application
 
-  eosiojn11:
-    build:
-      context: ./services/eos-node
-      dockerfile: Dockerfile
-    image: monstereos/eosiojn11
-    # command: /opt/eosio/bin/start-node.sh
-    command: /opt/eosio/bin/nodeos --config-dir=/opt/eosio/bin/data-dir --data-dir /root/.local/share
-    ports:
-      - "8825:8888"
-      - "9825:9876"
-    volumes:
-      - eosiochainjn11:/root/.local/share
+  # eosiojn11:
+  #   build:
+  #     context: ./services/eos-node
+  #     dockerfile: Dockerfile
+  #   image: monstereos/eosiojn11
+  #   # command: /opt/eosio/bin/start-node.sh
+  #   command: /opt/eosio/bin/nodeos --config-dir=/opt/eosio/bin/data-dir --data-dir /root/.local/share
+  #   ports:
+  #     - "8825:8888"
+  #     - "9825:9876"
+  #   volumes:
+  #     - eosiochainjn11:/root/.local/share
 
   # eosiojn12:
   #   build:
@@ -56,19 +56,19 @@ services:
   #   volumes:
   #     - eosiochainjn12:/root/.local/share
 
-  eosiomn12:
-    build:
-      context: ./services/eos-node12
-      dockerfile: Dockerfile
-    environment:
-      - DATADIR=/root/.local/share
-    image: monstereos/eosiomn
-    command: /opt/eosio/bin/start-node.sh
-    ports:
-      - "8826:8888"
-      - "9826:9876"
-    volumes:
-      - eosiochainmn:/root/.local/share
+  # eosiomn12:
+  #   build:
+  #     context: ./services/eos-node12
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - DATADIR=/root/.local/share
+  #   image: monstereos/eosiomn
+  #   command: /opt/eosio/bin/start-node.sh
+  #   ports:
+  #     - "8826:8888"
+  #     - "9826:9876"
+  #   volumes:
+  #     - eosiochainmn:/root/.local/share
 
   demux:
     build:
@@ -79,16 +79,16 @@ services:
     image: monstereos/demux
     depends_on:
       - postgres
-      - eosiojn11
+      - eosiodev
     environment:
       DB_USER: user
       DB_PASSWORD: pass
       DB_PORT: 5432
       DB_NAME: monstereosio
       DB_HOST: postgres
-      DB_SCHEMA: monstereosio
-      CHAIN_HOST: "http://eosiojn11:8825"
-      CHAIN_INIT_BLOCK: 2838000
+      DB_SCHEMA: pets
+      CHAIN_HOST: "http://eosiodev:8888"
+      # CHAIN_INIT_BLOCK: 100
     ports:
       - "4005:4005"
 
