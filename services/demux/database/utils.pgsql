@@ -3,6 +3,7 @@ SELECT * FROM "pets"."_index_state" LIMIT 1000;
 SELECT * FROM "pets"."elements" LIMIT 1000;
 SELECT * FROM "pets"."types" LIMIT 1000;
 SELECT * FROM "pets"."pets" LIMIT 1000;
+SELECT * FROM "pets"."pet_actions" LIMIT 1000;
 
 -- DELETE FROM "pets"."_index_state";
 -- SELECT last_value FROM "pets".elements_id_seq;
@@ -60,8 +61,8 @@ CREATE TABLE IF NOT EXISTS "pets"."pets" (
   "pet_name" TEXT NOT NULL,
   "type_id" INTEGER DEFAULT -1 NOT NULL,
   "owner" TEXT NOT NULL,
-  "death_at" TIMESTAMP,
-  "destroyed_at" TIMESTAMP,
+  "death_at" TIMESTAMP DEFAULT '1970-01-01T00:00:00' NOT NULL,
+  "destroyed_at" TIMESTAMP DEFAULT '1970-01-01T00:00:00' NOT NULL,
   "created_at" TIMESTAMP NOT NULL,
   "created_block" BIGINT NOT NULL,
   "created_trx" TEXT NOT NULL,

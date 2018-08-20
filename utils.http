@@ -9,3 +9,6 @@ curl --request POST \
 curl --request POST \
   --url http://localhost:8830/v1/chain/get_table_rows \
   --data '{"scope":"monstereosio","code":"monstereosio","table":"pettypes","json":"true", "limit": 5000}'
+
+curl --request GET \
+  --url http://localhost:8830/v1/chain/get_info

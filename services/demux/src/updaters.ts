@@ -65,6 +65,49 @@ const addelemttype = async (db: any, payload: any, blockInfo: BlockInfo) => {
 
 }
 
+const addAction = async (db: any, payload: any, blockInfo: BlockInfo) => {
+
+  console.info("\n\n==== Add Pet Action ====")
+  console.info("\n\nUpdater Payload >>> \n", payload)
+  console.info("\n\nUpdater Block Info >>> \n", blockInfo)
+
+  const data = {
+    pet_id: payload.data.pet_id,
+    action: payload.name,
+    is_invalid: false,
+    created_block: blockInfo.blockNumber,
+    created_trx: payload.transactionId,
+    created_at: blockInfo.timestamp,
+    created_eosacc: payload.authorization[0].actor,
+  }
+
+  console.info("DB Data to Insert >>> ", data)
+
+  const res = await db.pet_actions.insert(data)
+
+  console.info("DB State Result >>> ", res)
+
+}
+
+const destroypet = async (db: any, payload: any, blockInfo: BlockInfo) => {
+
+  console.info("\n\n==== Destroy Pet ====")
+  console.info("\n\nUpdater Payload >>> \n", payload)
+  console.info("\n\nUpdater Block Info >>> \n", blockInfo)
+
+  const data = {
+    id: payload.data.pet_id,
+    destroyed_at: blockInfo.timestamp,
+  }
+
+  console.info("DB Data to Insert >>> ", data)
+
+  const res = await db.pets.update(data)
+
+  console.info("DB State Result >>> ", res)
+
+}
+
 const updaters = [
   {
     actionType: "monstereosio::createpet",
@@ -77,6 +120,22 @@ const updaters = [
   {
     actionType: "monstereosio::addelemttype",
     updater: addelemttype,
+  },
+  {
+    actionType: "monstereosio::feedpet",
+    updater: addAction,
+  },
+  {
+    actionType: "monstereosio::bedpet",
+    updater: addAction,
+  },
+  {
+    actionType: "monstereosio::awakepet",
+    updater: addAction,
+  },
+  {
+    actionType: "monstereosio::destroypet",
+    updater: destroypet,
   },
 ]
 
