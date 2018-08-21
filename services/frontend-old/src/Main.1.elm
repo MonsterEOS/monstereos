@@ -2973,29 +2973,6 @@ rankContent model =
             ]
 
 
-pageFooter : Html Msg
-pageFooter =
-    footer [ class "footer" ]
-        [ div [ class "container" ]
-            [ div [ class "content has-text-centered" ]
-                [ p []
-                    [ strong []
-                        [ text "MonsterEOS" ]
-                    , text " "
-                    , a [ href "https://github.com/leordev/monstereos" ]
-                        [ text "GitHub" ]
-                    , text " - The source code is licensed "
-                    , a [ href "http://opensource.org/licenses/mit-license.php" ]
-                        [ text "MIT" ]
-                    , text "."
-                    , a [ href "https://t.me/joinchat/Hel9rgyuHrEwzsjG2SlUNQ" ]
-                        [ text "Telegram" ]
-                    ]
-                ]
-            ]
-        ]
-
-
 view : Model -> Html Msg
 view model =
     let

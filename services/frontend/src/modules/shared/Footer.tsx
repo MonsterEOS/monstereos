@@ -8,11 +8,11 @@ const Footer = (props: any) => (
           <strong>MonsterEOS</strong> - The source code is licensed <a href="http://github.com/MonsterEOS/monstereos/LICENSE">MIT</a>.
         </p>
         <p>
-          <a href="https://github.com/MonsterEOS/monstereos">
+          <a href="https://github.com/MonsterEOS/monstereos" target="_blank">
             <i className="fa fa-2x fa-github" />
           </a>
           {" | "}
-          <a href="https://t.me/joinchat/Hel9rgyuHrEwzsjG2SlUNQ">
+          <a href="https://t.me/joinchat/Hel9rgyuHrEwzsjG2SlUNQ" target="_blank">
             <i className="fa fa-2x fa-telegram" />
           </a>
         </p>

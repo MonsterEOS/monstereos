@@ -88,7 +88,7 @@ services:
       DB_HOST: postgres
       DB_SCHEMA: pets
       CHAIN_HOST: "http://eosiodev:8888"
-      CHAIN_INIT_BLOCK: 179140
+      CHAIN_INIT_BLOCK: 208049
     ports:
       - "4005:4005"
 

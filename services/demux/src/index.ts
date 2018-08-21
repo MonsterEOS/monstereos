@@ -2,6 +2,8 @@ import { BaseActionWatcher } from "demux"
 import { NodeosActionReader } from "demux-eos"
 import { MassiveActionHandler } from "demux-postgres"
 import massive from "massive"
+import monitor from "pg-monitor"
+
 import { effects } from "./effects"
 import { updaters } from "./updaters"
 
@@ -27,6 +29,8 @@ console.info("DB Config >>>\n", dbConfig)
 const init = async () => {
 
   const db = await massive(dbConfig)
+
+  monitor.attach(db.driverConfig)
 
   const actionHandler = new MassiveActionHandler(
     updaters,

@@ -4,13 +4,20 @@
   "author": "Leo Ribeiro",
   "license": "MIT",
   "dependencies": {
+    "@types/node-fetch": "^2.1.2",
     "demux": "^1.0.4-hotfix",
     "demux-eos": "^1.0.1",
     "demux-postgres": "^0.0.5",
     "dockerode": "^2.5.5",
     "dotenv": "^6.0.0",
+    "eosjs2": "^0.0.12",
+    "express": "^4.16.3",
+    "graphile-utils": "^4.0.0-rc.5",
     "massive": "^5.2.0",
-    "pm2": "^3.0.0"
+    "node-fetch": "^2.2.0",
+    "pg-monitor": "^1.0.0",
+    "pm2": "^3.0.0",
+    "postgraphile": "^4.0.0-rc.3"
   },
   "devDependencies": {
     "@types/dockerode": "^2.5.5",

@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS "${schema^}"."pets" (
 
 CREATE TABLE IF NOT EXISTS "${schema^}"."pet_actions" (
   "id" SERIAL PRIMARY KEY,
-  "pet_id" INTEGER NOT NULL,
+  "pet_id" INTEGER NOT NULL REFERENCES "${schema^}"."pets",
   "action" TEXT NOT NULL,
   "is_invalid" BOOLEAN NOT NULL,
   "created_at" TIMESTAMP NOT NULL,
