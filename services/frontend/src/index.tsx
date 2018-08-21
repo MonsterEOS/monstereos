@@ -6,11 +6,12 @@ import { HttpLink } from "apollo-link-http"
 import { InMemoryCache } from "apollo-cache-inmemory"
 import { ApolloProvider } from "react-apollo"
 
+import "./api/scatter"
 import App from "./App"
 import registerServiceWorker from "./registerServiceWorker"
 
 const httpLink = new HttpLink({
-  uri: process.env.GRAPHQL_ENDPOINT,
+  uri: process.env.GRAPHQL_ENDPOINT || "http://localhost:3030/graphql",
 })
 
 const client = new ApolloClient({

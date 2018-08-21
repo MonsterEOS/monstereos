@@ -4,7 +4,9 @@
   "author": "Leo Ribeiro",
   "license": "MIT",
   "dependencies": {
+    "@types/cors": "^2.8.4",
     "@types/node-fetch": "^2.1.2",
+    "cors": "^2.8.4",
     "demux": "^1.0.4-hotfix",
     "demux-eos": "^1.0.1",
     "demux-postgres": "^0.0.5",

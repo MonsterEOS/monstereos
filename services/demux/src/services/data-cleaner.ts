@@ -52,12 +52,19 @@ const updatePetsWithoutTypes = async (db: any) => {
   }
 }
 
+// clean old arenas
+const cleanOldArenas = async (_db: any) => {
+  // TODO: implement
+}
+
 // main loop that read and updates data
 const loop = async (db: any) => {
 
   console.info("Data Cleaner Loop")
 
   await updatePetsWithoutTypes(db)
+
+  await cleanOldArenas(db)
 
   setTimeout(() => loop(db), 500)
 

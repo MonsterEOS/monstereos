@@ -1,8 +1,10 @@
+import cors from "cors"
 import express from "express"
-// import { makeExtendSchemaPlugin, gql } from "graphile-utils"
 import { postgraphile } from "postgraphile"
 
 const app = express()
+
+app.use(cors())
 
 const dbConfig = {
   user: process.env.DB_USER || "user",
@@ -24,4 +26,5 @@ app.use(
   ),
 )
 
+console.info("postgraphile listening at 3030")
 app.listen(3030)
