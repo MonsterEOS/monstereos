@@ -1,0 +1,51 @@
+// monster images filters
+// dead monsters must be grayscaled
+@mixin filter($filter-type,$filter-amount) {
+  -webkit-filter: $filter-type+unquote('(#{$filter-amount})');
+  -moz-filter: $filter-type+unquote('(#{$filter-amount})');
+  -ms-filter: $filter-type+unquote('(#{$filter-amount})');
+  -o-filter: $filter-type+unquote('(#{$filter-amount})');
+  filter: $filter-type+unquote('(#{$filter-amount})');
+}
+
+@mixin grayscale_element($value) {
+    -webkit-filter: #{"grayscale(#{$value})"};
+    -moz-filter: #{"grayscale(#{$value})"};
+    filter:#{"grayscale(#{$value})"};
+}
+
+// hp animation
+@keyframes slideInFromBottom {
+  0% {
+    transform: translateY(150%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.grayscale {
+    @include grayscale_element(100%);
+    transition: all 200ms ease-in-out;
+    opacity: 0.3;
+    &:hover {
+        @include grayscale_element(30%);
+    }
+}
+
+.sleeping {
+  @include filter(brightness, 5%);
+}
+
+.monster-image {
+  max-height: 300px !important;
+}
+
+.home-monster {
+  max-height: 300px !important;
+}
+
+.monster-column {
+  min-width: 360px;
+  max-width: 400px;
+}

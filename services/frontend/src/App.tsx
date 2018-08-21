@@ -1,14 +1,28 @@
 import * as React from "react"
 import { Switch, Route } from "react-router-dom"
-import HomeScreen from "./modules/HomeScreen"
+import TopMenu from "./modules/shared/TopMenu"
+import HomeScreen from "./modules/pages/HomeScreen"
+import RankScreen from "./modules/pages/RankScreen"
+import AboutScreen from "./modules/pages/AboutScreen"
+import FaqScreen from "./modules/pages/FaqScreen"
 
-// import "./modules/core/styles/core.css"
+// import "bulma"
+import "bulma/css/bulma.css"
+import "./styles/index.css"
+import Footer from "./modules/shared/Footer"
 
 class App extends React.Component<{}, {}> {
   public render() {
     return (
-      <Switch>
-        <Route path="/" exact component={HomeScreen} />
+      <Switch >
+        <React.Fragment>
+          <TopMenu />
+          <Route path="/" exact component={HomeScreen} />
+          <Route path="/rank" exact component={RankScreen} />
+          <Route path="/about" exact component={AboutScreen} />
+          <Route path="/faq" exact component={FaqScreen} />
+          <Footer />
+        </React.Fragment>
       </Switch>
     )
   }

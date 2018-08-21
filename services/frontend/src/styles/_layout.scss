@@ -1,0 +1,60 @@
+// design/layout
+.navbar-item.is-active {
+  color: $blue!important;
+}
+
+// layout
+form {
+  margin-bottom: 20px;
+}
+
+.help-button {
+  margin-right: 40px;
+  margin-left: 40px;
+}
+
+.new-monster-button {
+  margin: 25px;
+}
+
+.footer {
+  margin-top: 50px;
+}
+
+.greetings {
+  span { margin-left: 6px !important; }
+}
+
+@media screen and (min-width: 769px) {
+  // .sound-link {
+  //   margin-top: -20px;
+  //   margin-left: 20px;
+  // }
+
+  .coin-column {
+    min-width: 500px;
+    max-width: 550px;
+  }
+}
+
+.has-margin-top {
+  margin-top: 16px;
+}
+
+/* toast */
+.toast {
+  position: fixed;
+  width: 365px;
+  right: -365px;
+  top: 5em;
+  z-index: 9999;
+
+  .notification {
+      transition: 0.15s ease-in-out;
+      width: 325px;
+  }
+
+  .notification.on {
+    transform: translateX(-365px);
+  }
+}

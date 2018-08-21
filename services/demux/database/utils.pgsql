@@ -2,14 +2,15 @@ INSERT INTO "pets"."_index_state" (id, block_number, block_hash, is_replay) VALU
 SELECT * FROM "pets"."_index_state" LIMIT 1000;
 SELECT * FROM "pets"."elements" LIMIT 1000;
 SELECT * FROM "pets"."types" LIMIT 1000;
-SELECT * FROM "pets"."pets" LIMIT 1000;
+SELECT * FROM "pets"."pets" ORDER BY id LIMIT 1000;
 SELECT * FROM "pets"."pet_actions" LIMIT 1000;
 
 -- DELETE FROM "pets"."_index_state";
 -- SELECT last_value FROM "pets".elements_id_seq;
 -- SELECT c.relname FROM pg_class c WHERE c.relkind = 'S';
 
--- DELETE FROM pets.pet_actions WHERE id >= 21;
+DELETE FROM pets.pet_actions WHERE id >= 21;
+DELETE FROM pets.pets WHERE id >= 12;
 
 DELETE FROM "pets"."types";
 ALTER SEQUENCE "pets".types_id_seq MINVALUE 0;
@@ -20,7 +21,8 @@ ALTER SEQUENCE "pets".elements_id_seq MINVALUE 0;
 ALTER SEQUENCE "pets".elements_id_seq RESTART WITH 0;
 
 DELETE FROM "pets"."pets";
-ALTER SEQUENCE "pets".pets_id_seq RESTART WITH 1;
+ALTER SEQUENCE "pets".pets_id_seq RESTART WITH 12;
+ALTER SEQUENCE "pets".pet_actions_id_seq RESTART WITH 21;
 
 DROP TABLE "pets"."elements";
 DROP TABLE "pets"."types";

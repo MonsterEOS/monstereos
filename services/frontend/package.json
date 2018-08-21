@@ -8,6 +8,7 @@
     "@types/history": "^4.7.0",
     "@types/react-router-dom": "^4.3.0",
     "apollo-boost": "^0.1.13",
+    "bulma": "^0.7.1",
     "classnames": "^2.2.6",
     "enzyme": "^3.4.1",
     "enzyme-adapter-react-16": "^1.2.0",
