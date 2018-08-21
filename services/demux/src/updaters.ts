@@ -96,13 +96,13 @@ const destroypet = async (db: any, payload: any, blockInfo: BlockInfo) => {
   console.info("\n\nUpdater Block Info >>> \n", blockInfo)
 
   const data = {
-    id: payload.data.pet_id,
-    destroyed_at: blockInfo.timestamp,
+    criteria: { id: payload.data.pet_id },
+    statement: { destroyed_at: blockInfo.timestamp },
   }
 
   console.info("DB Data to Insert >>> ", data)
 
-  const res = await db.pets.update(data)
+  const res = await db.pets.update(data.criteria, data.statement)
 
   console.info("DB State Result >>> ", res)
 

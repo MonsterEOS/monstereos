@@ -9,6 +9,8 @@ SELECT * FROM "pets"."pet_actions" LIMIT 1000;
 -- SELECT last_value FROM "pets".elements_id_seq;
 -- SELECT c.relname FROM pg_class c WHERE c.relkind = 'S';
 
+-- DELETE FROM pets.pet_actions WHERE id >= 21;
+
 DELETE FROM "pets"."types";
 ALTER SEQUENCE "pets".types_id_seq MINVALUE 0;
 ALTER SEQUENCE "pets".types_id_seq RESTART WITH 0;
