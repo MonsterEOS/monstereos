@@ -17,6 +17,17 @@ After you installed docker just run the following single command:
 
 ```
 docker-compose up -d
+docker-compose run demux yarn _migrate # credentials: user // pass  (for three steps)
+*from a psql connected to this postgres docker:* INSERT INTO "pets"."_index_state" (id, block_number, block_hash, is_replay) VALUES (0, 10, '', false);
+docker restart monstereos_demux_1
+
+docker exec -it monstereos_eosiodev_1 /bin/sh
+
+cd /opt/application/scripts
+./0000_init-chain.sh
+./0010_load-elements.sh
+./0020_load-pet-types.sh
+./0030_load-data.sh
 ```
 
 Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:

@@ -1,4 +1,4 @@
-INSERT INTO "pets"."_index_state" (id, block_number, block_hash, is_replay) VALUES (0, 99, '', false);
+INSERT INTO "pets"."_index_state" (id, block_number, block_hash, is_replay) VALUES (0, 10, '', false);
 SELECT * FROM "pets"."_index_state" LIMIT 1000;
 SELECT * FROM "pets"."elements" LIMIT 1000;
 SELECT * FROM "pets"."types" LIMIT 1000;
