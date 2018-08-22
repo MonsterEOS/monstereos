@@ -1,12 +1,14 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
+import { Provider } from "react-redux"
 import { BrowserRouter } from "react-router-dom"
 import { ApolloClient } from "apollo-client"
 import { HttpLink } from "apollo-link-http"
 import { InMemoryCache } from "apollo-cache-inmemory"
 import { ApolloProvider } from "react-apollo"
 
-import "./api/scatter"
+import store from "./store"
+import loadScatter from "./api/scatter"
 import App from "./App"
 import registerServiceWorker from "./registerServiceWorker"
 
@@ -21,10 +23,15 @@ const client = new ApolloClient({
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Provider>
   </ApolloProvider>,
   document.getElementById("root") as HTMLElement
 )
+
 registerServiceWorker()
+
+loadScatter(store)

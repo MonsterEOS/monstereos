@@ -13,7 +13,7 @@
     "enzyme": "^3.4.1",
     "enzyme-adapter-react-16": "^1.2.0",
     "eosjs": "^16.0.5",
-    "eosjs-ecc": "^4.0.3",
+    "eosjs-ecc": "^4.0.4",
     "eosjs2": "^0.0.10",
     "final-form": "^4.9.1",
     "graphql": "^0.13.2",
@@ -24,10 +24,14 @@
     "react-apollo": "^2.1.11",
     "react-dom": "^16.4.2",
     "react-final-form": "^3.6.5",
+    "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
     "react-scripts-ts": "2.17.0",
+    "redux": "^4.0.0",
+    "redux-thunk": "^2.3.0",
     "styled-components": "^3.4.2",
-    "tslint": "^5.11.0"
+    "tslint": "^5.11.0",
+    "typesafe-actions": "^2.0.4"
   },
   "scripts": {
     "build-css": "node-sass-chokidar src/ -o src/",
@@ -43,6 +47,7 @@
     "@types/node": "^10.5.7",
     "@types/react": "^16.4.8",
     "@types/react-dom": "^16.0.7",
+    "@types/react-redux": "^6.0.6",
     "typescript": "^3.0.1"
   }
 }

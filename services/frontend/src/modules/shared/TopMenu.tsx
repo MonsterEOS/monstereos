@@ -1,17 +1,24 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
+import { connect } from "react-redux"
+import { State, doLogout, requestScatterIdentity } from "../../store"
+import { getEosAccount } from "../../api/scatter"
 
-// const SCATTER_EXTENSION_LINK = "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"
-
-interface State {
-  eosAccount: string
+interface Props {
+  scatter: any,
+  identity: any,
+  dispatchDoLogout: any,
+  dispatchRequestScatterIdentity: any
 }
 
-class TopMenu extends React.Component<{}, State> {
-  public state: State = { eosAccount: "" }
+class TopMenu extends React.Component<Props, {}> {
+  // public state: ReactState = { eosAccount: "" }
 
   public render() {
-    const { eosAccount } = this.state
+
+    const { identity } = this.props
+
+    const eosAccount = getEosAccount(identity)
 
     return (
       <nav className="navbar">
@@ -37,8 +44,8 @@ class TopMenu extends React.Component<{}, State> {
 
   private greetings(eosAccount: string) {
     return eosAccount &&
-      <p>
-        Hello {eosAccount}!
+      <p className="navbar-item greetings">
+        Hello <span><b>{eosAccount}</b></span>!
       </p>
   }
 
@@ -94,8 +101,10 @@ class TopMenu extends React.Component<{}, State> {
   }
 
   private logoutButton() {
+    const { dispatchDoLogout } = this.props
+
     return (
-      <a className="navbar-item">
+      <a className="navbar-item" onClick={dispatchDoLogout}>
         <i className="fa fa-sign-out" />
         Logout
       </a>
@@ -111,9 +120,16 @@ class TopMenu extends React.Component<{}, State> {
   }
 
   private scatterButton() {
+
+    const { scatter, dispatchRequestScatterIdentity } = this.props
+
     return (
-      <a className="navbar-item">
+      scatter ?
+      <a className="navbar-item" onClick={dispatchRequestScatterIdentity}>
         Enter with Scatter
+      </a>
+      : <a className="navbar-item">
+        Install Scatter Wallet
       </a>
     )
   }
@@ -135,4 +151,14 @@ class TopMenu extends React.Component<{}, State> {
   // }
 }
 
-export default TopMenu
+const mapStateToProps = (state: State) => ({
+  scatter: state.scatter,
+  identity: state.identity,
+})
+
+const mapDispatchToProps = {
+  dispatchDoLogout: doLogout,
+  dispatchRequestScatterIdentity: requestScatterIdentity
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TopMenu)
