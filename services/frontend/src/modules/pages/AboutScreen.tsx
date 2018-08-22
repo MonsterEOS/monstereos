@@ -26,15 +26,18 @@ const AboutScreen = (props: any) => (
     </p>
     <p>
       Check our
+      {" "}
       <a href="https://github.com/MonsterEOS/monstereos" target="_blank">
         GitHub repo
       </a>
+      {" "}
       to see all our code and proper credits on arts, images, etc. You can also build your EOS game! :)
     </p>
 
     <h2>Partnerships</h2>
     <p>
       Large Seafaring Mammal:
+      {" "}
       <a href="https://largeseafaringmammal.com/products/monstereos-x-lsm" target="_blank">
       Buy your shirt here!
       </a>

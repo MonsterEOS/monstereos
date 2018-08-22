@@ -1,14 +1,12 @@
 import * as React from "react"
 import PageHero from "../shared/PageHero"
 
-import mainMonster from "../../assets/images/monsters/monster-105.png"
-
 const HomeScreen = (props: any) => (
   <PageHero>
     <div className="columns">
       <div className="column">
         <figure className="image">
-          <img alt="Tamagotchi Monsters" src={mainMonster} />
+          <img alt="Tamagotchi Monsters" src="/images/monsters/monster-105.png" />
         </figure>
       </div>
       <div className="column">

@@ -11,14 +11,16 @@ import FaqScreen from "./modules/pages/FaqScreen"
 import "bulma/css/bulma.css"
 import "./styles/index.css"
 import Footer from "./modules/shared/Footer"
-class App extends React.Component<{}, {}> {
+import MyMonstersScreen from "./modules/pages/MyMonstersScreen"
 
+class App extends React.Component<{}, {}> {
   public render() {
     return (
       <Switch >
         <React.Fragment>
           <TopMenu />
           <Route path="/" exact component={HomeScreen} />
+          <Route path="/my-monsters" exact component={MyMonstersScreen} />
           <Route path="/rank" exact component={RankScreen} />
           <Route path="/about" exact component={AboutScreen} />
           <Route path="/faq" exact component={FaqScreen} />
