@@ -6,7 +6,7 @@ import ecc from 'eosjs-ecc'
 
 const STORAGE_KEY = 'MONSTEREOS'
 const CHAIN_PROTOCOL = 'http' //'https'
-const CHAIN_HOST = '178.63.66.3' // 'localhost' // 'mainnet.eoscalgary.io' //'mainnet.eoscalgary.io' //'nodes.get-scatter.com' //'br.eosrio.io'
+const CHAIN_HOST = 'localhost' // '178.63.66.3' // 'mainnet.eoscalgary.io' //'mainnet.eoscalgary.io' //'nodes.get-scatter.com' //'br.eosrio.io'
 const CHAIN_PORT = '8830' //'443' //8080' //80
 const CHAIN_ADDRESS = CHAIN_PROTOCOL + '://' + CHAIN_HOST + ':' + CHAIN_PORT
 const CHAIN_ID = null //'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'

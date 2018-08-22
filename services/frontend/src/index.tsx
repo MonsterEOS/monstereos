@@ -8,7 +8,7 @@ import { InMemoryCache } from "apollo-cache-inmemory"
 import { ApolloProvider } from "react-apollo"
 
 import store from "./store"
-import loadScatter from "./api/scatter"
+import loadScatter from "./utils/scatter"
 import App from "./App"
 import registerServiceWorker from "./registerServiceWorker"
 

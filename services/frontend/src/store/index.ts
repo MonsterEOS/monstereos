@@ -2,13 +2,52 @@ import { action as tsAction, ActionType } from "typesafe-actions"
 import { combineReducers, createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
 
-import { network as eosNetwork } from "../api/eos"
+import { network as eosNetwork } from "../utils/eos"
 
 // state
 
 export interface State {
   readonly scatter: any
   readonly identity: any
+  readonly globalConfig: GlobalConfig
+}
+
+export interface GlobalConfig {
+  attack_max_factor: number
+  attack_min_factor: number
+  battle_busy_arenas: number
+  battle_idle_tolerance: number
+  battle_max_arenas: number
+  creation_tolerance: number
+  hunger_hp_modifier: number
+  hunger_to_zero: number
+  last_element_id: number
+  last_id: number
+  last_pet_type_id: number
+  max_health: number
+  max_hunger_points: number
+  min_awake_interval: number
+  min_hunger_interval: number
+  min_sleep_period: number
+}
+
+const initialGlobalConfig = {
+  attack_max_factor: 28,
+  attack_min_factor: 20,
+  battle_busy_arenas: 0,
+  battle_idle_tolerance: 60,
+  battle_max_arenas: 10,
+  creation_tolerance: 3600,
+  hunger_hp_modifier: 1,
+  hunger_to_zero: 36000,
+  last_element_id: 10,
+  last_id: 13,
+  last_pet_type_id: 109,
+  max_health: 100,
+  max_hunger_points: 100,
+  min_awake_interval: 28800,
+  min_hunger_interval: 10800,
+  min_sleep_period: 14400
 }
 
 // const initialState: State = {
@@ -91,6 +130,10 @@ const reducers = combineReducers<State, Actions>({
       default:
         return state
     }
+  },
+  globalConfig: (state = initialGlobalConfig) => {
+    // TODO: implement dynamic global config
+    return state
   }
 })
 

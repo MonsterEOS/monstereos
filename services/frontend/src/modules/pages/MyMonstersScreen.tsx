@@ -1,14 +1,16 @@
 import * as React from "react"
 // import { Link } from "react-router-dom"
 import { connect } from "react-redux"
-import { State } from "../../store"
+import { State, GlobalConfig } from "../../store"
 import gql from "graphql-tag"
 import { Query } from "react-apollo"
-import { getEosAccount } from "../../api/scatter"
+import { getEosAccount } from "../../utils/scatter"
+import * as moment from "moment"
 
 import PageContainer from "../shared/PageContainer"
 import MonsterCard from "../monsters/MonsterCard"
 import TitleBar from "../shared/TitleBar"
+import { calcMonsterStats } from "../../utils/monsters"
 
 const GET_MY_MONSTERS = gql`
 query MonstersByOwner($owner: String) {
@@ -28,14 +30,103 @@ query MonstersByOwner($owner: String) {
         createdAt
         deathAt
         destroyedAt
+        lastFeed: petActionsByPetId(
+          last:1,
+          condition: {
+            action: "feedpet"
+          }
+        ) {
+          edges {
+            node {
+              createdAt
+            }
+          }
+        }
+        lastAwake: petActionsByPetId(
+          last:1,
+          condition: {
+            action: "awakepet"
+          }
+        ) {
+          edges {
+            node {
+              createdAt
+            }
+          }
+        }
+        lastBed: petActionsByPetId(
+          last:1,
+          condition: {
+            action: "bedpet"
+          }
+        ) {
+          edges {
+            node {
+              createdAt
+            }
+          }
+        }
       }
     }
   }
 }
 `
 
+const petsGqlToMonsters = (allPets: any, globalConfig: GlobalConfig) => {
+  return allPets.edges.map(({ node }: any) => {
+
+    const createdAt = moment.utc(node.createdAt).valueOf()
+
+    const lastFeed =
+      node.lastFeed &&
+      node.lastFeed.edges &&
+      node.lastFeed.edges.length &&
+      node.lastFeed.edges[0].node
+
+    const lastFeedAt = lastFeed ?
+      moment.utc(lastFeed.createdAt).valueOf() :
+      createdAt
+
+    const lastBed =
+      node.lastBed &&
+      node.lastBed.edges &&
+      node.lastBed.edges.length &&
+      node.lastBed.edges[0].node
+
+    const lastBedAt = lastBed ?
+      moment.utc(lastBed.createdAt).valueOf() :
+      createdAt
+
+    const lastAwake =
+      node.lastAwake &&
+      node.lastAwake.edges &&
+      node.lastAwake.edges.length &&
+      node.lastAwake.edges[0].node
+
+    const lastAwakeAt = lastAwake ?
+      moment.utc(lastAwake.createdAt).valueOf() :
+      0 // just born, never woke up
+
+    const deathAt = moment.utc(node.deathAt).valueOf()
+
+    return calcMonsterStats({
+      id: node.id,
+      name: node.petName,
+      type: node.typeId,
+      owner: node.owner,
+      createdAt,
+      deathAt,
+      lastFeedAt,
+      lastAwakeAt,
+      lastBedAt,
+      isSleeping: lastBedAt > lastAwakeAt
+    }, globalConfig)
+  })
+}
+
 interface Props {
   identity: any,
+  globalConfig: any,
 }
 
 class MyMonstersScreen extends React.Component<Props, {}> {
@@ -56,12 +147,16 @@ class MyMonstersScreen extends React.Component<Props, {}> {
 
     const variables = { owner: eosAccount }
 
+    const { globalConfig } = this.props
+
     return <Query query={GET_MY_MONSTERS} variables={variables}>
       {({ data: { allPets }, loading }) => {
 
         let subHeader = null
         let newMonsterButton = null
         let arenaButton = null
+
+        const monsters = allPets ? petsGqlToMonsters(allPets, globalConfig) : []
 
         if (loading || !allPets) {
           subHeader = (
@@ -70,7 +165,7 @@ class MyMonstersScreen extends React.Component<Props, {}> {
             </small>
           )
         } else {
-          subHeader = (<small>You have {allPets.edges.length} monsters</small>)
+          subHeader = (<small>You have {monsters.length} monsters</small>)
 
           newMonsterButton = (
             <a className="button is-success" data-empty="">
@@ -85,12 +180,21 @@ class MyMonstersScreen extends React.Component<Props, {}> {
           )
         }
 
+        const aliveMonsters = allPets && monsters.filter((monster: any) => !monster.deathAt)
+        const deadMonsters = allPets && monsters.filter((monster: any) => monster.deathAt)
+
         return (
           <PageContainer>
             <TitleBar
               title="My Monsters"
               menu={[subHeader, newMonsterButton, arenaButton]} />
-            {allPets && <MonstersList monsters={allPets} />}
+            {aliveMonsters && <MonstersList monsters={aliveMonsters} />}
+
+            {deadMonsters &&
+              <React.Fragment>
+                <h3>My Dead Monsters</h3>
+                <MonstersList monsters={deadMonsters} />
+              </React.Fragment>}
           </PageContainer>
         )
       }}
@@ -100,7 +204,7 @@ class MyMonstersScreen extends React.Component<Props, {}> {
 
 const MonstersList = ({ monsters }: any) => (
   <div className="columns is-multiline">
-    {monsters.edges.map(({ node: monster }: any) => (
+    {monsters.map((monster: any) => (
       <div className="column monster-column" key={monster.id}>
         <MonsterCard {...monster} />
       </div>
@@ -110,6 +214,7 @@ const MonstersList = ({ monsters }: any) => (
 
 const mapStateToProps = (state: State) => ({
   identity: state.identity,
+  globalConfig: state.globalConfig,
 })
 
 export default connect(mapStateToProps)(MyMonstersScreen)

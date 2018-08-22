@@ -2,7 +2,7 @@ import * as React from "react"
 import { Link } from "react-router-dom"
 import { connect } from "react-redux"
 import { State, doLogout, requestScatterIdentity } from "../../store"
-import { getEosAccount } from "../../api/scatter"
+import { getEosAccount } from "../../utils/scatter"
 
 interface Props {
   scatter: any,
