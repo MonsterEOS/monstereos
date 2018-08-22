@@ -2555,9 +2555,9 @@ eosjs-api@7.0.3:
     camel-case "^3.0.0"
     isomorphic-fetch "^2.2.1"
 
-eosjs-ecc@4.0.3:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/eosjs-ecc/-/eosjs-ecc-4.0.3.tgz#034608e1b9f802b624c16d4a93bacc51dc17e8b3"
+eosjs-ecc@4.0.4, eosjs-ecc@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/eosjs-ecc/-/eosjs-ecc-4.0.4.tgz#431450f30a6f73088ff5d7ba1ebdfe967a5ca4ab"
   dependencies:
     bigi "^1.4.2"
     browserify-aes "^1.0.6"
@@ -2581,19 +2581,6 @@ eosjs-ecc@^4.0.1:
     ecurve "^1.0.5"
     randombytes "^2.0.5"
 
-eosjs-ecc@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/eosjs-ecc/-/eosjs-ecc-4.0.4.tgz#431450f30a6f73088ff5d7ba1ebdfe967a5ca4ab"
-  dependencies:
-    bigi "^1.4.2"
-    browserify-aes "^1.0.6"
-    bs58 "^4.0.1"
-    bytebuffer "^5.0.1"
-    create-hash "^1.1.3"
-    create-hmac "^1.1.6"
-    ecurve "^1.0.5"
-    randombytes "^2.0.5"
-
 eosjs2@^0.0.10:
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/eosjs2/-/eosjs2-0.0.10.tgz#bb0d8dd0d8cccd7a223cd7a4a6319d4fa6c593b5"
@@ -2601,15 +2588,15 @@ eosjs2@^0.0.10:
     babel-polyfill "^6.26.0"
     eosjs-ecc "^4.0.1"
 
-eosjs@^16.0.5:
-  version "16.0.5"
-  resolved "https://registry.yarnpkg.com/eosjs/-/eosjs-16.0.5.tgz#182aaec0347ed520a2390ce5bc7679dd9516fc48"
+eosjs@^16.0.6:
+  version "16.0.6"
+  resolved "https://registry.yarnpkg.com/eosjs/-/eosjs-16.0.6.tgz#4cd301e33b29bae35ac869375b5e50ff564f9f9e"
   dependencies:
     babel-runtime "6.26.0"
     binaryen "^37.0.0"
     create-hash "^1.1.3"
     eosjs-api "7.0.3"
-    eosjs-ecc "4.0.3"
+    eosjs-ecc "4.0.4"
     fcbuffer "^2.2.1"
 
 errno@^0.1.3, errno@~0.1.7:

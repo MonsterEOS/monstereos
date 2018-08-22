@@ -3,19 +3,19 @@ const CHAIN_PROTOCOL = "http" // 'https'
 const CHAIN_HOST = "localhost" // 'mainnet.eoscalgary.io' //'mainnet.eoscalgary.io' //'nodes.get-scatter.com' //'br.eosrio.io'
 const CHAIN_PORT = "8830" // '443' //8080' //80
 // const CHAIN_ADDRESS = CHAIN_PROTOCOL + "://" + CHAIN_HOST + ":" + CHAIN_PORT
-const CHAIN_ID = null // 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
-// const MONSTERS_ACCOUNT = "monstereosio"
-// const MONSTERS_TABLE = "pets"
-// const BATTLES_TABLE = "battles"
-// const ELEMENTS_TABLE = "elements"
-// const PET_TYPES_TABLE = "pettypes"
-// const CONFIG_TABLE = "petconfig2"
-// const BALANCES_TABLE = "accounts"
-// const TOKEN_SYMBOL = "EOS"
-// const MEMO = "MonsterEOS Wallet Deposit"
+export const CHAIN_ID = null // 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
+export const MONSTERS_ACCOUNT = "monstereosio"
+export const MONSTERS_TABLE = "pets"
+export const BATTLES_TABLE = "battles"
+export const ELEMENTS_TABLE = "elements"
+export const PET_TYPES_TABLE = "pettypes"
+export const CONFIG_TABLE = "petconfig2"
+export const BALANCES_TABLE = "accounts"
+export const TOKEN_SYMBOL = "EOS"
+export const MEMO = "MonsterEOS Wallet Deposit"
 // // const ACTIONS_API = 'https://api.eostracker.io/accounts/monstereosio/actions/to?page=1&size=300'
 // // const ACTIONS_API = 'https://api.eosrio.io/v1/history/get_actions'
-// const ACTIONS_API = "http://localhost:8830/v1/history/get_actions"
+export const ACTIONS_API = "http://localhost:8830/v1/history/get_actions"
 
 export const network = {
   protocol: CHAIN_PROTOCOL,

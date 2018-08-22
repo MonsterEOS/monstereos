@@ -12,7 +12,7 @@
     "classnames": "^2.2.6",
     "enzyme": "^3.4.1",
     "enzyme-adapter-react-16": "^1.2.0",
-    "eosjs": "^16.0.5",
+    "eosjs": "^16.0.6",
     "eosjs-ecc": "^4.0.4",
     "eosjs2": "^0.0.10",
     "final-form": "^4.9.1",

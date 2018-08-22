@@ -10,7 +10,7 @@ import * as moment from "moment"
 import PageContainer from "../shared/PageContainer"
 import MonsterCard from "../monsters/MonsterCard"
 import TitleBar from "../shared/TitleBar"
-import { calcMonsterStats } from "../../utils/monsters"
+import { calcMonsterStats, MonsterProps } from "../monsters/monsters"
 
 const GET_MY_MONSTERS = gql`
 query MonstersByOwner($owner: String) {
@@ -109,32 +109,35 @@ const petsGqlToMonsters = (allPets: any, globalConfig: GlobalConfig) => {
 
     const deathAt = moment.utc(node.deathAt).valueOf()
 
-    return calcMonsterStats({
-      id: node.id,
-      name: node.petName,
-      type: node.typeId,
-      owner: node.owner,
+    const monster: MonsterProps = {
+      id: Number(node.id),
+      name: String(node.petName),
+      type: Number(node.typeId),
+      owner: String(node.owner),
+      health: 100,
+      hunger: 100,
+      awake: 100,
       createdAt,
       deathAt,
       lastFeedAt,
       lastAwakeAt,
       lastBedAt,
       isSleeping: lastBedAt > lastAwakeAt
-    }, globalConfig)
+    }
+
+    return calcMonsterStats(monster, globalConfig)
   })
 }
 
 interface Props {
-  identity: any,
+  eosAccount: string,
   globalConfig: any,
 }
 
 class MyMonstersScreen extends React.Component<Props, {}> {
   public render() {
 
-    const { identity } = this.props
-
-    const eosAccount = getEosAccount(identity)
+    const { eosAccount } = this.props
 
     if (eosAccount) {
       return this.renderMonsters(eosAccount)
@@ -206,15 +209,19 @@ const MonstersList = ({ monsters }: any) => (
   <div className="columns is-multiline">
     {monsters.map((monster: any) => (
       <div className="column monster-column" key={monster.id}>
-        <MonsterCard {...monster} />
+        <MonsterCard monster={monster} />
       </div>
     ))}
   </div>
 )
 
-const mapStateToProps = (state: State) => ({
-  identity: state.identity,
-  globalConfig: state.globalConfig,
-})
+const mapStateToProps = (state: State) => {
+  const eosAccount = getEosAccount(state.identity)
+
+  return {
+    eosAccount,
+    globalConfig: state.globalConfig,
+  }
+}
 
 export default connect(mapStateToProps)(MyMonstersScreen)

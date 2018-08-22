@@ -1,6 +1,22 @@
-import { GlobalConfig } from "../store"
+import { GlobalConfig } from "../../store"
 
-export const calcMonsterStats = (monster: any, config: GlobalConfig) => {
+export interface MonsterProps {
+  id: number,
+  name: string,
+  owner: string,
+  type: number,
+  createdAt: number,
+  deathAt: number,
+  hunger: number,
+  health: number,
+  awake: number,
+  lastFeedAt: number,
+  lastAwakeAt: number,
+  lastBedAt: number,
+  isSleeping: boolean
+}
+
+export const calcMonsterStats = (monster: MonsterProps, config: GlobalConfig) => {
 
   if (config) {
     const currentTime = Date.now()
