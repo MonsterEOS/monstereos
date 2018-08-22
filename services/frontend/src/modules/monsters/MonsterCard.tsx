@@ -21,15 +21,22 @@ const MonsterCard = (props: MonsterProps) => {
   const createdAt = moment(props.createdAt)
   const createdAtText = createdAt.format("MMMM, D YYYY @ h:mm a")
   const createdAtIso = createdAt.toLocaleString()
+
+  const deathAt = moment(props.deathAt)
+  const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
+  const deathAtIso = deathAt.toLocaleString()
+
+  const aliveDuration = (props.deathAt ? props.deathAt : Date.now()) - props.createdAt
+  const aliveDurationText = moment.duration(aliveDuration).humanize()
   // const deathAtText = moment(props.deathAt).toLocaleString()
 
   return (
     <div className="card">
       <div className="card-content">
-          <p className="title is-4 ">{props.name}</p>
+          <p className={`title is-4 ${props.deathAt ? "has-text-danger" : ""}`}>{props.name}</p>
       </div>
       <div className="card-image">
-          <figure className="image monster-image is-square">
+          <figure className={`image monster-image is-square ${props.deathAt ? "grayscale" : ""}`}>
             <img alt={props.name} src={`/images/monsters/monster-${props.type}.png`} />
           </figure>
       </div>
@@ -47,8 +54,15 @@ const MonsterCard = (props: MonsterProps) => {
                   {" "}
                   <time dateTime={createdAtIso}>{createdAtText}</time>
                   <br/>
+                  { props.deathAt ?
+                  <React.Fragment>
+                    <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
+                    <br/>
+                    <span className="is-6 has-text-danger"><time dateTime={deathAtIso}>DEAD IN {deathAtText}</time></span>
+                  </React.Fragment>
+                  : <span className="is-6 has-text-success">Is alive for {aliveDurationText}</span>
+                  }
                 </p>
-                <p className="is-6 has-text-success">Is alive for about 16 hours</p>
             </div>
             <p className="is-large has-margin-top">
               <b>HP: </b>
