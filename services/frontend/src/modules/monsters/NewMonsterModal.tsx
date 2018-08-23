@@ -74,7 +74,7 @@ class NewMonsterModal extends React.Component<Props, {}> {
     }
 
     // playing with EOSJS2
-    const trx = true ? e2TrxCreatePet : trxCreatePet
+    const trx = false ? e2TrxCreatePet : trxCreatePet
 
     trx(scatter, name)
       .then((res: any) => {
