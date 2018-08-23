@@ -7,7 +7,7 @@
     "@types/cors": "^2.8.4",
     "@types/node-fetch": "^2.1.2",
     "cors": "^2.8.4",
-    "demux": "^1.0.4-hotfix",
+    "demux": "^1.0.5",
     "demux-eos": "^1.0.1",
     "demux-postgres": "^0.0.5",
     "dockerode": "^2.5.5",

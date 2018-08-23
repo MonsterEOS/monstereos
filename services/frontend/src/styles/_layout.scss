@@ -78,10 +78,11 @@ progress:before {
   font-weight: 700;
 
   /*Position text over the progress bar */
-  position:absolute;
+  position: absolute;
   left: 8px;
-  top: 0;
-  right:0;
+  top: -2px;
+  right: 8px;
+  bottom: 1px;
 }
 
 /* mobile */

@@ -54,4 +54,4 @@ const init = async () => {
 
 }
 
-init()
+setTimeout(init, 2500)

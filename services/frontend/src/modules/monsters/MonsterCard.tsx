@@ -25,18 +25,10 @@ class MonsterCard extends React.Component<Props, {}> {
     return (
       <div className="card">
         <div className="card-content">
-          <p className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
-            {monster.name}
-            <small className="is-pulled-right">#{monster.id}</small>
-          </p>
+          {this.renderHeader()}
         </div>
         {this.renderImage()}
-        <div className="card-content">
-            <div className="content">
-              {this.renderHeader()}
-              {!monster.deathAt && this.renderStats()}
-            </div>
-        </div>
+        {!monster.deathAt && this.renderStats()}
         {hasControl && this.renderFooter()}
       </div>
     )
@@ -50,7 +42,7 @@ class MonsterCard extends React.Component<Props, {}> {
     const monsterImage = `/images/monsters/monster-${monster.type}.png`
 
     const sleepingClass = monster.isSleeping ? "sleeping" : ""
-    const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" />
+    const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
 
     return (
       <div className="card-image">
@@ -69,9 +61,9 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const { monster } = this.props
 
-    const createdAt = moment(monster.createdAt)
-    const createdAtText = createdAt.format("MMMM, D YYYY @ h:mm a")
-    const createdAtIso = createdAt.toLocaleString()
+    // const createdAt = moment(monster.createdAt)
+    // const createdAtText = createdAt.format("MMMM, D YYYY @ h:mm a")
+    // const createdAtIso = createdAt.toLocaleString()
 
     const deathAt = moment(monster.deathAt)
     const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
@@ -82,21 +74,20 @@ class MonsterCard extends React.Component<Props, {}> {
 
     return (
       <React.Fragment>
-        <div className="is-6">
+        <div className="monster-card-header">
           <p>
-            <span className="is-hidden-mobile">
-              Birth Date:
-              {" "}
-              <time dateTime={createdAtIso}>{createdAtText}</time>
+            <span className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
+              {monster.name}
+              <small className="is-pulled-right">#{monster.id}</small>
             </span>
-            <br className="is-hidden-mobile" />
+            <br/>
             { monster.deathAt ?
             <React.Fragment>
               <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
               <br/>
               <span className="is-6 has-text-danger"><time dateTime={deathAtIso}>DEAD IN {deathAtText}</time></span>
             </React.Fragment>
-            : <span className="is-6 has-text-success">Is alive for {aliveDurationText}</span>
+            : <span className="has-text-success">Is alive for {aliveDurationText}</span>
             }
           </p>
         </div>
@@ -109,7 +100,7 @@ class MonsterCard extends React.Component<Props, {}> {
     const { monster } = this.props
 
     return (
-      <React.Fragment>
+      <div className="monster-card-stats">
         <p className="is-large has-margin-top">
           <progress className="progress is-danger" max="100" value={monster.health} data-label="HP" />
         </p>
@@ -121,7 +112,7 @@ class MonsterCard extends React.Component<Props, {}> {
             <progress className="progress is-success" max="100" value={monster.awake} data-label="Energy" />
           </div>
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 
