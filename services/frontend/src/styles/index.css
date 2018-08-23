@@ -276,8 +276,13 @@
   max-height: 300px !important; }
 
 .monster-column {
-  min-width: 360px;
-  max-width: 400px; }
+  min-width: 310px;
+  max-width: 310px; }
+
+/* mobile */
+@media screen and (max-width: 768px) {
+  .monster-column {
+    max-width: 400px; } }
 
 .monster-picks small {
   margin-left: 15px;
@@ -439,14 +444,11 @@ form {
 
 .footer {
   margin-top: 50px; }
+  .footer a {
+    margin: 5px; }
 
 .greetings span {
   margin-left: 6px !important; }
-
-@media screen and (min-width: 769px) {
-  .coin-column {
-    min-width: 500px;
-    max-width: 550px; } }
 
 .has-margin-top {
   margin-top: 16px; }
@@ -463,3 +465,49 @@ form {
     width: 325px; }
   .toast .notification.on {
     transform: translateX(-365px); }
+
+.rank .tabs {
+  overflow: hidden;
+  margin-bottom: 20px; }
+
+.rank .tabs ul {
+  flex-wrap: wrap;
+  max-width: 100%; }
+
+progress {
+  text-align: center;
+  /* Set the progressbar to relative */
+  position: relative; }
+
+progress:before {
+  content: attr(data-label);
+  font-size: 0.9em;
+  color: #fff;
+  font-weight: 700;
+  /*Position text over the progress bar */
+  position: absolute;
+  left: 8px;
+  top: 0;
+  right: 0; }
+
+/* mobile */
+@media screen and (max-width: 768px) {
+  .navbar {
+    min-height: 60px; }
+    .navbar .navbar-menu {
+      box-shadow: none;
+      border-bottom: 1px solid #eee; }
+  .navbar-burger {
+    margin-top: 12px; }
+  .logo {
+    margin: 12px; }
+  .section {
+    padding: 1rem; }
+  .footer {
+    padding-bottom: 3rem; }
+  .content h1 {
+    font-size: 1.5em; }
+  .content h2 {
+    font-size: 1.25em; }
+  .content h3 {
+    font-size: 1em; } }

@@ -25,13 +25,16 @@ class MonsterCard extends React.Component<Props, {}> {
     return (
       <div className="card">
         <div className="card-content">
-            <p className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>{monster.name}</p>
+          <p className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
+            {monster.name}
+            <small className="is-pulled-right">#{monster.id}</small>
+          </p>
         </div>
         {this.renderImage()}
         <div className="card-content">
             <div className="content">
               {this.renderHeader()}
-              {this.renderStats()}
+              {!monster.deathAt && this.renderStats()}
             </div>
         </div>
         {hasControl && this.renderFooter()}
@@ -43,7 +46,7 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const { monster } = this.props
 
-    const figureClass = `image monster-image is-square ${monster.deathAt ? "grayscale" : ""}`
+    const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
     const monsterImage = `/images/monsters/monster-${monster.type}.png`
 
     const sleepingClass = monster.isSleeping ? "sleeping" : ""
@@ -79,18 +82,14 @@ class MonsterCard extends React.Component<Props, {}> {
 
     return (
       <React.Fragment>
-        <p>
-          <span className="is-6">
-            <b>Owner:</b> {monster.owner}
-          </span>
-          <span className="is-pulled-right ">#{monster.id}</span>
-        </p>
         <div className="is-6">
           <p>
-            Birth Date:
-            {" "}
-            <time dateTime={createdAtIso}>{createdAtText}</time>
-            <br/>
+            <span className="is-hidden-mobile">
+              Birth Date:
+              {" "}
+              <time dateTime={createdAtIso}>{createdAtText}</time>
+            </span>
+            <br className="is-hidden-mobile" />
             { monster.deathAt ?
             <React.Fragment>
               <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
@@ -112,17 +111,14 @@ class MonsterCard extends React.Component<Props, {}> {
     return (
       <React.Fragment>
         <p className="is-large has-margin-top">
-          <b>HP: </b>
-          <progress className="progress is-danger" max="100" value={monster.health}>{monster.health}</progress>
+          <progress className="progress is-danger" max="100" value={monster.health} data-label="HP" />
         </p>
-        <div className="columns is-multiline">
+        <div className="columns is-multiline is-mobile">
           <div className="column is-half">
-            <b>Food: </b>
-            <progress className="progress is-primary" max="100" value={monster.hunger}>{monster.hunger}</progress>
+            <progress className="progress is-primary" max="100" value={monster.hunger} data-label="Food" />
           </div>
           <div className="column is-half">
-            <b>Energy: </b>
-            <progress className="progress is-success" max="100" value={monster.awake}>{monster.awake}</progress>
+            <progress className="progress is-success" max="100" value={monster.awake} data-label="Energy" />
           </div>
         </div>
       </React.Fragment>

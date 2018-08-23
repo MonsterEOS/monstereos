@@ -11,21 +11,36 @@ interface Props {
   dispatchRequestScatterIdentity: any
 }
 
-class TopMenu extends React.Component<Props, {}> {
-  // public state: ReactState = { eosAccount: "" }
+interface ReactState {
+  activeMenu: boolean
+}
+
+class TopMenu extends React.Component<Props, ReactState> {
+  public state: ReactState = { activeMenu: false }
 
   public render() {
 
     const { identity } = this.props
+    const { activeMenu } = this.state
 
     const eosAccount = getEosAccount(identity)
 
     return (
       <nav className="navbar">
-        <div className="navbar-brand logo">
-          MonsterEOS
+        <div className="navbar-brand">
+          <span className="logo">MonsterEOS</span>
+          <a
+            role="button"
+            className="navbar-burger"
+            aria-label="menu"
+            aria-expanded="false"
+            onClick={() => this.setState({activeMenu: !activeMenu})}>
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+          </a>
         </div>
-        <div className="navbar-menu is-active">
+        <div className={`navbar-menu ${activeMenu ? "is-active" : ""}`}>
           <div className="navbar-end">
             {this.greetings(eosAccount)}
             {!eosAccount && this.homeButton()}
@@ -35,7 +50,7 @@ class TopMenu extends React.Component<Props, {}> {
             {this.rankButton()}
             {this.aboutButton()}
             {eosAccount && this.logoutButton()}
-            {this.helpButton()}
+            {this.helpButton(activeMenu)}
           </div>
         </div>
       </nav>
@@ -49,14 +64,17 @@ class TopMenu extends React.Component<Props, {}> {
       </p>
   }
 
-  private helpButton() {
-    return (
-      <Link className="navbar-item help-button" to="/faq">
+  private helpButton(showText: boolean) {
+    return showText ?
+      (<Link className="navbar-item" to="/faq">
+        <i className="fa fa-question-circle has-text-info" />
+        Help
+      </Link>) :
+      (<Link className="navbar-item help-button" to="/faq">
         <span className="navbar-item icon is-small">
           <i className="fa fa-2x fa-question-circle has-text-info" />
         </span>
-      </Link>
-    )
+      </Link>)
   }
 
   private homeButton() {
@@ -69,7 +87,7 @@ class TopMenu extends React.Component<Props, {}> {
 
   private myMonstersButton() {
     return (
-      <Link className="navbar-item" to="my-monsters">
+      <Link className="navbar-item" to="/my-monsters">
         <i className="fa fa-paw" />
         My Monsters
       </Link>

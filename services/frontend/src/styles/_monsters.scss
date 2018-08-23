@@ -38,6 +38,7 @@
 }
 
 .monster-image {
+  // height: 222px; //!important;
   max-height: 300px !important;
 }
 
@@ -46,6 +47,20 @@
 }
 
 .monster-column {
-  min-width: 360px;
-  max-width: 400px;
+  min-width: 310px;
+  max-width: 310px;
+}
+
+/* mobile */
+@media screen and (max-width: 768px) {
+
+  .monster-column {
+    max-width: 400px;
+  }
+
+  // .monster-image {
+  //   // height: 150px !important;
+  //   min-height: 150px !important;
+  //   max-height: 150px !important;
+  // }
 }

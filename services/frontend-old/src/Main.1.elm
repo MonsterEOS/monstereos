@@ -1836,76 +1836,6 @@ selectInput isLoading optionsType fieldLabel fieldValue fieldIcon fieldMsg =
             ]
 
 
-titleMenu : String -> List (Html msg) -> Html msg
-titleMenu title menu =
-    div [ class "level" ]
-        [ div [ class "level-left" ]
-            [ div [ class "level-item" ] [ h1 [ class "title" ] [ text title ] ] ]
-        , div [ class "level-right" ]
-            (menu
-                |> List.map (\item -> div [ class "level-item" ] [ item ])
-            )
-        ]
-
-
-modalCard : Model -> String -> Msg -> List (Html Msg) -> Maybe ( String, Msg ) -> Maybe ( String, Msg ) -> Html Msg
-modalCard model title close body ok cancel =
-    let
-        loadingClass =
-            if model.isLoading then
-                " is-loading"
-            else
-                ""
-
-        okButton =
-            case ok of
-                Just ( txt, msg ) ->
-                    button
-                        [ class ("button is-success" ++ loadingClass)
-                        , onClick msg
-                        , disabledAttribute model.isLoading
-                        ]
-                        [ text txt ]
-
-                Nothing ->
-                    text ""
-
-        cancelButton =
-            case cancel of
-                Just ( txt, msg ) ->
-                    button
-                        [ class ("button is-light" ++ loadingClass)
-                        , onClick msg
-                        , disabledAttribute model.isLoading
-                        ]
-                        [ text txt ]
-
-                Nothing ->
-                    text ""
-    in
-        div [ class "modal is-active" ]
-            [ div [ class "modal-background" ] []
-            , div [ class "modal-card" ]
-                [ header [ class "modal-card-head" ]
-                    [ p [ class "modal-card-title" ]
-                        [ loadingIcon model, text title ]
-                    , button
-                        [ class "delete"
-                        , attribute "aria-label" "close"
-                        , onClick close
-                        ]
-                        []
-                    ]
-                , section [ class "modal-card-body" ]
-                    body
-                , footer [ class "modal-card-foot" ]
-                    [ okButton
-                    , cancelButton
-                    ]
-                ]
-            ]
-
-
 
 -- view
 
@@ -1937,35 +1867,6 @@ notification notification =
 notificationsView : Model -> Html Msg
 notificationsView model =
     div [ class "toast" ] (model.notifications |> List.map notification)
-
-
-monsterCreationModal : Model -> Html Msg
-monsterCreationModal model =
-    let
-        modalClass =
-            if model.showHelp then
-                "modal is-active"
-            else
-                "modal"
-
-        scatterInstalled =
-            model.scatterInstalled
-    in
-        modalCard model
-            "Create a New Monster"
-            ToggleMonsterCreation
-            [ form []
-                [ fieldInput
-                    model
-                    "New Monster Name"
-                    model.newMonsterName
-                    "Pikachu"
-                    "paw"
-                    UpdateNewMonsterName
-                ]
-            ]
-            (Just ( "Submit", SubmitNewMonster ))
-            (Just ( "Cancel", ToggleMonsterCreation ))
 
 
 walletModal : Model -> Html Msg
