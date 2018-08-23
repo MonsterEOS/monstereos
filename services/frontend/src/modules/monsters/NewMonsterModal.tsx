@@ -1,7 +1,7 @@
 import * as React from "react"
 import { State } from "../../store"
 import { connect } from "react-redux"
-import { trxCreatePet, e2TrxCreatePet } from "../../utils/eos"
+import { trxCreatePet } from "../../utils/eos" // , e2TrxCreatePet } from "../../utils/eos"
 import Modal from "../shared/Modal"
 
 interface Props {
@@ -74,7 +74,7 @@ class NewMonsterModal extends React.Component<Props, {}> {
     }
 
     // playing with EOSJS2
-    const trx = false ? e2TrxCreatePet : trxCreatePet
+    const trx = trxCreatePet // false ? e2TrxCreatePet : trxCreatePet
 
     trx(scatter, name)
       .then((res: any) => {
