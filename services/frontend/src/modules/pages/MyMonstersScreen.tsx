@@ -11,6 +11,7 @@ import PageContainer from "../shared/PageContainer"
 import MonsterCard from "../monsters/MonsterCard"
 import TitleBar from "../shared/TitleBar"
 import { calcMonsterStats, MonsterProps } from "../monsters/monsters"
+import NewMonsterModal from "../monsters/NewMonsterModal"
 
 const GET_MY_MONSTERS = gql`
 query MonstersByOwner($owner: String) {
@@ -134,7 +135,16 @@ interface Props {
   globalConfig: any,
 }
 
-class MyMonstersScreen extends React.Component<Props, {}> {
+interface ReactState {
+  showNewMonsterModal: boolean
+}
+
+class MyMonstersScreen extends React.Component<Props, ReactState> {
+
+  public state = {
+    showNewMonsterModal: false
+  }
+
   public render() {
 
     const { eosAccount } = this.props
@@ -151,9 +161,10 @@ class MyMonstersScreen extends React.Component<Props, {}> {
     const variables = { owner: eosAccount }
 
     const { globalConfig } = this.props
+    const { showNewMonsterModal } = this.state
 
     return <Query query={GET_MY_MONSTERS} variables={variables}>
-      {({ data: { allPets }, loading }) => {
+      {({ data: { allPets }, loading, refetch }) => {
 
         let subHeader = null
         let newMonsterButton = null
@@ -171,33 +182,58 @@ class MyMonstersScreen extends React.Component<Props, {}> {
           subHeader = (<small>You have {monsters.length} monsters</small>)
 
           newMonsterButton = (
-            <a className="button is-success" data-empty="">
+            <a
+              className="button is-success"
+              onClick={() => this.setState({showNewMonsterModal: true})}>
               New Monster
             </a>
           )
 
+          // arena coming soon
           arenaButton = (
-            <a className="button is-info" data-empty="">
-              Battle Arena
-            </a>
+            // <a className="button is-info">
+            //   Battle Arena
+            // </a>
+            <span>{" "}</span>
           )
         }
 
         const aliveMonsters = allPets && monsters.filter((monster: any) => !monster.deathAt)
         const deadMonsters = allPets && monsters.filter((monster: any) => monster.deathAt)
 
+        const refetchMonsters = () => {
+          setTimeout(() => refetch(variables), 500)
+        }
+
+        const newMonsterClosure = (doRefetch: boolean) => {
+          this.setState({showNewMonsterModal: false})
+          if (doRefetch) {
+            refetchMonsters()
+          }
+        }
+
         return (
           <PageContainer>
             <TitleBar
               title="My Monsters"
               menu={[subHeader, newMonsterButton, arenaButton]} />
-            {aliveMonsters && <MonstersList monsters={aliveMonsters} />}
+            {aliveMonsters &&
+              <MonstersList
+                monsters={aliveMonsters}
+                update={refetchMonsters} />}
 
             {deadMonsters &&
               <React.Fragment>
                 <h3>My Dead Monsters</h3>
-                <MonstersList monsters={deadMonsters} />
+                <MonstersList
+                  monsters={deadMonsters}
+                  update={refetchMonsters} />
               </React.Fragment>}
+
+            {showNewMonsterModal &&
+              <NewMonsterModal
+                closeModal={newMonsterClosure} />
+            }
           </PageContainer>
         )
       }}
@@ -205,11 +241,11 @@ class MyMonstersScreen extends React.Component<Props, {}> {
   }
 }
 
-const MonstersList = ({ monsters }: any) => (
+const MonstersList = ({ monsters, update }: any) => (
   <div className="columns is-multiline">
     {monsters.map((monster: any) => (
       <div className="column monster-column" key={monster.id}>
-        <MonsterCard monster={monster} />
+        <MonsterCard monster={monster} requestUpdate={update} />
       </div>
     ))}
   </div>

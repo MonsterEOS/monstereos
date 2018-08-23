@@ -2,7 +2,7 @@ import * as React from "react"
 import { Link } from "react-router-dom"
 import { connect } from "react-redux"
 import { State, doLogout, requestScatterIdentity } from "../../store"
-import { getEosAccount } from "../../utils/scatter"
+import { getEosAccount, SCATTER_EXTENSION_LINK } from "../../utils/scatter"
 
 interface Props {
   scatter: any,
@@ -128,27 +128,11 @@ class TopMenu extends React.Component<Props, {}> {
       <a className="navbar-item" onClick={dispatchRequestScatterIdentity}>
         Enter with Scatter
       </a>
-      : <a className="navbar-item">
+      : <a className="navbar-item" href={SCATTER_EXTENSION_LINK} target="_blank">
         Install Scatter Wallet
       </a>
     )
   }
-
-  // private scatterButtonInstalled() {
-  //   return (
-  //     <a className="navbar-item">
-  //       Refresh page after Scatter Installation
-  //     </a>
-  //   )
-  // }
-
-  // private scatterButtonInstall() {
-  //   return (
-  //     <a className="navbar-item" href={SCATTER_EXTENSION_LINK} target="_blank">
-  //       Install Scatter Wallet
-  //     </a>
-  //   )
-  // }
 }
 
 const mapStateToProps = (state: State) => ({

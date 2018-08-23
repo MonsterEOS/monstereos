@@ -1,14 +1,16 @@
 import * as React from "react"
 import * as moment from "moment"
 import { MonsterProps } from "./monsters"
-import { State } from "../../store"
+import { State, GlobalConfig } from "../../store"
 import { connect } from "react-redux"
-import { getEosAccount, getEosAuthorization, getContract } from "../../utils/scatter"
+import { getEosAccount } from "../../utils/scatter"
+import { trxPet } from "../../utils/eos"
 
 interface Props {
   monster: MonsterProps,
   eosAccount: string,
-  eosAuthorization: any,
+  globalConfig: GlobalConfig,
+  requestUpdate: any,
   scatter: any
 }
 
@@ -133,41 +135,85 @@ class MonsterCard extends React.Component<Props, {}> {
 
     return (
       <footer className="card-footer">
-        { monster.deathAt ?
-        <a className="card-footer-item" data-empty="">Delete Monster</a> : <React.Fragment>
-          <a className="card-footer-item" onClick={this.requestFeed}>Feed</a>
-          <a className="card-footer-item" data-empty="">Bed Time!</a>
-        </React.Fragment>
+        {
+          monster.deathAt ?
+            <a className="card-footer-item" onClick={this.requestDestroy}>Delete Monster</a> :
+          monster.isSleeping ?
+            <a className="card-footer-item" onClick={this.requestAwake}>Wake up!</a> :
+            <React.Fragment>
+              <a className="card-footer-item" onClick={this.requestFeed}>Feed</a>
+              <a className="card-footer-item" onClick={this.requestSleep}>Bed Time!</a>
+            </React.Fragment>
         }
       </footer>
     )
   }
 
-  private requestFeed = async () => {
-    const { scatter, eosAuthorization, monster } = this.props
+  private requestFeed = () => {
+    const { monster, globalConfig } = this.props
 
-    const contract = await getContract(scatter)
-
-    console.info(contract)
-
-    const feedpet = await contract.feedpet(monster.id, eosAuthorization.permission)
-      .catch(() => alert("An error happened while feeding the monster"))
-
-    console.info(feedpet)
-
-    if (feedpet) {
-      alert("Pet fed successfully!")
+    const feedInterval = Date.now() - monster.lastFeedAt
+    if (feedInterval < globalConfig.min_hunger_interval) {
+      return alert(`${monster.name} is not hungry yet`)
     }
+
+    this.petAction("feedpet", "feed")
+  }
+
+  private requestAwake = async () => {
+    const { monster, globalConfig } = this.props
+
+    const awakeInterval = Date.now() - monster.lastBedAt
+    if (awakeInterval < globalConfig.min_sleep_period) {
+      return alert(`${monster.name} is not tired yet`)
+    }
+
+    this.petAction("awakepet", "wake")
+  }
+
+  private requestSleep = async () => {
+    const { monster, globalConfig } = this.props
+
+    const bedInterval = Date.now() - monster.lastAwakeAt
+    if (bedInterval < globalConfig.min_awake_interval) {
+      return alert(`${monster.name} is not tired yet`)
+    }
+
+    this.petAction("bedpet", "bed")
+  }
+
+  private requestDestroy = async () => {
+    const { monster, globalConfig } = this.props
+
+    const bedInterval = Date.now() - monster.lastAwakeAt
+    if (bedInterval < globalConfig.min_awake_interval) {
+      return alert(`${monster.name} is not tired yet`)
+    }
+
+    this.petAction("destroypet", "destroy")
+  }
+
+  private petAction = (action: string, text: string) => {
+    const { scatter, monster, requestUpdate } = this.props
+
+    trxPet(action, scatter, monster.id)
+      .then((res: any) => {
+        console.info(`Pet ${monster.id} ${text} successfully`, res)
+        alert(`Pet ${monster.name} ${text} successfully`)
+        requestUpdate()
+      }).catch((err: any) => {
+        console.error(`Fail to ${text} ${monster.id}`, err)
+        alert(`Fail to ${text} ${monster.name}`)
+      })
   }
 }
 
 const mapStateToProps = (state: State) => {
   const eosAccount = getEosAccount(state.identity)
-  const eosAuthorization = getEosAuthorization(state.identity)
 
   return {
     eosAccount,
-    eosAuthorization,
+    globalConfig: state.globalConfig,
     scatter: state.scatter
   }
 }

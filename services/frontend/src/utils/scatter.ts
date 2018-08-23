@@ -1,9 +1,5 @@
-
 import { doLoadScatter, doLoadIdentity } from "../store"
-
-import { MONSTERS_ACCOUNT, network, CHAIN_ID } from "./eos"
-
-import Eos from "eosjs"
+import eos from "eosjs"
 
 const customWindow = (window as any)
 
@@ -42,7 +38,7 @@ export const getEosAccount = (identity: any) => {
 
 export const getEosAuthorization = (identity: any) => {
   if (!identity || !identity.accounts || !identity.accounts.length) {
-    return ""
+    return {}
   }
 
   const account = identity.accounts.find((acc: any) => acc.blockchain === "eos")
@@ -55,8 +51,9 @@ export const getEosAuthorization = (identity: any) => {
   }
 }
 
-export const getContract = (scatter: any) => {
-  return scatter.eos(network, Eos, { chainId: CHAIN_ID }).contract(MONSTERS_ACCOUNT)
+export const getContract = (scatter: any, network: any, contract: string) => {
+  // return scatter.eos(network, eos, { chainId: CHAIN_ID }).contract(contract)
+  return scatter.eos(network, eos).contract(contract)
 }
 
 export const SCATTER_EXTENSION_LINK = "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"
