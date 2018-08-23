@@ -1,7 +1,7 @@
 import * as React from "react"
 import { State } from "../../store"
 import { connect } from "react-redux"
-import { trxCreatePet } from "../../utils/eos"
+import { trxCreatePet, e2TrxCreatePet } from "../../utils/eos"
 import Modal from "../shared/Modal"
 
 interface Props {
@@ -73,7 +73,10 @@ class NewMonsterModal extends React.Component<Props, {}> {
       return alert("Name is required to create a Monster")
     }
 
-    trxCreatePet(scatter, name)
+    // playing with EOSJS2
+    const trx = true ? e2TrxCreatePet : trxCreatePet
+
+    trx(scatter, name)
       .then((res: any) => {
         console.info(`Pet ${name} created successfully`, res)
         alert(`Pet ${name} created successfully`)
