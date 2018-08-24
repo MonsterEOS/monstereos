@@ -13,7 +13,7 @@ import App from "./App"
 import registerServiceWorker from "./registerServiceWorker"
 
 const httpLink = new HttpLink({
-  uri: process.env.GRAPHQL_ENDPOINT || "http://localhost:3030/graphql",
+  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || "http://localhost:3030/graphql",
 })
 
 const client = new ApolloClient({
