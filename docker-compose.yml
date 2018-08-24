@@ -63,7 +63,7 @@ services:
   #   environment:
   #     - DATADIR=/root/.local/share
   #   image: monstereos/eosiomn
-  #   command: /opt/eosio/bin/start-node.sh
+  #   command: /opt/eosio/bin/nodeos --config-dir /opt/eosio/bin/data-dir --data-dir /root/.local/share
   #   ports:
   #     - "8826:8888"
   #     - "9826:9876"
