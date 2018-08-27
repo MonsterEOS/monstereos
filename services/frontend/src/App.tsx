@@ -12,6 +12,7 @@ import "bulma/css/bulma.css"
 import "./styles/index.css"
 import Footer from "./modules/shared/Footer"
 import MyMonstersScreen from "./modules/pages/MyMonstersScreen"
+import MonsterDetailsScreen from "./modules/pages/MonsterDetailsScreen"
 
 class App extends React.Component<{}, {}> {
   public render() {
@@ -21,6 +22,7 @@ class App extends React.Component<{}, {}> {
           <TopMenu />
           <Route path="/" exact component={HomeScreen} />
           <Route path="/my-monsters" exact component={MyMonstersScreen} />
+          <Route path="/monster/:id" component={MonsterDetailsScreen} />
           <Route path="/rank" exact component={RankScreen} />
           <Route path="/about" exact component={AboutScreen} />
           <Route path="/faq" exact component={FaqScreen} />

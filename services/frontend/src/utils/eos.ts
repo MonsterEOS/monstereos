@@ -50,7 +50,6 @@ export const trxCreatePet = async (
 
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
-  // feedpet, bedpet, awakepet
   return contract.createpet(eosAccount, petName, eosAuthorization.permission)
 }
 

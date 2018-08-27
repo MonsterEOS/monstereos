@@ -5,6 +5,7 @@ import { State, GlobalConfig } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
 import { trxPet } from "../../utils/eos"
+import { Link } from "react-router-dom"
 
 interface Props {
   monster: MonsterProps,
@@ -76,19 +77,21 @@ class MonsterCard extends React.Component<Props, {}> {
       <React.Fragment>
         <div className="monster-card-header">
           <p>
-            <span className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
-              {monster.name}
-              <small className="is-pulled-right">#{monster.id}</small>
-            </span>
-            <br/>
-            { monster.deathAt ?
-            <React.Fragment>
-              <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
+            <Link to={`/monster/${monster.id}`}>
+              <span className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
+                {monster.name}
+                <small className="is-pulled-right">#{monster.id}</small>
+              </span>
               <br/>
-              <span className="is-6 has-text-danger"><time dateTime={deathAtIso}>DEAD IN {deathAtText}</time></span>
-            </React.Fragment>
-            : <span className="has-text-success">Is alive for {aliveDurationText}</span>
-            }
+              { monster.deathAt ?
+              <React.Fragment>
+                <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
+                <br/>
+                <span className="is-6 has-text-danger"><time dateTime={deathAtIso}>DEAD IN {deathAtText}</time></span>
+              </React.Fragment>
+              : <span className="has-text-success">Is alive for {aliveDurationText}</span>
+              }
+            </Link>
           </p>
         </div>
       </React.Fragment>

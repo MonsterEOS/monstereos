@@ -64,6 +64,76 @@ query MonstersByOwner($owner: String) {
 }
 `
 
+export const GET_MONSTER = gql`
+query MonsterById($id: Int) {
+  allPets(
+    first:1,
+    condition: {
+      id: $id
+    }
+  ) {
+    edges {
+      node {
+        id
+        petName
+        typeId
+        owner
+        createdAt
+        deathAt
+        destroyedAt
+        lastFeed: petActionsByPetId(
+          last:1,
+          condition: {
+            action: "feedpet"
+          }
+        ) {
+          edges {
+            node {
+              createdAt
+            }
+          }
+        }
+        lastAwake: petActionsByPetId(
+          last:1,
+          condition: {
+            action: "awakepet"
+          }
+        ) {
+          edges {
+            node {
+              createdAt
+            }
+          }
+        }
+        lastBed: petActionsByPetId(
+          last:1,
+          condition: {
+            action: "bedpet"
+          }
+        ) {
+          edges {
+            node {
+              createdAt
+            }
+          }
+        }
+        actions: petActionsByPetId(last: 9999, orderBy: CREATED_AT_DESC) {
+          edges {
+            node {
+              action
+              createdAt
+              createdBlock
+              createdTrx
+              createdEosacc
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`
+
 export const petsGqlToMonsters = (allPets: any, globalConfig: GlobalConfig) => {
   return allPets.edges.map(({ node }: any) => {
 
@@ -114,9 +184,24 @@ export const petsGqlToMonsters = (allPets: any, globalConfig: GlobalConfig) => {
       lastFeedAt,
       lastAwakeAt,
       lastBedAt,
-      isSleeping: lastBedAt > lastAwakeAt
+      isSleeping: lastBedAt > lastAwakeAt,
+      actions: loadActions(node.actions)
     }
 
     return calcMonsterStats(monster, globalConfig)
   })
+}
+
+const loadActions = (actions: any) => {
+  if (!actions || !actions.edges || !actions.edges.length) {
+    return []
+  }
+
+  return actions.edges.map(({node}: any) => ({
+    action: String(node.action),
+    createdAt: moment.utc(node.createdAt).valueOf(),
+    author: String(node.createdEosacc),
+    block: Number(node.createdBlock),
+    transaction: String(node.createdTrx)
+  }))
 }

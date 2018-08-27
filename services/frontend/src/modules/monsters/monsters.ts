@@ -1,5 +1,13 @@
 import { GlobalConfig } from "../../store"
 
+export interface MonsterAction {
+  action: string,
+  createdAt: number,
+  author: string,
+  block: number,
+  transaction: string,
+}
+
 export interface MonsterProps {
   id: number,
   name: string,
@@ -13,7 +21,8 @@ export interface MonsterProps {
   lastFeedAt: number,
   lastAwakeAt: number,
   lastBedAt: number,
-  isSleeping: boolean
+  isSleeping: boolean,
+  actions: MonsterAction[]
 }
 
 export const calcMonsterStats = (monster: MonsterProps, config: GlobalConfig) => {
