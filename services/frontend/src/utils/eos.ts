@@ -1,14 +1,15 @@
 import { getEosAuthorization, getContract, getEosAccount } from "./scatter"
-// import {
-//   Rpc as e2Rpc,
-//   SignatureProvider as e2SignatureProvider,
-//   Api as e2Api
-// } from "eosjs2"
+import {
+  Rpc as e2Rpc,
+  // SignatureProvider as e2SignatureProvider,
+  // Api as e2Api
+} from "eosjs2"
+import { parseBattlesFromChain } from "../modules/battles/battles"
 
 const CHAIN_PROTOCOL = process.env.REACT_APP_CHAIN_PROTOCOL || "http"
 const CHAIN_HOST = process.env.REACT_APP_CHAIN_HOST || "localhost"
 const CHAIN_PORT = process.env.REACT_APP_CHAIN_PORT || "8830"
-// const CHAIN_URL = `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
+const CHAIN_URL = `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
 export const CHAIN_ID = "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
 export const MONSTERS_ACCOUNT = "monstereosio"
 export const MONSTERS_TABLE = "pets"
@@ -53,10 +54,44 @@ export const trxCreatePet = async (
   return contract.createpet(eosAccount, petName, eosAuthorization.permission)
 }
 
-// // eosjs2 tests
-// const e2DefaultAcc = "monsterusere"
-// const e2DefaultPk = "5Jdwjwto9wxy5ZNPnWSn965eb8ZtSrK1uRKUxhviLpr9gK79hmM"
-// const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
+// eos api
+const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
+
+export const loadArenas = () => {
+  return e2DefaultRpc.get_table_rows({
+    json: true,
+    code: MONSTERS_ACCOUNT,
+    scope: MONSTERS_ACCOUNT,
+    table: BATTLES_TABLE,
+    limit: 5000
+  }).then((res: any) => {
+    return res.rows.map(parseBattlesFromChain)
+  })
+}
+
+export const loadPets = async () => {
+  const apiList = (lowerBound = 0): any => {
+    return e2DefaultRpc.get_table_rows({
+        json: true,
+        scope: MONSTERS_ACCOUNT,
+        code: MONSTERS_ACCOUNT,
+        table: MONSTERS_TABLE,
+        lower_bound: lowerBound,
+        limit: 5000
+    }).then(async res => {
+      if(res.more) {
+        const nextLowerBound = res.rows[res.rows.length-1].id
+        const nextRows = await apiList(nextLowerBound)
+        return res.rows.concat(nextRows)
+      } else {
+        return res.rows
+      }
+    })
+  }
+
+  return await apiList(0)
+}
+
 // const e2DefaultSignatureProvider = new e2SignatureProvider([e2DefaultPk])
 // const e2DefaultApi = new e2Api({
 //   rpc: e2DefaultRpc,

@@ -2574,9 +2574,9 @@ eosjs-ecc@4.0.4, eosjs-ecc@^4.0.1, eosjs-ecc@^4.0.4:
     ecurve "^1.0.5"
     randombytes "^2.0.5"
 
-eosjs2@0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/eosjs2/-/eosjs2-0.0.11.tgz#75094f0e06de1c9ed87677e4d46329bda1c26c28"
+eosjs2@^0.0.13:
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/eosjs2/-/eosjs2-0.0.13.tgz#3838653087c3a428fa607c1d502624bfd3a0680f"
   dependencies:
     babel-polyfill "^6.26.0"
     eosjs-ecc "^4.0.1"

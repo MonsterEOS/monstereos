@@ -15,7 +15,7 @@
     "enzyme-adapter-react-16": "^1.2.0",
     "eosjs": "^16.0.6",
     "eosjs-ecc": "^4.0.4",
-    "eosjs2": "0.0.11",
+    "eosjs2": "^0.0.13",
     "final-form": "^4.9.1",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
