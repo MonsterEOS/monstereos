@@ -1,6 +1,7 @@
 import { action as tsAction, ActionType } from "typesafe-actions"
 import { combineReducers, createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
+import {v4 as uuid} from "uuid"
 
 import { network as eosNetwork } from "../utils/eos"
 
@@ -9,7 +10,8 @@ import { network as eosNetwork } from "../utils/eos"
 export interface State {
   readonly scatter: any
   readonly identity: any
-  readonly globalConfig: GlobalConfig
+  readonly globalConfig: GlobalConfig,
+  readonly notifications: Notification[]
 }
 
 export interface GlobalConfig {
@@ -50,6 +52,18 @@ const initialGlobalConfig = {
   min_sleep_period: 14400
 }
 
+export interface Notification {
+  id: string,
+  text: string,
+  type: number,
+  link?: string,
+  time: number
+}
+
+export const NOTIFICATION_SUCCESS = 1
+export const NOTIFICATION_WARNING = 2
+export const NOTIFICATION_ERROR = 3
+
 // const initialState: State = {
 //   scatter: null,
 //   eosAccount: ""
@@ -58,20 +72,40 @@ const initialGlobalConfig = {
 // actions definitions
 const LOAD_SCATTER = "LOAD_SCATTER"
 const LOAD_EOS_IDENTITY = "LOAD_EOS_IDENTITY"
+const DELETE_NOTIFICATION = "DELETE_NOTIFICATION"
+const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
 const DO_LOGOUT = "DO_LOGOUT"
 
 const actionLoadScatter = (scatter: object) => tsAction(LOAD_SCATTER, scatter)
 const actionLoadEosIdentity = (identity: object) => tsAction(LOAD_EOS_IDENTITY, identity)
 const actionLogout = () => tsAction(DO_LOGOUT)
+const actionPushNotificaction = (notification: Notification) => tsAction(PUSH_NOTIFICATION, notification)
+const actionDeleteNotificaction = (id: string) => tsAction(DELETE_NOTIFICATION, id)
 
 const actions = {
   actionLoadScatter,
   actionLoadEosIdentity,
   actionLogout,
+  actionPushNotificaction,
+  actionDeleteNotificaction
 }
 type Actions = ActionType<typeof actions>
 
 // actions implementations
+export const deleteNotification = (id: string) => {
+  return actionDeleteNotificaction(id)
+}
+
+export const pushNotification = (text: string, type: number, link?: string) => {
+  return actionPushNotificaction({
+    id: uuid(),
+    time: Date.now(),
+    text,
+    type,
+    link
+  })
+}
+
 export const doLoadScatter = (scatter: any) => {
   return actionLoadScatter(scatter)
 }
@@ -98,9 +132,10 @@ export const requestScatterIdentity = () => async (dispatch: any, getState: any)
     dispatch(actionLoadEosIdentity(identity))
   }).catch((error: any) => {
     if (error && error.message) {
-      alert(error.message)
+      dispatch(pushNotification(error.message, NOTIFICATION_ERROR))
     } else {
       console.error("Fail to get Scatter Identity", error)
+      dispatch(pushNotification("Fail to get Scatter Identity", NOTIFICATION_ERROR))
     }
   })
 }
@@ -134,6 +169,17 @@ const reducers = combineReducers<State, Actions>({
   globalConfig: (state = initialGlobalConfig) => {
     // TODO: implement dynamic global config
     return state
+  },
+  notifications: (state = [], action) => {
+    switch (action.type) {
+      case PUSH_NOTIFICATION:
+        const notification = action.payload as Notification
+        return state.concat(notification)
+      case DELETE_NOTIFICATION:
+        return state.filter((item) => item.id !== action.payload)
+      default:
+        return state
+    }
   }
 })
 

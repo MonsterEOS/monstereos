@@ -14,6 +14,7 @@ import Footer from "./modules/shared/Footer"
 import ArenasScreen from "./modules/battles/ArenasScreen"
 import MyMonstersScreen from "./modules/monsters/MyMonstersScreen"
 import MonsterDetailsScreen from "./modules/monsters/MonsterDetailsScreen"
+import Toaster from "./modules/shared/Toaster"
 
 class App extends React.Component<{}, {}> {
   public render() {
@@ -21,6 +22,7 @@ class App extends React.Component<{}, {}> {
       <Switch >
         <React.Fragment>
           <TopMenu />
+          <Toaster />
           <Route path="/" exact component={HomeScreen} />
           <Route path="/arenas" exact component={ArenasScreen} />
           <Route path="/my-monsters" exact component={MyMonstersScreen} />

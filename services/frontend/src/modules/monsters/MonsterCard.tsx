@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as moment from "moment"
 import { MonsterProps } from "./monsters"
-import { State, GlobalConfig } from "../../store"
+import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, NOTIFICATION_WARNING } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
 import { trxPet } from "../../utils/eos"
@@ -12,6 +12,7 @@ interface Props {
   eosAccount: string,
   globalConfig: GlobalConfig,
   requestUpdate: any,
+  dispatchPushNotification: any,
   scatter: any
 }
 
@@ -144,7 +145,7 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const feedInterval = Date.now() - monster.lastFeedAt
     if (feedInterval < globalConfig.min_hunger_interval) {
-      return alert(`${monster.name} is not hungry yet`)
+      return this.warnAction(`${monster.name} is not hungry yet`)
     }
 
     this.petAction("feedpet", "feed")
@@ -155,7 +156,7 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const awakeInterval = Date.now() - monster.lastBedAt
     if (awakeInterval < globalConfig.min_sleep_period) {
-      return alert(`${monster.name} is not tired yet`)
+      return this.warnAction(`${monster.name} is not recovered yet`)
     }
 
     this.petAction("awakepet", "wake")
@@ -166,34 +167,32 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const bedInterval = Date.now() - monster.lastAwakeAt
     if (bedInterval < globalConfig.min_awake_interval) {
-      return alert(`${monster.name} is not tired yet`)
+      return this.warnAction(`${monster.name} is not tired yet`)
     }
 
     this.petAction("bedpet", "bed")
   }
 
   private requestDestroy = async () => {
-    const { monster, globalConfig } = this.props
-
-    const bedInterval = Date.now() - monster.lastAwakeAt
-    if (bedInterval < globalConfig.min_awake_interval) {
-      return alert(`${monster.name} is not tired yet`)
-    }
-
     this.petAction("destroypet", "destroy")
   }
 
+  private warnAction = (text: string) => {
+    const { dispatchPushNotification } = this.props
+    dispatchPushNotification(text, NOTIFICATION_WARNING)
+  }
+
   private petAction = (action: string, text: string) => {
-    const { scatter, monster, requestUpdate } = this.props
+    const { scatter, monster, requestUpdate, dispatchPushNotification } = this.props
 
     trxPet(action, scatter, monster.id)
       .then((res: any) => {
         console.info(`Pet ${monster.id} ${text} successfully`, res)
-        alert(`Pet ${monster.name} ${text} successfully`)
+        dispatchPushNotification(`Pet ${monster.name} ${text} successfully`, NOTIFICATION_SUCCESS)
         requestUpdate()
       }).catch((err: any) => {
         console.error(`Fail to ${text} ${monster.id}`, err)
-        alert(`Fail to ${text} ${monster.name}`)
+        dispatchPushNotification(`Fail to ${text} ${monster.name}`, NOTIFICATION_ERROR)
       })
   }
 }
@@ -208,4 +207,8 @@ const mapStateToProps = (state: State) => {
   }
 }
 
-export default connect(mapStateToProps)(MonsterCard)
+const mapDispatchToProps = {
+  dispatchPushNotification: pushNotification
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MonsterCard)

@@ -55,7 +55,5 @@ export const calcMonsterStats = (monster: MonsterProps, config: GlobalConfig) =>
 
   }
 
-  console.info(monster)
-
   return monster
 }

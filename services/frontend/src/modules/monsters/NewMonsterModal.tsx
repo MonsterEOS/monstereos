@@ -1,5 +1,5 @@
 import * as React from "react"
-import { State } from "../../store"
+import { State, pushNotification, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from "../../store"
 import { connect } from "react-redux"
 import { trxCreatePet } from "../../utils/eos" // , e2TrxCreatePet } from "../../utils/eos"
 import Modal from "../shared/Modal"
@@ -7,6 +7,7 @@ import Modal from "../shared/Modal"
 interface Props {
   closeModal: (doUpdate: boolean) => void,
   scatter: any,
+  dispatchPushNotification: any
 }
 
 interface ReactState {
@@ -66,11 +67,11 @@ class NewMonsterModal extends React.Component<Props, {}> {
   }
 
   private createPet = () => {
-    const { scatter, closeModal } = this.props
+    const { scatter, closeModal, dispatchPushNotification } = this.props
     const { name } = this.state
 
     if (!name) {
-      return alert("Name is required to create a Monster")
+      return dispatchPushNotification(`Name is required to create a Monster`, NOTIFICATION_ERROR)
     }
 
     // playing with EOSJS2
@@ -79,11 +80,11 @@ class NewMonsterModal extends React.Component<Props, {}> {
     trx(scatter, name)
       .then((res: any) => {
         console.info(`Pet ${name} created successfully`, res)
-        alert(`Pet ${name} created successfully`)
+        dispatchPushNotification(`Pet ${name} created successfully`, NOTIFICATION_SUCCESS)
         closeModal(true)
       }).catch((err: any) => {
         console.error(`Fail to create ${name}`, err)
-        alert(`Fail to create ${name}`)
+        dispatchPushNotification(`Fail to create ${name}`, NOTIFICATION_ERROR)
       })
   }
 }
@@ -94,4 +95,8 @@ const mapStateToProps = (state: State) => {
   }
 }
 
-export default connect(mapStateToProps)(NewMonsterModal)
+const mapDispatchToProps = {
+  dispatchPushNotification: pushNotification
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewMonsterModal)
