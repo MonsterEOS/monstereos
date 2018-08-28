@@ -1,0 +1,21 @@
+{
+    "teamMemberId": 1,
+    "eosAccount": "gm3daojtg4ge",
+    "timeEntries": [
+        {
+            "timeSpent": 0.5,
+            "weight": 1,
+            "notes": "Meeting with Vertex"
+        },
+        {
+            "timeSpent": 0.5,
+            "weight": 1,
+            "notes": "Meeting with Vertex"
+        },
+        {
+            "timeSpent": 1,
+            "weight": 1,
+            "notes": "Inspected market-mobile branch, created Google & Medium account, created blog post, added to twitter and polished new distribution scheme."
+        }
+    ]
+}
