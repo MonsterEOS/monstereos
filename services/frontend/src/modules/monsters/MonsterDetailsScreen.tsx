@@ -1,15 +1,14 @@
 import * as React from "react"
-// import { Link } from "react-router-dom"
 import { connect } from "react-redux"
 import { State } from "../../store"
 import { Query } from "react-apollo"
 
 import PageContainer from "../shared/PageContainer"
-import MonsterCard from "../monsters/MonsterCard"
+import MonsterCard from "./MonsterCard"
 import TitleBar from "../shared/TitleBar"
 
-import { GET_MONSTER, petsGqlToMonsters } from "../monsters/monsters.gql"
-import MonsterHistory from "../monsters/MonsterHistory"
+import { GET_MONSTER, petsGqlToMonsters } from "./monsters.gql"
+import MonsterHistory from "./MonsterHistory"
 
 interface Props {
   match: any,

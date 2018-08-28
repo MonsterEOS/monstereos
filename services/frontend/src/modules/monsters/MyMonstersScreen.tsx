@@ -6,11 +6,11 @@ import { Query } from "react-apollo"
 import { getEosAccount } from "../../utils/scatter"
 
 import PageContainer from "../shared/PageContainer"
-import MonsterCard from "../monsters/MonsterCard"
+import MonsterCard from "./MonsterCard"
 import TitleBar from "../shared/TitleBar"
 
-import NewMonsterModal from "../monsters/NewMonsterModal"
-import { GET_MY_MONSTERS, petsGqlToMonsters } from "../monsters/monsters.gql"
+import NewMonsterModal from "./NewMonsterModal"
+import { GET_MY_MONSTERS, petsGqlToMonsters } from "./monsters.gql"
 
 interface Props {
   eosAccount: string,
