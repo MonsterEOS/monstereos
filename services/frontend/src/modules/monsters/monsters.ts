@@ -43,8 +43,6 @@ export const parseMonstersFromChain = (pet: any, config: GlobalConfig): MonsterP
     actions: []
   }
 
-  console.info(monster.id, monster.lastFeedAt)
-
   return calcMonsterStats(monster, config)
 }
 

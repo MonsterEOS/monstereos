@@ -154,7 +154,7 @@ export const requestScatterIdentity = () => async (dispatch: any, getState: any)
   return getState().scatter.getIdentity(requiredFields)
   .then((identity: any) => {
     console.info("identity is ", identity)
-    dispatch(actionLoadEosIdentity(identity))
+    dispatch(doLoadIdentity(identity))
   }).catch((error: any) => {
     if (error && error.message) {
       dispatch(pushNotification(error.message, NOTIFICATION_ERROR))

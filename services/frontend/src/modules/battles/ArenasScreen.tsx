@@ -1,20 +1,23 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR } from "../../store"
+import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION_SUCCESS } from "../../store"
 import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
 import TitleBar from "../shared/TitleBar"
-import { Arena, getCurrentBattle } from "./battles"
+import { Arena, getCurrentBattle, getAvailableMonstersToBattle } from "./battles"
 import { loadArenas, createBattle, joinBattle } from "../../utils/eos"
 import BattleCard from "./BattleCard"
 import { getEosAccount } from "../../utils/scatter"
+import { MonsterProps } from "../monsters/monsters"
 
 interface Props {
   globalConfig: GlobalConfig,
   dispatchPushNotification: any,
   scatter: any,
   identity: string,
+  history: any,
+  myMonsters: MonsterProps[]
 }
 
 interface ReactState {
@@ -31,25 +34,32 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   public render() {
 
-    const { identity } = this.props
-    const { battle_max_arenas, battle_busy_arenas } = this.props.globalConfig
+    const { identity, myMonsters } = this.props
+    const { battle_max_arenas } = this.props.globalConfig
     const { arenas } = this.state
 
     const arenasCounter =
       <ArenasCounter
-        availableArenas={battle_max_arenas - battle_busy_arenas}
+        availableArenas={battle_max_arenas - arenas.length}
         maxArenas={battle_max_arenas} />
 
     const currentBattle = getCurrentBattle(arenas, identity)
+
+    const availableMonsters = getAvailableMonstersToBattle(myMonsters)
 
     const battleButton =
       currentBattle ?
       <Link className="button is-warning" to={`/arenas/${currentBattle.host}`}>
         Reconnect to Battle
       </Link> :
+      identity ?
       <a className="button is-success" onClick={this.doCreateBattle}>
         Create a Battle
-      </a>
+      </a> :
+      null
+
+    const availableToBattle = !!identity && !currentBattle
+      && availableMonsters.length > 0
 
     return (
       <PageContainer>
@@ -59,8 +69,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
         {arenas.map((arena: Arena, index: number) =>
           <BattleCard
             key={index}
-            myBattle={currentBattle !== null}
-            availableToBattle={currentBattle === null}
+            myBattle={!!currentBattle && currentBattle.host === arena.host}
+            availableToBattle={availableToBattle}
             joinBattle={() => this.doJoinBattle(arena.host)}
             arena={arena} />
         )}
@@ -81,9 +91,12 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   }
 
   private doCreateBattle = async () => {
-    const { scatter, dispatchPushNotification } = this.props
+    const { scatter, dispatchPushNotification, history, identity } = this.props
     createBattle(scatter, 1)
-      .then(() => setTimeout(this.refresh, 500))
+      .then(() => {
+        setTimeout(() => history.push(`/arenas/${identity}`), 500)
+        dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
+      })
       .catch((error: any) => {
         console.error("Fail to create battle", error)
         dispatchPushNotification("Fail to Create Battle", NOTIFICATION_ERROR)
@@ -111,7 +124,8 @@ const mapStateToProps = (state: State) => {
   return {
     globalConfig: state.globalConfig,
     scatter: state.scatter,
-    identity: getEosAccount(state.identity)
+    identity: getEosAccount(state.identity),
+    myMonsters: state.myMonsters
   }
 }
 

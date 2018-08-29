@@ -21,7 +21,7 @@ const parseTime = (time: number) => {
 }
 
 const BattleCard = ({arena, myBattle, joinBattle, availableToBattle}: Props) => (
-  <div className="card">
+  <div className="card has-margin-top">
     <header className="card-header">
       <p className="card-header-title">{arena.host}'s Arena</p>
     </header>

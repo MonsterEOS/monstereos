@@ -1,4 +1,5 @@
 import { GlobalConfig } from "../../store"
+import { MonsterProps } from "../monsters/monsters"
 
 export interface BattleCommitment {
   player: string,
@@ -19,9 +20,9 @@ export const parseBattlesFromChain = (battle: any): Arena => {
   return {
     host: battle.host,
     mode: battle.mode,
-    lastMoveAt: battle.last_move_at,
+    lastMoveAt: battle.last_move_at * 1000,
     petsStats: battle.pets_stats,
-    startedAt: battle.started_at,
+    startedAt: battle.started_at * 1000,
     commits: battle.commits
   }
 }
@@ -52,4 +53,12 @@ export const getCurrentBattle = (arenas: Arena[], player: string) => {
     return arena.host === player ||
       arena.commits.filter((commitment: BattleCommitment) => commitment.player === player).length > 0
   })
+}
+
+export const getAvailableMonstersToBattle = (monsters: MonsterProps[]) => {
+  return monsters.filter((monster: MonsterProps) =>
+    monster.health > 40 &&
+    !monster.isSleeping &&
+    !monster.deathAt
+  )
 }

@@ -35,7 +35,9 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     if (eosAccount) {
       return this.renderMonsters(eosAccount)
     } else {
-      return <div>Ooopss... looks like you are not identified</div>
+      return <PageContainer>
+          <div>Ooopss... looks like you are not identified</div>
+        </PageContainer>
     }
   }
 

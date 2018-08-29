@@ -12,6 +12,7 @@ import "bulma/css/bulma.css"
 import "./styles/index.css"
 import Footer from "./modules/shared/Footer"
 import ArenasScreen from "./modules/battles/ArenasScreen"
+import BattleScreen from "./modules/battles/BattleScreen"
 import MyMonstersScreen from "./modules/monsters/MyMonstersScreen"
 import MonsterDetailsScreen from "./modules/monsters/MonsterDetailsScreen"
 import Toaster from "./modules/shared/Toaster"
@@ -25,6 +26,7 @@ class App extends React.Component<{}, {}> {
           <Toaster />
           <Route path="/" exact component={HomeScreen} />
           <Route path="/arenas" exact component={ArenasScreen} />
+          <Route path="/arenas/:host" exact component={BattleScreen} />
           <Route path="/my-monsters" exact component={MyMonstersScreen} />
           <Route path="/monster/:id" component={MonsterDetailsScreen} />
           <Route path="/rank" exact component={RankScreen} />

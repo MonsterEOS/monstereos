@@ -79,6 +79,20 @@ export const loadArenas = () => {
   })
 }
 
+export const loadArenaByHost = (host: string) => {
+  return e2DefaultRpc.get_table_rows({
+    json: true,
+    code: MONSTERS_ACCOUNT,
+    scope: MONSTERS_ACCOUNT,
+    table: BATTLES_TABLE,
+    lower_bound: host,
+    limit: 1
+  }).then((res: any) => {
+    const battles = res.rows.map(parseBattlesFromChain)
+    return battles.length ? battles[0] : null
+  })
+}
+
 export const loadGlobalConfig = async (store: any) => {
   const config = await e2DefaultRpc.get_table_rows({
     json: true,
@@ -278,5 +292,4 @@ export const leaveBattle = async(
     destroyHashInfo()
     return res
   })
-
 }
