@@ -143,7 +143,7 @@ class MonsterCard extends React.Component<Props, {}> {
   private requestFeed = () => {
     const { monster, globalConfig } = this.props
 
-    const feedInterval = Date.now() - monster.lastFeedAt
+    const feedInterval = (Date.now() - monster.lastFeedAt) / 1000
     if (feedInterval < globalConfig.min_hunger_interval) {
       return this.warnAction(`${monster.name} is not hungry yet`)
     }
@@ -154,7 +154,7 @@ class MonsterCard extends React.Component<Props, {}> {
   private requestAwake = async () => {
     const { monster, globalConfig } = this.props
 
-    const awakeInterval = Date.now() - monster.lastBedAt
+    const awakeInterval = (Date.now() - monster.lastBedAt) / 1000
     if (awakeInterval < globalConfig.min_sleep_period) {
       return this.warnAction(`${monster.name} is not recovered yet`)
     }
@@ -165,7 +165,7 @@ class MonsterCard extends React.Component<Props, {}> {
   private requestSleep = async () => {
     const { monster, globalConfig } = this.props
 
-    const bedInterval = Date.now() - monster.lastAwakeAt
+    const bedInterval = (Date.now() - monster.lastAwakeAt) / 1000
     if (bedInterval < globalConfig.min_awake_interval) {
       return this.warnAction(`${monster.name} is not tired yet`)
     }

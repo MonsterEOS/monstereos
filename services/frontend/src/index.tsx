@@ -12,6 +12,7 @@ import loadScatter from "./utils/scatter"
 import App from "./App"
 import registerServiceWorker from "./registerServiceWorker"
 import { loadGlobalConfig } from "./utils/eos"
+import { trackMouse } from "./utils/hashInfo"
 
 const httpLink = new HttpLink({
   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || "http://localhost:3030/graphql",
@@ -33,8 +34,10 @@ ReactDOM.render(
   document.getElementById("root") as HTMLElement
 )
 
-registerServiceWorker()
-
+// some global inits
 loadScatter(store)
-
 loadGlobalConfig(store)
+trackMouse()
+
+// service worker
+registerServiceWorker()

@@ -9,13 +9,25 @@ import TitleBar from "../shared/TitleBar"
 
 import { GET_MONSTER, petsGqlToMonsters } from "./monsters.gql"
 import MonsterHistory from "./MonsterHistory"
+import { loadMonsterById } from "../../utils/eos"
+import { MonsterProps } from "./monsters"
 
 interface Props {
   match: any,
   globalConfig: any,
 }
 
-class MyMonstersScreen extends React.Component<Props, {}> {
+interface ReactState {
+  monster?: MonsterProps
+}
+
+class MyMonstersScreen extends React.Component<Props, ReactState> {
+
+  public state = { monster: undefined }
+
+  public async componentDidMount() {
+    this.refresh()
+  }
 
   public render() {
 
@@ -25,13 +37,15 @@ class MyMonstersScreen extends React.Component<Props, {}> {
 
     const { globalConfig } = this.props
 
+    const { monster } = this.state
+
     return <Query query={GET_MONSTER} variables={variables}>
       {({ data: { allPets }, loading, refetch }) => {
 
         let subHeader = null
 
         const monsters = allPets ? petsGqlToMonsters(allPets, globalConfig) : []
-        let monster = null
+        let monsterDetails = null
 
         if (loading || !allPets) {
           subHeader = (
@@ -40,13 +54,11 @@ class MyMonstersScreen extends React.Component<Props, {}> {
             </small>
           )
         } else {
-          monster = monsters[0]
+          monsterDetails = monsters[0]
           subHeader = (<small className="is-hidden-mobile">
-            This monster has {(monster && monster.actions && monster.actions.length) || 0} actions
+            This monster has {(monsterDetails && monsterDetails.actions && monsterDetails.actions.length) || 0} actions
             </small>)
         }
-
-        console.info(monster, monsters)
 
         const refetchMonster = () => {
           setTimeout(() => refetch(variables), 500)
@@ -61,10 +73,12 @@ class MyMonstersScreen extends React.Component<Props, {}> {
             { monster &&
               <div className="columns is-multiline">
                 <div className="column monster-column">
-                  <MonsterCard monster={monster} requestUpdate={refetchMonster} />
+                  <MonsterCard
+                    monster={monster!}
+                    requestUpdate={refetchMonster} />
                 </div>
                 <div className="column">
-                  <MonsterHistory actions={monster.actions} />
+                  {monsterDetails && <MonsterHistory actions={monsterDetails.actions} />}
                 </div>
               </div>
             }
@@ -72,6 +86,12 @@ class MyMonstersScreen extends React.Component<Props, {}> {
         )
       }}
     </Query>
+  }
+
+  private refresh = async () => {
+    const { match: {params: { id } }, globalConfig } = this.props
+    const monster = await loadMonsterById(id, globalConfig)
+    this.setState({monster})
   }
 }
 

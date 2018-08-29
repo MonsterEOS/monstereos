@@ -1,12 +1,18 @@
 import { GlobalConfig } from "../../store"
 
+export interface BattleCommitment {
+  player: string,
+  commitment: string,
+  reveal: string
+}
+
 export interface Arena {
   host: string,
   lastMoveAt: number,
   mode: number,
   petsStats: any[],
   startedAt: number
-  commits: any[]
+  commits: BattleCommitment[]
 }
 
 export const parseBattlesFromChain = (battle: any): Arena => {
@@ -39,4 +45,11 @@ export const parseConfigFromChain = (config: any): GlobalConfig => {
     min_hunger_interval: config.min_hunger_interval,
     min_sleep_period: config.min_sleep_period
   }
+}
+
+export const getCurrentBattle = (arenas: Arena[], player: string) => {
+  return arenas.find((arena: Arena) => {
+    return arena.host === player ||
+      arena.commits.filter((commitment: BattleCommitment) => commitment.player === player).length > 0
+  })
 }

@@ -122,7 +122,7 @@ class TopMenu extends React.Component<Props, ReactState> {
   private arenasButton() {
     return (
       <Link className="navbar-item" to="/arenas">
-        <i className="fa fa-swords" />
+        <i className="fa fa-legal" />
         Arenas
       </Link>
     )

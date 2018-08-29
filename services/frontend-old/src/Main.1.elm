@@ -2041,18 +2041,6 @@ battleArenaContent model =
             playerInBattles model.battles model.user.eosAccount
                 |> List.head
 
-        currentBattles =
-            List.length model.battles
-
-        availableArenas =
-            model.globalConfig.maxArenas - currentBattles
-
-        availableArenasTxt =
-            toString availableArenas
-
-        maxArenasTxt =
-            toString model.globalConfig.maxArenas
-
         hostButton =
             case currentPlaying of
                 Just battle ->
@@ -2063,13 +2051,6 @@ battleArenaContent model =
                         ]
                         [ text "Reconnect to Battle" ]
 
-                Nothing ->
-                    a
-                        [ class "button is-success"
-                        , onClick BattleCreate
-                        , disabledAttribute model.isLoading
-                        ]
-                        [ text "Create a Battle" ]
 
         battleListHeader =
             if currentBattles > 0 then
@@ -2635,122 +2616,4 @@ battleContent model battle =
                 ]
             , content
             , div [ class "tlk-webchat has-margin-top" ] [ text "" ]
-            ]
-
-
-webchat : String -> Html msg
-webchat str =
-    div [ id str ] [ text "" ]
-
-
-monsterContent : Model -> Html Msg
-monsterContent model =
-    let
-        myMonsters =
-            (model.monsters
-                |> List.filter (\monster -> monster.owner == model.user.eosAccount)
-                |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading False)
-            )
-
-        newMonsterMsg =
-            if List.length myMonsters < 1 then
-                "Looks like you don't have any Monster yet... What about create a new monster on the above button?!"
-            else
-                ""
-    in
-        div []
-            [ div [ class "content" ]
-                [ titleMenu "My Monsters"
-                    [ a
-                        [ class "button is-success"
-                        , onClick ToggleMonsterCreation
-                        , disabledAttribute model.isLoading
-                        ]
-                        [ text "New Monster" ]
-                    , a
-                        [ class "button is-info"
-                        , onClick (SetContent BattleArena)
-                        , disabledAttribute model.isLoading
-                        ]
-                        [ text "Battle Arena" ]
-                    ]
-                , p [] [ text newMonsterMsg ]
-                ]
-            , div [ class "columns is-multiline" ]
-                myMonsters
-            ]
-
-
-rankContent : Model -> Html Msg
-rankContent model =
-    let
-        monsters =
-            (model.monsters
-                |> List.filter (\monster -> monster.death_at == 0)
-                |> List.sortBy .created_at
-            )
-
-        monstersSize =
-            List.length monsters
-
-        currentPage =
-            toString model.currentRankPage
-
-        pageSize =
-            30
-
-        pages =
-            ceiling (toFloat (monstersSize) / pageSize)
-
-        pagesOptions =
-            List.range 0 (pages - 1)
-                |> List.map
-                    (\r ->
-                        ( toString r
-                        , ("Page "
-                            ++ toString (r + 1)
-                            ++ ": From "
-                            ++ toString (r * pageSize + 1)
-                            ++ " to "
-                            ++ toString (pageSize + (r * pageSize))
-                          )
-                        )
-                    )
-
-        pagination =
-            selectInput model.isLoading pagesOptions "" currentPage "trophy" UpdateCurrentRankPage
-
-        paginatedMonsters =
-            monsters
-                |> List.drop (pageSize * model.currentRankPage)
-                |> List.take pageSize
-                |> List.map (\monster -> monsterCard monster model.currentTime model.isLoading True)
-    in
-        div []
-            [ titleMenu "Eldest Alive Monsters" [ pagination ]
-            , div [ class "columns is-multiline" ]
-                paginatedMonsters
-            , titleMenu "" [ pagination ]
-            ]
-
-
-view : Model -> Html Msg
-view model =
-    let
-        modal =
-            if model.showHelp then
-                helpModal model
-            else if model.showWallet then
-                walletModal model
-            else if model.showMonsterCreation then
-                monsterCreationModal model
-            else
-                text ""
-    in
-        div []
-            [ topMenu model
-            , notificationsView model
-            , mainContent model
-            , pageFooter
-            , modal
             ]

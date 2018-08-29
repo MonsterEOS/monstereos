@@ -1,8 +1,7 @@
 import * as React from "react"
 // import { Link } from "react-router-dom"
 import { connect } from "react-redux"
-import { State } from "../../store"
-import { Query } from "react-apollo"
+import { State, doLoadMyMonsters } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 
 import PageContainer from "../shared/PageContainer"
@@ -10,11 +9,13 @@ import MonsterCard from "./MonsterCard"
 import TitleBar from "../shared/TitleBar"
 
 import NewMonsterModal from "./NewMonsterModal"
-import { GET_MY_MONSTERS, petsGqlToMonsters } from "./monsters.gql"
+import { MonsterProps } from "./monsters"
 
 interface Props {
   eosAccount: string,
+  myMonsters: MonsterProps[],
   globalConfig: any,
+  dispatchDoLoadMyMonsters: any
 }
 
 interface ReactState {
@@ -40,88 +41,59 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
 
   private renderMonsters(eosAccount: string) {
 
-    const variables = { owner: eosAccount }
-
-    const { globalConfig } = this.props
+    const { myMonsters, dispatchDoLoadMyMonsters } = this.props
     const { showNewMonsterModal } = this.state
 
-    return <Query query={GET_MY_MONSTERS} variables={variables}>
-      {({ data: { allPets }, loading, refetch }) => {
+    const subHeader = (<small className="is-hidden-mobile">
+      You have {myMonsters.length} monsters
+      </small>)
 
-        let subHeader = null
-        let newMonsterButton = null
-        let arenaButton = null
+    const newMonsterButton = (
+      <a
+        className="button is-success"
+        onClick={() => this.setState({showNewMonsterModal: true})}>
+        New Monster
+      </a>
+    )
 
-        const monsters = allPets ? petsGqlToMonsters(allPets, globalConfig) : []
+    const aliveMonsters = myMonsters.filter((monster: any) => !monster.deathAt)
+    const deadMonsters = myMonsters.filter((monster: any) => monster.deathAt)
 
-        if (loading || !allPets) {
-          subHeader = (
-            <small>
-              <i className="fa fa-spin fa-spinner" /> Loading Monsters...
-            </small>
-          )
-        } else {
-          subHeader = (<small className="is-hidden-mobile">
-            You have {monsters.length} monsters
-            </small>)
+    const refetchMonsters = () => {
+      setTimeout(() => dispatchDoLoadMyMonsters(), 500)
+    }
 
-          newMonsterButton = (
-            <a
-              className="button is-success"
-              onClick={() => this.setState({showNewMonsterModal: true})}>
-              New Monster
-            </a>
-          )
+    const newMonsterClosure = (doRefetch: boolean) => {
+      this.setState({showNewMonsterModal: false})
+      if (doRefetch) {
+        refetchMonsters()
+      }
+    }
 
-          // arena coming soon
-          arenaButton = (
-            // <a className="button is-info">
-            //   Battle Arena
-            // </a>
-            <span>{" "}</span>
-          )
+    return (
+      <PageContainer>
+        <TitleBar
+          title="My Monsters"
+          menu={[subHeader, newMonsterButton]} />
+        {aliveMonsters &&
+          <MonstersList
+            monsters={aliveMonsters}
+            update={refetchMonsters} />}
+
+        {deadMonsters &&
+          <React.Fragment>
+            <h3>My Dead Monsters</h3>
+            <MonstersList
+              monsters={deadMonsters}
+              update={refetchMonsters} />
+          </React.Fragment>}
+
+        {showNewMonsterModal &&
+          <NewMonsterModal
+            closeModal={newMonsterClosure} />
         }
-
-        const aliveMonsters = allPets && monsters.filter((monster: any) => !monster.deathAt)
-        const deadMonsters = allPets && monsters.filter((monster: any) => monster.deathAt)
-
-        const refetchMonsters = () => {
-          setTimeout(() => refetch(variables), 500)
-        }
-
-        const newMonsterClosure = (doRefetch: boolean) => {
-          this.setState({showNewMonsterModal: false})
-          if (doRefetch) {
-            refetchMonsters()
-          }
-        }
-
-        return (
-          <PageContainer>
-            <TitleBar
-              title="My Monsters"
-              menu={[subHeader, newMonsterButton, arenaButton]} />
-            {aliveMonsters &&
-              <MonstersList
-                monsters={aliveMonsters}
-                update={refetchMonsters} />}
-
-            {deadMonsters &&
-              <React.Fragment>
-                <h3>My Dead Monsters</h3>
-                <MonstersList
-                  monsters={deadMonsters}
-                  update={refetchMonsters} />
-              </React.Fragment>}
-
-            {showNewMonsterModal &&
-              <NewMonsterModal
-                closeModal={newMonsterClosure} />
-            }
-          </PageContainer>
-        )
-      }}
-    </Query>
+      </PageContainer>
+    )
   }
 }
 
@@ -140,8 +112,13 @@ const mapStateToProps = (state: State) => {
 
   return {
     eosAccount,
+    myMonsters: state.myMonsters,
     globalConfig: state.globalConfig,
   }
 }
 
-export default connect(mapStateToProps)(MyMonstersScreen)
+const mapDispatchToProps = {
+  dispatchDoLoadMyMonsters: doLoadMyMonsters
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MyMonstersScreen)
