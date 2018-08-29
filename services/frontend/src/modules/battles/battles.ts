@@ -12,19 +12,77 @@ export interface Arena {
   lastMoveAt: number,
   mode: number,
   petsStats: any[],
-  startedAt: number
-  commits: BattleCommitment[]
+  startedAt: number,
+  commits: BattleCommitment[],
+  phase: number
 }
 
-export const parseBattlesFromChain = (battle: any): Arena => {
-  return {
-    host: battle.host,
-    mode: battle.mode,
-    lastMoveAt: battle.last_move_at * 1000,
-    petsStats: battle.pets_stats,
-    startedAt: battle.started_at * 1000,
-    commits: battle.commits
+export const EMPTY_REVEAL = "0000000000000"
+
+export const BATTLE_PHASE_JOINING = 1
+export const BATTLE_PHASE_STARTING = 2
+export const BATTLE_PHASE_PICKING = 3
+export const BATTLE_PHASE_GOING = 4
+export const BATTLE_PHASE_FINISHED = 5
+
+export const parseBattlesFromChain = (data: any): Arena => {
+  const battle: Arena = {
+    host: data.host,
+    mode: data.mode,
+    lastMoveAt: data.last_move_at * 1000,
+    petsStats: data.pets_stats,
+    startedAt: data.started_at * 1000,
+    commits: data.commits,
+    phase: BATTLE_PHASE_JOINING
   }
+
+  const requiredPlayers = 2 // by default only 2 players
+
+  if (battle.commits.length === requiredPlayers) {
+    battle.phase = BATTLE_PHASE_STARTING
+
+    console.info(battle.commits)
+
+    const revealedCommitments = getReadyPlayers(battle)
+
+    if (revealedCommitments.length === requiredPlayers) {
+      battle.phase = BATTLE_PHASE_PICKING
+
+      const requiredMonsters = battle.mode * 2
+
+      if (battle.petsStats.length === requiredMonsters) {
+        battle.phase = BATTLE_PHASE_GOING
+      }
+    }
+  }
+
+  return battle
+}
+
+export const getBattleText = (arena: Arena) => {
+  switch (arena.phase) {
+    case BATTLE_PHASE_JOINING:
+      return "Joining phase: Waiting for players to join"
+    case BATTLE_PHASE_FINISHED:
+      return "The battle is over"
+    case BATTLE_PHASE_GOING:
+      return `Waiting for player ${arena.commits[0].player} attack`
+    case BATTLE_PHASE_PICKING:
+      return `Picking phase: Waiting for player ${arena.commits[0].player} pick`
+    case BATTLE_PHASE_STARTING:
+      return `Preparing phase: Waiting for players confirmation`
+    default:
+      return "Loading Battle phase..."
+  }
+}
+
+export const getReadyPlayers = (arena: Arena) => {
+  return arena.commits.filter((commit: BattleCommitment) => commit.reveal.indexOf(EMPTY_REVEAL) < 0)
+}
+
+export const isPlayerReady = (arena: Arena, player: string) => {
+  const reveal = getReadyPlayers(arena).find((commit: BattleCommitment) => commit.player === player)
+  return !!reveal
 }
 
 export const parseConfigFromChain = (config: any): GlobalConfig => {

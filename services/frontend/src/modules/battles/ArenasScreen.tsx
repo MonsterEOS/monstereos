@@ -104,9 +104,12 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   }
 
   private doJoinBattle = async (host: string) => {
-    const { scatter, dispatchPushNotification } = this.props
+    const { scatter, dispatchPushNotification, history } = this.props
     joinBattle(scatter, host)
-      .then(() => setTimeout(this.refresh, 500))
+      .then(() => {
+        setTimeout(() => history.push(`/arenas/${host}`), 500)
+        dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
+      })
       .catch((error: any) => {
         console.error("Fail to join battle", error)
         dispatchPushNotification("Fail to Join Battle", NOTIFICATION_ERROR)

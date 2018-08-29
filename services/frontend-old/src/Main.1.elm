@@ -1476,41 +1476,6 @@ isBattleOver battles battle =
            )
 
 
-availableMonstersToBattle : Model -> String -> String -> List Monster
-availableMonstersToBattle model player currentHost =
-    model.monsters
-        |> List.filter
-            (\m ->
-                if
-                    m.owner
-                        == player
-                        && m.death_at
-                        == 0
-                        && not m.is_sleeping
-                then
-                    petInBattles model.battles m.id
-                        |> List.filter
-                            (\b ->
-                                currentHost == "" || b.host /= currentHost
-                            )
-                        |> List.length
-                        |> (==) 0
-                else
-                    False
-            )
-
-
-playerInBattle : Battle -> String -> Bool
-playerInBattle battle player =
-    battle.host
-        == player
-        || (battle.turns
-                |> List.filter (\t -> t.player == player)
-                |> List.length
-                |> (<) 0
-           )
-
-
 waitingCommitments : Battle -> Bool
 waitingCommitments battle =
     battle.turns

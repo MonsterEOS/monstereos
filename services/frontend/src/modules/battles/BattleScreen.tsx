@@ -4,8 +4,8 @@ import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION
 import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle } from "./battles"
-import { loadArenaByHost, leaveBattle } from "../../utils/eos"
+import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, BattleCommitment, EMPTY_REVEAL } from "./battles"
+import { loadArenaByHost, leaveBattle, startBattle } from "../../utils/eos"
 import { getEosAccount } from "../../utils/scatter"
 
 interface Props {
@@ -51,13 +51,23 @@ class BattleScreen extends React.Component<Props, ReactState> {
       () => this.doLeaveBattle(arena.host) :
       null
 
+    const isConfirmed = isPlayerReady(arena, identity)
+    const allowConfirmation = isMyBattle && !isConfirmed ?
+      () => this.doStartBattle(arena.host) :
+      null
+
     return (
       <PageContainer>
         <BattleHeader
-            battleText="Joining phase: Waiting for players to join"
-            host={arena.host}
-            isMyBattle={isMyBattle}
-            allowLeaveBattle={allowLeaveBattle} />
+          battleText={getBattleText(arena)}
+          host={arena.host}
+          isMyBattle={isMyBattle}
+          allowConfirmation={allowConfirmation}
+          allowLeaveBattle={allowLeaveBattle} />
+        {arena.phase === BATTLE_PHASE_STARTING &&
+        <BattleConfirmation
+          commits={arena.commits} />
+        }
       </PageContainer>
     )
   }
@@ -87,12 +97,27 @@ class BattleScreen extends React.Component<Props, ReactState> {
         dispatchPushNotification("Fail to Leave Battle", NOTIFICATION_ERROR)
       })
   }
+
+  private doStartBattle = async (host: string) => {
+    const { scatter, dispatchPushNotification } = this.props
+    startBattle(scatter, host)
+      .then(() => {
+        setTimeout(this.refresh, 500)
+        dispatchPushNotification("Ready to Battle!", NOTIFICATION_SUCCESS)
+      })
+      .catch((error: any) => {
+        console.error("Fail to confirm battle", error)
+        setTimeout(this.refresh, 500)
+        dispatchPushNotification("Fail to confirm Battle", NOTIFICATION_ERROR)
+      })
+  }
 }
 
 const BattleHeader = ({
   battleText,
   host,
   allowLeaveBattle,
+  allowConfirmation,
   isMyBattle
 }: any) => (
   <div className="content">
@@ -104,6 +129,13 @@ const BattleHeader = ({
           </div>
         </div>
         <div className="level-right">
+          { allowConfirmation &&
+            <div className="level-item ">
+              <a className="button is-success" onClick={allowConfirmation}>
+                I'm Ready
+              </a>
+            </div>
+          }
           { allowLeaveBattle &&
             <div className="level-item">
               <a className="button is-danger" onClick={allowLeaveBattle}>
@@ -114,7 +146,7 @@ const BattleHeader = ({
           { !isMyBattle &&
             <div className="level-item">
               <Link to="/arenas">
-                Back to Battles List
+                Back to Arenas
               </Link>
             </div>
           }
@@ -133,6 +165,26 @@ const BattleHeader = ({
     </div>
   </div>
 )
+
+const BattleConfirmation = ({commits}: any) => (
+  <div className="content">
+    <ul>
+      {commits.map((commit: BattleCommitment) => (
+        <li key={commit.player}>
+          Player {commit.player} is
+          {" "}
+          <BattleConfirmationStatus reveal={commit.reveal} />
+        </li>
+      ))}
+    </ul>
+  </div>
+)
+
+const BattleConfirmationStatus = ({reveal}: any) => {
+  return reveal.indexOf(EMPTY_REVEAL) < 0 ?
+    <span className="has-text-success">READY</span> :
+    <span className="has-text-danger">pending</span>
+}
 
 const mapStateToProps = (state: State) => {
   return {

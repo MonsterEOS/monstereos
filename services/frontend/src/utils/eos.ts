@@ -293,3 +293,20 @@ export const leaveBattle = async(
     return res
   })
 }
+
+export const startBattle = async(
+  scatter: any,
+  host: string
+) => {
+  const eosAccount = getEosAccount(scatter.identity)
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
+
+  const hashInfo = generateHashInfo()
+
+  return contract.battlestart(host, eosAccount, hashInfo.hash, eosAuthorization.permission)
+  .then((res: any) => {
+    destroyHashInfo()
+    return res
+  })
+}
