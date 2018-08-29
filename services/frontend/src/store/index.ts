@@ -33,7 +33,7 @@ export interface GlobalConfig {
   min_sleep_period: number
 }
 
-const initialGlobalConfig = {
+export const initialGlobalConfig = {
   attack_max_factor: 28,
   attack_min_factor: 20,
   battle_busy_arenas: 0,
@@ -74,6 +74,7 @@ const LOAD_SCATTER = "LOAD_SCATTER"
 const LOAD_EOS_IDENTITY = "LOAD_EOS_IDENTITY"
 const DELETE_NOTIFICATION = "DELETE_NOTIFICATION"
 const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
+const LOAD_GLOBAL_CONFIG = "LOAD_GLOBAL_CONFIG"
 const DO_LOGOUT = "DO_LOGOUT"
 
 const actionLoadScatter = (scatter: object) => tsAction(LOAD_SCATTER, scatter)
@@ -81,13 +82,15 @@ const actionLoadEosIdentity = (identity: object) => tsAction(LOAD_EOS_IDENTITY, 
 const actionLogout = () => tsAction(DO_LOGOUT)
 const actionPushNotificaction = (notification: Notification) => tsAction(PUSH_NOTIFICATION, notification)
 const actionDeleteNotificaction = (id: string) => tsAction(DELETE_NOTIFICATION, id)
+const actionLoadConfig = (config: GlobalConfig) => tsAction(LOAD_GLOBAL_CONFIG, config)
 
 const actions = {
   actionLoadScatter,
   actionLoadEosIdentity,
   actionLogout,
   actionPushNotificaction,
-  actionDeleteNotificaction
+  actionDeleteNotificaction,
+  actionLoadConfig
 }
 type Actions = ActionType<typeof actions>
 
@@ -104,6 +107,10 @@ export const pushNotification = (text: string, type: number, link?: string) => {
     type,
     link
   })
+}
+
+export const loadConfig = (config: GlobalConfig) => {
+  return actionLoadConfig(config)
 }
 
 export const doLoadScatter = (scatter: any) => {
@@ -166,9 +173,13 @@ const reducers = combineReducers<State, Actions>({
         return state
     }
   },
-  globalConfig: (state = initialGlobalConfig) => {
-    // TODO: implement dynamic global config
-    return state
+  globalConfig: (state = initialGlobalConfig, action) => {
+    switch (action.type) {
+      case LOAD_GLOBAL_CONFIG:
+        return action.payload
+      default:
+        return state
+    }
   },
   notifications: (state = [], action) => {
     switch (action.type) {

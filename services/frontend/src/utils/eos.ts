@@ -4,7 +4,8 @@ import {
   // SignatureProvider as e2SignatureProvider,
   // Api as e2Api
 } from "eosjs2"
-import { parseBattlesFromChain } from "../modules/battles/battles"
+import { parseBattlesFromChain, parseConfigFromChain } from "../modules/battles/battles"
+import { initialGlobalConfig, loadConfig } from "../store"
 
 const CHAIN_PROTOCOL = process.env.REACT_APP_CHAIN_PROTOCOL || "http"
 const CHAIN_HOST = process.env.REACT_APP_CHAIN_HOST || "localhost"
@@ -67,6 +68,21 @@ export const loadArenas = () => {
   }).then((res: any) => {
     return res.rows.map(parseBattlesFromChain)
   })
+}
+
+export const loadGlobalConfig = async (store: any) => {
+  const config = await e2DefaultRpc.get_table_rows({
+    json: true,
+    code: MONSTERS_ACCOUNT,
+    scope: MONSTERS_ACCOUNT,
+    table: CONFIG_TABLE,
+    limit: 5000
+  }).then((res: any) => {
+    const configs = res.rows.map(parseConfigFromChain)
+    return configs.length ? configs[0] : initialGlobalConfig
+  })
+
+  store.dispatch(loadConfig(config))
 }
 
 export const loadPets = async () => {
