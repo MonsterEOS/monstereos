@@ -10,6 +10,7 @@ import { loadArenas, createBattle, joinBattle } from "../../utils/eos"
 import BattleCard from "./BattleCard"
 import { getEosAccount } from "../../utils/scatter"
 import { MonsterProps } from "../monsters/monsters"
+import BattleMonsterPickModal from "./BattleMonsterPickModal"
 
 interface Props {
   globalConfig: GlobalConfig,
@@ -21,12 +22,14 @@ interface Props {
 }
 
 interface ReactState {
-  arenas: Arena[]
+  arenas: Arena[],
+  showMonstersSelection: boolean,
+  arenaHost: string
 }
 
 class ArenasScreen extends React.Component<Props, ReactState> {
 
-  public state = { arenas: [] }
+  public state = { arenas: [], showMonstersSelection: false, arenaHost: "" }
 
   public componentDidMount() {
     this.refresh()
@@ -36,7 +39,7 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
     const { identity, myMonsters } = this.props
     const { battle_max_arenas } = this.props.globalConfig
-    const { arenas } = this.state
+    const { arenas, showMonstersSelection } = this.state
 
     const arenasCounter =
       <ArenasCounter
@@ -53,7 +56,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
         Reconnect to Battle
       </Link> :
       identity ?
-      <a className="button is-success" onClick={this.doCreateBattle}>
+      <a className="button is-success"
+        onClick={() => this.setState({showMonstersSelection: true, arenaHost: ""})}>
         Create a Battle
       </a> :
       null
@@ -71,9 +75,14 @@ class ArenasScreen extends React.Component<Props, ReactState> {
             key={index}
             myBattle={!!currentBattle && currentBattle.host === arena.host}
             availableToBattle={availableToBattle}
-            joinBattle={() => this.doJoinBattle(arena.host)}
+            joinBattle={() => this.setState({showMonstersSelection: true, arenaHost: arena.host})}
             arena={arena} />
         )}
+
+        { showMonstersSelection &&
+        <BattleMonsterPickModal closeModal={this.confirmSelection} />
+        }
+
       </PageContainer>
     )
   }
@@ -90,31 +99,38 @@ class ArenasScreen extends React.Component<Props, ReactState> {
     }
   }
 
-  private doCreateBattle = async () => {
-    const { scatter, dispatchPushNotification, history, identity } = this.props
-    createBattle(scatter, 1)
-      .then(() => {
-        setTimeout(() => history.push(`/arenas/${identity}`), 500)
-        dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
-      })
-      .catch((error: any) => {
-        console.error("Fail to create battle", error)
-        dispatchPushNotification("Fail to Create Battle", NOTIFICATION_ERROR)
-      })
+  private confirmSelection = async (pets: number[]) => {
+    console.info("selected pets >>> ", pets)
+    console.info(NOTIFICATION_ERROR, NOTIFICATION_SUCCESS, createBattle, joinBattle)
+    // this.doCreateBattle
+    // this.doJoinBattle(arena.host)
   }
 
-  private doJoinBattle = async (host: string) => {
-    const { scatter, dispatchPushNotification, history } = this.props
-    joinBattle(scatter, host)
-      .then(() => {
-        setTimeout(() => history.push(`/arenas/${host}`), 500)
-        dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
-      })
-      .catch((error: any) => {
-        console.error("Fail to join battle", error)
-        dispatchPushNotification("Fail to Join Battle", NOTIFICATION_ERROR)
-      })
-  }
+  // private doCreateBattle = async () => {
+  //   const { scatter, dispatchPushNotification, history, identity } = this.props
+  //   createBattle(scatter, 1)
+  //     .then(() => {
+  //       setTimeout(() => history.push(`/arenas/${identity}`), 500)
+  //       dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
+  //     })
+  //     .catch((error: any) => {
+  //       console.error("Fail to create battle", error)
+  //       dispatchPushNotification("Fail to Create Battle", NOTIFICATION_ERROR)
+  //     })
+  // }
+
+  // private doJoinBattle = async (host: string) => {
+  //   const { scatter, dispatchPushNotification, history } = this.props
+  //   joinBattle(scatter, host)
+  //     .then(() => {
+  //       setTimeout(() => history.push(`/arenas/${host}`), 500)
+  //       dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
+  //     })
+  //     .catch((error: any) => {
+  //       console.error("Fail to join battle", error)
+  //       dispatchPushNotification("Fail to Join Battle", NOTIFICATION_ERROR)
+  //     })
+  // }
 }
 
 const ArenasCounter = ({availableArenas, maxArenas}: any) => (

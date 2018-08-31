@@ -75,7 +75,8 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
                 <div className="column monster-column">
                   <MonsterCard
                     monster={monster!}
-                    requestUpdate={refetchMonster} />
+                    requestUpdate={refetchMonster}
+                    hideLink />
                 </div>
                 <div className="column">
                   {monsterDetails && <MonsterHistory actions={monsterDetails.actions} />}

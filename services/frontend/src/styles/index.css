@@ -294,6 +294,11 @@
 .monster-card-stats {
   margin: 0 14px 14px; }
 
+.monster-header-link .title {
+  color: #3273dc; }
+  .monster-header-link .title:hover {
+    color: #000; }
+
 /* mobile */
 @media screen and (max-width: 768px) {
   .monster-column {
