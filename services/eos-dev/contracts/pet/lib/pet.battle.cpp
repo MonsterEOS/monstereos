@@ -97,6 +97,12 @@ void pet::battlestart(name host, name player, checksum256 source) {
         (const checksum256 *)&commit.commitment );
       commit.reveal = source;
       reveals.emplace_back(commit);
+
+      // check picks >>>> meos1535715000603;7;8;9;
+      print("picks >>> ", (char *)&source);
+      
+      eosio_assert(false, "playing with hex picks");
+
       valid_reveal = true;
     } else if (!is_zero(commit.reveal)) {
       reveals.emplace_back(commit);
