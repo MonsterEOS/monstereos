@@ -1,8 +1,8 @@
 import { getEosAuthorization, getContract, getEosAccount } from "./scatter"
 import {
   Rpc as e2Rpc,
-  // SignatureProvider as e2SignatureProvider,
-  // Api as e2Api
+  SignatureProvider as e2SignatureProvider,
+  Api as e2Api
 } from "eosjs2"
 import { parseBattlesFromChain, parseConfigFromChain } from "../modules/battles/battles"
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
@@ -36,7 +36,7 @@ export const network = {
   blockchain: "eos",
   host: CHAIN_HOST,
   port: CHAIN_PORT,
-  chainId: CHAIN_ID
+  // chainId: CHAIN_ID
 }
 
 export const trxPet = async (
@@ -66,6 +66,8 @@ export const trxCreatePet = async (
 
 // eos api
 const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
+const signatureProvider = new e2SignatureProvider([])
+const e2DefaultApi = new e2Api({ rpc: e2DefaultRpc, signatureProvider, chainId: CHAIN_ID})
 
 export const loadArenas = () => {
   return e2DefaultRpc.get_table_rows({
@@ -77,6 +79,10 @@ export const loadArenas = () => {
   }).then((res: any) => {
     return res.rows.map(parseBattlesFromChain)
   })
+}
+
+export const loadMonstersContract = () => {
+  return e2DefaultApi.getContract(MONSTERS_ACCOUNT)
 }
 
 export const loadArenaByHost = (host: string) => {
@@ -251,7 +257,9 @@ export const createBattle = async (
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  const hashInfo = generateHashInfo()
+  const hashInfo = await generateHashInfo()
+
+  console.info(hashInfo)
 
   return contract.battlecreate(eosAccount, mode, hashInfo.secret, eosAuthorization.permission)
   .catch((err: any) => {
@@ -270,7 +278,7 @@ export const joinBattle = async(
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  const hashInfo = generateHashInfo()
+  const hashInfo = await generateHashInfo()
 
   return contract.battlejoin(host, eosAccount, hashInfo.secret, eosAuthorization.permission)
   .catch((err: any) => {
@@ -302,9 +310,11 @@ export const startBattle = async(
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
-  const hashInfo = generateHashInfo()
+  const hashInfo = await generateHashInfo()
 
-  return contract.battlestart(host, eosAccount, hashInfo.hash, eosAuthorization.permission)
+  console.info("hashInfo data >>>>", hashInfo)
+
+  return contract.battlestart(host, eosAccount, hashInfo.data, eosAuthorization.permission)
   .then((res: any) => {
     destroyHashInfo()
     return res

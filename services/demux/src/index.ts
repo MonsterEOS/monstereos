@@ -1,9 +1,8 @@
 import { BaseActionWatcher } from "demux"
 import { NodeosActionReader } from "demux-eos"
+import { MassiveActionHandler } from "demux-postgres"
 import massive from "massive"
 import monitor from "pg-monitor"
-
-import { MassiveActionHandler } from "./MassiveActionHandler" // waiting for demux-postgres final fix
 
 import { effects } from "./effects"
 import { updaters } from "./updaters"

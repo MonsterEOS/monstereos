@@ -1,5 +1,5 @@
 DELETE FROM "pets"."_index_state";
-INSERT INTO "pets"."_index_state" (id, block_number, block_hash, is_replay) VALUES (1, 7, '', false);
+INSERT INTO "pets"."_index_state" (id, block_number, block_hash, is_replay) VALUES (1, 1200000, '', false); -- bubble at 1293913
 SELECT * FROM "pets"."_index_state" LIMIT 1000;
 SELECT * FROM "pets"."elements" LIMIT 1000;
 SELECT * FROM "pets"."types" LIMIT 1000;

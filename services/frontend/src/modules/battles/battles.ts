@@ -4,7 +4,7 @@ import { MonsterProps } from "../monsters/monsters"
 export interface BattleCommitment {
   player: string,
   commitment: string,
-  reveal: string
+  randoms: number[]
 }
 
 export interface Arena {
@@ -16,8 +16,6 @@ export interface Arena {
   commits: BattleCommitment[],
   phase: number
 }
-
-export const EMPTY_REVEAL = "0000000000000"
 
 export const BATTLE_PHASE_JOINING = 1
 export const BATTLE_PHASE_STARTING = 2
@@ -77,7 +75,7 @@ export const getBattleText = (arena: Arena) => {
 }
 
 export const getReadyPlayers = (arena: Arena) => {
-  return arena.commits.filter((commit: BattleCommitment) => commit.reveal.indexOf(EMPTY_REVEAL) < 0)
+  return arena.commits.filter((commit: BattleCommitment) => commit.randoms.length > 0)
 }
 
 export const isPlayerReady = (arena: Arena, player: string) => {

@@ -1,4 +1,4 @@
-FROM eosio/eos-dev:v1.1.0
+FROM eosio/eos-dev:v1.2.3
 
 RUN apt-get update && apt-get install curl -y
 

@@ -74,7 +74,7 @@ void pet::battleleave(name host, name player) {
 
 }
 
-void pet::battlestart(name host, name player, checksum256 source) {
+void pet::battlestart(name host, name player, st_pick picks) {
 
   require_auth(player);
 
@@ -91,20 +91,18 @@ void pet::battlestart(name host, name player, checksum256 source) {
   vector<st_commit> reveals{};
   for(auto& commit : battle.commits) {
     if (commit.player == player) {
-      eosio_assert(is_zero(commit.reveal), "commit was already revealed");
+      eosio_assert(commit.randoms.size() == 0, "commit was already revealed");
 
-      assert_sha256( (char *)&source, sizeof(source),
-        (const checksum256 *)&commit.commitment );
-      commit.reveal = source;
+      checksum256 source = get_hash(pack(picks));
+
+      eosio_assert(source == commit.commitment, "tampering your pick is not cool");
+      commit.randoms = picks.randoms;
       reveals.emplace_back(commit);
 
-      // check picks >>>> meos1535715000603;7;8;9;
-      print("picks >>> ", (char *)&source);
-      
-      eosio_assert(false, "playing with hex picks");
+      _battle_add_pets(battle, player, picks.pets);
 
       valid_reveal = true;
-    } else if (!is_zero(commit.reveal)) {
+    } else if (commit.randoms.size() > 0) {
       reveals.emplace_back(commit);
     }
   }
@@ -124,51 +122,36 @@ void pet::battlestart(name host, name player, checksum256 source) {
   }
 
   tb_battles.modify(itr_battle, 0, [&](auto& r) {
+    r.pets_stats = battle.pets_stats;
     r.started_at = battle.started_at;
     r.last_move_at = battle.last_move_at;
     r.commits = battle.commits;
   });
 }
 
-void pet::battleselpet(name host, name player, uuid pet_id) {
-  require_auth(player);
+void pet::_battle_add_pets(st_battle &battle,
+                           name player,
+                           vector<uint64_t> pet_ids) {
 
-  _tb_battle tb_battles(_self, _self);
-  auto itr_battle = tb_battles.find(host);
-  eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
-  st_battle battle = *itr_battle;
+  for (auto& pet_id : pet_ids) {
 
-  eosio_assert((battle.mode == V1 && battle.pets_stats.size() < 2) ||
-    (battle.mode == V2 && battle.pets_stats.size() < 4) ||
-    (battle.mode == V3 && battle.pets_stats.size() < 6),
-    "all pets were selected already");
+    auto itr_pet = pets.find(pet_id);
+    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    st_pets pet = *itr_pet;
 
-  auto pc = _get_pet_config();
-  battle.check_turn_and_rotate(player, pc.battle_idle_tolerance);
+    // only owners can make fight with pets
+    require_auth(pet.owner);
+    eosio_assert(pet.is_alive(), "dead pets don't battle");
+    eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
 
-  auto itr_pet = pets.find(pet_id);
-  eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-  st_pets pet = *itr_pet;
+    auto itr_pet_battle = petinbattles.find(pet_id);
+    eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");
+    petinbattles.emplace(_self, [&](auto& r) {
+      r.pet_id = pet_id;
+    });
 
-  // only owners can make fight with pets
-  require_auth(pet.owner);
-  eosio_assert(pet.is_alive(), "dead pets don't battle");
-  eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
-
-  auto itr_pet_battle = petinbattles.find(pet_id);
-  eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");
-  petinbattles.emplace(_self, [&](auto& r) {
-    r.pet_id = pet_id;
-  });
-
-  battle.add_pet(pet_id, pet.type, player);
-
-  tb_battles.modify(itr_battle, 0, [&](auto& r) {
-    r.pets_stats = battle.pets_stats;
-    r.commits = battle.commits;
-    r.last_move_at = now();
-  });
-
+    battle.add_pet(pet_id, pet.type, player);
+  }
 }
 
 void pet::battleattack(name         host,

@@ -4,7 +4,7 @@ import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION
 import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, BattleCommitment, EMPTY_REVEAL } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, BattleCommitment } from "./battles"
 import { loadArenaByHost, leaveBattle, startBattle } from "../../utils/eos"
 import { getEosAccount } from "../../utils/scatter"
 
@@ -52,7 +52,8 @@ class BattleScreen extends React.Component<Props, ReactState> {
       null
 
     const isConfirmed = isPlayerReady(arena, identity)
-    const allowConfirmation = isMyBattle && !isConfirmed ?
+    const allowConfirmation = isMyBattle && !isConfirmed &&
+      arena.phase === BATTLE_PHASE_STARTING ?
       () => this.doStartBattle(arena.host) :
       null
 
@@ -173,15 +174,15 @@ const BattleConfirmation = ({commits}: any) => (
         <li key={commit.player}>
           Player {commit.player} is
           {" "}
-          <BattleConfirmationStatus reveal={commit.reveal} />
+          <BattleConfirmationStatus commit={commit} />
         </li>
       ))}
     </ul>
   </div>
 )
 
-const BattleConfirmationStatus = ({reveal}: any) => {
-  return reveal.indexOf(EMPTY_REVEAL) < 0 ?
+const BattleConfirmationStatus = ({commit}: any) => {
+  return commit.randoms.length > 0 ?
     <span className="has-text-success">READY</span> :
     <span className="has-text-danger">pending</span>
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <eosiolib/crypto.h>
+
 #include <string>
 
 using std::string;
@@ -17,6 +19,12 @@ namespace utils {
     bool is_zero(const checksum256& a) {
         const uint64_t *p64 = reinterpret_cast<const uint64_t*>(&a);
         return p64[0] == 0 && p64[1] == 0 && p64[2] == 0 && p64[3] == 0;
+    }
+
+    checksum256 get_hash(const bytes& data) {
+        checksum256 result;
+        sha256(data.data(), data.size(), &result);
+        return result;
     }
 }
 

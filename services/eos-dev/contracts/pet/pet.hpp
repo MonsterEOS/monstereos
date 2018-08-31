@@ -54,8 +54,8 @@ public:
     void battlecreate ( name host, battle_mode mode, checksum256 secret );
     void battlejoin   ( name host, name player, checksum256 secret );
     void battleleave  ( name host, name player );
-    void battlestart  ( name host, name player, checksum256 source );
-    void battleselpet ( name host, name player, uuid pet_id );
+    void battlestart  ( name host, name player, st_pick picks );
+    // void battleselpet ( name host, name player, uuid pet_id );
     void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
     void battlefinish ( name host, name winner );
 
@@ -140,5 +140,8 @@ public:
                              const uint8_t &hunger_hp_modifier,
                              const uint32_t &last_fed_at,
                              const uint32_t &current_time);
+
+    // battle helpers
+    void _battle_add_pets(st_battle &battle, name player, vector<uint64_t> pet_ids);
 
 };
