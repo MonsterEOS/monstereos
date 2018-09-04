@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as moment from "moment"
-import { MonsterProps } from "./monsters"
+import { MonsterProps, monsterImageSrc } from "./monsters"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, NOTIFICATION_WARNING } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
@@ -54,7 +54,7 @@ class MonsterCard extends React.Component<Props, {}> {
     const { monster } = this.props
 
     const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
-    const monsterImage = `/images/monsters/monster-${monster.type}.png`
+    const monsterImage = monsterImageSrc(monster.type)
 
     const sleepingClass = monster.isSleeping ? "sleeping" : ""
     const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />

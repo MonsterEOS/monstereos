@@ -11,17 +11,34 @@ export interface Arena {
   host: string,
   lastMoveAt: number,
   mode: number,
-  petsStats: any[],
+  petsStats: MonsterArenaStats[],
   startedAt: number,
   commits: BattleCommitment[],
   phase: number
 }
 
+export interface Element {
+  id: number
+  name: string
+  ratios: number[]
+}
+
+export interface MonsterType {
+  id: number
+  elements: number[]
+}
+
+export interface MonsterArenaStats {
+  pet_id: number,
+  pet_type: number,
+  player: string,
+  hp: number
+}
+
 export const BATTLE_PHASE_JOINING = 1
 export const BATTLE_PHASE_STARTING = 2
-export const BATTLE_PHASE_PICKING = 3
-export const BATTLE_PHASE_GOING = 4
-export const BATTLE_PHASE_FINISHED = 5
+export const BATTLE_PHASE_GOING = 3
+export const BATTLE_PHASE_FINISHED = 4
 
 export const parseBattlesFromChain = (data: any): Arena => {
   const battle: Arena = {
@@ -44,13 +61,7 @@ export const parseBattlesFromChain = (data: any): Arena => {
     const revealedCommitments = getReadyPlayers(battle)
 
     if (revealedCommitments.length === requiredPlayers) {
-      battle.phase = BATTLE_PHASE_PICKING
-
-      const requiredMonsters = battle.mode * 2
-
-      if (battle.petsStats.length === requiredMonsters) {
-        battle.phase = BATTLE_PHASE_GOING
-      }
+      battle.phase = BATTLE_PHASE_GOING
     }
   }
 
@@ -65,8 +76,6 @@ export const getBattleText = (arena: Arena) => {
       return "The battle is over"
     case BATTLE_PHASE_GOING:
       return `Waiting for player ${arena.commits[0].player} attack`
-    case BATTLE_PHASE_PICKING:
-      return `Picking phase: Waiting for player ${arena.commits[0].player} pick`
     case BATTLE_PHASE_STARTING:
       return `Preparing phase: Waiting for players confirmation`
     default:

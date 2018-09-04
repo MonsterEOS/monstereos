@@ -81,3 +81,6 @@ export const calcMonsterStats = (
 
   return monster
 }
+
+export const monsterImageSrc = (typeId: number) =>
+  (`/images/monsters/monster-${typeId}.png`)

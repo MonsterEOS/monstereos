@@ -1,12 +1,20 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION_SUCCESS } from "../../store"
-import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, BattleCommitment } from "./battles"
-import { loadArenaByHost, leaveBattle, startBattle } from "../../utils/eos"
+import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING } from "./battles"
+import {
+  loadArenaByHost,
+  leaveBattle,
+  startBattle,
+  loadElements as apiLoadElements,
+  loadPetTypes
+} from "../../utils/eos"
 import { getEosAccount } from "../../utils/scatter"
+import BattleConfirmation from "./BattleConfirmation"
+import BattleHeader from "./BattleHeader"
+import BattleArena from "./BattleArena"
 
 interface Props {
   globalConfig: GlobalConfig,
@@ -19,20 +27,42 @@ interface Props {
 
 interface ReactState {
   arena?: Arena
+  elements: Element[]
+  monsterTypes: MonsterType[],
+  selectedAttackPetId: number,
+  selectedAttackElementId: number,
+  selectedAttackEnemyId: number
 }
 
 class BattleScreen extends React.Component<Props, ReactState> {
 
-  public state = { arena: undefined }
+  public state = {
+    arena: undefined,
+    elements: [],
+    monsterTypes: [],
+    selectedAttackPetId: 0,
+    selectedAttackElementId: -1,
+    selectedAttackEnemyId: 0,
+  }
 
   public componentDidMount() {
     this.refresh()
+    this.loadElements()
+    this.loadMonsterTypes()
   }
 
   public render() {
 
     const { identity } = this.props
-    const { arena: maybeArena } = this.state
+
+    const {
+      arena: maybeArena,
+      elements,
+      monsterTypes,
+      selectedAttackElementId,
+      selectedAttackEnemyId,
+      selectedAttackPetId,
+    } = this.state
 
     if (!maybeArena) {
       return (
@@ -69,8 +99,32 @@ class BattleScreen extends React.Component<Props, ReactState> {
         <BattleConfirmation
           commits={arena.commits} />
         }
+        {arena.phase === BATTLE_PHASE_GOING &&
+        <BattleArena
+          arena={arena}
+          attackSelection={this.attackSelection}
+          enemySelection={this.enemySelection}
+          selectedEnemyId={selectedAttackEnemyId}
+          selectedPetId={selectedAttackPetId}
+          selectedElementId={selectedAttackElementId}
+          elements={elements!}
+          monsterTypes={monsterTypes!} />
+        }
       </PageContainer>
     )
+  }
+
+  private attackSelection = (monsterId: number, elementId: number) => {
+    this.setState({
+      selectedAttackPetId: monsterId,
+      selectedAttackElementId: elementId,
+    })
+  }
+
+  private enemySelection = (monsterId: number) => {
+    this.setState({
+      selectedAttackEnemyId: monsterId,
+    })
   }
 
   private refresh = async () => {
@@ -113,79 +167,16 @@ class BattleScreen extends React.Component<Props, ReactState> {
         dispatchPushNotification("Fail to confirm Battle", NOTIFICATION_ERROR)
       })
   }
-}
 
-const BattleHeader = ({
-  battleText,
-  host,
-  allowLeaveBattle,
-  allowConfirmation,
-  isMyBattle
-}: any) => (
-  <div className="content">
-    <div className="box">
-      <div className="level">
-        <div className="level-left">
-          <div className="level-item">
-            <h1 className="title">{host}'s Arena</h1>
-          </div>
-        </div>
-        <div className="level-right">
-          { allowConfirmation &&
-            <div className="level-item ">
-              <a className="button is-success" onClick={allowConfirmation}>
-                I'm Ready
-              </a>
-            </div>
-          }
-          { allowLeaveBattle &&
-            <div className="level-item">
-              <a className="button is-danger" onClick={allowLeaveBattle}>
-                Leave Battle
-              </a>
-            </div>
-          }
-          { !isMyBattle &&
-            <div className="level-item">
-              <Link to="/arenas">
-                Back to Arenas
-              </Link>
-            </div>
-          }
-        </div>
-      </div>
-      <div className="level">
-        <div className="level-left">
-          <div className="level-item ">
-            {battleText}
-          </div>
-        </div>
-        <div className="level-right">
-          &nbsp;
-        </div>
-      </div>
-    </div>
-  </div>
-)
+  private loadElements = async () => {
+    const elements = await apiLoadElements()
+    this.setState({elements})
+  }
 
-const BattleConfirmation = ({commits}: any) => (
-  <div className="content">
-    <ul>
-      {commits.map((commit: BattleCommitment) => (
-        <li key={commit.player}>
-          Player {commit.player} is
-          {" "}
-          <BattleConfirmationStatus commit={commit} />
-        </li>
-      ))}
-    </ul>
-  </div>
-)
-
-const BattleConfirmationStatus = ({commit}: any) => {
-  return commit.randoms.length > 0 ?
-    <span className="has-text-success">READY</span> :
-    <span className="has-text-danger">pending</span>
+  private loadMonsterTypes = async () => {
+    const monsterTypes = await loadPetTypes()
+    this.setState({monsterTypes})
+  }
 }
 
 const mapStateToProps = (state: State) => {
