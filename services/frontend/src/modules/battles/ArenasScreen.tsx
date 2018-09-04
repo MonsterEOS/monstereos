@@ -101,36 +101,50 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   private confirmSelection = async (pets: number[]) => {
     console.info("selected pets >>> ", pets)
-    console.info(NOTIFICATION_ERROR, NOTIFICATION_SUCCESS, createBattle, joinBattle)
-    // this.doCreateBattle
-    // this.doJoinBattle(arena.host)
+
+    const { arenaHost } = this.state
+    const { dispatchPushNotification } = this.props
+
+    if (pets && pets.length) {
+
+      if (pets.length > 1) { // TODO: current 1v1 mode only
+        return dispatchPushNotification("You can only select 1 monster", NOTIFICATION_ERROR)
+      } else if (arenaHost) {
+        this.doJoinBattle(arenaHost, pets)
+      } else {
+        this.doCreateBattle(pets)
+      }
+
+    } else {
+      this.setState({showMonstersSelection: false, arenaHost: ""})
+    }
   }
 
-  // private doCreateBattle = async () => {
-  //   const { scatter, dispatchPushNotification, history, identity } = this.props
-  //   createBattle(scatter, 1)
-  //     .then(() => {
-  //       setTimeout(() => history.push(`/arenas/${identity}`), 500)
-  //       dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
-  //     })
-  //     .catch((error: any) => {
-  //       console.error("Fail to create battle", error)
-  //       dispatchPushNotification("Fail to Create Battle", NOTIFICATION_ERROR)
-  //     })
-  // }
+  private doCreateBattle = async (pets: number[]) => {
+    const { scatter, dispatchPushNotification, history, identity } = this.props
+    createBattle(scatter, 1, pets)
+      .then(() => {
+        setTimeout(() => history.push(`/arenas/${identity}`), 500)
+        dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
+      })
+      .catch((error: any) => {
+        console.error("Fail to create battle", error)
+        dispatchPushNotification("Fail to Create Battle", NOTIFICATION_ERROR)
+      })
+  }
 
-  // private doJoinBattle = async (host: string) => {
-  //   const { scatter, dispatchPushNotification, history } = this.props
-  //   joinBattle(scatter, host)
-  //     .then(() => {
-  //       setTimeout(() => history.push(`/arenas/${host}`), 500)
-  //       dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
-  //     })
-  //     .catch((error: any) => {
-  //       console.error("Fail to join battle", error)
-  //       dispatchPushNotification("Fail to Join Battle", NOTIFICATION_ERROR)
-  //     })
-  // }
+  private doJoinBattle = async (host: string, pets: number[]) => {
+    const { scatter, dispatchPushNotification, history } = this.props
+    joinBattle(scatter, host, pets)
+      .then(() => {
+        setTimeout(() => history.push(`/arenas/${host}`), 500)
+        dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
+      })
+      .catch((error: any) => {
+        console.error("Fail to join battle", error)
+        dispatchPushNotification("Fail to Join Battle", NOTIFICATION_ERROR)
+      })
+  }
 }
 
 const ArenasCounter = ({availableArenas, maxArenas}: any) => (

@@ -6,7 +6,7 @@ import {
 } from "eosjs2"
 import { parseBattlesFromChain, parseConfigFromChain } from "../modules/battles/battles"
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
-import { generateHashInfo, destroyHashInfo } from "./hashInfo"
+import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
 
 // chain info constants
@@ -250,6 +250,7 @@ const checkBattleResources = async (eosAccount: string) => {
 export const createBattle = async (
   scatter: any,
   mode: number,
+  pets: number[]
 ) => {
 
   const eosAccount = getEosAccount(scatter.identity)
@@ -257,7 +258,7 @@ export const createBattle = async (
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  const hashInfo = await generateHashInfo()
+  const hashInfo = await generateHashInfo(pets)
 
   console.info(hashInfo)
 
@@ -270,7 +271,8 @@ export const createBattle = async (
 
 export const joinBattle = async(
   scatter: any,
-  host: string
+  host: string,
+  pets: number[]
 ) => {
 
   const eosAccount = getEosAccount(scatter.identity)
@@ -278,7 +280,7 @@ export const joinBattle = async(
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  const hashInfo = await generateHashInfo()
+  const hashInfo = await generateHashInfo(pets)
 
   return contract.battlejoin(host, eosAccount, hashInfo.secret, eosAuthorization.permission)
   .catch((err: any) => {
@@ -310,7 +312,7 @@ export const startBattle = async(
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
-  const hashInfo = await generateHashInfo()
+  const hashInfo = await getHashInfo()
 
   console.info("hashInfo data >>>>", hashInfo)
 

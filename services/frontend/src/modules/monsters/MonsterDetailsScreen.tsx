@@ -72,12 +72,10 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
 
             { monster &&
               <div className="columns is-multiline">
-                <div className="column monster-column">
-                  <MonsterCard
-                    monster={monster!}
-                    requestUpdate={refetchMonster}
-                    hideLink />
-                </div>
+                <MonsterCard
+                  monster={monster!}
+                  requestUpdate={refetchMonster}
+                  hideLink />
                 <div className="column">
                   {monsterDetails && <MonsterHistory actions={monsterDetails.actions} />}
                 </div>

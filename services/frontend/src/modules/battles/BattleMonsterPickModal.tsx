@@ -23,15 +23,13 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
 
     const { closeModal, myMonsters } = this.props
 
-    const { selectedMonsters } = this.state
-
     const monsters = getAvailableMonstersToBattle(myMonsters)
 
     const footerButtons = [
       <button
         key="submit"
         className="button is-success"
-        onClick={() => closeModal(selectedMonsters)}>
+        onClick={this.handleSubmit}>
         Submit
       </button>,
       <button
@@ -47,32 +45,38 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
         title="Pick your Monster to Battle"
         close={() => closeModal()}
         footerButtons={footerButtons}>
-        {monsters.map((monster) => {
-
-          const isSelected = selectedMonsters.indexOf(monster.id) >= 0
-
-          const customActions = [
-            {
-              label: isSelected ? "Unselect Monster" : "Select Monster",
-              action: () => this.handleMonsterSelection(monster.id)
-            }
-          ]
-
-          return <MonsterCard
-            key={monster.id}
-            customActions={customActions}
-            monster={monster}
-            selected={isSelected}
-            hideActions
-            hideLink />
-        })}
-
+        <div className="columns is-multiline">
+          {monsters.map(this.renderMonsterCard)}
+        </div>
       </Modal>
     )
   }
 
+  private renderMonsterCard = (monster: MonsterProps) => {
+    const { selectedMonsters } = this.state
+
+    const isSelected = selectedMonsters.indexOf(monster.id) >= 0
+
+    const customActions = [
+      {
+        label: isSelected ? "Unselect Monster" : "Select Monster",
+        action: () => this.handleMonsterSelection(monster.id)
+      }
+    ]
+
+    return <MonsterCard
+      key={monster.id}
+      customActions={customActions}
+      monster={monster}
+      selected={isSelected}
+      hideActions
+      hideLink />
+  }
+
   private handleMonsterSelection = (id: number) => {
     const { selectedMonsters } = this.state
+
+    console.info(id, selectedMonsters)
 
     const newSelection = selectedMonsters.indexOf(id) >= 0 ?
       // deselect monster
@@ -80,7 +84,16 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
       : // select monster
       selectedMonsters.concat(id)
 
-    this.setState({selectMonsters: newSelection})
+    this.setState({selectedMonsters: newSelection})
+  }
+
+  private handleSubmit = () => {
+
+    const { selectedMonsters } = this.state
+
+    if (selectedMonsters.length) {
+      this.props.closeModal(selectedMonsters)
+    }
   }
 }
 

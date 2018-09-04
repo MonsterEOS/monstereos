@@ -299,6 +299,9 @@
   .monster-header-link .title:hover {
     color: #000; }
 
+.monster-selected {
+  background-color: greenyellow; }
+
 /* mobile */
 @media screen and (max-width: 768px) {
   .monster-column {

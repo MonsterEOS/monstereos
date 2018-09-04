@@ -80,6 +80,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
     try {
       const arena = await loadArenaByHost(host)
       this.setState({arena})
+      setTimeout(this.refresh, 1000) // TODO: implement websockets
     } catch (error) {
       console.error("Fail to load Arena", error)
       dispatchPushNotification("Fail to load Arena")

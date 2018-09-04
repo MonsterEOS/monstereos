@@ -36,13 +36,15 @@ class MonsterCard extends React.Component<Props, {}> {
     const selectedClass = selected ? "monster-selected" : ""
 
     return (
-      <div className={`card ${selectedClass}`}>
-        <div className="card-content">
-          {this.renderHeader()}
+      <div className="column monster-column">
+        <div className={`card ${selectedClass}`}>
+          <div className="card-content">
+            {this.renderHeader()}
+          </div>
+          {this.renderImage()}
+          {!monster.deathAt && this.renderStats()}
+          {hasControl && this.renderFooter()}
         </div>
-        {this.renderImage()}
-        {!monster.deathAt && this.renderStats()}
-        {hasControl && this.renderFooter()}
       </div>
     )
   }

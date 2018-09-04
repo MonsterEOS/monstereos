@@ -143,4 +143,7 @@ cleos -u http://eosiodev:8888 system newaccount eosio --transfer $MONSTERS_USERE
 echo "Waiting for node boostraping to complete"
 sleep 2s
 
+echo "Change tolerance to 0 for testing purposes"
+cleos -u http://eosiodev:8888 push action monstereosio changecrtol '{ "new_interval": 0 }' -p monstereosio
+
 echo "Initialization Complete"

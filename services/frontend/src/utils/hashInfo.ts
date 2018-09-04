@@ -4,7 +4,7 @@ import { loadMonstersContract } from "./eos"
 
 const HASH_INFO_KEY = "hashInfo"
 
-const getHashInfo = () => {
+export const getHashInfo = () => {
   const hashInfoJson = localStorage.getItem(HASH_INFO_KEY)
   return hashInfoJson ? JSON.parse(hashInfoJson) : null
 }
@@ -42,30 +42,22 @@ export const pickHash = async (data: any) => {
 }
 
 // generate secret and hash random pair
-export const generateHashInfo = async () => {
+export const generateHashInfo = async (pets: number[]) => {
 
-  const hashInfo = getHashInfo()
-
-  if (!hashInfo) {
-    // generate secret
-
-    // TODO: adjust hash generationd
-    const data = {
-      pets: [18],
-      randoms: generateRandoms()
-    }
-
-    const secret = await pickHash(data)
-    console.info("hash generation >>>> ", secret)
-
-    const secretPair = { data, secret }
-    console.info("saving hashInfo")
-    localStorage.setItem(HASH_INFO_KEY, JSON.stringify(secretPair))
-    return secretPair
-  } else {
-    console.info("hashInfo restored")
-    return hashInfo
+  // generate secret
+  const data = {
+    pets,
+    randoms: generateRandoms()
   }
+
+  const secret = await pickHash(data)
+  console.info("hash generation >>>> ", secret)
+
+  const secretPair = { data, secret }
+  console.info("saving hashInfo", secretPair)
+  localStorage.setItem(HASH_INFO_KEY, JSON.stringify(secretPair))
+  return secretPair
+
 }
 
 // destroy last battle commitment random pair

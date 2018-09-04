@@ -58,9 +58,9 @@ void pet::createpet(name owner,
         pet.created_at = now();
         pet.last_fed_at = pet.created_at;
         pet.last_play_at = pet.created_at;
-        pet.last_bed_at = pet.created_at;
         pet.last_shower_at = pet.created_at;
-        pet.last_awake_at = 0;
+        pet.last_bed_at = pet.created_at;
+        pet.last_awake_at = pet.created_at + 1; // TODO: should we create awake pets?
 
         pet.type = (pet.created_at + pet.id + owner) % pc.last_pet_type_id;
 

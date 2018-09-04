@@ -102,9 +102,10 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
 const MonstersList = ({ monsters, update }: any) => (
   <div className="columns is-multiline">
     {monsters.map((monster: any) => (
-      <div className="column monster-column" key={monster.id}>
-        <MonsterCard monster={monster} requestUpdate={update} />
-      </div>
+      <MonsterCard
+        key={monster.id}
+        monster={monster}
+        requestUpdate={update} />
     ))}
   </div>
 )
