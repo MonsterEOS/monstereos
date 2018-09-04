@@ -1,5 +1,5 @@
 import * as React from "react"
-import { MonsterType, Arena, MonsterArenaStats, Element } from "./battles"
+import { MonsterType, Arena, MonsterArenaStats, Element, isWatcher } from "./battles"
 import { State, pushNotification } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 import { connect } from "react-redux"
@@ -77,6 +77,17 @@ const hpBar = (hpValue: number, monsterName: string) => {
   </div>
 }
 
+const winnerBanner = (winner: string, isWinner?: boolean) => {
+  const status = isWinner === undefined ?
+    ["has-text-info", `${winner} WON!`] :
+    isWinner ? ["has-text-success", "You WON!"] :
+    ["has-text-danger", "You LOST!"]
+
+  return <div className={`battle-winner-banner ${status[0]}`}>
+    {status[1]}
+  </div>
+}
+
 interface Props {
   arena: Arena,
   scatter: any,
@@ -87,17 +98,22 @@ interface Props {
   enemySelection: any,
   selectedEnemyId?: number,
   selectedElementId?: number,
-  selectedPetId?: number
+  selectedPetId?: number,
+  submitAttack: any,
+  winner?: string
 }
 
 class BattleArena extends React.Component<Props, {}> {
 
   public render() {
 
-    const { arena } = this.props
+    const { arena, winner, identity } = this.props
+
+    const isWinner = isWatcher(arena, identity) ? undefined : winner === identity
 
     return <div className={`battle-arena ${getArenaBackground(arena.startedAt)}`}>
       {arena.petsStats.map(this.renderArenaMonster)}
+      {winner && winnerBanner(winner, isWinner)}
     </div>
   }
 
@@ -143,7 +159,9 @@ class BattleArena extends React.Component<Props, {}> {
   }
 
   private confirmAttackButton = () => {
-    return <a className="button is-small is-danger">
+    return <a
+      className="button is-small is-danger"
+      onClick={this.props.submitAttack}>
       Submit Attack
     </a>
   }

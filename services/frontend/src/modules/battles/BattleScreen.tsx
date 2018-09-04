@@ -3,13 +3,14 @@ import { connect } from "react-redux"
 import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION_SUCCESS } from "../../store"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText } from "./battles"
 import {
   loadArenaByHost,
   leaveBattle,
   startBattle,
   loadElements as apiLoadElements,
-  loadPetTypes
+  loadPetTypes,
+  attackBattle
 } from "../../utils/eos"
 import { getEosAccount } from "../../utils/scatter"
 import BattleConfirmation from "./BattleConfirmation"
@@ -31,7 +32,10 @@ interface ReactState {
   monsterTypes: MonsterType[],
   selectedAttackPetId: number,
   selectedAttackElementId: number,
-  selectedAttackEnemyId: number
+  selectedAttackEnemyId: number,
+  winner?: string,
+  turnCountdown: number,
+  isOver: boolean
 }
 
 class BattleScreen extends React.Component<Props, ReactState> {
@@ -43,6 +47,9 @@ class BattleScreen extends React.Component<Props, ReactState> {
     selectedAttackPetId: 0,
     selectedAttackElementId: -1,
     selectedAttackEnemyId: 0,
+    turnCountdown: -1,
+    winner: undefined,
+    isOver: false
   }
 
   public componentDidMount() {
@@ -53,7 +60,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
   public render() {
 
-    const { identity } = this.props
+    const { identity, globalConfig } = this.props
 
     const {
       arena: maybeArena,
@@ -77,9 +84,13 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
     const isMyBattle = !!currentBattle
 
-    const allowLeaveBattle = isMyBattle ?
+    const allowLeaveBattle = isMyBattle &&
+      (arena.phase === BATTLE_PHASE_STARTING ||
+      arena.phase === BATTLE_PHASE_JOINING) ?
       () => this.doLeaveBattle(arena.host) :
       null
+
+    const countdownText = battleCountdownText(arena, globalConfig)
 
     const isConfirmed = isPlayerReady(arena, identity)
     const allowConfirmation = isMyBattle && !isConfirmed &&
@@ -93,6 +104,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
           battleText={getBattleText(arena)}
           host={arena.host}
           isMyBattle={isMyBattle}
+          countdownText={countdownText}
           allowConfirmation={allowConfirmation}
           allowLeaveBattle={allowLeaveBattle} />
         {arena.phase === BATTLE_PHASE_STARTING &&
@@ -104,6 +116,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
           arena={arena}
           attackSelection={this.attackSelection}
           enemySelection={this.enemySelection}
+          submitAttack={() => this.submitAttack(arena.host)}
           selectedEnemyId={selectedAttackEnemyId}
           selectedPetId={selectedAttackPetId}
           selectedElementId={selectedAttackElementId}
@@ -130,15 +143,48 @@ class BattleScreen extends React.Component<Props, ReactState> {
   private refresh = async () => {
     const { dispatchPushNotification } = this.props
     const { match: {params: { host } } } = this.props
+    const { isOver, arena } = this.state
 
     try {
-      const arena = await loadArenaByHost(host)
-      this.setState({arena})
-      setTimeout(this.refresh, 1000) // TODO: implement websockets
+      const newArena = await loadArenaByHost(host)
+      this.setState({arena: newArena})
+
+      // TODO: implement websockets
+      if (!isOver) {
+        setTimeout(this.refresh, 1000)
+      }
     } catch (error) {
-      console.error("Fail to load Arena", error)
-      dispatchPushNotification("Fail to load Arena")
+      if (arena !== undefined) {
+        const updatedArena = Object.assign(
+          {},
+          arena,
+          {phase: BATTLE_PHASE_FINISHED}
+        )
+        this.setState({isOver: true, arena: updatedArena})
+      } else {
+        console.error("Fail to load Arena", error)
+        dispatchPushNotification("Fail to load Arena")
+      }
     }
+  }
+
+  private submitAttack = async (host: string) => {
+    const { scatter, dispatchPushNotification } = this.props
+
+    const {
+      selectedAttackElementId,
+      selectedAttackPetId,
+      selectedAttackEnemyId
+    } = this.state
+
+    attackBattle(scatter, host, selectedAttackPetId, selectedAttackEnemyId, selectedAttackElementId)
+      .then(() => {
+        dispatchPushNotification("Attack submitted successfully", NOTIFICATION_SUCCESS)
+      })
+      .catch((error: any) => {
+        console.error("Fail to submit attack", error)
+        dispatchPushNotification("Fail to Submit Attack", NOTIFICATION_ERROR)
+      })
   }
 
   private doLeaveBattle = async (host: string) => {

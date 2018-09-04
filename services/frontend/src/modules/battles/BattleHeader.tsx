@@ -6,7 +6,8 @@ export const BattleHeader = ({
   host,
   allowLeaveBattle,
   allowConfirmation,
-  isMyBattle
+  isMyBattle,
+  countdownText
 }: any) => (
   <div className="content">
     <div className="box">
@@ -17,6 +18,11 @@ export const BattleHeader = ({
           </div>
         </div>
         <div className="level-right">
+          { countdownText &&
+            <div className="level-item ">
+              {countdownText}
+            </div>
+          }
           { allowConfirmation &&
             <div className="level-item ">
               <a className="button is-success" onClick={allowConfirmation}>

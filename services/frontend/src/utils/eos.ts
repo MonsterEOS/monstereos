@@ -322,3 +322,17 @@ export const startBattle = async(
     return res
   })
 }
+
+
+export const attackBattle = async(
+  scatter: any,
+  host: string,
+  petId: number,
+  petEnemyId: number,
+  elementId: number
+) => {
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
+
+  return contract.battleattack(host, host, petId, petEnemyId, elementId, eosAuthorization.permission)
+}
