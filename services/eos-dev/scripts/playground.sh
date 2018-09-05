@@ -27,6 +27,7 @@ eosiocpp -o pet.wast pet.cpp && cleos set contract monstereosio ../pet
 echo -n '101d989d304b1535715000603153571500060315357150006031535715000622' | xxd -r -p | sha256sum -b | awk '{print $1}'
 
 cleos get table monstereosio monstereosio battles
+cleos -u http://eosiodev:8888 push action monstereosio migrate '["delete old arenas"]' -p monstereosio
 
 # hashed pick:
 # 20e978fbef9c32800e9c377d277222fd434a198606665d45be838620165204e3
