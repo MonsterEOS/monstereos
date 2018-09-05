@@ -1,6 +1,5 @@
 import { GlobalConfig } from "../../store"
 import { MonsterProps } from "../monsters/monsters"
-import * as moment from "moment"
 
 export interface BattleCommitment {
   player: string,
@@ -56,8 +55,6 @@ export const parseBattlesFromChain = (data: any): Arena => {
 
   if (battle.commits.length === requiredPlayers) {
     battle.phase = BATTLE_PHASE_STARTING
-
-    console.info(battle.commits)
 
     const revealedCommitments = getReadyPlayers(battle)
 
@@ -138,14 +135,12 @@ export const battleCountdownText = (arena: Arena, globalConfig: GlobalConfig) =>
     return ""
   }
 
-  console.info(moment.utc(arena.lastMoveAt).valueOf(), globalConfig.battle_idle_tolerance, moment.utc(Date.now()).valueOf())
-
-  const turnTimeLeft = arena.lastMoveAt +
+  const turnTimeLeft = Math.floor((arena.lastMoveAt +
     (globalConfig.battle_idle_tolerance * 1000) -
-    Date.now()
+    Date.now()) / 1000)
 
   if (turnTimeLeft > 0) {
-    return `Player ${arena.commits[0].player} has ${turnTimeLeft} to attack`
+    return `Player ${arena.commits[0].player} has ${turnTimeLeft} seconds to attack`
   } else {
     return `Turn is expired. ANYONE CAN ATTACK!`
   }

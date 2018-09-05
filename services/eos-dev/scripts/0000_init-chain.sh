@@ -59,8 +59,8 @@ sleep 2s
 echo "Creating accounts and deploying wallets"
 
 # start wallet
-wallet_password=$(./cleos wallet create | awk 'FNR > 3 { print $1 }' | tr -d '"')
-echo $wallet_password >| "$CONFIG_DIR"/keys/default_wallet_password.txt
+wallet_password=$(./cleos wallet create --to-console | awk 'FNR > 3 { print $1 }' | tr -d '"')
+echo $wallet_password > "$CONFIG_DIR"/keys/default_wallet_password.txt
 
 # import wallet keys
 sleep 2s
