@@ -1,5 +1,5 @@
 import * as React from "react"
-import { MonsterType, Arena, MonsterArenaStats, Element, isWatcher } from "./battles"
+import { MonsterType, Arena, MonsterArenaStats, Element, isWatcher, BATTLE_PHASE_GOING } from "./battles"
 import { State, pushNotification } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 import { connect } from "react-redux"
@@ -103,7 +103,19 @@ interface Props {
   winner?: string
 }
 
-class BattleArena extends React.Component<Props, {}> {
+interface HpLog {
+  petId: number,
+  hpDiff: number,
+  time: number
+}
+
+interface ReactState {
+  hpLog: HpLog[]
+}
+
+class BattleArena extends React.Component<Props, ReactState> {
+
+  public state = { hpLog: [] as HpLog[] }
 
   public render() {
 
@@ -111,13 +123,37 @@ class BattleArena extends React.Component<Props, {}> {
 
     const isWinner = isWatcher(arena, identity) ? undefined : winner === identity
 
+    const isBattleGoing = arena.phase === BATTLE_PHASE_GOING
+
     return <div className={`battle-arena ${getArenaBackground(arena.startedAt)}`}>
-      {arena.petsStats.map(this.renderArenaMonster)}
+      {arena.petsStats.map((monster) => this.renderArenaMonster(monster, isBattleGoing))}
       {winner && winnerBanner(winner, isWinner)}
     </div>
   }
 
-  private renderArenaMonster = (monster: MonsterArenaStats) => {
+  public componentDidUpdate(prevProps: Props) {
+    // Typical usage (don't forget to compare props):
+    if (this.props.arena.petsStats !== prevProps.arena.petsStats) {
+      this.updateHpLog(this.props.arena.petsStats, prevProps.arena.petsStats)
+    }
+  }
+
+  private updateHpLog = (
+    newStats: MonsterArenaStats[],
+    oldStats: MonsterArenaStats[],
+  ) => {
+    const newLogs = newStats.map((newStat) => {
+      const oldStat = oldStats.find((item) => item.pet_id === newStat.pet_id)
+      const hpDiff = oldStat ? newStat.hp - oldStat.hp : 0
+      return { petId: newStat.pet_id, hpDiff, time: Date.now() }
+    }).filter((item) => item.hpDiff !== 0)
+
+    if (newLogs.length) {
+      this.setState({hpLog: this.state.hpLog.concat(newLogs)})
+    }
+  }
+
+  private renderArenaMonster = (monster: MonsterArenaStats, isBattleGoing: boolean) => {
     const {
       arena,
       identity,
@@ -128,12 +164,13 @@ class BattleArena extends React.Component<Props, {}> {
 
     const myMonster = monster.player === identity
 
-    const myTurn = arena.commits[0].player === identity ||
-      Date.now() - arena.lastMoveAt > 60000
+    const myTurn = isBattleGoing &&
+      (arena.commits[0].player === identity ||
+      Date.now() - arena.lastMoveAt > 60000)
 
     const monsterClass =
       (myMonster ? "my-monster" : "enemy-monster") +
-      (monster.pet_id === selectedEnemyId ? " active" : "")
+      (monster.pet_id === selectedEnemyId && isBattleGoing ? " active" : "")
 
     const enemyClick = !myMonster ?
       () => enemySelection(monster.pet_id) :
@@ -147,13 +184,29 @@ class BattleArena extends React.Component<Props, {}> {
           src={monsterImageSrc(monster.pet_type)}
           className={monsterClass}
           onClick={enemyClick} />
-        {hpBar(monster.hp, monster.player)}
-        {myMonster && myTurn && this.attackButtons(monster)}
-        {myTurn && selectedEnemyId === monster.pet_id &&
-          (selectedElementId !== undefined && selectedElementId >= 0) &&
-          this.confirmAttackButton()}
       </figure>
+      {this.hpNotification(monster.pet_id)}
+      {hpBar(monster.hp, monster.player)}
+      {myMonster && myTurn && this.attackButtons(monster)}
+      {myTurn && selectedEnemyId === monster.pet_id &&
+        (selectedElementId !== undefined && selectedElementId >= 0) &&
+        this.confirmAttackButton()}
     </div>
+  }
+
+  private hpNotification = (petId: number) => {
+    const { hpLog } = this.state
+
+    const notifications = hpLog
+      .filter((item) => item.petId === petId && (Date.now() - item.time) < 5000).map((item, index) => (
+        <span
+          key={index}
+          className="monster-hp-notification">
+          {item.hpDiff}
+        </span>
+      ))
+
+    return notifications.length ? notifications : null
   }
 
   private confirmAttackButton = () => {

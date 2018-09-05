@@ -7,9 +7,10 @@ export const BattleHeader = ({
   allowLeaveBattle,
   allowConfirmation,
   isMyBattle,
+  isOver,
   countdownText
 }: any) => (
-  <div className="content">
+  <div className="content arena-header">
     <div className="box">
       <div className="level">
         <div className="level-left">
@@ -37,7 +38,7 @@ export const BattleHeader = ({
               </a>
             </div>
           }
-          { !isMyBattle &&
+          { (!isMyBattle || isOver) &&
             <div className="level-item">
               <Link to="/arenas">
                 Back to Arenas

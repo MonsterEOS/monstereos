@@ -4,7 +4,7 @@ import {
   SignatureProvider as e2SignatureProvider,
   Api as e2Api
 } from "eosjs2"
-import { parseBattlesFromChain, parseConfigFromChain } from "../modules/battles/battles"
+import { parseBattlesFromChain, parseConfigFromChain, Arena } from "../modules/battles/battles"
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
@@ -85,7 +85,7 @@ export const loadMonstersContract = () => {
   return e2DefaultApi.getContract(MONSTERS_ACCOUNT)
 }
 
-export const loadArenaByHost = (host: string) => {
+export const loadArenaByHost = (host: string): Promise<Arena> => {
   return e2DefaultRpc.get_table_rows({
     json: true,
     code: MONSTERS_ACCOUNT,
@@ -323,7 +323,6 @@ export const startBattle = async(
   })
 }
 
-
 export const attackBattle = async(
   scatter: any,
   host: string,
@@ -335,4 +334,30 @@ export const attackBattle = async(
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
   return contract.battleattack(host, host, petId, petEnemyId, elementId, eosAuthorization.permission)
+}
+
+export const getWinner = async (host: string) => {
+  try {
+    const data = await e2DefaultRpc.history_get_actions(MONSTERS_ACCOUNT, undefined, -300)
+
+    if (data && data.actions) {
+      const actionData = data.actions
+        .reverse()
+        .filter((a: any) => {
+          return a.action_trace && a.action_trace.act &&
+            a.action_trace.act.name === "battlefinish" &&
+            a.action_trace.act.data.host === host
+        }).map((a: any) => a.action_trace.act.data)
+
+      if (actionData.length) {
+        console.info("and the winner is >>>", actionData[0].winner)
+        return actionData[0].winner
+      } else {
+        throw new Error("Winner not recognized in history api")
+      }
+    }
+  } catch (error) {
+    console.error("Fail to get the winner", error)
+    return "?"
+  }
 }

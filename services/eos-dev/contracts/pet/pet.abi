@@ -472,6 +472,14 @@
         }
       ]
     },{
+      "name": "migrate",
+      "base": "",
+      "fields": [{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
       "name": "transfer",
       "base": "",
       "fields": [{
@@ -579,6 +587,10 @@
     },{
       "name": "addpettype",
       "type": "addpettype",
+      "ricardian_contract": ""
+    },{
+      "name": "migrate",
+      "type": "migrate",
       "ricardian_contract": ""
     },{
       "name": "changepettyp",
