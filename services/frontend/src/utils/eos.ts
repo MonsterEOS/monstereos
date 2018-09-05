@@ -323,7 +323,6 @@ export const startBattle = async(
   })
 }
 
-
 export const attackBattle = async(
   scatter: any,
   host: string,
@@ -335,4 +334,30 @@ export const attackBattle = async(
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
   return contract.battleattack(host, host, petId, petEnemyId, elementId, eosAuthorization.permission)
+}
+
+export const getWinner = async (host: string) => {
+  try {
+    const data = await e2DefaultRpc.history_get_actions(MONSTERS_ACCOUNT, undefined, -300)
+
+    if (data && data.actions) {
+      const actionData = data.actions
+        .reverse()
+        .filter((a: any) => {
+          return a.action_trace && a.action_trace.act &&
+            a.action_trace.act.name === "battlefinish" &&
+            a.action_trace.act.data.host === host
+        }).map((a: any) => a.action_trace.act.data)
+
+      if (actionData.length) {
+        console.info("and the winner is >>>", actionData[0].winner)
+        return actionData[0].winner
+      } else {
+        throw new Error("Winner not recognized in history api")
+      }
+    }
+  } catch (error) {
+    console.error("Fail to get the winner", error)
+    return "?"
+  }
 }

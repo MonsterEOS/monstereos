@@ -1,5 +1,5 @@
 import * as React from "react"
-import { MonsterType, Arena, MonsterArenaStats, Element, isWatcher } from "./battles"
+import { MonsterType, Arena, MonsterArenaStats, Element, isWatcher, BATTLE_PHASE_GOING } from "./battles"
 import { State, pushNotification } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 import { connect } from "react-redux"
@@ -123,8 +123,10 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     const isWinner = isWatcher(arena, identity) ? undefined : winner === identity
 
+    const isBattleGoing = arena.phase === BATTLE_PHASE_GOING
+
     return <div className={`battle-arena ${getArenaBackground(arena.startedAt)}`}>
-      {arena.petsStats.map(this.renderArenaMonster)}
+      {arena.petsStats.map((monster) => this.renderArenaMonster(monster, isBattleGoing))}
       {winner && winnerBanner(winner, isWinner)}
     </div>
   }
@@ -151,7 +153,7 @@ class BattleArena extends React.Component<Props, ReactState> {
     }
   }
 
-  private renderArenaMonster = (monster: MonsterArenaStats) => {
+  private renderArenaMonster = (monster: MonsterArenaStats, isBattleGoing: boolean) => {
     const {
       arena,
       identity,
@@ -162,12 +164,13 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     const myMonster = monster.player === identity
 
-    const myTurn = arena.commits[0].player === identity ||
-      Date.now() - arena.lastMoveAt > 60000
+    const myTurn = isBattleGoing &&
+      (arena.commits[0].player === identity ||
+      Date.now() - arena.lastMoveAt > 60000)
 
     const monsterClass =
       (myMonster ? "my-monster" : "enemy-monster") +
-      (monster.pet_id === selectedEnemyId ? " active" : "")
+      (monster.pet_id === selectedEnemyId && isBattleGoing ? " active" : "")
 
     const enemyClick = !myMonster ?
       () => enemySelection(monster.pet_id) :
