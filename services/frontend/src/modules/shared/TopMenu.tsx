@@ -47,6 +47,7 @@ class TopMenu extends React.Component<Props, ReactState> {
             {!eosAccount && this.scatterButton()}
             {eosAccount && this.myWalletButton()}
             {eosAccount && this.myMonstersButton()}
+            {this.arenasButton()}
             {this.rankButton()}
             {this.aboutButton()}
             {eosAccount && this.logoutButton()}
@@ -114,6 +115,15 @@ class TopMenu extends React.Component<Props, ReactState> {
       <Link className="navbar-item" to="/rank">
         <i className="fa fa-trophy" />
         Rank
+      </Link>
+    )
+  }
+
+  private arenasButton() {
+    return (
+      <Link className="navbar-item" to="/arenas">
+        <i className="fa fa-legal" />
+        Arenas
       </Link>
     )
   }

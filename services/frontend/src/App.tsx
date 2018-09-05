@@ -3,7 +3,7 @@ import { Switch, Route } from "react-router-dom"
 
 import TopMenu from "./modules/shared/TopMenu"
 import HomeScreen from "./modules/pages/HomeScreen"
-import RankScreen from "./modules/pages/RankScreen"
+import RankScreen from "./modules/ranking/RankScreen"
 import AboutScreen from "./modules/pages/AboutScreen"
 import FaqScreen from "./modules/pages/FaqScreen"
 
@@ -11,8 +11,11 @@ import FaqScreen from "./modules/pages/FaqScreen"
 import "bulma/css/bulma.css"
 import "./styles/index.css"
 import Footer from "./modules/shared/Footer"
-import MyMonstersScreen from "./modules/pages/MyMonstersScreen"
-import MonsterDetailsScreen from "./modules/pages/MonsterDetailsScreen"
+import ArenasScreen from "./modules/battles/ArenasScreen"
+import BattleScreen from "./modules/battles/BattleScreen"
+import MyMonstersScreen from "./modules/monsters/MyMonstersScreen"
+import MonsterDetailsScreen from "./modules/monsters/MonsterDetailsScreen"
+import Toaster from "./modules/shared/Toaster"
 
 class App extends React.Component<{}, {}> {
   public render() {
@@ -20,7 +23,10 @@ class App extends React.Component<{}, {}> {
       <Switch >
         <React.Fragment>
           <TopMenu />
+          <Toaster />
           <Route path="/" exact component={HomeScreen} />
+          <Route path="/arenas" exact component={ArenasScreen} />
+          <Route path="/arenas/:host" exact component={BattleScreen} />
           <Route path="/my-monsters" exact component={MyMonstersScreen} />
           <Route path="/monster/:id" component={MonsterDetailsScreen} />
           <Route path="/rank" exact component={RankScreen} />

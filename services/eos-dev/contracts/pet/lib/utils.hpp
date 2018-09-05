@@ -1,5 +1,7 @@
 #pragma once
 
+#include <eosiolib/crypto.h>
+
 #include <string>
 
 using std::string;
@@ -22,5 +24,12 @@ namespace utils {
     uint64_t hash_str(const string &str) {
         return hash<string>{}(str);
     }
+
+    checksum256 get_hash(const bytes& data) {
+        checksum256 result;
+        sha256(data.data(), data.size(), &result);
+        return result;
+    }
+
 }
 

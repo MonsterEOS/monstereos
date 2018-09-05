@@ -7,6 +7,7 @@
     "@types/enzyme": "^3.1.13",
     "@types/history": "^4.7.0",
     "@types/react-router-dom": "^4.3.0",
+    "@types/uuid": "^3.4.3",
     "apollo-boost": "^0.1.13",
     "bulma": "^0.7.1",
     "classnames": "^2.2.6",
@@ -14,7 +15,7 @@
     "enzyme-adapter-react-16": "^1.2.0",
     "eosjs": "^16.0.6",
     "eosjs-ecc": "^4.0.4",
-    "eosjs2": "0.0.11",
+    "eosjs2": "^0.0.13",
     "final-form": "^4.9.1",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
@@ -30,9 +31,11 @@
     "react-scripts-ts": "2.17.0",
     "redux": "^4.0.0",
     "redux-thunk": "^2.3.0",
+    "scatter-js": "^2.5.2",
     "styled-components": "^3.4.2",
     "tslint": "^5.11.0",
-    "typesafe-actions": "^2.0.4"
+    "typesafe-actions": "^2.0.4",
+    "uuid": "^3.3.2"
   },
   "scripts": {
     "build-css": "node-sass-chokidar src/ -o src/",

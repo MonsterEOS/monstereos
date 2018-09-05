@@ -69,6 +69,19 @@
   margin: 0 14px 14px;
 }
 
+.monster-header-link .title {
+  color: $blue;
+
+  &:hover {
+    color: #000;
+  }
+
+}
+
+.monster-selected {
+  background-color: greenyellow;
+}
+
 /* mobile */
 @media screen and (max-width: 768px) {
 

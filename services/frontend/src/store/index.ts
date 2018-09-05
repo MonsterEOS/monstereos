@@ -1,15 +1,20 @@
 import { action as tsAction, ActionType } from "typesafe-actions"
 import { combineReducers, createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
+import {v4 as uuid} from "uuid"
 
-import { network as eosNetwork } from "../utils/eos"
+import { network as eosNetwork, loadMonstersByOwner } from "../utils/eos"
+import { MonsterProps } from "../modules/monsters/monsters"
+import { getEosAccount } from "../utils/scatter"
 
 // state
 
 export interface State {
   readonly scatter: any
   readonly identity: any
-  readonly globalConfig: GlobalConfig
+  readonly globalConfig: GlobalConfig,
+  readonly notifications: Notification[]
+  readonly myMonsters: MonsterProps[]
 }
 
 export interface GlobalConfig {
@@ -31,7 +36,7 @@ export interface GlobalConfig {
   min_sleep_period: number
 }
 
-const initialGlobalConfig = {
+export const initialGlobalConfig = {
   attack_max_factor: 28,
   attack_min_factor: 20,
   battle_busy_arenas: 0,
@@ -50,6 +55,18 @@ const initialGlobalConfig = {
   min_sleep_period: 14400
 }
 
+export interface Notification {
+  id: string,
+  text: string,
+  type: number,
+  link?: string,
+  time: number
+}
+
+export const NOTIFICATION_SUCCESS = 1
+export const NOTIFICATION_WARNING = 2
+export const NOTIFICATION_ERROR = 3
+
 // const initialState: State = {
 //   scatter: null,
 //   eosAccount: ""
@@ -58,26 +75,68 @@ const initialGlobalConfig = {
 // actions definitions
 const LOAD_SCATTER = "LOAD_SCATTER"
 const LOAD_EOS_IDENTITY = "LOAD_EOS_IDENTITY"
+const DELETE_NOTIFICATION = "DELETE_NOTIFICATION"
+const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
+const LOAD_GLOBAL_CONFIG = "LOAD_GLOBAL_CONFIG"
+const LOAD_MY_MONSTERS = "LOAD_MY_MONSTERS"
 const DO_LOGOUT = "DO_LOGOUT"
 
 const actionLoadScatter = (scatter: object) => tsAction(LOAD_SCATTER, scatter)
 const actionLoadEosIdentity = (identity: object) => tsAction(LOAD_EOS_IDENTITY, identity)
 const actionLogout = () => tsAction(DO_LOGOUT)
+const actionPushNotificaction = (notification: Notification) => tsAction(PUSH_NOTIFICATION, notification)
+const actionDeleteNotificaction = (id: string) => tsAction(DELETE_NOTIFICATION, id)
+const actionLoadConfig = (config: GlobalConfig) => tsAction(LOAD_GLOBAL_CONFIG, config)
+const actionLoadMyMonsters = (monsters: MonsterProps[]) => tsAction(LOAD_MY_MONSTERS, monsters)
 
 const actions = {
   actionLoadScatter,
   actionLoadEosIdentity,
   actionLogout,
+  actionPushNotificaction,
+  actionDeleteNotificaction,
+  actionLoadConfig,
+  actionLoadMyMonsters
 }
 type Actions = ActionType<typeof actions>
 
 // actions implementations
+export const deleteNotification = (id: string) => {
+  return actionDeleteNotificaction(id)
+}
+
+export const pushNotification = (text: string, type: number, link?: string) => {
+  return actionPushNotificaction({
+    id: uuid(),
+    time: Date.now(),
+    text,
+    type,
+    link
+  })
+}
+
+export const loadConfig = (config: GlobalConfig) => {
+  return actionLoadConfig(config)
+}
+
 export const doLoadScatter = (scatter: any) => {
   return actionLoadScatter(scatter)
 }
 
-export const doLoadIdentity = (identity: any) => {
-  return actionLoadEosIdentity(identity)
+export const doLoadIdentity = (identity: any) => async (dispatch: any) => {
+  dispatch(actionLoadEosIdentity(identity))
+  dispatch(doLoadMyMonsters())
+}
+
+export const doLoadMyMonsters = () => async (
+  dispatch: any,
+  getState: any,
+) => {
+  // autoload monsters
+  const { globalConfig, identity } = getState()
+  const account = getEosAccount(identity)
+  const accountMonsters = await loadMonstersByOwner(account, globalConfig)
+  dispatch(actionLoadMyMonsters(accountMonsters))
 }
 
 export const requestScatterIdentity = () => async (dispatch: any, getState: any) => {
@@ -95,12 +154,13 @@ export const requestScatterIdentity = () => async (dispatch: any, getState: any)
   return getState().scatter.getIdentity(requiredFields)
   .then((identity: any) => {
     console.info("identity is ", identity)
-    dispatch(actionLoadEosIdentity(identity))
+    dispatch(doLoadIdentity(identity))
   }).catch((error: any) => {
     if (error && error.message) {
-      alert(error.message)
+      dispatch(pushNotification(error.message, NOTIFICATION_ERROR))
     } else {
       console.error("Fail to get Scatter Identity", error)
+      dispatch(pushNotification("Fail to get Scatter Identity", NOTIFICATION_ERROR))
     }
   })
 }
@@ -113,7 +173,6 @@ export const doLogout = () => (dispatch: any, getState: any) => {
 // reducer
 const reducers = combineReducers<State, Actions>({
   scatter: (state = null, action) => {
-    console.info("calling scatter reducer")
     switch (action.type) {
       case LOAD_SCATTER:
         return action.payload
@@ -131,9 +190,34 @@ const reducers = combineReducers<State, Actions>({
         return state
     }
   },
-  globalConfig: (state = initialGlobalConfig) => {
-    // TODO: implement dynamic global config
-    return state
+  globalConfig: (state = initialGlobalConfig, action) => {
+    switch (action.type) {
+      case LOAD_GLOBAL_CONFIG:
+        return action.payload
+      default:
+        return state
+    }
+  },
+  myMonsters: (state = [], action) => {
+    switch (action.type) {
+      case LOAD_MY_MONSTERS:
+        return action.payload
+      case DO_LOGOUT:
+        return []
+      default:
+        return state
+    }
+  },
+  notifications: (state = [], action) => {
+    switch (action.type) {
+      case PUSH_NOTIFICATION:
+        const notification = action.payload as Notification
+        return state.concat(notification)
+      case DELETE_NOTIFICATION:
+        return state.filter((item) => item.id !== action.payload)
+      default:
+        return state
+    }
   }
 })
 

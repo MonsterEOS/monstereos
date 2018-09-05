@@ -25,7 +25,31 @@ export interface MonsterProps {
   actions: MonsterAction[]
 }
 
-export const calcMonsterStats = (monster: MonsterProps, config: GlobalConfig) => {
+export const parseMonstersFromChain = (pet: any, config: GlobalConfig): MonsterProps => {
+  const monster = {
+    id: pet.id,
+    name: pet.name,
+    owner: pet.owner,
+    type: pet.type,
+    deathAt: 0,
+    createdAt: pet.created_at * 1000,
+    lastFeedAt: pet.last_fed_at * 1000,
+    lastAwakeAt: pet.last_awake_at * 1000,
+    lastBedAt: pet.last_bed_at * 1000,
+    isSleeping: pet.last_bed_at > pet.last_awake_at,
+    hunger: 100,
+    health: 100,
+    awake: 100,
+    actions: []
+  }
+
+  return calcMonsterStats(monster, config)
+}
+
+export const calcMonsterStats = (
+  monster: MonsterProps,
+  config: GlobalConfig,
+): MonsterProps => {
 
   if (config) {
     const currentTime = Date.now()
@@ -55,7 +79,8 @@ export const calcMonsterStats = (monster: MonsterProps, config: GlobalConfig) =>
 
   }
 
-  console.info(monster)
-
   return monster
 }
+
+export const monsterImageSrc = (typeId: number) =>
+  (`/images/monsters/monster-${typeId}.png`)

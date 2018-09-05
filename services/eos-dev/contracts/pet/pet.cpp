@@ -59,11 +59,11 @@ void pet::createpet(name owner,
         pet.created_at = now();
         pet.last_fed_at = pet.created_at;
         pet.last_play_at = pet.created_at;
-        pet.last_bed_at = pet.created_at;
         pet.last_shower_at = pet.created_at;
-        pet.last_awake_at = 0;
+        pet.last_bed_at = pet.created_at;
+        pet.last_awake_at = pet.created_at + 1; // TODO: should we create awake pets?
 
-        pet.type = (hash_str(pet_name) + pet.created_at + pet.id + owner) % pc.last_pet_type_id;
+        pet.type = (pet.created_at + pet.id + owner) % pc.last_pet_type_id;
 
         r = pet;
     });
@@ -343,8 +343,3 @@ void pet::_update(st_pets &pet) {
 void pet::_transfervalue(name receiver, asset quantity, string memo) {
      action(permission_level{_self, N(active)}, N(eosio.token), N(transfer), std::make_tuple(N(monstereosio), receiver, quantity, memo)).send();
 }
-
-// we need to sacrifice abi generation for recipient listener
-// keep alternating the comments between EOSIO_ABI (to generate ABI)
-// and EOSIO_ABI_EX to generate the listener action
-// https://eosio.stackexchange.com/q/421/54

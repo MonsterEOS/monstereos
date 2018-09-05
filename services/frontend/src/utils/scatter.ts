@@ -1,4 +1,5 @@
 import { doLoadScatter, doLoadIdentity } from "../store"
+import ScatterJS from "scatter-js/dist/scatter.esm"
 import eos from "eosjs"
 
 const customWindow = (window as any)
@@ -14,16 +15,26 @@ const loadScatter = (scatter: any, store: any) => {
 }
 
 export default (store: any) => {
-  if (customWindow.scatter) {
-    console.info("Scatter detected initially")
-    loadScatter(customWindow.scatter, store)
-  } else {
-    console.info("setting scatterLoaded event")
-    document.addEventListener("scatterLoaded", scatterExtension => {
-      console.info("scatterLoaded event detected!")
-      loadScatter(customWindow.scatter, store)
+
+  ScatterJS.scatter.connect("MonsterEOS")
+    .then((connected: any) => {
+      if (connected) {
+        const scatter = ScatterJS.scatter
+        loadScatter(scatter, store)
+        customWindow.scatter = null
+      }
     })
-  }
+
+  // if (customWindow.scatter) {
+  //   console.info("Scatter detected initially")
+  //   loadScatter(customWindow.scatter, store)
+  // } else {
+  //   console.info("setting scatterLoaded event")
+  //   document.addEventListener("scatterLoaded", scatterExtension => {
+  //     console.info("scatterLoaded event detected!")
+  //     loadScatter(customWindow.scatter, store)
+  //   })
+  // }
 }
 
 export const getEosAccount = (identity: any) => {

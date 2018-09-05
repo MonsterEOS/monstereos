@@ -37,7 +37,12 @@ namespace types {
   struct st_commit {
     name player;
     checksum256 commitment;
-    checksum256 reveal;
+    vector<uint8_t> randoms{};
+  };
+
+  struct st_pick {
+    vector<uint64_t> pets;
+    vector<uint8_t> randoms;
   };
 
   struct st_transfer {
