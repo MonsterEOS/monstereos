@@ -224,7 +224,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
       selectedAttackEnemyId
     } = this.state
 
-    attackBattle(scatter, host, selectedAttackPetId, selectedAttackEnemyId, selectedAttackElementId)
+    await attackBattle(scatter, host, selectedAttackPetId, selectedAttackEnemyId, selectedAttackElementId)
       .catch((error: any) => {
         console.error("Fail to submit attack", error)
         dispatchPushNotification("Fail to Submit Attack", NOTIFICATION_ERROR)
