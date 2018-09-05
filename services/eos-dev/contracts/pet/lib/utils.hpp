@@ -27,7 +27,7 @@ namespace utils {
 
     checksum256 get_hash(const bytes& data) {
         checksum256 result;
-        sha256(data.data(), data.size(), &result);
+        sha256((char *) data.data(), data.size(), &result);
         return result;
     }
 

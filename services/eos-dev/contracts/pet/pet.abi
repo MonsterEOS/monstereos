@@ -561,10 +561,6 @@
       "type": "battlestart",
       "ricardian_contract": ""
     },{
-      "name": "battleselpet",
-      "type": "battleselpet",
-      "ricardian_contract": ""
-    },{
       "name": "battleattack",
       "type": "battleattack",
       "ricardian_contract": ""

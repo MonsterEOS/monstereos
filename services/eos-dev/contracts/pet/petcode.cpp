@@ -34,7 +34,6 @@ EOSIO_ABI_EX(pet,
     (battlejoin)
     (battleleave)
     (battlestart)
-    (battleselpet)
     (battleattack)
     (battlefinish)
 
