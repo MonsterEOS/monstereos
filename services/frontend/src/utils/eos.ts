@@ -4,7 +4,7 @@ import {
   SignatureProvider as e2SignatureProvider,
   Api as e2Api
 } from "eosjs2"
-import { parseBattlesFromChain, parseConfigFromChain } from "../modules/battles/battles"
+import { parseBattlesFromChain, parseConfigFromChain, Arena } from "../modules/battles/battles"
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
@@ -85,7 +85,7 @@ export const loadMonstersContract = () => {
   return e2DefaultApi.getContract(MONSTERS_ACCOUNT)
 }
 
-export const loadArenaByHost = (host: string) => {
+export const loadArenaByHost = (host: string): Promise<Arena> => {
   return e2DefaultRpc.get_table_rows({
     json: true,
     code: MONSTERS_ACCOUNT,

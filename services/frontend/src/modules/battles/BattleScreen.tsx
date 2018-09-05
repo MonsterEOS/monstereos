@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION_SUCCESS } from "../../store"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText, Element } from "./battles"
 import {
   loadArenaByHost,
   leaveBattle,
@@ -41,19 +41,22 @@ interface ReactState {
 
 class BattleScreen extends React.Component<Props, ReactState> {
 
-  public state = {
-    arena: undefined,
-    elements: [],
-    monsterTypes: [],
-    selectedAttackPetId: 0,
-    selectedAttackElementId: -1,
-    selectedAttackEnemyId: 0,
-    turnCountdown: -1,
-    winner: undefined,
-    isOver: false
-  }
-
   private refreshHandler: any = undefined
+
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      arena: undefined,
+      elements: [],
+      monsterTypes: [],
+      selectedAttackPetId: 0,
+      selectedAttackElementId: -1,
+      selectedAttackEnemyId: 0,
+      turnCountdown: -1,
+      winner: undefined,
+      isOver: false
+    }
+  }
 
   public componentDidMount() {
     this.refresh()
@@ -70,7 +73,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
     const { identity, globalConfig } = this.props
 
     const {
-      arena: maybeArena,
+      arena,
       winner,
       elements,
       monsterTypes,
@@ -79,7 +82,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
       selectedAttackPetId,
     } = this.state
 
-    if (!maybeArena) {
+    if (!arena) {
       return (
         <span>
           <i className="fa fa-spin fa-spinner" /> Loading Battle....
@@ -87,7 +90,6 @@ class BattleScreen extends React.Component<Props, ReactState> {
       )
     }
 
-    const arena = maybeArena as Arena
     const currentBattle = getCurrentBattle([arena], identity)
 
     const isMyBattle = !!currentBattle
@@ -130,7 +132,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
           selectedEnemyId={selectedAttackEnemyId}
           selectedPetId={selectedAttackPetId}
           selectedElementId={selectedAttackElementId}
-          elements={elements!}
+          elements={elements}
           winner={winner}
           monsterTypes={monsterTypes!} />
         }
@@ -161,7 +163,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
       if (newArena) {
         this.setState({arena: newArena})
-      } else if (arena !== undefined) {
+      } else if (arena !== null && arena !== undefined && arena.petsStats.length) {
         const confirmedArena = arena as Arena
         const winner = await getWinner(confirmedArena.host)
 
@@ -172,7 +174,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
               : stat
           })
 
-        const updatedArena = Object.assign(
+        const updatedArena: Arena = Object.assign(
           {},
           arena,
           {phase: BATTLE_PHASE_FINISHED, petsStats: updatedStats}
