@@ -445,6 +445,46 @@
       border: 2px solid #ff3860;
       border-radius: 5%; }
 
+/* mobile arena */
+@media screen and (max-width: 768px) {
+  .battle-arena {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    top: 0;
+    left: 0;
+    position: fixed;
+    z-index: 100;
+    background-color: black;
+    flex-direction: column; }
+    .battle-arena .arena-monster {
+      margin: 0; }
+  .mobile-arena-countdown {
+    position: fixed;
+    z-index: 999;
+    font-weight: bold;
+    font-family: "Freckle Face", cursive;
+    font-size: 42px;
+    margin: auto;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
+    color: blue;
+    width: 90%;
+    text-align: center; }
+  .mobile-arena-back {
+    position: fixed;
+    z-index: 999;
+    font-weight: bold;
+    font-size: 24px;
+    color: #fff;
+    bottom: 10px;
+    left: 50%;
+    margin: auto;
+    transform: translateX(-50%);
+    text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black; } }
+
 .button.is-purple {
   background-color: #b86bff;
   color: white; }

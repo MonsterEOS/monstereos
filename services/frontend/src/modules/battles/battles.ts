@@ -130,14 +130,22 @@ export const isWatcher = (arena: Arena, identity: string) => {
   return !arena.commits.find((commit) => commit.player === identity)
 }
 
+export const getBattleCountdown = (arena: Arena, globalConfig: GlobalConfig) => {
+  if (arena.phase !== BATTLE_PHASE_GOING) {
+    return 0
+  }
+
+  return Math.floor((arena.lastMoveAt +
+    (globalConfig.battle_idle_tolerance * 1000) -
+    Date.now()) / 1000)
+}
+
 export const battleCountdownText = (arena: Arena, globalConfig: GlobalConfig) => {
   if (arena.phase !== BATTLE_PHASE_GOING) {
     return ""
   }
 
-  const turnTimeLeft = Math.floor((arena.lastMoveAt +
-    (globalConfig.battle_idle_tolerance * 1000) -
-    Date.now()) / 1000)
+  const turnTimeLeft = getBattleCountdown(arena, globalConfig)
 
   if (turnTimeLeft > 0) {
     return `Player ${arena.commits[0].player} has ${turnTimeLeft} seconds to attack`

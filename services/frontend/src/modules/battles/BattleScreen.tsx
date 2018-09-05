@@ -1,9 +1,10 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION_SUCCESS } from "../../store"
+import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText, Element } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText, Element, getBattleCountdown } from "./battles"
 import {
   loadArenaByHost,
   leaveBattle,
@@ -108,13 +109,20 @@ class BattleScreen extends React.Component<Props, ReactState> {
       () => this.doStartBattle(arena.host) :
       null
 
+    const isOver = arena.phase === BATTLE_PHASE_FINISHED
+
+    const myTurn = arena.commits[0].player === identity
+
+    const battleCountdown = getBattleCountdown(arena, globalConfig)
+    const mobileCountdownText = battleCountdown > 0 ? battleCountdown : "Attack!"
+
     return (
       <PageContainer>
         <BattleHeader
           battleText={getBattleText(arena)}
           host={arena.host}
           isMyBattle={isMyBattle}
-          isOver={arena.phase === BATTLE_PHASE_FINISHED}
+          isOver={isOver}
           countdownText={countdownText}
           allowConfirmation={allowConfirmation}
           allowLeaveBattle={allowLeaveBattle} />
@@ -136,6 +144,20 @@ class BattleScreen extends React.Component<Props, ReactState> {
           winner={winner}
           monsterTypes={monsterTypes!} />
         }
+        {/* mobile controls */}
+        <div className="is-hidden-tablet">
+        {arena.phase === BATTLE_PHASE_GOING &&
+          <div className={`mobile-arena-countdown ${myTurn || battleCountdown < 0 ? "has-text-success" : "has-text-danger"}`}>
+            {battleCountdown > 0 ? (myTurn ? "Your turn " : "Enemy turn ") : ""}
+            {mobileCountdownText}
+          </div>
+        }
+        {(!isMyBattle || isOver) &&
+          <Link className="mobile-arena-back" to="/arenas">
+            Back to Arenas
+          </Link>}
+        </div>
+
       </PageContainer>
     )
   }
@@ -203,9 +225,6 @@ class BattleScreen extends React.Component<Props, ReactState> {
     } = this.state
 
     attackBattle(scatter, host, selectedAttackPetId, selectedAttackEnemyId, selectedAttackElementId)
-      .then(() => {
-        dispatchPushNotification("Attack submitted successfully", NOTIFICATION_SUCCESS)
-      })
       .catch((error: any) => {
         console.error("Fail to submit attack", error)
         dispatchPushNotification("Fail to Submit Attack", NOTIFICATION_ERROR)

@@ -10,7 +10,7 @@ export const BattleHeader = ({
   isOver,
   countdownText
 }: any) => (
-  <div className="content">
+  <div className="content arena-header">
     <div className="box">
       <div className="level">
         <div className="level-left">
