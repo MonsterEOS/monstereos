@@ -47,6 +47,7 @@ EOSIO_ABI_EX(pet,
     (changebatidt)
     (changebatami)
     (changebatama)
+    (migrate)
 
     // tokens deposits
     (transfer)
