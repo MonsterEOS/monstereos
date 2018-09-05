@@ -103,7 +103,19 @@ interface Props {
   winner?: string
 }
 
-class BattleArena extends React.Component<Props, {}> {
+interface HpLog {
+  petId: number,
+  hpDiff: number,
+  time: number
+}
+
+interface ReactState {
+  hpLog: HpLog[]
+}
+
+class BattleArena extends React.Component<Props, ReactState> {
+
+  public state = { hpLog: [] as HpLog[] }
 
   public render() {
 
@@ -115,6 +127,28 @@ class BattleArena extends React.Component<Props, {}> {
       {arena.petsStats.map(this.renderArenaMonster)}
       {winner && winnerBanner(winner, isWinner)}
     </div>
+  }
+
+  public componentDidUpdate(prevProps: Props) {
+    // Typical usage (don't forget to compare props):
+    if (this.props.arena.petsStats !== prevProps.arena.petsStats) {
+      this.updateHpLog(this.props.arena.petsStats, prevProps.arena.petsStats)
+    }
+  }
+
+  private updateHpLog = (
+    newStats: MonsterArenaStats[],
+    oldStats: MonsterArenaStats[],
+  ) => {
+    const newLogs = newStats.map((newStat) => {
+      const oldStat = oldStats.find((item) => item.pet_id === newStat.pet_id)
+      const hpDiff = oldStat ? newStat.hp - oldStat.hp : 0
+      return { petId: newStat.pet_id, hpDiff, time: Date.now() }
+    }).filter((item) => item.hpDiff !== 0)
+
+    if (newLogs.length) {
+      this.setState({hpLog: this.state.hpLog.concat(newLogs)})
+    }
   }
 
   private renderArenaMonster = (monster: MonsterArenaStats) => {
@@ -147,13 +181,29 @@ class BattleArena extends React.Component<Props, {}> {
           src={monsterImageSrc(monster.pet_type)}
           className={monsterClass}
           onClick={enemyClick} />
-        {hpBar(monster.hp, monster.player)}
-        {myMonster && myTurn && this.attackButtons(monster)}
-        {myTurn && selectedEnemyId === monster.pet_id &&
-          (selectedElementId !== undefined && selectedElementId >= 0) &&
-          this.confirmAttackButton()}
       </figure>
+      {this.hpNotification(monster.pet_id)}
+      {hpBar(monster.hp, monster.player)}
+      {myMonster && myTurn && this.attackButtons(monster)}
+      {myTurn && selectedEnemyId === monster.pet_id &&
+        (selectedElementId !== undefined && selectedElementId >= 0) &&
+        this.confirmAttackButton()}
     </div>
+  }
+
+  private hpNotification = (petId: number) => {
+    const { hpLog } = this.state
+
+    const notifications = hpLog
+      .filter((item) => item.petId === petId && (Date.now() - item.time) < 5000).map((item, index) => (
+        <span
+          key={index}
+          className="monster-hp-notification">
+          {item.hpDiff}
+        </span>
+      ))
+
+    return notifications.length ? notifications : null
   }
 
   private confirmAttackButton = () => {

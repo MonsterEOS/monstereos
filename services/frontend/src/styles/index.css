@@ -416,7 +416,8 @@
     max-height: 200px; }
     .battle-arena .arena-monster figure {
       max-height: 180px;
-      max-width: 180px; }
+      max-width: 180px;
+      margin: 10px; }
     .battle-arena .arena-monster progress {
       margin-bottom: 6px !important; }
     .battle-arena .arena-monster .monster-hp-notification {
