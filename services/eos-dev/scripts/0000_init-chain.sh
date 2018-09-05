@@ -46,7 +46,8 @@ cd $ROOT_DIR
 mkdir "$CONFIG_DIR"/keys
 
 sleep 1s
-    until curl eosiodev:8888/v1/chain/get_info
+
+until curl eosiodev:8888/v1/chain/get_info
 do
     sleep 1s
 done
@@ -59,7 +60,7 @@ echo "Creating accounts and deploying wallets"
 
 # start wallet
 wallet_password=$(./cleos wallet create | awk 'FNR > 3 { print $1 }' | tr -d '"')
-echo $wallet_password > "$CONFIG_DIR"/keys/default_wallet_password.txt
+echo $wallet_password >| "$CONFIG_DIR"/keys/default_wallet_password.txt
 
 # import wallet keys
 sleep 2s
@@ -121,9 +122,22 @@ sleep .5
 cleos -u http://eosiodev:8888 transfer eosio monstereosio "1000000.0000 SYS"
 cleos -u http://eosiodev:8888 transfer eosio monstereosio "1000000.0000 EOS"
 
+cleos set account permission monstereosio active \
+'{"threshold": 1,
+  "keys": [{
+    "key": "'${MONSTERS_ACCOUNT_PUBLIC_ACTIVE_KEY}'",
+    "weight": 1
+  }],
+  "accounts": [{
+    "permission": {"actor": "monstereosio",
+                   "permission": "eosio.code"},
+                   "weight": 1
+  }]}' owner -p monstereosio
+
 
 echo "Compiling monsters Contract"
-./eosiocpp -o "$CONTRACTS_DIR"/pet/pet.wast "$CONTRACTS_DIR"/pet/pet.cpp
+./eosiocpp -o "$CONTRACTS_DIR"/pet/pet.wast "$CONTRACTS_DIR"/pet/petcode.cpp
+./eosiocpp -g "$CONTRACTS_DIR"/pet/pet.abi "$CONTRACTS_DIR"/pet/petabi.cpp
 
 echo "Deploying Monsters Contract"
 cleos -u http://eosiodev:8888 set contract monstereosio "$CONTRACTS_DIR"/pet
