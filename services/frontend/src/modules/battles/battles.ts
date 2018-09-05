@@ -56,8 +56,6 @@ export const parseBattlesFromChain = (data: any): Arena => {
   if (battle.commits.length === requiredPlayers) {
     battle.phase = BATTLE_PHASE_STARTING
 
-    console.info(battle.commits)
-
     const revealedCommitments = getReadyPlayers(battle)
 
     if (revealedCommitments.length === requiredPlayers) {

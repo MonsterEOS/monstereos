@@ -118,8 +118,6 @@ class BattleArena extends React.Component<Props, {}> {
   }
 
   private renderArenaMonster = (monster: MonsterArenaStats) => {
-    console.info(monster)
-
     const {
       arena,
       identity,
@@ -151,7 +149,7 @@ class BattleArena extends React.Component<Props, {}> {
           onClick={enemyClick} />
         {hpBar(monster.hp, monster.player)}
         {myMonster && myTurn && this.attackButtons(monster)}
-        {selectedEnemyId === monster.pet_id &&
+        {myTurn && selectedEnemyId === monster.pet_id &&
           (selectedElementId !== undefined && selectedElementId >= 0) &&
           this.confirmAttackButton()}
       </figure>
@@ -173,8 +171,6 @@ class BattleArena extends React.Component<Props, {}> {
     const monsterType = monsterTypes.find((type) => type.id === pet.pet_type)
 
     const elements = monsterType ? monsterType.elements : [0] // neutral
-
-    console.info(pet.pet_id, selectedPetId)
 
     return <div className="buttons elements">
       {pet.pet_id === selectedPetId ?
