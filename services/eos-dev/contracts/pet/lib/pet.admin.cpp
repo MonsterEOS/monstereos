@@ -1,5 +1,19 @@
 using namespace types;
 
+// command to delete stuff
+void pet::migrate(string /* reason */) {
+    require_auth(_self);
+
+    // multi_index can't erase when the format changed
+    auto it = db_lowerbound_i64(_self, _self, N(battles), 0);
+    while (it >= 0) {
+        auto del = it;
+        uint64_t dummy;
+        it = db_next_i64(it, &dummy);
+        db_remove_i64(del);
+    }
+}
+
 void pet::changecrtol(uint32_t new_interval) {
     require_auth(_self);
     auto pc = _get_pet_config();
