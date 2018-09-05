@@ -26,5 +26,6 @@ namespace utils {
         sha256(data.data(), data.size(), &result);
         return result;
     }
+
 }
 

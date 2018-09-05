@@ -49,6 +49,8 @@ public:
     void bedpet       ( uuid pet_id );
     void awakepet     ( uuid pet_id );
     void destroypet   ( uuid pet_id );
+    void transferpet  ( uuid pet_id, name newowner);
+    void transferpet2 ( uuid pet_id, name newowner);
 
     // battle interface
     void battlecreate ( name host, battle_mode mode, checksum256 secret );
@@ -141,6 +143,9 @@ public:
                              const uint8_t &hunger_hp_modifier,
                              const uint32_t &last_fed_at,
                              const uint32_t &current_time);
+    void _transfervalue(name receiver, asset quantity, string memo);
+    void _handletransf (string memo, asset quantity, account_name from);
+
 
     // battle helpers
     void _battle_add_pets(st_battle &battle, name player, vector<uint64_t> pet_ids);

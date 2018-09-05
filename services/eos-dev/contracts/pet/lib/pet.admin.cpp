@@ -110,7 +110,7 @@ uuid pet::_next_id(){
 uint64_t pet::_next_element_id(){
     auto pc = _get_pet_config();
     pc.last_element_id++;
-    eosio_assert(pc.last_element_id > 0, "_next_element_id overflow detected");
+    eosio_assert(pc.last_element_id > 0, "_next_element_id overflow detected");    
     _update_pet_config(pc);
     return pc.last_element_id-1; // zero based id
 }
@@ -118,7 +118,7 @@ uint64_t pet::_next_element_id(){
 uint64_t pet::_next_pet_type_id(){
     auto pc = _get_pet_config();
     pc.last_pet_type_id++;
-    eosio_assert(pc.last_pet_type_id > 0, "_next_pet_type_id overflow detected");
+    eosio_assert(pc.last_pet_type_id > 0, "_next_pet_type_id overflow detected");    
     _update_pet_config(pc);
     return pc.last_pet_type_id-1; // zero based id
 }
@@ -157,5 +157,4 @@ pet::st_pet_config2 pet::_get_pet_config(){
 void pet::_update_pet_config(const st_pet_config2 &pc) {
   pet_config2.set(pc, _self);
 }
-
 
