@@ -8,6 +8,7 @@ import { parseBattlesFromChain, parseConfigFromChain } from "../modules/battles/
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
+import { parseOfferFromChain } from "../modules/market/market"
 
 // chain info constants
 const CHAIN_PROTOCOL = process.env.REACT_APP_CHAIN_PROTOCOL || "http"
@@ -26,6 +27,9 @@ export const CONFIG_TABLE = "petconfig2"
 export const BALANCES_TABLE = "accounts"
 export const TOKEN_SYMBOL = "EOS"
 export const MEMO = "MonsterEOS Wallet Deposit"
+
+export const MONSTER_MARKET_ACCOUNT = "monstereosmt"
+export const OFFER_TABLE = "offers"
 
 // battle resources
 export const BATTLE_REQ_CPU = 30 * 1000
@@ -64,6 +68,15 @@ export const trxCreatePet = async (
   return contract.createpet(eosAccount, petName, eosAuthorization.permission)
 }
 
+export const trxOfferPetMarket = async (
+  scatter: any,
+  petId: number,
+  newOwner: string
+) => {
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+  return contract.offerpet(petId, newOwner, 0, 0, eosAuthorization.permission)
+}
 // eos api
 const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
 const signatureProvider = new e2SignatureProvider([])
@@ -336,3 +349,30 @@ export const attackBattle = async(
 
   return contract.battleattack(host, host, petId, petEnemyId, elementId, eosAuthorization.permission)
 }
+
+export const loadOffers = async(config: GlobalConfig, id?:number) => {
+  const apiList = (lowerBound = 0, limit = 5000): any => {
+    return e2DefaultRpc.get_table_rows({
+        json: true,
+        scope: MONSTER_MARKET_ACCOUNT,
+        code: MONSTER_MARKET_ACCOUNT,
+        table: OFFER_TABLE,
+        lower_bound: lowerBound,
+        limit
+    }).then(async res => {
+      if(res.more) {
+        const nextLowerBound = res.rows[res.rows.length-1].id
+        const nextRows = await apiList(nextLowerBound)
+        return res.rows.concat(nextRows)
+      } else {
+        return res.rows
+      }
+    })
+  }
+
+  const chainOffers = await apiList(id, id ? 1 : 5000)
+  const chainMonsters = await loadPets()
+  const monsters = chainMonsters.map((pet: any) => parseMonstersFromChain(pet, config))
+  return chainOffers.map((o:any) => parseOfferFromChain(o, monsters))
+}
+
