@@ -3,8 +3,9 @@ import { combineReducers, createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
 import {v4 as uuid} from "uuid"
 
-import { network as eosNetwork, loadMonstersByOwner } from "../utils/eos"
+import { network as eosNetwork, loadMonstersByOwner, loadOffers } from "../utils/eos"
 import { MonsterProps } from "../modules/monsters/monsters"
+import { OfferProps } from "../modules/market/market"
 import { getEosAccount } from "../utils/scatter"
 
 // state
@@ -15,6 +16,7 @@ export interface State {
   readonly globalConfig: GlobalConfig,
   readonly notifications: Notification[]
   readonly myMonsters: MonsterProps[]
+  readonly offers: OfferProps[]
 }
 
 export interface GlobalConfig {
@@ -79,6 +81,7 @@ const DELETE_NOTIFICATION = "DELETE_NOTIFICATION"
 const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
 const LOAD_GLOBAL_CONFIG = "LOAD_GLOBAL_CONFIG"
 const LOAD_MY_MONSTERS = "LOAD_MY_MONSTERS"
+const LOAD_OFFERS = "LOAD_OFFERS"
 const DO_LOGOUT = "DO_LOGOUT"
 
 const actionLoadScatter = (scatter: object) => tsAction(LOAD_SCATTER, scatter)
@@ -88,7 +91,7 @@ const actionPushNotificaction = (notification: Notification) => tsAction(PUSH_NO
 const actionDeleteNotificaction = (id: string) => tsAction(DELETE_NOTIFICATION, id)
 const actionLoadConfig = (config: GlobalConfig) => tsAction(LOAD_GLOBAL_CONFIG, config)
 const actionLoadMyMonsters = (monsters: MonsterProps[]) => tsAction(LOAD_MY_MONSTERS, monsters)
-
+const actionLoadOffers = (offers: OfferProps[]) => tsAction(LOAD_OFFERS, offers)
 const actions = {
   actionLoadScatter,
   actionLoadEosIdentity,
@@ -96,7 +99,8 @@ const actions = {
   actionPushNotificaction,
   actionDeleteNotificaction,
   actionLoadConfig,
-  actionLoadMyMonsters
+  actionLoadMyMonsters,
+  actionLoadOffers
 }
 type Actions = ActionType<typeof actions>
 
@@ -137,6 +141,17 @@ export const doLoadMyMonsters = () => async (
   const account = getEosAccount(identity)
   const accountMonsters = await loadMonstersByOwner(account, globalConfig)
   dispatch(actionLoadMyMonsters(accountMonsters))
+  dispatch(doLoadOffers())
+}
+
+export const doLoadOffers = () => async (
+  dispatch: any,
+  getState: any
+) => {
+  const offers = await loadOffers(getState().globalConfig)
+  // tslint:disable-next-line:no-console
+  console.log("offers have been loaded")
+  dispatch(actionLoadOffers(offers))
 }
 
 export const requestScatterIdentity = () => async (dispatch: any, getState: any) => {
@@ -218,7 +233,17 @@ const reducers = combineReducers<State, Actions>({
       default:
         return state
     }
-  }
+  },
+  offers: (state = [], action) => {
+    switch (action.type) {
+      case LOAD_OFFERS:
+        return action.payload
+      case DO_LOGOUT:
+        return []
+      default:
+        return state
+    }
+  } 
 })
 
 

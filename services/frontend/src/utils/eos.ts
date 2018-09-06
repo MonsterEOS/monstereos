@@ -8,6 +8,7 @@ import { parseBattlesFromChain, parseConfigFromChain, Arena } from "../modules/b
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
+import { parseOfferFromChain } from "../modules/market/market"
 
 // chain info constants
 const CHAIN_PROTOCOL = process.env.REACT_APP_CHAIN_PROTOCOL || "http"
@@ -17,6 +18,7 @@ const CHAIN_URL = `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
 export const CHAIN_ID = "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
 
 // contract constants
+export const EOSIO_TOKEN_ACCOUNT = "eosio.token"
 export const MONSTERS_ACCOUNT = "monstereosio"
 export const MONSTERS_TABLE = "pets"
 export const BATTLES_TABLE = "battles"
@@ -26,6 +28,9 @@ export const CONFIG_TABLE = "petconfig2"
 export const BALANCES_TABLE = "accounts"
 export const TOKEN_SYMBOL = "EOS"
 export const MEMO = "MonsterEOS Wallet Deposit"
+
+export const MONSTER_MARKET_ACCOUNT = "monstereosmt"
+export const OFFER_TABLE = "offers"
 
 // battle resources
 export const BATTLE_REQ_CPU = 30 * 1000
@@ -37,6 +42,17 @@ export const network = {
   host: CHAIN_HOST,
   port: CHAIN_PORT,
   // chainId: CHAIN_ID
+}
+
+export const trxTokenTransfer = async (
+  scatter: any,
+  to: string,
+  asset: string,
+  memo: string
+) => {
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, EOSIO_TOKEN_ACCOUNT)
+  return contract.transfer(eosAuthorization.account.name, to, asset, memo, eosAuthorization.permission)
 }
 
 export const trxPet = async (
@@ -64,6 +80,34 @@ export const trxCreatePet = async (
   return contract.createpet(eosAccount, petName, eosAuthorization.permission)
 }
 
+export const trxOfferPetMarket = async (
+    scatter: any,
+    petId: number,
+    newOwner: string,
+    amount: number
+  ) => {
+    const eosAuthorization = getEosAuthorization(scatter.identity)
+    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+    return contract.offerpet(petId, newOwner, 0, amount, eosAuthorization.permission)
+  }
+export const trxRemoveOfferMarket = async ( 
+    scatter: any,
+    petId: number) => {
+    const eosAuthorization = getEosAuthorization(scatter.identity)
+    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+    return contract.removeoffer(eosAuthorization.account.name, petId, eosAuthorization.permission)
+  }
+
+export const trxClaimPetMarket = async (
+    scatter: any,
+    petId: number,
+    oldOwner: string
+  ) => {
+    const eosAuthorization = getEosAuthorization(scatter.identity)
+    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+    return contract.claimpet(oldOwner, petId, eosAuthorization.permission)
+  }
+  
 // eos api
 const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
 const signatureProvider = new e2SignatureProvider([])
@@ -360,4 +404,30 @@ export const getWinner = async (host: string) => {
     console.error("Fail to get the winner", error)
     return "?"
   }
+}
+
+export const loadOffers = async(config: GlobalConfig, id?:number) => {
+  const apiList = (lowerBound = 0, limit = 5000): any => {
+    return e2DefaultRpc.get_table_rows({
+        json: true,
+        scope: MONSTER_MARKET_ACCOUNT,
+        code: MONSTER_MARKET_ACCOUNT,
+        table: OFFER_TABLE,
+        lower_bound: lowerBound,
+        limit
+    }).then(async res => {
+      if(res.more) {
+        const nextLowerBound = res.rows[res.rows.length-1].id
+        const nextRows = await apiList(nextLowerBound)
+        return res.rows.concat(nextRows)
+      } else {
+        return res.rows
+      }
+    })
+  }
+
+  const chainOffers = await apiList(id, id ? 1 : 5000)
+  const chainMonsters = await loadPets()
+  const monsters = chainMonsters.map((pet: any) => parseMonstersFromChain(pet, config))
+  return chainOffers.map((o:any) => parseOfferFromChain(o, monsters))
 }

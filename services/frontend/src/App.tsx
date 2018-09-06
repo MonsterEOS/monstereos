@@ -14,6 +14,7 @@ import Footer from "./modules/shared/Footer"
 import ArenasScreen from "./modules/battles/ArenasScreen"
 import BattleScreen from "./modules/battles/BattleScreen"
 import MyMonstersScreen from "./modules/monsters/MyMonstersScreen"
+import MarketScreen from "./modules/market/MarketScreen"
 import MonsterDetailsScreen from "./modules/monsters/MonsterDetailsScreen"
 import Toaster from "./modules/shared/Toaster"
 
@@ -29,6 +30,7 @@ class App extends React.Component<{}, {}> {
           <Route path="/arenas/:host" exact component={BattleScreen} />
           <Route path="/my-monsters" exact component={MyMonstersScreen} />
           <Route path="/monster/:id" component={MonsterDetailsScreen} />
+          <Route path="/market" component={MarketScreen} />
           <Route path="/rank" exact component={RankScreen} />
           <Route path="/about" exact component={AboutScreen} />
           <Route path="/faq" exact component={FaqScreen} />

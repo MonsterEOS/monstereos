@@ -47,6 +47,7 @@ class TopMenu extends React.Component<Props, ReactState> {
             {!eosAccount && this.scatterButton()}
             {eosAccount && this.myWalletButton()}
             {eosAccount && this.myMonstersButton()}
+            {eosAccount && this.marketButton()}
             {this.arenasButton()}
             {this.rankButton()}
             {this.aboutButton()}
@@ -107,6 +108,15 @@ class TopMenu extends React.Component<Props, ReactState> {
           </p>
         </div>
       </div>
+    )
+  }
+
+  private marketButton() {
+    return (
+      <Link className="navbar-item" to="/market">
+        <i className="fa fa-money" />
+        Market
+      </Link>
     )
   }
 
