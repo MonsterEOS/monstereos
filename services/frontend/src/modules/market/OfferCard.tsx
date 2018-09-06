@@ -169,7 +169,7 @@ class OfferCard extends React.Component<Props, ReactState> {
       }
       actions.push({action: this.requestDeleteOffer, label: "Delete Offer"})
     }
-    if (offer.newOwner === eosAccount && isReal) {
+    if ((!offer.newOwner || offer.newOwner === eosAccount) && offer.user !== eosAccount && isReal) {
       actions.push({action: this.requestClaimMonster, label: "Claim Monster"})
     }
 
@@ -207,9 +207,11 @@ class OfferCard extends React.Component<Props, ReactState> {
         <div className="is-6">
           offered by {offer.user}
         </div>
-        <div className="is-6">
-          offered to {offer.newOwner}
-        </div>
+        {offer.newOwner &&
+          <div className="is-6">
+            offered to {offer.newOwner}
+          </div>
+        }
         <div className="is-6">
           for {offer.value}
         </div>

@@ -84,20 +84,6 @@ class NewOfferModal extends React.Component<Props, {}> {
             </div>
           </div>
           <div className="field">
-            <label className="label is-large">New Owner</label>
-            <div className="control has-icons-left has-icons-right">
-              <input
-                className="input is-large"
-                placeholder="friedgermuef"
-                type="text"
-                onChange={this.handleChangeName}
-                value={name} />
-              <span className="icon is-left">
-                <i className="fa fa-user" />
-              </span>
-            </div>
-          </div>
-          <div className="field">
             <label className="label is-large">Value in EOS</label>
             <div className="control has-icons-left has-icons-right">
               <input
@@ -113,6 +99,21 @@ class NewOfferModal extends React.Component<Props, {}> {
               </span>
             </div>
           </div>
+          <div className="field">
+            <label className="label is-large">Propose to New Owner (optional)</label>
+            <div className="control has-icons-left has-icons-right">
+              <input
+                className="input is-large"
+                placeholder="friedgermuef"
+                type="text"
+                onChange={this.handleChangeName}
+                value={name} />
+              <span className="icon is-left">
+                <i className="fa fa-user" />
+              </span>
+            </div>
+          </div>
+
         </div>
       </Modal>
     )
@@ -151,15 +152,14 @@ class NewOfferModal extends React.Component<Props, {}> {
     const { scatter, closeModal, dispatchPushNotification } = this.props
     const { name, amount, monster } = this.state
 
-    if (!name || name.length !== 12) {
-      return dispatchPushNotification(`Name (with length 12) is required to make an offer`, NOTIFICATION_ERROR)
-    }
     if (!monster) {
       return dispatchPushNotification(`Monster is required to make an offer`, NOTIFICATION_ERROR)
     }
+
     if (amount && amount < 0 ) {
       return dispatchPushNotification(`Invalid amount for offer`, NOTIFICATION_ERROR)
     }
+
     trxOfferPetMarket(scatter, monster.id, name, amount)
       .then((res: any) => {
         console.info(`Pet ${monster.id} was offered to ${name} successfully`, res)
