@@ -135,6 +135,8 @@ void market::removebid(name bidder, uuid pet_id) {
     auto idx_existent_offer = offers.get_index<N(by_user_and_pet)>();
     const auto& offer = idx_existent_offer.get(combine_ids(bidder, pet_id), "E404|Invalid offer");
     
+    eosio_assert(offer.user == bidder, "E404|bids can only be removed by owner of bid")
+
     require_auth(bidder);
     offers.erase(offer);
 }
