@@ -19,7 +19,6 @@ eosiocpp -g pet.abi petabi.cpp
 cleos set abi monstereosio pet.abi
 eosiocpp -o pet.wast petcode.cpp
 cleos set contract monstereosio ../pet
-cleos -u http://eosiodev:8888 push action eosio.token transfer '["monsteruserb", "monstereosio", "1.0000 EOS", "MTT3"]' -p monsteruserb
 
 # new pick
 # 101d989d304b1535715000603153571500060315357150006031535715000603
@@ -40,3 +39,4 @@ eosiocpp -o market.wast market.cpp
 eosiocpp -g market.abi market.cpp
 
 cleos -u http://eosiodev:8888 set contract monstereosmt ../market
+cleos -u http://eosiodev:8888 push action eosio.token transfer '["monsterusera", "monstereosio", "1.0000 EOS", "MTT3"]' -p monsterusera
