@@ -29,7 +29,7 @@ void market::offerpet(uuid pet_id, name newowner, uint32_t until = 0, uint64_t a
             r.transfer_ends_at = until;
         });
     } else {
-        offers.emplace(pet.owner, [&](auto& r){            
+        offers.emplace(pet.owner, [&](auto& r){
             st_offers offer {
                 .id = offers.available_primary_key(),
                 .user = pet.owner,
@@ -48,13 +48,16 @@ void market::offerpet(uuid pet_id, name newowner, uint32_t until = 0, uint64_t a
 }
 
 void market::removeoffer(name owner, uuid pet_id) {
-    auto idx_existent_offer = offers.get_index<N(by_user_and_pet)>();
-    const auto& offer = idx_existent_offer.get(combine_ids(owner, pet_id), "E404|Invalid offer");
-    
-    eosio_assert(offer.user == owner, "E404|offer can only be removed by owner of offer")
-    eosio_assert(offer.type != 10, "E404|offers can't be removed during temporary transfers");
 
     require_auth(owner);
+
+    auto idx_existent_offer = offers.get_index<N(by_user_and_pet)>();
+    const auto& offer = idx_existent_offer.get(combine_ids(owner, pet_id), "E404|Invalid offer");
+
+    eosio_assert(offer.user == owner, "E404|offer can only be removed by owner of offer");
+
+    eosio_assert(offer.type != 10, "E404|offers can't be removed during temporary transfers");
+
     offers.erase(offer);
 }
 
@@ -66,12 +69,12 @@ void market::claimpet(name oldowner, uuid pet_id) {
     const name newowner = offer.new_owner;
     eosio_assert(newowner != (const name) {0}, "E404|Offer not personalized");
     eosio_assert(oldowner == pet.owner, "E404|Pet already transferred");
-    
+
     require_auth(newowner);
     eosio_assert(offer.type != 10 || offer.transfer_ends_at < now(), "E404|Temporary transfer not yet over");
     eosio_assert(offer.value.amount == 0, "E404|Offers requires value transfer");
     action(permission_level{_self, N(active)}, N(monstereosio), N(transferpet), std::make_tuple(pet.id, newowner)).send();
-    
+
     if (offer.transfer_ends_at > 0) {
         if (offer.type == 11) {
             offers.modify(offer, 0, [&](auto& r){
@@ -92,9 +95,11 @@ void market::claimpet(name oldowner, uuid pet_id) {
 }
 
 void market::bidpet(uuid pet_id, name bidder, uint32_t until = 0, uint64_t amount = 0) {
-    const auto& pet = pets.get(pet_id, "E404|Invalid pet");
 
     require_auth(bidder);
+
+    const auto& pet = pets.get(pet_id, "E404|Invalid pet");
+
     eosio_assert(pet.owner != bidder, "bidder must be different than current owner");
 
     auto idx_existent_offer = offers.get_index<N(by_user_and_pet)>();
@@ -116,7 +121,7 @@ void market::bidpet(uuid pet_id, name bidder, uint32_t until = 0, uint64_t amoun
             r.transfer_ends_at = until;
         });
     } else {
-        offers.emplace(bidder, [&](auto& r){            
+        offers.emplace(bidder, [&](auto& r){
             st_offers offer {
                 .id = offers.available_primary_key(),
                 .user = bidder,
@@ -132,12 +137,14 @@ void market::bidpet(uuid pet_id, name bidder, uint32_t until = 0, uint64_t amoun
 }
 
 void market::removebid(name bidder, uuid pet_id) {
-    auto idx_existent_offer = offers.get_index<N(by_user_and_pet)>();
-    const auto& offer = idx_existent_offer.get(combine_ids(bidder, pet_id), "E404|Invalid offer");
-    
-    eosio_assert(offer.user == bidder, "E404|bids can only be removed by owner of bid")
 
     require_auth(bidder);
+
+    auto idx_existent_offer = offers.get_index<N(by_user_and_pet)>();
+    const auto& offer = idx_existent_offer.get(combine_ids(bidder, pet_id), "E404|Invalid offer");
+
+    eosio_assert(offer.user == bidder, "E404|bids can only be removed by owner of bid");
+
     offers.erase(offer);
 }
 
