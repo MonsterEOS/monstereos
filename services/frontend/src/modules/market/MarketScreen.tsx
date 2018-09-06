@@ -1,22 +1,33 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import { State, doLoadOffers } from "../../store"
+import { State, doLoadOffers, doLoadMyMonsters } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 import { OfferProps } from "./market"
 
 import PageContainer from "../shared/PageContainer"
 import TitleBar from "../shared/TitleBar"
 import OfferCard from "./OfferCard"
+import NewOfferModal from "./NewOfferModal"
 
 interface Props {
   eosAccount: string,
   offers:OfferProps[],
   globalConfig: any,
   dispatchDoLoadOffers: any,
+  dispatchDoLoadMyMonsters: any
 }
 
+interface ReactState {
+  showNewOfferModal: boolean,
+  showNewBidModal: boolean
+}
 
-class MarketScreen extends React.Component<Props, {}> {
+class MarketScreen extends React.Component<Props, ReactState> {
+
+  public state = {
+    showNewOfferModal: false,
+    showNewBidModal: false
+  }
 
   public render() {
 
@@ -33,19 +44,56 @@ class MarketScreen extends React.Component<Props, {}> {
 
   private renderMarket(eosAccount: string) {
 
-    const { offers } = this.props
+    const { offers, dispatchDoLoadOffers, dispatchDoLoadMyMonsters } = this.props
+    const { showNewOfferModal } = this.state
+
     const subHeader = (<small className="is-hidden-mobile">
      {offers.length} offers
       </small>)
 
+    const refetchOffers = () => {
+      setTimeout(() => dispatchDoLoadOffers(), 500)
+    }
+
+    const refetchMonsters = () => {
+      setTimeout(() => dispatchDoLoadMyMonsters(), 500)
+    }
+
+    const newOfferButton = (
+      <a
+        className="button is-success"
+        onClick={() => this.setState({showNewOfferModal: true})}>
+        New Offer
+      </a>
+    )
+
+    const newBidButton = (
+      <a
+        className="button is-success"
+        onClick={() => this.setState({showNewBidModal: true})}>
+        New Bid
+      </a>
+    )
+
+    const newOfferClosure = (doRefetch: boolean) => {
+      this.setState({showNewOfferModal: false})
+      if (doRefetch) {
+        refetchOffers()
+      }
+    }
 
     return (
       <PageContainer>
         <TitleBar
           title="Market for Monsters"
-          menu={[subHeader]} />
+          menu={[subHeader, newOfferButton, newBidButton]} />
           <OfferList
-            offers={offers} />
+            offers={offers}
+            update={refetchMonsters} />
+          {showNewOfferModal &&
+          <NewOfferModal
+            closeModal={newOfferClosure}
+          />}
       </PageContainer>
     )
   }
@@ -73,7 +121,8 @@ const mapStateToProps = (state: State) => {
 }
 
 const mapDispatchToProps = {
-  dispatchDoLoadOffers: doLoadOffers
+  dispatchDoLoadOffers: doLoadOffers,
+  dispatchDoLoadMyMonsters: doLoadMyMonsters
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MarketScreen)

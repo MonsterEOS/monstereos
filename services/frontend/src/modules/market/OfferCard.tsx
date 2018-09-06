@@ -1,12 +1,14 @@
 import * as React from "react"
 import * as moment from "moment"
-import { OfferProps } from "./market"
+import { OfferProps, amountOfAsset } from "./market"
 import { monsterImageSrc } from "../monsters/monsters"
-import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
+import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
-import { trxOfferPetMarket } from "../../utils/eos"
+import { trxClaimPetMarket, trxRemoveOfferMarket } from "../../utils/eos"
 import { Link } from "react-router-dom"
+
+import NewOfferModal  from "./NewOfferModal"
 
 interface Props {
   offer: OfferProps,
@@ -14,6 +16,7 @@ interface Props {
   globalConfig: GlobalConfig,
   requestUpdate?: any,
   dispatchPushNotification: any,
+  dispatchDoLoadMyMonsters: any,
   scatter: any,
   selected?: boolean,
   hideLink?: boolean,
@@ -26,16 +29,35 @@ export interface MonsterAction {
   action: any
 }
 
-class OfferCard extends React.Component<Props, {}> {
+interface ReactState {
+  showNewOfferModal:boolean
+}
+
+class OfferCard extends React.Component<Props, ReactState> {
+
+  public state = {
+    showNewOfferModal: false,
+  }
 
   public render() {
 
-    const { offer, eosAccount, selected } = this.props
+    const { offer, selected, dispatchDoLoadMyMonsters } = this.props
     const monster = offer.monster
 
-    const hasControl = eosAccount === monster.owner
+    const { showNewOfferModal } = this.state
 
     const selectedClass = selected ? "monster-selected" : ""
+    
+    const refetchMonstersAndOffers = () => {
+      setTimeout(() => dispatchDoLoadMyMonsters(), 500)
+    }
+
+    const newOfferClosure = (doRefetch: boolean) => {
+      this.setState({showNewOfferModal: false})
+      if (doRefetch) {
+        refetchMonstersAndOffers()
+      }
+    }
 
     return (
       <div className="column monster-column">
@@ -44,9 +66,16 @@ class OfferCard extends React.Component<Props, {}> {
             {this.renderHeader()}
           </div>
           {this.renderImage()}
-          {hasControl && this.renderFooter()}
+          {this.renderFooter()}
         </div>
+        {showNewOfferModal &&
+        <NewOfferModal
+          closeModal={newOfferClosure} 
+          initialMonster = {monster}
+          initialName = {offer.newOwner}
+          initialAmount = { amountOfAsset(offer.value)}/>}
       </div>
+     
     )
   }
 
@@ -87,14 +116,18 @@ class OfferCard extends React.Component<Props, {}> {
     const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
     const deathAtIso = deathAt.toLocaleString()
 
+    const transferEnds = moment(offer.transferEndsAt)
+    const transferEndsText = transferEnds.format("MMMM, D YYYY @ h:mm a")
+    const transferEndsIso = transferEnds.toLocaleString()
+
     const aliveDuration = (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
     const aliveDurationText = moment.duration(aliveDuration).humanize()
 
     const headerContent =
       <React.Fragment>
-        <span className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
-          {monster.name}
-          <small className="is-pulled-right">#{monster.id}</small>
+        <span className={`title is-4 ${monster.owner !== offer.user ? "has-text-danger" : ""}`}>
+          Offer for<br/> {monster.name} (#{monster.id})
+          <small className="is-pulled-right">#{offer.id}</small>
         </span>
         <br/>
         { monster.deathAt ?
@@ -105,6 +138,10 @@ class OfferCard extends React.Component<Props, {}> {
         </React.Fragment>
         : <span className="has-text-success">Is alive for {aliveDurationText}</span>
         }
+        <br/>
+        <span className="is-6">
+          owned by {monster.owner}
+        </span>
       </React.Fragment>
 
     return (
@@ -116,6 +153,19 @@ class OfferCard extends React.Component<Props, {}> {
         :
           headerContent
         }
+        <div className="is-6">
+          offered by {offer.user}
+        </div>
+        <div className="is-6">
+          offered to {offer.newOwner}
+        </div>
+        <div className="is-6">
+          for {offer.value}
+        </div>
+        {offer.transferEndsAt > 0 &&
+          <div className="is-6">
+            <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
+          </div>}
       </div>
     )
   }
@@ -127,6 +177,12 @@ class OfferCard extends React.Component<Props, {}> {
     let actions: MonsterAction[] = []
     if (offer.user === eosAccount) {
       actions.push({action: this.requestUpdateOffer, label: "Update Offer"})
+      actions.push({action: this.requestDeleteOffer, label: "Delete Offer"})
+    }
+    // tslint:disable-next-line:no-console
+    console.log(offer.id + "new owner:" + offer.newOwner + " eos:" + eosAccount)
+    if (offer.newOwner === eosAccount) {
+      actions.push({action: this.requestClaimMonster, label: "Claim Monster"})
     }
 
     if (customActions) {
@@ -147,19 +203,40 @@ class OfferCard extends React.Component<Props, {}> {
   }
 
   private requestUpdateOffer = () => {
-    const { scatter, offer, requestUpdate, dispatchPushNotification } = this.props
+    this.setState({showNewOfferModal:true})
+  }
+
+  private requestDeleteOffer = () => {
+    const { scatter, offer, requestUpdate, dispatchPushNotification} = this.props
     const monster = offer.monster
 
-    trxOfferPetMarket(scatter, monster.id, offer.newOwner)
-      .then((res: any) => {
-        console.info(`Pet ${monster.id} was offered to ${offer.newOwner} successfully`, res)
-        dispatchPushNotification(`Pet ${monster.name} was offered to ${offer.newOwner} successfully`, NOTIFICATION_SUCCESS)
+    trxRemoveOfferMarket(scatter, monster.id)
+      .then((res:any) => {
+        console.info(`Offer for monster #${monster.id} was deleted successfully`, res)
+        dispatchPushNotification(`Offer for ${monster.name} was deleted successfully`, NOTIFICATION_SUCCESS)
         if (requestUpdate) {
           requestUpdate()
         }
       }).catch((err: any) => {
-        console.error(`Fail to offer monster ${monster.id}`, err)
-        dispatchPushNotification(`Fail to offer ${monster.name}`, NOTIFICATION_ERROR)
+        console.error(`Fail to delete offer for monster #${monster.id}`, err)
+        dispatchPushNotification(`Fail to offer for ${monster.name}`, NOTIFICATION_ERROR)
+      })
+  }
+
+  private requestClaimMonster = () => {
+    const { scatter, offer, requestUpdate, dispatchPushNotification} = this.props
+    const monster = offer.monster
+
+    trxClaimPetMarket(scatter, monster.id, offer.user)
+      .then((res:any) => {
+        console.info(`Pet ${monster.id} was claimed successfully`, res)
+        dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)
+        if (requestUpdate) {
+          requestUpdate()
+        }
+      }).catch((err: any) => {
+        console.error(`Fail to claim monster ${monster.id}`, err)
+        dispatchPushNotification(`Fail to claim ${monster.name}`, NOTIFICATION_ERROR)
       })
   }
 }
@@ -175,7 +252,8 @@ const mapStateToProps = (state: State) => {
 }
 
 const mapDispatchToProps = {
-  dispatchPushNotification: pushNotification
+  dispatchPushNotification: pushNotification,
+  dispatchDoLoadMyMonsters: doLoadMyMonsters
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(OfferCard)

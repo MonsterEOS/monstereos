@@ -12,13 +12,11 @@ export interface OfferProps {
     transferEndsAt: number
   }
 
-  export const parseOfferFromChain = (offer:any, monsters: MonsterProps[]):OfferProps | undefined => {
-      const monster = monsters.find((value: MonsterProps, index: number, obj: MonsterProps[]):boolean => {
-            return value.id = offer.pet_id
+export const parseOfferFromChain = (offer:any, monsters: MonsterProps[]):OfferProps | undefined => {
+      const monster = monsters.find((value: MonsterProps):boolean => {
+            return value.id === offer.pet_id
       }) 
       if (monster) {
-          // tslint:disable-next-line:no-console
-          console.log(offer)
         return {
             id : offer.id,
             user : offer.user,
@@ -33,4 +31,8 @@ export interface OfferProps {
     } else {
         return undefined
     }
+  }
+
+  export const amountOfAsset = (asset:string) => {
+    return parseInt(asset.substring(0, asset.indexOf(" ")), 10) * 10000
   }

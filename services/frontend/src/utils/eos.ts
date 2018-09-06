@@ -69,14 +69,33 @@ export const trxCreatePet = async (
 }
 
 export const trxOfferPetMarket = async (
-  scatter: any,
-  petId: number,
-  newOwner: string
-) => {
-  const eosAuthorization = getEosAuthorization(scatter.identity)
-  const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
-  return contract.offerpet(petId, newOwner, 0, 0, eosAuthorization.permission)
-}
+    scatter: any,
+    petId: number,
+    newOwner: string,
+    amount: number
+  ) => {
+    const eosAuthorization = getEosAuthorization(scatter.identity)
+    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+    return contract.offerpet(petId, newOwner, 0, amount, eosAuthorization.permission)
+  }
+export const trxRemoveOfferMarket = async ( 
+    scatter: any,
+    petId: number) => {
+    const eosAuthorization = getEosAuthorization(scatter.identity)
+    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+    return contract.removeoffer(eosAuthorization.account.name, petId, eosAuthorization.permission)
+  }
+
+export const trxClaimPetMarket = async (
+    scatter: any,
+    petId: number,
+    oldOwner: string
+  ) => {
+    const eosAuthorization = getEosAuthorization(scatter.identity)
+    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+    return contract.claimpet(oldOwner, petId, eosAuthorization.permission)
+  }
+  
 // eos api
 const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
 const signatureProvider = new e2SignatureProvider([])
@@ -373,4 +392,30 @@ export const getWinner = async (host: string) => {
     console.error("Fail to get the winner", error)
     return "?"
   }
+}
+
+export const loadOffers = async(config: GlobalConfig, id?:number) => {
+  const apiList = (lowerBound = 0, limit = 5000): any => {
+    return e2DefaultRpc.get_table_rows({
+        json: true,
+        scope: MONSTER_MARKET_ACCOUNT,
+        code: MONSTER_MARKET_ACCOUNT,
+        table: OFFER_TABLE,
+        lower_bound: lowerBound,
+        limit
+    }).then(async res => {
+      if(res.more) {
+        const nextLowerBound = res.rows[res.rows.length-1].id
+        const nextRows = await apiList(nextLowerBound)
+        return res.rows.concat(nextRows)
+      } else {
+        return res.rows
+      }
+    })
+  }
+
+  const chainOffers = await apiList(id, id ? 1 : 5000)
+  const chainMonsters = await loadPets()
+  const monsters = chainMonsters.map((pet: any) => parseMonstersFromChain(pet, config))
+  return chainOffers.map((o:any) => parseOfferFromChain(o, monsters))
 }
