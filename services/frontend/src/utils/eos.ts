@@ -4,7 +4,7 @@ import {
   SignatureProvider as e2SignatureProvider,
   Api as e2Api
 } from "eosjs2"
-import { parseBattlesFromChain, parseConfigFromChain } from "../modules/battles/battles"
+import { parseBattlesFromChain, parseConfigFromChain, Arena } from "../modules/battles/battles"
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
@@ -98,7 +98,7 @@ export const loadMonstersContract = () => {
   return e2DefaultApi.getContract(MONSTERS_ACCOUNT)
 }
 
-export const loadArenaByHost = (host: string) => {
+export const loadArenaByHost = (host: string): Promise<Arena> => {
   return e2DefaultRpc.get_table_rows({
     json: true,
     code: MONSTERS_ACCOUNT,
@@ -336,7 +336,6 @@ export const startBattle = async(
   })
 }
 
-
 export const attackBattle = async(
   scatter: any,
   host: string,
@@ -350,29 +349,28 @@ export const attackBattle = async(
   return contract.battleattack(host, host, petId, petEnemyId, elementId, eosAuthorization.permission)
 }
 
-export const loadOffers = async(config: GlobalConfig, id?:number) => {
-  const apiList = (lowerBound = 0, limit = 5000): any => {
-    return e2DefaultRpc.get_table_rows({
-        json: true,
-        scope: MONSTER_MARKET_ACCOUNT,
-        code: MONSTER_MARKET_ACCOUNT,
-        table: OFFER_TABLE,
-        lower_bound: lowerBound,
-        limit
-    }).then(async res => {
-      if(res.more) {
-        const nextLowerBound = res.rows[res.rows.length-1].id
-        const nextRows = await apiList(nextLowerBound)
-        return res.rows.concat(nextRows)
+export const getWinner = async (host: string) => {
+  try {
+    const data = await e2DefaultRpc.history_get_actions(MONSTERS_ACCOUNT, undefined, -300)
+
+    if (data && data.actions) {
+      const actionData = data.actions
+        .reverse()
+        .filter((a: any) => {
+          return a.action_trace && a.action_trace.act &&
+            a.action_trace.act.name === "battlefinish" &&
+            a.action_trace.act.data.host === host
+        }).map((a: any) => a.action_trace.act.data)
+
+      if (actionData.length) {
+        console.info("and the winner is >>>", actionData[0].winner)
+        return actionData[0].winner
       } else {
-        return res.rows
+        throw new Error("Winner not recognized in history api")
       }
-    })
+    }
+  } catch (error) {
+    console.error("Fail to get the winner", error)
+    return "?"
   }
-
-  const chainOffers = await apiList(id, id ? 1 : 5000)
-  const chainMonsters = await loadPets()
-  const monsters = chainMonsters.map((pet: any) => parseMonstersFromChain(pet, config))
-  return chainOffers.map((o:any) => parseOfferFromChain(o, monsters))
 }
-

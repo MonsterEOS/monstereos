@@ -85,6 +85,7 @@
     figure {
       max-height: 180px;
       max-width: 180px;
+      margin: 10px;
     }
 
     progress {
@@ -123,4 +124,60 @@
       border-radius: 5%;
     }
   }
+}
+
+/* mobile arena */
+
+@media screen and (max-width: 768px) {
+
+  .battle-arena {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    top: 0;
+    left: 0;
+    position: fixed;
+    z-index: 100;
+    background-color: black;
+    flex-direction: column;
+
+    .arena-monster {
+      margin: 0;
+    }
+  }
+
+  .mobile-arena-countdown {
+    position: fixed;
+    z-index: 999;
+    font-weight: bold;
+    font-family: $logo-font;
+    font-size: 42px;
+    margin: auto;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
+    color: blue;
+    width: 90%;
+    text-align: center;
+  }
+
+  .mobile-arena-back {
+    position: fixed;
+    z-index: 999;
+    font-weight: bold;
+    font-size: 24px;
+    color: #fff;
+    bottom: 10px;
+    left: 50%;
+    margin: auto;
+    transform: translateX(-50%);
+    text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+  }
+
+  // .monster-image {
+  //   // height: 150px !important;
+  //   min-height: 150px !important;
+  //   max-height: 150px !important;
+  // }
 }

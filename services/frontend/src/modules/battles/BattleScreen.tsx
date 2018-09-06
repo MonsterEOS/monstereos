@@ -1,16 +1,18 @@
 import * as React from "react"
 import { connect } from "react-redux"
 import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION_SUCCESS } from "../../store"
+import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText, Element, getBattleCountdown } from "./battles"
 import {
   loadArenaByHost,
   leaveBattle,
   startBattle,
   loadElements as apiLoadElements,
   loadPetTypes,
-  attackBattle
+  attackBattle,
+  getWinner
 } from "../../utils/eos"
 import { getEosAccount } from "../../utils/scatter"
 import BattleConfirmation from "./BattleConfirmation"
@@ -27,8 +29,8 @@ interface Props {
 }
 
 interface ReactState {
-  arena?: Arena
-  elements: Element[]
+  arena?: Arena,
+  elements: Element[],
   monsterTypes: MonsterType[],
   selectedAttackPetId: number,
   selectedAttackElementId: number,
@@ -40,16 +42,21 @@ interface ReactState {
 
 class BattleScreen extends React.Component<Props, ReactState> {
 
-  public state = {
-    arena: undefined,
-    elements: [],
-    monsterTypes: [],
-    selectedAttackPetId: 0,
-    selectedAttackElementId: -1,
-    selectedAttackEnemyId: 0,
-    turnCountdown: -1,
-    winner: undefined,
-    isOver: false
+  private refreshHandler: any = undefined
+
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      arena: undefined,
+      elements: [],
+      monsterTypes: [],
+      selectedAttackPetId: 0,
+      selectedAttackElementId: -1,
+      selectedAttackEnemyId: 0,
+      turnCountdown: -1,
+      winner: undefined,
+      isOver: false
+    }
   }
 
   public componentDidMount() {
@@ -58,12 +65,17 @@ class BattleScreen extends React.Component<Props, ReactState> {
     this.loadMonsterTypes()
   }
 
+  public componentWillUnmount() {
+    clearTimeout(this.refreshHandler)
+  }
+
   public render() {
 
     const { identity, globalConfig } = this.props
 
     const {
-      arena: maybeArena,
+      arena,
+      winner,
       elements,
       monsterTypes,
       selectedAttackElementId,
@@ -71,7 +83,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
       selectedAttackPetId,
     } = this.state
 
-    if (!maybeArena) {
+    if (!arena) {
       return (
         <span>
           <i className="fa fa-spin fa-spinner" /> Loading Battle....
@@ -79,7 +91,6 @@ class BattleScreen extends React.Component<Props, ReactState> {
       )
     }
 
-    const arena = maybeArena as Arena
     const currentBattle = getCurrentBattle([arena], identity)
 
     const isMyBattle = !!currentBattle
@@ -98,12 +109,20 @@ class BattleScreen extends React.Component<Props, ReactState> {
       () => this.doStartBattle(arena.host) :
       null
 
+    const isOver = arena.phase === BATTLE_PHASE_FINISHED
+
+    const myTurn = arena.commits[0].player === identity
+
+    const battleCountdown = getBattleCountdown(arena, globalConfig)
+    const mobileCountdownText = battleCountdown > 0 ? battleCountdown : "Attack!"
+
     return (
       <PageContainer>
         <BattleHeader
           battleText={getBattleText(arena)}
           host={arena.host}
           isMyBattle={isMyBattle}
+          isOver={isOver}
           countdownText={countdownText}
           allowConfirmation={allowConfirmation}
           allowLeaveBattle={allowLeaveBattle} />
@@ -111,7 +130,8 @@ class BattleScreen extends React.Component<Props, ReactState> {
         <BattleConfirmation
           commits={arena.commits} />
         }
-        {arena.phase === BATTLE_PHASE_GOING &&
+        {(arena.phase === BATTLE_PHASE_GOING ||
+        arena.phase === BATTLE_PHASE_FINISHED) &&
         <BattleArena
           arena={arena}
           attackSelection={this.attackSelection}
@@ -120,9 +140,24 @@ class BattleScreen extends React.Component<Props, ReactState> {
           selectedEnemyId={selectedAttackEnemyId}
           selectedPetId={selectedAttackPetId}
           selectedElementId={selectedAttackElementId}
-          elements={elements!}
+          elements={elements}
+          winner={winner}
           monsterTypes={monsterTypes!} />
         }
+        {/* mobile controls */}
+        <div className="is-hidden-tablet">
+        {arena.phase === BATTLE_PHASE_GOING &&
+          <div className={`mobile-arena-countdown ${myTurn || battleCountdown < 0 ? "has-text-success" : "has-text-danger"}`}>
+            {battleCountdown > 0 ? (myTurn ? "Your turn " : "Enemy turn ") : ""}
+            {mobileCountdownText}
+          </div>
+        }
+        {(!isMyBattle || isOver) &&
+          <Link className="mobile-arena-back" to="/arenas">
+            Back to Arenas
+          </Link>}
+        </div>
+
       </PageContainer>
     )
   }
@@ -147,24 +182,36 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
     try {
       const newArena = await loadArenaByHost(host)
-      this.setState({arena: newArena})
+
+      if (newArena) {
+        this.setState({arena: newArena})
+      } else if (arena !== null && arena !== undefined && arena.petsStats.length) {
+        const confirmedArena = arena as Arena
+        const winner = await getWinner(confirmedArena.host)
+
+        const updatedStats =
+          confirmedArena.petsStats.map((stat) => {
+            return stat.player !== winner ?
+              Object.assign({}, stat, {hp: 0})
+              : stat
+          })
+
+        const updatedArena: Arena = Object.assign(
+          {},
+          arena,
+          {phase: BATTLE_PHASE_FINISHED, petsStats: updatedStats}
+        )
+
+        this.setState({isOver: true, arena: updatedArena, winner})
+      }
 
       // TODO: implement websockets
       if (!isOver) {
-        setTimeout(this.refresh, 1000)
+        this.refreshHandler = setTimeout(this.refresh, 1000)
       }
     } catch (error) {
-      if (arena !== undefined) {
-        const updatedArena = Object.assign(
-          {},
-          arena,
-          {phase: BATTLE_PHASE_FINISHED}
-        )
-        this.setState({isOver: true, arena: updatedArena})
-      } else {
-        console.error("Fail to load Arena", error)
-        dispatchPushNotification("Fail to load Arena")
-      }
+      console.error("Fail to load Arena", error)
+      dispatchPushNotification("Fail to load Arena")
     }
   }
 
@@ -177,10 +224,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
       selectedAttackEnemyId
     } = this.state
 
-    attackBattle(scatter, host, selectedAttackPetId, selectedAttackEnemyId, selectedAttackElementId)
-      .then(() => {
-        dispatchPushNotification("Attack submitted successfully", NOTIFICATION_SUCCESS)
-      })
+    await attackBattle(scatter, host, selectedAttackPetId, selectedAttackEnemyId, selectedAttackElementId)
       .catch((error: any) => {
         console.error("Fail to submit attack", error)
         dispatchPushNotification("Fail to Submit Attack", NOTIFICATION_ERROR)

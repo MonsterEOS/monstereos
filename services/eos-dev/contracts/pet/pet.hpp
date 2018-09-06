@@ -71,6 +71,7 @@ public:
     void changebatidt ( uint32_t new_idle_tolerance );
     void changebatami ( uint8_t new_attack_min_factor );
     void changebatama ( uint8_t new_attack_max_factor );
+    void migrate      ( string reason );
 
     // token deposits
     void transfer     ( uint64_t sender, uint64_t receiver );

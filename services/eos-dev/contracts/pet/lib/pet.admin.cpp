@@ -1,5 +1,19 @@
 using namespace types;
 
+// command to delete stuff
+void pet::migrate(string /* reason */) {
+    require_auth(_self);
+
+    // multi_index can't erase when the format changed
+    auto it = db_lowerbound_i64(_self, _self, N(battles), 0);
+    while (it >= 0) {
+        auto del = it;
+        uint64_t dummy;
+        it = db_next_i64(it, &dummy);
+        db_remove_i64(del);
+    }
+}
+
 void pet::changecrtol(uint32_t new_interval) {
     require_auth(_self);
     auto pc = _get_pet_config();
@@ -88,6 +102,7 @@ void pet::changepettyp(uint64_t id, vector<uint8_t> elements) {
 uuid pet::_next_id(){
     auto pc = _get_pet_config();
     pc.last_id++;
+    eosio_assert(pc.last_id > 0, "_next_id overflow detected");
     _update_pet_config(pc);
     return pc.last_id;
 }
@@ -95,6 +110,7 @@ uuid pet::_next_id(){
 uint64_t pet::_next_element_id(){
     auto pc = _get_pet_config();
     pc.last_element_id++;
+    eosio_assert(pc.last_element_id > 0, "_next_element_id overflow detected");    
     _update_pet_config(pc);
     return pc.last_element_id-1; // zero based id
 }
@@ -102,6 +118,7 @@ uint64_t pet::_next_element_id(){
 uint64_t pet::_next_pet_type_id(){
     auto pc = _get_pet_config();
     pc.last_pet_type_id++;
+    eosio_assert(pc.last_pet_type_id > 0, "_next_pet_type_id overflow detected");    
     _update_pet_config(pc);
     return pc.last_pet_type_id-1; // zero based id
 }

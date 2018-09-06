@@ -472,6 +472,14 @@
         }
       ]
     },{
+      "name": "migrate",
+      "base": "",
+      "fields": [{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
       "name": "transfer",
       "base": "",
       "fields": [{
@@ -581,6 +589,10 @@
       "type": "addpettype",
       "ricardian_contract": ""
     },{
+      "name": "migrate",
+      "type": "migrate",
+      "ricardian_contract": ""
+    },{
       "name": "changepettyp",
       "type": "changepettyp",
       "ricardian_contract": ""
@@ -607,7 +619,7 @@
     },{
       "name": "transfer",
       "type": "transfer",
-      "ricardian_contract": "# CONTRACT FOR pet::transfer## ACTION NAME: transfer\n### Parameters### Parameters\nInput parameters:Input parameters:\n\n* `sender` (sender)* `sender` (sender)\n* `receiver` (receiver)* `receiver` (receiver)\n\n### Intent### Intent\nINTENT. The intent of the `{{ transfer }}` action is to deposit or widthdraw EOS tokens to or from the monster bank.INTENT. The intent of the `{{ transfer }}` action is to deposit or widthdraw EOS tokens to or from the monster bank.\n\n### Term### Term\nTERM. This Contract expires after code execution.TERM. This Contract expires after code execution.\n"
+      "ricardian_contract": "# CONTRACT FOR pet::transfer## ACTION NAME: transfer\n### Parameters### Parameters\nInput parameters:Input parameters:\n\n* `sender` (sender)* `sender` (sender)\n* `receiver` (receiver)* `receiver` (receiver)\n\n### Intent### Intent\nINTENT. The intent of the `{{ transfer }}` action is to deposit or widthdraw EOS tokens to or from the monster bank.INTENT. The intent of the `{{ transfer }}` action is to deposit EOS tokens for in-app purchases.\n\n### Term### Term\nTERM. This Contract expires after code execution.TERM. This Contract expires after code execution.\n"
     }
   ],
   "tables": [{
