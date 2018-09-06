@@ -51,6 +51,7 @@ void market::removeoffer(name owner, uuid pet_id) {
     auto idx_existent_offer = offers.get_index<N(by_user_and_pet)>();
     const auto& offer = idx_existent_offer.get(combine_ids(owner, pet_id), "E404|Invalid offer");
     
+    eosio_assert(offer.user == owner, "E404|offer can only be removed by owner of offer")
     eosio_assert(offer.type != 10, "E404|offers can't be removed during temporary transfers");
 
     require_auth(owner);
