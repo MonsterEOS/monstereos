@@ -8,6 +8,7 @@ import PageContainer from "../shared/PageContainer"
 import TitleBar from "../shared/TitleBar"
 import OfferCard from "./OfferCard"
 import NewOfferModal from "./NewOfferModal"
+import NewBidModal from "./NewBidModal"
 
 interface Props {
   eosAccount: string,
@@ -45,7 +46,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
   private renderMarket(eosAccount: string) {
 
     const { offers, dispatchDoLoadOffers, dispatchDoLoadMyMonsters } = this.props
-    const { showNewOfferModal } = this.state
+    const { showNewOfferModal, showNewBidModal } = this.state
 
     const subHeader = (<small className="is-hidden-mobile">
      {offers.length} offers
@@ -82,6 +83,13 @@ class MarketScreen extends React.Component<Props, ReactState> {
       }
     }
 
+    const newBidClosure = (doRefetch: boolean) => {
+      this.setState({showNewBidModal: false})
+      if (doRefetch) {
+        refetchOffers()
+      }
+    }
+
     return (
       <PageContainer>
         <TitleBar
@@ -93,6 +101,10 @@ class MarketScreen extends React.Component<Props, ReactState> {
           {showNewOfferModal &&
           <NewOfferModal
             closeModal={newOfferClosure}
+          />}
+          {showNewBidModal &&
+          <NewBidModal
+            closeModal={newBidClosure}
           />}
       </PageContainer>
     )

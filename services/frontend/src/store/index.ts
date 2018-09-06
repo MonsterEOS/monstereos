@@ -15,6 +15,7 @@ export interface State {
   readonly identity: any
   readonly globalConfig: GlobalConfig,
   readonly notifications: Notification[]
+  readonly monsters: MonsterProps[]
   readonly myMonsters: MonsterProps[]
   readonly offers: OfferProps[]
 }
@@ -212,6 +213,9 @@ const reducers = combineReducers<State, Actions>({
       default:
         return state
     }
+  },
+  monsters: (state = [], action) => {
+    return state
   },
   myMonsters: (state = [], action) => {
     switch (action.type) {
