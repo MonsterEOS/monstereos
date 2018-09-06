@@ -175,13 +175,16 @@ class OfferCard extends React.Component<Props, ReactState> {
     const { offer, customActions, eosAccount } = this.props
 
     let actions: MonsterAction[] = []
+    
+    const isReal = offer.monster.name.length > 0 // not deleted
+
     if (offer.user === eosAccount) {
-      actions.push({action: this.requestUpdateOffer, label: "Update Offer"})
+      if (isReal) {
+        actions.push({action: this.requestUpdateOffer, label: "Update Offer"})
+      }
       actions.push({action: this.requestDeleteOffer, label: "Delete Offer"})
     }
-    // tslint:disable-next-line:no-console
-    console.log(offer.id + "new owner:" + offer.newOwner + " eos:" + eosAccount)
-    if (offer.newOwner === eosAccount) {
+    if (offer.newOwner === eosAccount && isReal) {
       actions.push({action: this.requestClaimMonster, label: "Claim Monster"})
     }
 
