@@ -12,15 +12,35 @@ export interface OfferProps {
     transferEndsAt: number
   }
 
+
+  const deletedMonster = (petId:number, owner:string):MonsterProps => {
+      return {
+            id: petId,
+            name: "",
+            owner,
+            type: -1,
+            deathAt: 0,
+            createdAt: 0,
+            lastFeedAt: 0,
+            lastAwakeAt: 0,
+            lastBedAt: 0,
+            isSleeping: false,
+            hunger: 100,
+            health: 100,
+            awake: 100,
+            actions: []
+      }
+}
+
 export const parseOfferFromChain = (offer:any, monsters: MonsterProps[]):OfferProps | undefined => {
+
       const monster = monsters.find((value: MonsterProps):boolean => {
             return value.id === offer.pet_id
       }) 
-      if (monster) {
         return {
             id : offer.id,
             user : offer.user,
-            monster,
+            monster: monster ? monster : deletedMonster(offer.pet_id, offer.user),
             type : offer.type,
             newOwner : offer.new_owner,
             value: offer.value,
@@ -28,9 +48,6 @@ export const parseOfferFromChain = (offer:any, monsters: MonsterProps[]):OfferPr
             endsAt: offer.ends_at * 1000,
             transferEndsAt: offer.transfer_ends_at
         }
-    } else {
-        return undefined
-    }
   }
 
   export const amountOfAsset = (asset:string) => {

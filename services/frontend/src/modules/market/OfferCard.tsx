@@ -125,8 +125,8 @@ class OfferCard extends React.Component<Props, ReactState> {
 
     const headerContent =
       <React.Fragment>
-        <span className={`title is-4 ${monster.owner !== offer.user ? "has-text-danger" : ""}`}>
-          Offer for<br/> {monster.name} (#{monster.id})
+        <span className={`title is-4 ${monster.owner !== offer.user || monster.name.length === 0 ? "has-text-danger" : ""}`}>
+          Offer for<br/> {monster.name.length > 0 ? monster.name: "deleted monster"} (#{monster.id})
           <small className="is-pulled-right">#{offer.id}</small>
         </span>
         <br/>
