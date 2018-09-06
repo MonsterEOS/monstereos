@@ -5,7 +5,7 @@ import { monsterImageSrc } from "../monsters/monsters"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
-import { trxClaimPetMarket, trxRemoveOfferMarket } from "../../utils/eos"
+import { trxClaimPetMarket, trxRemoveOfferMarket, MONSTERS_ACCOUNT, trxTokenTransfer } from "../../utils/eos"
 import { Link } from "react-router-dom"
 
 import NewOfferModal  from "./NewOfferModal"
@@ -230,7 +230,8 @@ class OfferCard extends React.Component<Props, ReactState> {
     const { scatter, offer, requestUpdate, dispatchPushNotification} = this.props
     const monster = offer.monster
 
-    trxClaimPetMarket(scatter, monster.id, offer.user)
+    if (amountOfAsset(offer.value) > 0 ) {
+      trxTokenTransfer(scatter, MONSTERS_ACCOUNT, offer.value, "MTT" + offer.id)
       .then((res:any) => {
         console.info(`Pet ${monster.id} was claimed successfully`, res)
         dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)
@@ -241,6 +242,19 @@ class OfferCard extends React.Component<Props, ReactState> {
         console.error(`Fail to claim monster ${monster.id}`, err)
         dispatchPushNotification(`Fail to claim ${monster.name}`, NOTIFICATION_ERROR)
       })
+    } else {
+      trxClaimPetMarket(scatter, monster.id, offer.user)
+        .then((res:any) => {
+          console.info(`Pet ${monster.id} was claimed successfully`, res)
+          dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)
+          if (requestUpdate) {
+            requestUpdate()
+          }
+        }).catch((err: any) => {
+          console.error(`Fail to claim monster ${monster.id}`, err)
+          dispatchPushNotification(`Fail to claim ${monster.name}`, NOTIFICATION_ERROR)
+        })
+    }
   }
 }
 

@@ -18,6 +18,7 @@ const CHAIN_URL = `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
 export const CHAIN_ID = "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
 
 // contract constants
+export const EOSIO_TOKEN_ACCOUNT = "eosio.token"
 export const MONSTERS_ACCOUNT = "monstereosio"
 export const MONSTERS_TABLE = "pets"
 export const BATTLES_TABLE = "battles"
@@ -41,6 +42,17 @@ export const network = {
   host: CHAIN_HOST,
   port: CHAIN_PORT,
   // chainId: CHAIN_ID
+}
+
+export const trxTokenTransfer = async (
+  scatter: any,
+  to: string,
+  asset: string,
+  memo: string
+) => {
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, EOSIO_TOKEN_ACCOUNT)
+  return contract.transfer(eosAuthorization.account.name, to, asset, memo, eosAuthorization.permission)
 }
 
 export const trxPet = async (
