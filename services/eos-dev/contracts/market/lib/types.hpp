@@ -13,17 +13,24 @@ namespace types {
         return (uint128_t{x} << 64) | y;
     }
 
+    typedef uint8_t transfer_type;
+    transfer_type TRANSFER_TYPE_ASK = 1;
+    transfer_type TRANSFER_TYPE_BID = 2;
+    transfer_type TRANSFER_TYPE_ASK_RENT = 11;
+    transfer_type TRANSFER_TYPE_BID_RENT = 12;
+    transfer_type TRANSFER_TYPE_RENTING = 10;
+
     // @abi table offers i64
     struct st_offers {
-        uuid        id;
-        name        user;
-        uint8_t     type; // 1: ask, 2: bid, 11: ask for renting, 12: bid for renting, 10: renting
-        uuid        pet_id;
-        name        new_owner;
-        asset       value;
-        uint32_t    placed_at;
-        uint32_t    ends_at;
-        uint32_t    transfer_ends_at;
+        uuid            id;
+        name            user;
+        transfer_type   type;
+        uuid            pet_id;
+        name            new_owner;
+        asset           value;
+        uint32_t        placed_at;
+        uint32_t        ends_at;
+        uint32_t        transfer_ends_at;
 
 
 

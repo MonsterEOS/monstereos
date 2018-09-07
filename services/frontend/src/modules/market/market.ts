@@ -36,7 +36,7 @@ export const parseOfferFromChain = (offer:any, monsters: MonsterProps[]):OfferPr
 
       const monster = monsters.find((value: MonsterProps):boolean => {
             return value.id === offer.pet_id
-      }) 
+      })
         return {
             id : offer.id,
             user : offer.user,
@@ -51,5 +51,5 @@ export const parseOfferFromChain = (offer:any, monsters: MonsterProps[]):OfferPr
   }
 
   export const amountOfAsset = (asset:string) => {
-    return parseInt(asset.substring(0, asset.indexOf(" ")), 10) * 10000
+    return Number(asset.substring(0, asset.indexOf(" ")))
   }

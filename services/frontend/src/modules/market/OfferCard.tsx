@@ -47,7 +47,7 @@ class OfferCard extends React.Component<Props, ReactState> {
     const { showNewOfferModal } = this.state
 
     const selectedClass = selected ? "monster-selected" : ""
-    
+
     const refetchMonstersAndOffers = () => {
       setTimeout(() => dispatchDoLoadMyMonsters(), 500)
     }
@@ -66,16 +66,17 @@ class OfferCard extends React.Component<Props, ReactState> {
             {this.renderHeader()}
           </div>
           {this.renderImage()}
+          {this.renderOfferData()}
           {this.renderFooter()}
         </div>
         {showNewOfferModal &&
         <NewOfferModal
-          closeModal={newOfferClosure} 
+          closeModal={newOfferClosure}
           initialMonster = {monster}
           initialName = {offer.newOwner}
           initialAmount = { amountOfAsset(offer.value)}/>}
       </div>
-     
+
     )
   }
 
@@ -116,18 +117,14 @@ class OfferCard extends React.Component<Props, ReactState> {
     const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
     const deathAtIso = deathAt.toLocaleString()
 
-    const transferEnds = moment(offer.transferEndsAt)
-    const transferEndsText = transferEnds.format("MMMM, D YYYY @ h:mm a")
-    const transferEndsIso = transferEnds.toLocaleString()
-
     const aliveDuration = (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
     const aliveDurationText = moment.duration(aliveDuration).humanize()
 
     const headerContent =
       <React.Fragment>
         <span className={`title is-4 ${monster.owner !== offer.user || monster.name.length === 0 ? "has-text-danger" : ""}`}>
-          Offer for<br/> {monster.name.length > 0 ? monster.name: "deleted monster"} (#{monster.id})
-          <small className="is-pulled-right">#{offer.id}</small>
+          {monster.name.length > 0 ? monster.name: "deleted monster"}
+          <small className="is-pulled-right">#{monster.id}</small>
         </span>
         <br/>
         { monster.deathAt ?
@@ -139,13 +136,14 @@ class OfferCard extends React.Component<Props, ReactState> {
         : <span className="has-text-success">Is alive for {aliveDurationText}</span>
         }
         <br/>
-        <span className="is-6">
-          owned by {monster.owner}
-        </span>
       </React.Fragment>
 
     return (
       <div className="monster-card-header">
+        <span>
+          Offer #{offer.id}
+        </span>
+        <br/>
         { !hideLink ?
           <Link to={`/monster/${monster.id}`} className="monster-header-link">
             {headerContent}
@@ -153,19 +151,6 @@ class OfferCard extends React.Component<Props, ReactState> {
         :
           headerContent
         }
-        <div className="is-6">
-          offered by {offer.user}
-        </div>
-        <div className="is-6">
-          offered to {offer.newOwner}
-        </div>
-        <div className="is-6">
-          for {offer.value}
-        </div>
-        {offer.transferEndsAt > 0 &&
-          <div className="is-6">
-            <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
-          </div>}
       </div>
     )
   }
@@ -175,7 +160,7 @@ class OfferCard extends React.Component<Props, ReactState> {
     const { offer, customActions, eosAccount } = this.props
 
     let actions: MonsterAction[] = []
-    
+
     const isReal = offer.monster.name.length > 0 // not deleted
 
     if (offer.user === eosAccount) {
@@ -184,7 +169,7 @@ class OfferCard extends React.Component<Props, ReactState> {
       }
       actions.push({action: this.requestDeleteOffer, label: "Delete Offer"})
     }
-    if (offer.newOwner === eosAccount && isReal) {
+    if ((!offer.newOwner || offer.newOwner === eosAccount) && offer.user !== eosAccount && isReal) {
       actions.push({action: this.requestClaimMonster, label: "Claim Monster"})
     }
 
@@ -202,6 +187,39 @@ class OfferCard extends React.Component<Props, ReactState> {
           </a>
         ))}
       </footer>
+    )
+  }
+
+  private renderOfferData = () => {
+
+    const { offer } = this.props
+    const { monster } = offer
+
+    const transferEnds = moment(offer.transferEndsAt)
+    const transferEndsText = transferEnds.format("MMMM, D YYYY @ h:mm a")
+    const transferEndsIso = transferEnds.toLocaleString()
+
+    return (
+      <div className="card-content">
+        <span className="is-6">
+          owned by {monster.owner}
+        </span>
+        <div className="is-6">
+          offered by {offer.user}
+        </div>
+        {offer.newOwner &&
+          <div className="is-6">
+            offered to {offer.newOwner}
+          </div>
+        }
+        <div className="is-6">
+          for {offer.value}
+        </div>
+        {offer.transferEndsAt > 0 &&
+        <div className="is-6">
+          <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
+        </div>}
+      </div>
     )
   }
 

@@ -81,32 +81,38 @@ export const trxCreatePet = async (
 }
 
 export const trxOfferPetMarket = async (
-    scatter: any,
-    petId: number,
-    newOwner: string,
-    amount: number
-  ) => {
-    const eosAuthorization = getEosAuthorization(scatter.identity)
-    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
-    return contract.offerpet(petId, newOwner, 0, amount, eosAuthorization.permission)
-  }
-export const trxRemoveOfferMarket = async ( 
-    scatter: any,
-    petId: number) => {
-    const eosAuthorization = getEosAuthorization(scatter.identity)
-    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
-    return contract.removeoffer(eosAuthorization.account.name, petId, eosAuthorization.permission)
-  }
+  scatter: any,
+  petId: number,
+  newOwner: string,
+  amount: number
+) => {
+
+  console.info(amount)
+
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+  return contract.offerpet(petId, newOwner, `${amount} EOS`, 0, eosAuthorization.permission)
+}
+
+export const trxRemoveOfferMarket = async (
+  scatter: any,
+  petId: number
+) => {
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+  return contract.removeoffer(eosAuthorization.account.name, petId, eosAuthorization.permission)
+}
 
 export const trxClaimPetMarket = async (
     scatter: any,
     petId: number,
     oldOwner: string
-  ) => {
-    const eosAuthorization = getEosAuthorization(scatter.identity)
-    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
-    return contract.claimpet(oldOwner, petId, eosAuthorization.permission)
-  }
+) => {
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+  return contract.claimpet(oldOwner, petId, eosAuthorization.account.name, eosAuthorization.permission)
+}
+
 export const trxPlaceBidMarket = async (
   scatter: any,
   petId: number,

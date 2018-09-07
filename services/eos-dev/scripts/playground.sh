@@ -15,9 +15,10 @@ cleos -u http://eosiodev:8888 push action monstereosio battleleave '[ "monsterus
 
 cleos -u http://eosiodev:8888 push action monstereosio battlefinish '{ "host": "raul", "winner": "" }' -p monstereosio
 
-eosiocpp -g pet.abi pet.cpp
+eosiocpp -g pet.abi petabi.cpp
 cleos set abi monstereosio pet.abi
-eosiocpp -o pet.wast pet.cpp && cleos set contract monstereosio ../pet
+eosiocpp -o pet.wast petcode.cpp
+cleos set contract monstereosio ../pet
 
 # new pick
 # 101d989d304b1535715000603153571500060315357150006031535715000603
@@ -31,3 +32,11 @@ cleos -u http://eosiodev:8888 push action monstereosio migrate '["delete old are
 
 # hashed pick:
 # 20e978fbef9c32800e9c377d277222fd434a198606665d45be838620165204e3
+
+#### market playing
+
+eosiocpp -o market.wast market.cpp
+eosiocpp -g market.abi market.cpp
+
+cleos -u http://eosiodev:8888 set contract monstereosmt ../market
+cleos -u http://eosiodev:8888 push action eosio.token transfer '["monsterusera", "monstereosio", "1.0000 EOS", "MTT3"]' -p monsterusera

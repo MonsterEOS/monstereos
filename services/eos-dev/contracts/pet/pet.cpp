@@ -94,35 +94,38 @@ void pet::destroypet(uuid pet_id) {
 
 }
 
-void pet::transferpet(uuid pet_id, name newowner) {
-    
+void pet::transferpet(uuid pet_id, name new_owner) {
+
     require_auth(N(monstereosmt));
 
-    print(pet_id, "| updating pet ");
     auto itr_pet = pets.find(pet_id);
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     auto pet = *itr_pet;
 
+    print(pet_id, "| transfering pet ");
+
     pets.modify(itr_pet, 0, [&](auto &r) {
-        r.owner = newowner;
+        r.owner = new_owner;
     });
 
-    print("new owner ", newowner);    
+    print("new owner ", new_owner);
 }
 
-void pet::transferpet2(uuid pet_id, name newowner) {
-    print(pet_id, "| updating pet ");
+void pet::transferpet2(uuid pet_id, name new_owner) {
+
     auto itr_pet = pets.find(pet_id);
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     auto pet = *itr_pet;
-        
+
     require_auth(pet.owner);
 
+    print(pet_id, "| transfering pet ");
+
     pets.modify(itr_pet, 0, [&](auto &r) {
-        r.owner = newowner;
+        r.owner = new_owner;
     });
 
-    print("new owner ", newowner);    
+    print("new owner ", new_owner);
 }
 
 void pet::feedpet(uuid pet_id) {
@@ -233,71 +236,66 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
     eosio_assert(transfer_data.quantity.is_valid(), "Invalid token transfer");
     eosio_assert(transfer_data.quantity.amount > 0, "Quantity must be positive");
 
-    _tb_accounts accounts(_self, transfer_data.from);
-    asset new_balance;
-    auto itr_balance = accounts.find(transfer_data.quantity.symbol.name());
-    if(itr_balance != accounts.end()) {
-        accounts.modify(itr_balance, transfer_data.from, [&](auto& r){
-            // Assumption: total currency issued by eosio.token will not overflow asset
-            r.balance += transfer_data.quantity;
-            new_balance = r.balance;
-        });
-    } else {
-        accounts.emplace(transfer_data.from, [&](auto& r){
-            r.balance = transfer_data.quantity;
-            new_balance = r.balance;
-        });
+    string memoprefix = "MTT";
+    auto startsWithMTT = transfer_data.memo.rfind(memoprefix, 0);
+
+    // Monster Market Transfer
+    if (startsWithMTT == 0) {
+
+        _handletransf(transfer_data.memo, transfer_data.quantity, transfer_data.from);
+
+    } else { // in-app transfer
+        _tb_accounts accounts(_self, transfer_data.from);
+        asset new_balance;
+        auto itr_balance = accounts.find(transfer_data.quantity.symbol.name());
+        if(itr_balance != accounts.end()) {
+            accounts.modify(itr_balance, 0, [&](auto& r){
+                // Assumption: total currency issued by eosio.token will not overflow asset
+                r.balance += transfer_data.quantity;
+                new_balance = r.balance;
+            });
+
+            print("\n", name{transfer_data.from}, " funds available: ", new_balance);
+        }
+
+        print("\n", name{transfer_data.from}, " deposited:       ", transfer_data.quantity);
     }
-
-    print("\n", name{transfer_data.from}, " deposited:       ", transfer_data.quantity);
-    print("\n", name{transfer_data.from}, " funds available: ", new_balance);
-
-    _handletransf(transfer_data.memo, transfer_data.quantity, transfer_data.from);   
 
 }
 
 void pet::_handletransf(string memo, asset quantity, account_name from) {
-    string memoprefix = "MTT";
-    auto startsWithMTT = memo.rfind(memoprefix, 0);
-    
-    if (startsWithMTT == 0) {
-        print("memo matches");
-        string sofferid = memo.substr(3);
-        auto offerid = stoi(sofferid);
-        print("\ntransfer received for offer ", offerid);
-        _tb_offers offers(N(monstereosmt), N(monstereosmt));
-        auto itr_offer = offers.find(offerid);
-        if (itr_offer != offers.end()) {
-            auto offer = *itr_offer;
-            auto itr_pet = pets.find(offer.pet_id);
-            eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-            auto pet = *itr_pet;
-            
-            eosio_assert(offer.type != 10, "E404|Offer of type " + offer.type);
-            eosio_assert(quantity.amount == offer.value.amount, "E404|amounts does not match offer's amount");
-            eosio_assert(quantity.symbol == offer.value.symbol, "E404|token does not match offer's token");
-            eosio_assert(pet.owner == offer.user, "E404|monster does to belong to offer's user");
 
-            // transfer money to previous owner
-            string memo = "transfer for offer " + sofferid;
-            _transfervalue(pet.owner, quantity, memo);
-            // change ownership
-            pets.modify(itr_pet, 0, [&](auto &r) {
-                r.owner = offer.new_owner;
-            });
+    string sofferid = memo.substr(3);
+    auto offerid = stoi(sofferid);
+    print("\ntransfer received for offer ", offerid);
 
-            _tb_accounts accounts(_self, from);
-            asset new_balance;
-            auto itr_balance = accounts.find(quantity.symbol.name());
-            eosio_assert(itr_balance != accounts.end(), "E404|Invalid currency");
+    _tb_offers offers(N(monstereosmt), N(monstereosmt));
+    auto itr_offer = offers.find(offerid);
 
-            accounts.modify(itr_balance, from, [&](auto& r){
-                // Assumption: total currency issued by eosio.token will not overflow asset
-                r.balance -= quantity;
-                new_balance = r.balance;
-            });
-        }
-    }
+    eosio_assert(itr_offer != offers.end(), "E404|Invalid Offer");
+
+    auto offer = *itr_offer;
+    auto itr_pet = pets.find(offer.pet_id);
+    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    auto pet = *itr_pet;
+
+    eosio_assert(offer.type != 10, "E499|Offer is already RENTING");
+    eosio_assert(offer.user != from, "E499|You cant buy your own offer DUH");
+    eosio_assert(quantity.amount == offer.value.amount, "E499|amounts does not match offer's amount");
+    eosio_assert(quantity.symbol == offer.value.symbol, "E499|token does not match offer's token");
+    eosio_assert(pet.owner == offer.user, "E499|monster does not to belong to offer's user");
+
+    name old_owner = pet.owner;
+    pets.modify(itr_pet, 0, [&](auto &r) {
+        r.owner = name{from};
+    });
+
+    // transfer money to old owner
+    _transfervalue(old_owner, quantity, "MonsterEOS Offer " + sofferid);
+}
+
+void pet::_transfervalue(name receiver, asset quantity, string memo) {
+     action(permission_level{_self, N(active)}, N(eosio.token), N(transfer), std::make_tuple(N(monstereosio), receiver, quantity, memo)).send();
 }
 
 uint32_t pet::_calc_hunger_hp(const uint8_t &max_hunger_points, const uint32_t &hunger_to_zero,
@@ -338,8 +336,4 @@ void pet::_update(st_pets &pet) {
     if (hp <= 0) {
         pet.death_at = current_time;
     }
-}
-
-void pet::_transfervalue(name receiver, asset quantity, string memo) {
-     action(permission_level{_self, N(active)}, N(eosio.token), N(transfer), std::make_tuple(N(monstereosio), receiver, quantity, memo)).send();
 }

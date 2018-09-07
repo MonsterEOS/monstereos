@@ -24,16 +24,18 @@ interface ReactState {
 
 class NewOfferModal extends React.Component<Props, {}> {
 
-  public state: ReactState = { name: this.props.initialName ?  this.props.initialName: "", 
-                                monstername: this.props.initialMonster ? this.props.initialMonster.name: "", 
-                                amount: this.props.initialAmount ? this.props.initialAmount : 0, 
-                                monster: this.props.initialMonster }
-  
+  public state: ReactState = {
+    name: this.props.initialName ? this.props.initialName: "",
+    monstername: this.props.initialMonster ? this.props.initialMonster.name: "",
+    amount: this.props.initialAmount ? this.props.initialAmount : 0,
+    monster: this.props.initialMonster
+  }
+
   public render() {
 
     const { closeModal, monsters } = this.props
 
-    const { name, monstername, amount, monster } = this.state
+    const { name, monstername, monster, amount } = this.state
 
     const footerButtons = [
       <button
@@ -49,9 +51,9 @@ class NewOfferModal extends React.Component<Props, {}> {
         Cancel
       </button>
     ]
-    
+
     const title =  this.props.initialMonster ? "Update Offer" : "Create a New Offer"
-    
+
     return (
       <Modal
         title={title}
@@ -82,7 +84,23 @@ class NewOfferModal extends React.Component<Props, {}> {
             </div>
           </div>
           <div className="field">
-            <label className="label is-large">New Owner</label>
+            <label className="label is-large">Value in EOS</label>
+            <div className="control has-icons-left has-icons-right">
+              <input
+                className="input is-large"
+                placeholder="0.0000"
+                type="number"
+                min="0.0000"
+                step="0.0001"
+                onChange={this.handleChangeValue}
+                defaultValue={amount ? Number(amount).toFixed(4) : ""}/>
+              <span className="icon is-left">
+                <i className="fa fa-money" />
+              </span>
+            </div>
+          </div>
+          <div className="field">
+            <label className="label is-large">Propose to New Owner (optional)</label>
             <div className="control has-icons-left has-icons-right">
               <input
                 className="input is-large"
@@ -95,22 +113,7 @@ class NewOfferModal extends React.Component<Props, {}> {
               </span>
             </div>
           </div>
-          <div className="field">
-            <label className="label is-large">Value in EOS</label>
-            <div className="control has-icons-left has-icons-right">
-              <input 
-                className="input is-large"
-                placeholder="0.0000"
-                type="number"
-                min="0.0000"
-                step="0.0001"
-                onChange={this.handleChangeValue}
-                value={amount / 10000.0}/>
-              <span className="icon is-left">
-                <i className="fa fa-money" />
-              </span>
-            </div>
-          </div>
+
         </div>
       </Modal>
     )
@@ -124,7 +127,7 @@ class NewOfferModal extends React.Component<Props, {}> {
     const monsterName = event.target.value
     const {dispatchPushNotification, monsters} = this.props
     const monstersWithName = monsters.filter((monster:MonsterProps) => monster.name === monsterName)
-    
+
     if (monstersWithName.length > 0) {
       if (monstersWithName.length > 1) {
         dispatchPushNotification(`More than one monster found with this name. Using the first one`, NOTIFICATION_WARNING)
@@ -141,7 +144,7 @@ class NewOfferModal extends React.Component<Props, {}> {
 
   private handleChangeValue = (event: any) => {
     if (event.target.value) {
-      this.setState({amount: Math.floor(event.target.value * 10000.0)})
+      this.setState({amount: Number(event.target.value).toFixed(4)})
     }
   }
 
@@ -149,15 +152,14 @@ class NewOfferModal extends React.Component<Props, {}> {
     const { scatter, closeModal, dispatchPushNotification } = this.props
     const { name, amount, monster } = this.state
 
-    if (!name || name.length !== 12) {
-      return dispatchPushNotification(`Name (with length 12) is required to make an offer`, NOTIFICATION_ERROR)
-    }
     if (!monster) {
       return dispatchPushNotification(`Monster is required to make an offer`, NOTIFICATION_ERROR)
     }
+
     if (amount && amount < 0 ) {
       return dispatchPushNotification(`Invalid amount for offer`, NOTIFICATION_ERROR)
-    } 
+    }
+
     trxOfferPetMarket(scatter, monster.id, name, amount)
       .then((res: any) => {
         console.info(`Pet ${monster.id} was offered to ${name} successfully`, res)
