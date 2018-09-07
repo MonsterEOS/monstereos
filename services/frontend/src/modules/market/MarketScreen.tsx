@@ -8,7 +8,10 @@ import PageContainer from "../shared/PageContainer"
 import TitleBar from "../shared/TitleBar"
 import OfferCard from "./OfferCard"
 import NewOfferModal from "./NewOfferModal"
-import NewBidModal from "./NewBidModal"
+
+// Bid is Off for now due to monsters autocomplete.
+// no way to select all monsters in memory? demux to the rescue
+// import NewBidModal from "./NewBidModal"
 
 interface Props {
   eosAccount: string,
@@ -46,7 +49,8 @@ class MarketScreen extends React.Component<Props, ReactState> {
   private renderMarket(eosAccount: string) {
 
     const { offers, dispatchDoLoadOffers, dispatchDoLoadMyMonsters } = this.props
-    const { showNewOfferModal, showNewBidModal } = this.state
+    // const { showNewOfferModal, showNewBidModal } = this.state
+    const { showNewOfferModal } = this.state
 
     const subHeader = (<small className="is-hidden-mobile">
      {offers.length} offers
@@ -68,14 +72,6 @@ class MarketScreen extends React.Component<Props, ReactState> {
       </a>
     )
 
-    const newBidButton = (
-      <a
-        className="button is-success"
-        onClick={() => this.setState({showNewBidModal: true})}>
-        New Bid
-      </a>
-    )
-
     const newOfferClosure = (doRefetch: boolean) => {
       this.setState({showNewOfferModal: false})
       if (doRefetch) {
@@ -83,19 +79,27 @@ class MarketScreen extends React.Component<Props, ReactState> {
       }
     }
 
-    const newBidClosure = (doRefetch: boolean) => {
-      this.setState({showNewBidModal: false})
-      if (doRefetch) {
-        refetchOffers()
-      }
-    }
+    // const newBidButton = (
+    //   <a
+    //     className="button is-success"
+    //     onClick={() => this.setState({showNewBidModal: true})}>
+    //     New Bid
+    //   </a>
+    // )
+
+    // const newBidClosure = (doRefetch: boolean) => {
+    //   this.setState({showNewBidModal: false})
+    //   if (doRefetch) {
+    //     refetchOffers()
+    //   }
+    // }
 
     return (
       <PageContainer>
         <TitleBar
           title="Market for Monsters"
           notMobile
-          menu={[subHeader, newOfferButton, newBidButton]} />
+          menu={[subHeader, newOfferButton]} />
           <OfferList
             offers={offers}
             update={refetchMonsters} />
@@ -103,10 +107,10 @@ class MarketScreen extends React.Component<Props, ReactState> {
           <NewOfferModal
             closeModal={newOfferClosure}
           />}
-          {showNewBidModal &&
+          {/* {showNewBidModal &&
           <NewBidModal
             closeModal={newBidClosure}
-          />}
+          />} */}
       </PageContainer>
     )
   }

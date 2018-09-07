@@ -21,12 +21,16 @@ interface ReactState {
   monster: MonsterProps | undefined
 }
 
+/**
+ * Bid is Off for now due to monsters autocomplete.
+ * no way to select all monsters in memory? demux to the rescue
+ */
 class NewBidModal extends React.Component<Props, {}> {
 
-  public state: ReactState = { monstername: this.props.initialMonster ? this.props.initialMonster.name: "", 
-                                amount: this.props.initialAmount ? this.props.initialAmount : 0, 
+  public state: ReactState = { monstername: this.props.initialMonster ? this.props.initialMonster.name: "",
+                                amount: this.props.initialAmount ? this.props.initialAmount : 0,
                                 monster: this.props.initialMonster }
-  
+
   public render() {
 
     const { closeModal, monsters } = this.props
@@ -47,9 +51,9 @@ class NewBidModal extends React.Component<Props, {}> {
         Cancel
       </button>
     ]
-    
+
     const title =  this.props.initialMonster ? "Update Bid" : "Create a New Bid"
-    
+
     return (
       <Modal
         title={title}
@@ -82,7 +86,7 @@ class NewBidModal extends React.Component<Props, {}> {
           <div className="field">
             <label className="label is-large">Value in EOS</label>
             <div className="control has-icons-left has-icons-right">
-              <input 
+              <input
                 className="input is-large"
                 placeholder="0.0000"
                 type="number"
@@ -104,7 +108,7 @@ class NewBidModal extends React.Component<Props, {}> {
     const monsterName = event.target.value
     const {dispatchPushNotification, monsters} = this.props
     const monstersWithName = monsters.filter((monster:MonsterProps) => monster.name === monsterName)
-    
+
     if (monstersWithName.length > 0) {
       if (monstersWithName.length > 1) {
         dispatchPushNotification(`More than one monster found with this name. Using the first one`, NOTIFICATION_WARNING)
@@ -134,7 +138,7 @@ class NewBidModal extends React.Component<Props, {}> {
     }
     if (amount && amount < 0 ) {
       return dispatchPushNotification(`Invalid amount for offer`, NOTIFICATION_ERROR)
-    } 
+    }
     trxPlaceBidMarket(scatter, monster.id, amount)
       .then((res: any) => {
         console.info(`Bid for pet ${monster.id} was created successfully`, res)

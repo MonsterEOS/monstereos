@@ -15,7 +15,6 @@ export interface State {
   readonly identity: any
   readonly globalConfig: GlobalConfig,
   readonly notifications: Notification[]
-  readonly monsters: MonsterProps[]
   readonly myMonsters: MonsterProps[]
   readonly offers: OfferProps[]
 }
@@ -75,7 +74,7 @@ export const NOTIFICATION_ERROR = 3
 //   eosAccount: ""
 // }
 
-// actions definitions
+// actions constants
 const LOAD_SCATTER = "LOAD_SCATTER"
 const LOAD_EOS_IDENTITY = "LOAD_EOS_IDENTITY"
 const DELETE_NOTIFICATION = "DELETE_NOTIFICATION"
@@ -85,14 +84,21 @@ const LOAD_MY_MONSTERS = "LOAD_MY_MONSTERS"
 const LOAD_OFFERS = "LOAD_OFFERS"
 const DO_LOGOUT = "DO_LOGOUT"
 
+// auth actions
 const actionLoadScatter = (scatter: object) => tsAction(LOAD_SCATTER, scatter)
 const actionLoadEosIdentity = (identity: object) => tsAction(LOAD_EOS_IDENTITY, identity)
 const actionLogout = () => tsAction(DO_LOGOUT)
+
+// notifications
 const actionPushNotificaction = (notification: Notification) => tsAction(PUSH_NOTIFICATION, notification)
 const actionDeleteNotificaction = (id: string) => tsAction(DELETE_NOTIFICATION, id)
+
+// read chain actions
 const actionLoadConfig = (config: GlobalConfig) => tsAction(LOAD_GLOBAL_CONFIG, config)
 const actionLoadMyMonsters = (monsters: MonsterProps[]) => tsAction(LOAD_MY_MONSTERS, monsters)
 const actionLoadOffers = (offers: OfferProps[]) => tsAction(LOAD_OFFERS, offers)
+
+// actions definitions
 const actions = {
   actionLoadScatter,
   actionLoadEosIdentity,
@@ -214,9 +220,6 @@ const reducers = combineReducers<State, Actions>({
         return state
     }
   },
-  monsters: (state = [], action) => {
-    return state
-  },
   myMonsters: (state = [], action) => {
     switch (action.type) {
       case LOAD_MY_MONSTERS:
@@ -247,7 +250,7 @@ const reducers = combineReducers<State, Actions>({
       default:
         return state
     }
-  } 
+  }
 })
 
 

@@ -196,6 +196,13 @@ export const loadPets = async (id?: number) => {
   return await apiList(id, id ? 1 : 5000)
 }
 
+export const loadMonsters = async (
+  config: GlobalConfig
+) => {
+  const pets = await loadPets()
+  return pets.map((pet: any) => parseMonstersFromChain(pet, config))
+}
+
 export const loadMonstersByOwner = async (
   account: string,
   config: GlobalConfig
