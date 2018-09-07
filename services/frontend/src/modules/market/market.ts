@@ -1,6 +1,6 @@
 import { MonsterProps } from "../monsters/monsters"
 
-export interface OfferProps {
+export interface OrderProps {
     id: number,
     user: string,
     monster: MonsterProps,
@@ -32,21 +32,21 @@ export interface OfferProps {
       }
 }
 
-export const parseOfferFromChain = (offer:any, monsters: MonsterProps[]):OfferProps | undefined => {
+export const parseOrderFromChain = (order:any, monsters: MonsterProps[]):OrderProps | undefined => {
 
       const monster = monsters.find((value: MonsterProps):boolean => {
-            return value.id === offer.pet_id
+            return value.id === order.pet_id
       })
         return {
-            id : offer.id,
-            user : offer.user,
-            monster: monster ? monster : deletedMonster(offer.pet_id, offer.user),
-            type : offer.type,
-            newOwner : offer.new_owner,
-            value: offer.value,
-            placedAt: offer.placed_at * 1000,
-            endsAt: offer.ends_at * 1000,
-            transferEndsAt: offer.transfer_ends_at
+            id : order.id,
+            user : order.user,
+            monster: monster ? monster : deletedMonster(order.pet_id, order.user),
+            type : order.type,
+            newOwner : order.new_owner,
+            value: order.value,
+            placedAt: order.placed_at * 1000,
+            endsAt: order.ends_at * 1000,
+            transferEndsAt: order.transfer_ends_at
         }
   }
 

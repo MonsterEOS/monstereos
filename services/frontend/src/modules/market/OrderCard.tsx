@@ -1,17 +1,17 @@
 import * as React from "react"
 import * as moment from "moment"
-import { OfferProps, amountOfAsset } from "./market"
+import { OrderProps, amountOfAsset } from "./market"
 import { monsterImageSrc } from "../monsters/monsters"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
-import { trxClaimPetMarket, trxRemoveOfferMarket, MONSTERS_ACCOUNT, trxTokenTransfer } from "../../utils/eos"
+import { trxClaimPetMarket, trxRemoveOrderMarket, MONSTERS_ACCOUNT, trxTokenTransfer } from "../../utils/eos"
 import { Link } from "react-router-dom"
 
-import NewOfferModal  from "./NewOfferModal"
+import NewOrderModal  from "./NewOrderModal"
 
 interface Props {
-  offer: OfferProps,
+  order: OrderProps,
   eosAccount: string,
   globalConfig: GlobalConfig,
   requestUpdate?: any,
@@ -30,32 +30,32 @@ export interface MonsterAction {
 }
 
 interface ReactState {
-  showNewOfferModal:boolean
+  showNewOrderModal:boolean
 }
 
-class OfferCard extends React.Component<Props, ReactState> {
+class OrderCard extends React.Component<Props, ReactState> {
 
   public state = {
-    showNewOfferModal: false,
+    showNewOrderModal: false,
   }
 
   public render() {
 
-    const { offer, selected, dispatchDoLoadMyMonsters } = this.props
-    const monster = offer.monster
+    const { order, selected, dispatchDoLoadMyMonsters } = this.props
+    const monster = order.monster
 
-    const { showNewOfferModal } = this.state
+    const { showNewOrderModal } = this.state
 
     const selectedClass = selected ? "monster-selected" : ""
 
-    const refetchMonstersAndOffers = () => {
+    const refetchMonstersAndOrders = () => {
       setTimeout(() => dispatchDoLoadMyMonsters(), 500)
     }
 
-    const newOfferClosure = (doRefetch: boolean) => {
-      this.setState({showNewOfferModal: false})
+    const newOrderClosure = (doRefetch: boolean) => {
+      this.setState({showNewOrderModal: false})
       if (doRefetch) {
-        refetchMonstersAndOffers()
+        refetchMonstersAndOrders()
       }
     }
 
@@ -66,15 +66,15 @@ class OfferCard extends React.Component<Props, ReactState> {
             {this.renderHeader()}
           </div>
           {this.renderImage()}
-          {this.renderOfferData()}
+          {this.renderOrderData()}
           {this.renderFooter()}
         </div>
-        {showNewOfferModal &&
-        <NewOfferModal
-          closeModal={newOfferClosure}
+        {showNewOrderModal &&
+        <NewOrderModal
+          closeModal={newOrderClosure}
           initialMonster = {monster}
-          initialName = {offer.newOwner}
-          initialAmount = { amountOfAsset(offer.value)}/>}
+          initialName = {order.newOwner}
+          initialAmount = { amountOfAsset(order.value)}/>}
       </div>
 
     )
@@ -82,8 +82,8 @@ class OfferCard extends React.Component<Props, ReactState> {
 
   private renderImage() {
 
-    const { offer } = this.props
-    const monster = offer.monster
+    const { order } = this.props
+    const monster = order.monster
 
     const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
     const monsterImage = monsterImageSrc(monster.type)
@@ -106,8 +106,8 @@ class OfferCard extends React.Component<Props, ReactState> {
 
   private renderHeader() {
 
-    const { offer, hideLink } = this.props
-    const monster = offer.monster
+    const { order, hideLink } = this.props
+    const monster = order.monster
 
     // const createdAt = moment(monster.createdAt)
     // const createdAtText = createdAt.format("MMMM, D YYYY @ h:mm a")
@@ -122,7 +122,7 @@ class OfferCard extends React.Component<Props, ReactState> {
 
     const headerContent =
       <React.Fragment>
-        <span className={`title is-4 ${monster.owner !== offer.user || monster.name.length === 0 ? "has-text-danger" : ""}`}>
+        <span className={`title is-4 ${monster.owner !== order.user || monster.name.length === 0 ? "has-text-danger" : ""}`}>
           {monster.name.length > 0 ? monster.name: "deleted monster"}
           <small className="is-pulled-right">#{monster.id}</small>
         </span>
@@ -141,7 +141,7 @@ class OfferCard extends React.Component<Props, ReactState> {
     return (
       <div className="monster-card-header">
         <span>
-          Offer #{offer.id}
+          Order #{order.id}
         </span>
         <br/>
         { !hideLink ?
@@ -157,19 +157,19 @@ class OfferCard extends React.Component<Props, ReactState> {
 
   private renderFooter() {
 
-    const { offer, customActions, eosAccount } = this.props
+    const { order, customActions, eosAccount } = this.props
 
     let actions: MonsterAction[] = []
 
-    const isReal = offer.monster.name.length > 0 // not deleted
+    const isReal = order.monster.name.length > 0 // not deleted
 
-    if (offer.user === eosAccount) {
+    if (order.user === eosAccount) {
       if (isReal) {
-        actions.push({action: this.requestUpdateOffer, label: "Update Offer"})
+        actions.push({action: this.requestUpdateOrder, label: "Update Order"})
       }
-      actions.push({action: this.requestDeleteOffer, label: "Delete Offer"})
+      actions.push({action: this.requestDeleteOrder, label: "Delete Order"})
     }
-    if ((!offer.newOwner || offer.newOwner === eosAccount) && offer.user !== eosAccount && isReal) {
+    if ((!order.newOwner || order.newOwner === eosAccount) && order.user !== eosAccount && isReal) {
       actions.push({action: this.requestClaimMonster, label: "Claim Monster"})
     }
 
@@ -190,12 +190,12 @@ class OfferCard extends React.Component<Props, ReactState> {
     )
   }
 
-  private renderOfferData = () => {
+  private renderOrderData = () => {
 
-    const { offer } = this.props
-    const { monster } = offer
+    const { order } = this.props
+    const { monster } = order
 
-    const transferEnds = moment(offer.transferEndsAt)
+    const transferEnds = moment(order.transferEndsAt)
     const transferEndsText = transferEnds.format("MMMM, D YYYY @ h:mm a")
     const transferEndsIso = transferEnds.toLocaleString()
 
@@ -205,17 +205,17 @@ class OfferCard extends React.Component<Props, ReactState> {
           owned by {monster.owner}
         </span>
         <div className="is-6">
-          offered by {offer.user}
+          ordered by {order.user}
         </div>
-        {offer.newOwner &&
+        {order.newOwner &&
           <div className="is-6">
-            offered to {offer.newOwner}
+            ordered to {order.newOwner}
           </div>
         }
         <div className="is-6">
-          for {offer.value}
+          for {order.value}
         </div>
-        {offer.transferEndsAt > 0 &&
+        {order.transferEndsAt > 0 &&
         <div className="is-6">
           <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
         </div>}
@@ -223,33 +223,33 @@ class OfferCard extends React.Component<Props, ReactState> {
     )
   }
 
-  private requestUpdateOffer = () => {
-    this.setState({showNewOfferModal:true})
+  private requestUpdateOrder = () => {
+    this.setState({showNewOrderModal:true})
   }
 
-  private requestDeleteOffer = () => {
-    const { scatter, offer, requestUpdate, dispatchPushNotification} = this.props
-    const monster = offer.monster
+  private requestDeleteOrder = () => {
+    const { scatter, order, requestUpdate, dispatchPushNotification} = this.props
+    const monster = order.monster
 
-    trxRemoveOfferMarket(scatter, monster.id)
+    trxRemoveOrderMarket(scatter, monster.id)
       .then((res:any) => {
-        console.info(`Offer for monster #${monster.id} was deleted successfully`, res)
-        dispatchPushNotification(`Offer for ${monster.name} was deleted successfully`, NOTIFICATION_SUCCESS)
+        console.info(`Order for monster #${monster.id} was deleted successfully`, res)
+        dispatchPushNotification(`Order for ${monster.name} was deleted successfully`, NOTIFICATION_SUCCESS)
         if (requestUpdate) {
           requestUpdate()
         }
       }).catch((err: any) => {
-        console.error(`Fail to delete offer for monster #${monster.id}`, err)
-        dispatchPushNotification(`Fail to offer for ${monster.name}`, NOTIFICATION_ERROR)
+        console.error(`Fail to delete order for monster #${monster.id}`, err)
+        dispatchPushNotification(`Fail to order for ${monster.name}`, NOTIFICATION_ERROR)
       })
   }
 
   private requestClaimMonster = () => {
-    const { scatter, offer, requestUpdate, dispatchPushNotification} = this.props
-    const monster = offer.monster
+    const { scatter, order, requestUpdate, dispatchPushNotification} = this.props
+    const monster = order.monster
 
-    if (amountOfAsset(offer.value) > 0 ) {
-      trxTokenTransfer(scatter, MONSTERS_ACCOUNT, offer.value, "MTT" + offer.id)
+    if (amountOfAsset(order.value) > 0 ) {
+      trxTokenTransfer(scatter, MONSTERS_ACCOUNT, order.value, "MTT" + order.id)
       .then((res:any) => {
         console.info(`Pet ${monster.id} was claimed successfully`, res)
         dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)
@@ -261,7 +261,7 @@ class OfferCard extends React.Component<Props, ReactState> {
         dispatchPushNotification(`Fail to claim ${monster.name}`, NOTIFICATION_ERROR)
       })
     } else {
-      trxClaimPetMarket(scatter, monster.id, offer.user)
+      trxClaimPetMarket(scatter, monster.id, order.user)
         .then((res:any) => {
           console.info(`Pet ${monster.id} was claimed successfully`, res)
           dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)
@@ -291,4 +291,4 @@ const mapDispatchToProps = {
   dispatchDoLoadMyMonsters: doLoadMyMonsters
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(OfferCard)
+export default connect(mapStateToProps, mapDispatchToProps)(OrderCard)

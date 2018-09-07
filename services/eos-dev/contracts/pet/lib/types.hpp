@@ -191,7 +191,7 @@ namespace types {
 
   typedef multi_index<N(battles), st_battle> _tb_battle;
 
-  // @abi table offers i64
+  // @abi table orders i64
   struct st_orders {
       uuid            id;
       name            user;

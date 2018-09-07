@@ -1,7 +1,7 @@
 import * as React from "react"
 import { State, pushNotification, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR, NOTIFICATION_WARNING } from "../../store"
 import { connect } from "react-redux"
-import { trxOfferPetMarket } from "../../utils/eos"
+import { trxOrderPetMarket } from "../../utils/eos"
 import Modal from "../shared/Modal"
 import { MonsterProps } from "../monsters/monsters"
 
@@ -22,7 +22,7 @@ interface ReactState {
   monster: MonsterProps | undefined
 }
 
-class NewOfferModal extends React.Component<Props, {}> {
+class NewOrderModal extends React.Component<Props, {}> {
 
   public state: ReactState = {
     name: this.props.initialName ? this.props.initialName: "",
@@ -41,7 +41,7 @@ class NewOfferModal extends React.Component<Props, {}> {
       <button
         key="submit"
         className="button is-success"
-        onClick={this.createOffer}>
+        onClick={this.createOrder}>
         Submit
       </button>,
       <button
@@ -52,7 +52,7 @@ class NewOfferModal extends React.Component<Props, {}> {
       </button>
     ]
 
-    const title =  this.props.initialMonster ? "Update Offer" : "Create a New Offer"
+    const title =  this.props.initialMonster ? "Update Order" : "Create a New Sell Order"
 
     return (
       <Modal
@@ -148,7 +148,7 @@ class NewOfferModal extends React.Component<Props, {}> {
     }
   }
 
-  private createOffer = () => {
+  private createOrder = () => {
     const { scatter, closeModal, dispatchPushNotification } = this.props
     const { name, amount, monster } = this.state
 
@@ -160,7 +160,7 @@ class NewOfferModal extends React.Component<Props, {}> {
       return dispatchPushNotification(`Invalid amount for offer`, NOTIFICATION_ERROR)
     }
 
-    trxOfferPetMarket(scatter, monster.id, name, amount)
+    trxOrderPetMarket(scatter, monster.id, name, amount)
       .then((res: any) => {
         console.info(`Pet ${monster.id} was offered to ${name} successfully`, res)
         dispatchPushNotification(`Pet ${monster.name} was offered to ${name} successfully`, NOTIFICATION_SUCCESS)
@@ -183,4 +183,4 @@ const mapDispatchToProps = {
   dispatchPushNotification: pushNotification
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewOfferModal)
+export default connect(mapStateToProps, mapDispatchToProps)(NewOrderModal)

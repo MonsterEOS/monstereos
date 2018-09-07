@@ -776,7 +776,7 @@
       ],
       "type": "st_battle"
     },{
-      "name": "offers",
+      "name": "orders",
       "index_type": "i64",
       "key_names": [
         "id"

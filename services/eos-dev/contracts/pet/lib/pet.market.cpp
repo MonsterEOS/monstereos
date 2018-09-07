@@ -180,8 +180,6 @@ void pet::removebid(name bidder, uuid pet_id) {
 
 void pet::_transfer_pet(uuid pet_id, name new_owner) {
 
-    require_auth(N(monstereosmt));
-
     auto itr_pet = pets.find(pet_id);
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     auto pet = *itr_pet;
@@ -201,12 +199,16 @@ void pet::_handle_transf(string memo, asset quantity, account_name from) {
     auto orderid = stoi(sorderid);
     print("\ntransfer received for order ", orderid);
 
-    _tb_orders orders(N(monstereosmt), N(monstereosmt));
     auto itr_order = orders.find(orderid);
 
     eosio_assert(itr_order != orders.end(), "E404|Invalid order");
 
     auto order = *itr_order;
+
+    eosio_assert(order.type == ORDER_TYPE_ASK
+        || order.type == ORDER_TYPE_ASK_RENT,
+        "only ask orders are allowed to receive transfers");
+
     auto itr_pet = pets.find(order.pet_id);
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     auto pet = *itr_pet;
@@ -222,6 +224,8 @@ void pet::_handle_transf(string memo, asset quantity, account_name from) {
         r.owner = name{from};
     });
 
+    orders.erase(itr_order);
+
     // transfer money to old owner
     _transfer_value(old_owner, quantity, "MonsterEOS order " + sorderid);
 }
@@ -231,6 +235,6 @@ void pet::_transfer_value(name receiver, asset quantity, string memo) {
       permission_level{_self, N(active)},
       N(eosio.token),
       N(transfer),
-      std::make_tuple(N(_self), receiver, quantity, memo)
+      std::make_tuple(_self, receiver, quantity, memo)
     ).send();
 }

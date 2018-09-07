@@ -1,13 +1,13 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import { State, doLoadOffers, doLoadMyMonsters } from "../../store"
+import { State, doLoadOrders, doLoadMyMonsters } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
-import { OfferProps } from "./market"
+import { OrderProps } from "./market"
 
 import PageContainer from "../shared/PageContainer"
 import TitleBar from "../shared/TitleBar"
-import OfferCard from "./OfferCard"
-import NewOfferModal from "./NewOfferModal"
+import OrderCard from "./OrderCard"
+import NewOrderModal from "./NewOrderModal"
 
 // Bid is Off for now due to monsters autocomplete.
 // no way to select all monsters in memory? demux to the rescue
@@ -15,21 +15,21 @@ import NewOfferModal from "./NewOfferModal"
 
 interface Props {
   eosAccount: string,
-  offers:OfferProps[],
+  orders:OrderProps[],
   globalConfig: any,
-  dispatchDoLoadOffers: any,
+  dispatchDoLoadOrders: any,
   dispatchDoLoadMyMonsters: any
 }
 
 interface ReactState {
-  showNewOfferModal: boolean,
+  showNewOrderModal: boolean,
   showNewBidModal: boolean
 }
 
 class MarketScreen extends React.Component<Props, ReactState> {
 
   public state = {
-    showNewOfferModal: false,
+    showNewOrderModal: false,
     showNewBidModal: false
   }
 
@@ -48,34 +48,34 @@ class MarketScreen extends React.Component<Props, ReactState> {
 
   private renderMarket(eosAccount: string) {
 
-    const { offers, dispatchDoLoadOffers, dispatchDoLoadMyMonsters } = this.props
-    // const { showNewOfferModal, showNewBidModal } = this.state
-    const { showNewOfferModal } = this.state
+    const { orders, dispatchDoLoadOrders, dispatchDoLoadMyMonsters } = this.props
+    // const { showNewOrderModal, showNewBidModal } = this.state
+    const { showNewOrderModal } = this.state
 
     const subHeader = (<small className="is-hidden-mobile">
-     {offers.length} offers
+     {orders.length} orders
       </small>)
 
-    const refetchOffers = () => {
-      setTimeout(() => dispatchDoLoadOffers(), 500)
+    const refetchOrders = () => {
+      setTimeout(() => dispatchDoLoadOrders(), 500)
     }
 
     const refetchMonsters = () => {
       setTimeout(() => dispatchDoLoadMyMonsters(), 500)
     }
 
-    const newOfferButton = (
+    const newOrderButton = (
       <a
         className="button is-success"
-        onClick={() => this.setState({showNewOfferModal: true})}>
-        New Offer
+        onClick={() => this.setState({showNewOrderModal: true})}>
+        New Order
       </a>
     )
 
-    const newOfferClosure = (doRefetch: boolean) => {
-      this.setState({showNewOfferModal: false})
+    const newOrderClosure = (doRefetch: boolean) => {
+      this.setState({showNewOrderModal: false})
       if (doRefetch) {
-        refetchOffers()
+        refetchOrders()
       }
     }
 
@@ -90,7 +90,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
     // const newBidClosure = (doRefetch: boolean) => {
     //   this.setState({showNewBidModal: false})
     //   if (doRefetch) {
-    //     refetchOffers()
+    //     refetchOrders()
     //   }
     // }
 
@@ -99,13 +99,13 @@ class MarketScreen extends React.Component<Props, ReactState> {
         <TitleBar
           title="Market for Monsters"
           notMobile
-          menu={[subHeader, newOfferButton]} />
-          <OfferList
-            offers={offers}
+          menu={[subHeader, newOrderButton]} />
+          <OrderList
+            orders={orders}
             update={refetchMonsters} />
-          {showNewOfferModal &&
-          <NewOfferModal
-            closeModal={newOfferClosure}
+          {showNewOrderModal &&
+          <NewOrderModal
+            closeModal={newOrderClosure}
           />}
           {/* {showNewBidModal &&
           <NewBidModal
@@ -116,28 +116,28 @@ class MarketScreen extends React.Component<Props, ReactState> {
   }
 }
 
-const OfferList = ({ offers, update }: any) => (
+const OrderList = ({ orders, update }: any) => (
   <div className="columns is-multiline">
-    {offers.map((offer: any) => (
-      <OfferCard
-        key={offer.id}
-        offer={offer}
+    {orders.map((order: any) => (
+      <OrderCard
+        key={order.id}
+        order={order}
         requestUpdate={update}/>
     ))}
   </div>
 )
 
-const isValidForUser = (user:string) => (offer:OfferProps) => {
-  return offer.user === user || (offer.monster.name.length > 0 &&
-      (isValidOffer(offer) || isValidBid(offer)))
+const isValidForUser = (user:string) => (order:OrderProps) => {
+  return order.user === user || (order.monster.name.length > 0 &&
+      (isValidOrder(order) || isValidBid(order)))
 }
 
-const isValidOffer = (offer:OfferProps) => {
-  return offer.type in [1, 10, 11] && offer.monster.owner === offer.user
+const isValidOrder = (order:OrderProps) => {
+  return order.type in [1, 10, 11] && order.monster.owner === order.user
 }
 
-const isValidBid = (offer:OfferProps) => {
-  return offer.type in [2, 12] && offer.monster.owner !== offer.user
+const isValidBid = (order:OrderProps) => {
+  return order.type in [2, 12] && order.monster.owner !== order.user
 }
 
 const mapStateToProps = (state: State) => {
@@ -145,14 +145,14 @@ const mapStateToProps = (state: State) => {
 
   return {
     eosAccount,
-    offers: state.offers.filter(isValidForUser(eosAccount.name)),
+    orders: state.orders.filter(isValidForUser(eosAccount.name)),
     globalConfig: state.globalConfig,
   }
 }
 
 const mapDispatchToProps = {
-  dispatchDoLoadOffers: doLoadOffers,
-  dispatchDoLoadMyMonsters: doLoadMyMonsters
+  dispatchDoLoadOrders: doLoadOrders,
+  dispatchDoLoadMyMonsters: doLoadMyMonsters,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MarketScreen)
