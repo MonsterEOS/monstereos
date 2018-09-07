@@ -16,6 +16,43 @@ services:
       DB_PASSWORD: pass
       POSTGRES_DB: monstereosio
 
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - mongo:/data/db
+    ports:
+      - "27017:27017"
+
+  fullnode:
+    image: eosio/eos:v1.2.4
+    command: nodeosd.sh --http-alias=fullnode:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888 --replay
+    stop_grace_period: 3m0s
+    ports:
+      - "8840:8888"
+      - "9840:9876"
+    depends_on:
+      - mongo
+    volumes:
+      - "fullnode:/opt/eosio/bin/data-dir"
+      - "./services/eos-node/config-full-node.ini:/opt/eosio/bin/data-dir/config.ini"
+
+  mainnode:
+    image: eosio/eos:v1.2.4
+    command: nodeosd.sh --http-alias=mainnode:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888 --data-dir /opt/eosio/bin/data-dir --hard-replay
+    #--genesis-json /opt/eosio/bin/genesis.json
+    stop_grace_period: 3m0s
+    ports:
+      - "8850:8888"
+      - "9850:9876"
+    depends_on:
+      - mongo
+    volumes:
+      - "mainnode:/opt/eosio/bin/data-dir"
+      - "./services/eos-node/config-main-node.ini:/opt/eosio/bin/data-dir/config.ini"
+      - "./services/eos-node/mainnet-genesis.json:/opt/eosio/bin/genesis.json"
+
+  # only required for dev
   eosiodev:
     build:
       context: ./services/eos-dev
@@ -79,6 +116,7 @@ services:
         SERVICE: "demux"
     image: monstereos/demux
     depends_on:
+      - mongo
       - postgres
       - eosiodev
     environment:
@@ -99,3 +137,6 @@ volumes:
   eosiochainmn:
   eosiodevapp:
   postgres:
+  mongo:
+  fullnode:
+  mainnode:
