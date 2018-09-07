@@ -97,7 +97,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
     return (
       <PageContainer>
         <TitleBar
-          title="Market for Monsters"
+          title="Monsters Market"
           notMobile
           menu={[subHeader, newOrderButton]} />
           <OrderList
