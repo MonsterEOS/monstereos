@@ -91,7 +91,7 @@ export const trxOfferPetMarket = async (
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
-  return contract.offerpet(petId, newOwner, `${amount.toFixed(4)} EOS`, 0, eosAuthorization.permission)
+  return contract.offerpet(petId, newOwner, `${amount} EOS`, 0, eosAuthorization.permission)
 }
 
 export const trxRemoveOfferMarket = async (
@@ -121,7 +121,7 @@ export const trxPlaceBidMarket = async (
   const eosAuthorization = getEosAuthorization(scatter.identity)
     const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
     return contract.bidpet(petId, eosAuthorization.account.name, 0, amount, eosAuthorization.permission)
-}  
+}
 
 // eos api
 const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
