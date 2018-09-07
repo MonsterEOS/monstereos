@@ -123,12 +123,25 @@ const OfferList = ({ offers, update }: any) => (
   </div>
 )
 
+const isValidForUser = (user:string) => (offer:OfferProps) => {
+  return offer.user === user || (offer.monster.name.length > 0 &&
+      (isValidOffer(offer) || isValidBid(offer)))
+}
+
+const isValidOffer = (offer:OfferProps) => {
+  return offer.type in [1, 10, 11] && offer.monster.owner === offer.user
+}
+
+const isValidBid = (offer:OfferProps) => {
+  return offer.type in [2, 12] && offer.monster.owner !== offer.user
+}
+
 const mapStateToProps = (state: State) => {
   const eosAccount = getEosAccount(state.identity)
 
   return {
     eosAccount,
-    offers: state.offers,
+    offers: state.offers.filter(isValidForUser(eosAccount.name)),
     globalConfig: state.globalConfig,
   }
 }
