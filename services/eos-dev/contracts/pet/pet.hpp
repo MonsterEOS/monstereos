@@ -14,6 +14,7 @@
 #include <math.h>
 #include <vector>
 #include <map>
+#include "lib/utils.hpp"
 #include "lib/types.hpp"
 
 using namespace eosio;
@@ -32,6 +33,7 @@ public:
     pettypes(_self,_self),
     elements(_self,_self),
     pets(_self,_self),
+    orders(_self,_self),
     petinbattles(_self,_self),
     pet_config(_self,_self),
     pet_config2(_self,_self)
@@ -40,6 +42,7 @@ public:
     _tb_pet_types pettypes;
     _tb_elements  elements;
     _tb_pet pets;
+    _tb_orders orders;
     _tb_pet_in_battle petinbattles;
 
     // pet interactions
@@ -49,7 +52,6 @@ public:
     void bedpet       ( uuid pet_id );
     void awakepet     ( uuid pet_id );
     void destroypet   ( uuid pet_id );
-    void transferpet  ( uuid pet_id, name new_owner);
     void transferpet2 ( uuid pet_id, name new_owner);
 
     // battle interface
@@ -60,6 +62,13 @@ public:
     // void battleselpet ( name host, name player, uuid pet_id );
     void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
     void battlefinish ( name host, name winner );
+
+    // market interface
+    void orderask(uuid pet_id, name new_owner, asset amount, uint32_t until);
+    void removeask(name owner, uuid pet_id);
+    void claimpet(name old_owner, uuid pet_id, name claimer);
+    void bidpet(uuid pet_id, name bidder, asset amount, uint32_t until);
+    void removebid(name bidder, uuid pet_id);
 
     // admin/config interactions
     void addelemttype ( vector<uint8_t> ratios );
@@ -145,8 +154,9 @@ public:
                              const uint32_t &current_time);
 
     // pet transfers
-    void _transfervalue(name receiver, asset quantity, string memo);
-    void _handletransf (string memo, asset quantity, account_name from);
+    void _transfer_value (name receiver, asset quantity, string memo);
+    void _handle_transf  (string memo, asset quantity, account_name from);
+    void _transfer_pet   ( uuid pet_id, name new_owner);
 
 
     // battle helpers

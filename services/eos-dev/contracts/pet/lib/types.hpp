@@ -4,6 +4,7 @@
 #include <vector>
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
+#include <math.h>
 
 using std::vector;
 using std::map;
@@ -26,6 +27,14 @@ namespace types {
   constexpr battle_mode V2 = 2;
   constexpr battle_mode V3 = 3;
   constexpr battle_mode RAID = 100;
+
+  // market order types
+  typedef uint8_t order_type;
+  order_type ORDER_TYPE_ASK = 1;
+  order_type ORDER_TYPE_BID = 2;
+  order_type ORDER_TYPE_ASK_RENT = 11;
+  order_type ORDER_TYPE_BID_RENT = 12;
+  order_type ORDER_TYPE_RENTING = 10;
 
   struct st_pet_stat {
     uuid    pet_id;
@@ -181,4 +190,26 @@ namespace types {
   };
 
   typedef multi_index<N(battles), st_battle> _tb_battle;
+
+  // @abi table offers i64
+  struct st_orders {
+      uuid            id;
+      name            user;
+      order_type      type;
+      uuid            pet_id;
+      name            new_owner;
+      asset           value;
+      uint32_t        placed_at;
+      uint32_t        ends_at;
+      uint32_t        transfer_ends_at;
+
+      uint64_t primary_key() const { return id; }
+      uint128_t get_by_user_and_pet() const { return utils::combine_ids(user, pet_id); }
+
+      EOSLIB_SERIALIZE(st_orders, (id)(user)(type)(pet_id)(new_owner)(value)(placed_at)(ends_at)(transfer_ends_at))
+  };
+
+  typedef multi_index<N(orders), st_orders,
+      indexed_by<N(by_user_and_pet), const_mem_fun<st_orders, uint128_t, &st_orders::get_by_user_and_pet>>
+  > _tb_orders;
 }

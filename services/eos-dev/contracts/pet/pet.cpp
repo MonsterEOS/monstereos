@@ -2,13 +2,13 @@
 #include "lib/utils.hpp"
 #include "lib/pet.admin.cpp"
 #include "lib/pet.battle.cpp"
-#include "../market/lib/types.hpp"
+#include "lib/pet.market.cpp"
 
 using namespace utils;
 using namespace types;
 
 void pet::createpet(name owner,
-                string pet_name) {
+                    string pet_name) {
 
     require_auth(owner);
 
@@ -92,23 +92,6 @@ void pet::destroypet(uuid pet_id) {
 
     pets.erase( pet );
 
-}
-
-void pet::transferpet(uuid pet_id, name new_owner) {
-
-    require_auth(N(monstereosmt));
-
-    auto itr_pet = pets.find(pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-    auto pet = *itr_pet;
-
-    print(pet_id, "| transfering pet ");
-
-    pets.modify(itr_pet, 0, [&](auto &r) {
-        r.owner = new_owner;
-    });
-
-    print("new owner ", new_owner);
 }
 
 void pet::transferpet2(uuid pet_id, name new_owner) {
@@ -242,7 +225,7 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
     // Monster Market Transfer
     if (startsWithMTT == 0) {
 
-        _handletransf(transfer_data.memo, transfer_data.quantity, transfer_data.from);
+        _handle_transf(transfer_data.memo, transfer_data.quantity, transfer_data.from);
 
     } else { // in-app transfer
         _tb_accounts accounts(_self, transfer_data.from);
@@ -261,41 +244,6 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
         print("\n", name{transfer_data.from}, " deposited:       ", transfer_data.quantity);
     }
 
-}
-
-void pet::_handletransf(string memo, asset quantity, account_name from) {
-
-    string sofferid = memo.substr(3);
-    auto offerid = stoi(sofferid);
-    print("\ntransfer received for offer ", offerid);
-
-    _tb_offers offers(N(monstereosmt), N(monstereosmt));
-    auto itr_offer = offers.find(offerid);
-
-    eosio_assert(itr_offer != offers.end(), "E404|Invalid Offer");
-
-    auto offer = *itr_offer;
-    auto itr_pet = pets.find(offer.pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-    auto pet = *itr_pet;
-
-    eosio_assert(offer.type != 10, "E499|Offer is already RENTING");
-    eosio_assert(offer.user != from, "E499|You cant buy your own offer DUH");
-    eosio_assert(quantity.amount == offer.value.amount, "E499|amounts does not match offer's amount");
-    eosio_assert(quantity.symbol == offer.value.symbol, "E499|token does not match offer's token");
-    eosio_assert(pet.owner == offer.user, "E499|monster does not to belong to offer's user");
-
-    name old_owner = pet.owner;
-    pets.modify(itr_pet, 0, [&](auto &r) {
-        r.owner = name{from};
-    });
-
-    // transfer money to old owner
-    _transfervalue(old_owner, quantity, "MonsterEOS Offer " + sofferid);
-}
-
-void pet::_transfervalue(name receiver, asset quantity, string memo) {
-     action(permission_level{_self, N(active)}, N(eosio.token), N(transfer), std::make_tuple(N(monstereosio), receiver, quantity, memo)).send();
 }
 
 uint32_t pet::_calc_hunger_hp(const uint8_t &max_hunger_points, const uint32_t &hunger_to_zero,

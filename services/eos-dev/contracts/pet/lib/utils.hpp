@@ -5,6 +5,7 @@
 #include <string>
 
 using std::string;
+using namespace eosio;
 
 namespace utils {
     int count_spaces(string str) {
@@ -27,5 +28,9 @@ namespace utils {
         return result;
     }
 
+    // concatenation of ids
+    uint128_t combine_ids(const uint64_t &x, const uint64_t &y) {
+        return (uint128_t{x} << 64) | y;
+    }
 }
 

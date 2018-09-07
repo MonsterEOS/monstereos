@@ -26,7 +26,6 @@ EOSIO_ABI_EX(pet,
     (bedpet)
     (awakepet)
     (destroypet)
-    (transferpet)
     (transferpet2)
 
     // battles
@@ -36,6 +35,13 @@ EOSIO_ABI_EX(pet,
     (battlestart)
     (battleattack)
     (battlefinish)
+
+    // market
+    (orderask)
+    (removeask)
+    (claimpet)
+    (bidpet)
+    (removebid)
 
     // admins and config setup
     (addelemttype)
