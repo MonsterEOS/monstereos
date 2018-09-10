@@ -5,7 +5,7 @@ services:
   postgres:
     image: postgres:10.4
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - ./.pgsql-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     environment:
@@ -20,13 +20,14 @@ services:
     image: mongo
     restart: always
     volumes:
-      - mongo:/data/db
+      - ./.mongo-data:/data/db
     ports:
       - "27017:27017"
 
   fullnode:
     image: eosio/eos:v1.2.4
     command: nodeosd.sh --http-alias=fullnode:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888 --replay
+    #--genesis-json /opt/eosio/bin/genesis.json
     stop_grace_period: 3m0s
     ports:
       - "8840:8888"
@@ -36,21 +37,8 @@ services:
     volumes:
       - "fullnode:/opt/eosio/bin/data-dir"
       - "./services/eos-node/config-full-node.ini:/opt/eosio/bin/data-dir/config.ini"
-
-  mainnode:
-    image: eosio/eos:v1.2.4
-    command: nodeosd.sh --http-alias=mainnode:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888 --data-dir /opt/eosio/bin/data-dir --hard-replay
-    #--genesis-json /opt/eosio/bin/genesis.json
-    stop_grace_period: 3m0s
-    ports:
-      - "8850:8888"
-      - "9850:9876"
-    depends_on:
-      - mongo
-    volumes:
-      - "mainnode:/opt/eosio/bin/data-dir"
-      - "./services/eos-node/config-main-node.ini:/opt/eosio/bin/data-dir/config.ini"
-      - "./services/eos-node/mainnet-genesis.json:/opt/eosio/bin/genesis.json"
+      # - "./services/eos-node/config-main-node.ini:/opt/eosio/bin/data-dir/config.ini"
+      # - "./services/eos-node/mainnet-genesis.json:/opt/eosio/bin/genesis.json"
 
   # only required for dev
   eosiodev:
@@ -66,47 +54,6 @@ services:
     volumes:
       - eosiodevapp:/root/.local/share
       - ./services/eos-dev:/opt/application
-
-  # eosiojn11:
-  #   build:
-  #     context: ./services/eos-node
-  #     dockerfile: Dockerfile
-  #   image: monstereos/eosiojn11
-  #   # command: /opt/eosio/bin/start-node.sh
-  #   command: /opt/eosio/bin/nodeos --config-dir=/opt/eosio/bin/data-dir --data-dir /root/.local/share
-  #   ports:
-  #     - "8825:8888"
-  #     - "9825:9876"
-  #   volumes:
-  #     - eosiochainjn11:/root/.local/share
-
-  # eosiojn12:
-  #   build:
-  #     context: ./services/eos-nodejn12
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - DATADIR=/root/.local/share
-  #   image: monstereos/eosiojn12
-  #   command: /opt/eosio/bin/start-node.sh
-  #   ports:
-  #     - "8827:8888"
-  #     - "9827:9876"
-  #   volumes:
-  #     - eosiochainjn12:/root/.local/share
-
-  # eosiomn12:
-  #   build:
-  #     context: ./services/eos-node12
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - DATADIR=/root/.local/share
-  #   image: monstereos/eosiomn
-  #   command: /opt/eosio/bin/nodeos --config-dir /opt/eosio/bin/data-dir --data-dir /root/.local/share
-  #   ports:
-  #     - "8826:8888"
-  #     - "9826:9876"
-  #   volumes:
-  #     - eosiochainmn:/root/.local/share
 
   demux:
     build:
@@ -128,6 +75,8 @@ services:
       DB_SCHEMA: pets
       CHAIN_HOST: "http://eosiodev:8888"
       CHAIN_INIT_BLOCK: 558000
+      MONGO_URI: "mongodb://mongo:27017"
+      MONGO_DB: EOSFN
     ports:
       - "3030:3030"
 

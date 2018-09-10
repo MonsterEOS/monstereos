@@ -16,6 +16,8 @@ node_modules
 
 # Temp
 temp
+.mongo-data
+.pgsql-data
 
 # wallet keys
 keys

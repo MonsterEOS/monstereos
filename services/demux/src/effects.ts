@@ -1,4 +1,4 @@
-const logPetCreated = (_state: any, payload: any) => {
+const logPetCreated = (_: any, payload: any) => {
   console.info("Pet Created ===> Payload:\n", payload)
 }
 

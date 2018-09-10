@@ -1,3 +1,6 @@
+-- It adds an auth layer to GraphQL
+-- not needed for Monsters right now!
+
 -- REVOKE ALL ON SCHEMA "${schema^}" FROM PUBLIC;
 
 -- CREATE ROLE "${schema^}__visitor" WITH NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT NOLOGIN NOREPLICATION NOBYPASSRLS;

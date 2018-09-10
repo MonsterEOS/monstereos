@@ -1,8 +1,8 @@
 import { BaseActionWatcher } from "demux"
-import { NodeosActionReader } from "demux-eos"
 import { MassiveActionHandler } from "demux-postgres"
 import massive from "massive"
 import monitor from "pg-monitor"
+import { MongoActionReader } from "./MongoActionReader"
 
 import { effects } from "./effects"
 import { updaters } from "./updaters"
@@ -11,6 +11,9 @@ console.info("==== Starting demux ====")
 
 const NODEOS = process.env.CHAIN_HOST || "http://localhost:8830"
 const INITIAL_BLOCK = Number(process.env.CHAIN_INIT_BLOCK || 100)
+
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017"
+const MONGO_DB = process.env.MONGO_DB || "EOSFN"
 
 console.info("Reading from node >>>> ", NODEOS)
 console.info("Initial Block to sync >>>> ", INITIAL_BLOCK)
@@ -39,10 +42,20 @@ const init = async () => {
     dbConfig.schema,
   )
 
-  const actionReader = new NodeosActionReader(
-    NODEOS,
+  // const actionReader = new NodeosActionReader(
+  //   NODEOS,
+  //   INITIAL_BLOCK,
+  // )
+
+  const actionReader = new MongoActionReader(
+    MONGO_URI,
     INITIAL_BLOCK,
+    false,
+    600,
+    MONGO_DB,
   )
+
+  await actionReader.initialize()
 
   const actionWatcher = new BaseActionWatcher(
     actionReader,

@@ -5,6 +5,7 @@ SELECT * FROM "pets"."elements" LIMIT 1000;
 SELECT * FROM "pets"."types" LIMIT 1000;
 SELECT * FROM "pets"."pets" ORDER BY id LIMIT 1000;
 SELECT * FROM "pets"."pet_actions" LIMIT 1000;
+SELECT * FROM "pets"."global_config" LIMIT 1000;
 
 -- -- DELETE FROM "pets"."_index_state";
 -- -- SELECT last_value FROM "pets".elements_id_seq;
@@ -17,12 +18,26 @@ DROP SCHEMA "pets" CASCADE;
 
 CREATE SCHEMA IF NOT EXISTS "pets";
 
+DROP TABLE "pets"."_index_state";
 CREATE TABLE IF NOT EXISTS "pets"."_index_state" (
-  id INTEGER PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   block_number integer NOT NULL,
   block_hash text NOT NULL,
   is_replay boolean NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS "pets"."global_config" (
+  "id" SERIAL PRIMARY KEY,
+  "max_health" INTEGER NOT NULL,
+  "hunger_to_zero" INTEGER NOT NULL,
+  "min_hunger_interval" INTEGER NOT NULL,
+  "max_hunger_points" INTEGER NOT NULL,
+  "hunger_hp_modifier" INTEGER NOT NULL,
+  "min_awake_interval" INTEGER NOT NULL,
+  "min_sleep_period" INTEGER NOT NULL,
+  "_created_at" TIMESTAMP DEFAULT current_timestamp NOT NULL
+);
+INSERT INTO "pets"."global_config" (id, max_health, hunger_to_zero, min_hunger_interval, max_hunger_points, hunger_hp_modifier, min_awake_interval, min_sleep_period) VALUES (1, 100, 36000, 10800, 100, 1, 28800, 14400);
 
 CREATE TABLE IF NOT EXISTS "pets"."elements" (
   "id" SERIAL PRIMARY KEY,
