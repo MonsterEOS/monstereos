@@ -7,6 +7,15 @@ SELECT * FROM "pets"."pets" ORDER BY id LIMIT 1000;
 SELECT * FROM "pets"."pet_actions" LIMIT 1000;
 SELECT * FROM "pets"."global_config" LIMIT 1000;
 
+Wed Sep 05 2018 13:31:30 GMT-0400 (EDT)
+2018-09-05T13:31:30
+2018-09-06T13:31:30.500Z
+
+update "pets"."pets" SET death_at = '1970-01-01T00:00:00'
+
+SELECT pet_id, MAX(created_at) as last_feed_at FROM pets.pet_actions
+ WHERE action = 'feedpet' GROUP BY pet_id
+
 -- -- DELETE FROM "pets"."_index_state";
 -- -- SELECT last_value FROM "pets".elements_id_seq;
 -- -- SELECT c.relname FROM pg_class c WHERE c.relkind = 'S';

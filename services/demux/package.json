@@ -17,6 +17,7 @@
     "express": "^4.16.3",
     "graphile-utils": "^4.0.0-rc.5",
     "massive": "^5.2.0",
+    "moment": "^2.22.2",
     "mongodb": "^3.1.4",
     "node-fetch": "^2.2.0",
     "pg-monitor": "^1.0.0",
