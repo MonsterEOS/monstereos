@@ -55,6 +55,10 @@ const init = async () => {
     MONGO_DB,
   )
 
+  actionReader.inlineListeners = [
+    "monstereosio::battleattack",
+  ]
+
   await actionReader.initialize()
 
   const actionWatcher = new BaseActionWatcher(

@@ -210,6 +210,9 @@ const battleattack = async (db: any, payload: any, blockInfo: BlockInfo) => {
     created_eosacc: payload.authorization[0].actor,
   }
 
+  console.info("wooo checking inline actions", payload)
+  // throw new Error("woooww, checking inline action")
+
   console.info("DB Data to Insert >>> ", data)
 
   const res = await db.battle_turns.insert(data)

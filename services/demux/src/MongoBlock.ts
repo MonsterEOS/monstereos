@@ -15,6 +15,39 @@ export class MongoBlock implements Block {
     }
   }
 
+  public AddInlineActions(transactionTraces: any): void {
+
+    const newActions = this.actions.map((action) => {
+
+      console.info(transactionTraces)
+
+      const transaction = transactionTraces.find((trx: any) =>
+        trx.id === action.payload.transactionId)
+
+      if (transaction) {
+        const actionTrace = transaction.action_traces.find(
+          ({act}: any) =>
+            action.type === `${act.account}::${act.name}`,
+        )
+
+        if (actionTrace) {
+          return {
+            ...action,
+            payload: {
+              ...action.payload,
+              inlineActions: actionTrace.inline_traces,
+            },
+          }
+        }
+      }
+
+      return action
+
+    })
+
+    this.actions = newActions
+  }
+
   protected collectActionsFromBlock(rawBlock: any = { actions: [] }): EosAction[] {
     return this.flattenArray(rawBlock.block.transactions.map(({ trx }: any) => {
       return trx.transaction.actions.map((action: any, actionIndex: number) => {
