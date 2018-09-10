@@ -1,13 +1,14 @@
 cleos wallet unlock -n default --password PW5K7L99xZeJT8Gu8ww2jP1UGis3KgqkGk8WjSbmxmhk17w8P4Ljg
+PW5Hwhi3a5Rzvv8qCCjs3hzrZCd6igMvYPezhFpeTfUfyqJuScfHo
 
-cleos -u http://eosiodev:8888 push action monstereosio battlejoin '[ "monsterusera", "monsterusere", "6d93e9e857796ca84cbab7aee00279d3f11c793e443c95451809c4c89e245273" ]' -p monsterusere
+cleos -u http://eosiodev:8888 push action monstereosio battlejoin '[ "monsterusera", "monsterusere", "1342c65d924cd4839c776d6f7f7a7c575ad24cde49c347cb14ff359be52e9629" ]' -p monsterusere
 
 
 # picks for secret:
-# "secret":"6d93e9e857796ca84cbab7aee00279d3f11c793e443c95451809c4c89e245273"}
-cleos -u http://eosiodev:8888 push action monstereosio battlestart '{ "host": "monsterusera", "player": "monsterusere", "picks": {"pets": [5], "randoms": [85, 95, 160, 104, 65, 88, 248, 245, 155, 223, 89, 234, 40, 230, 153, 88, 39, 239, 200, 71, 67, 134, 233, 0, 144, 63, 216, 155, 164, 29, 28, 96]} }' -p monsterusere
+# "secret":"1342c65d924cd4839c776d6f7f7a7c575ad24cde49c347cb14ff359be52e9629"}
+cleos -u http://eosiodev:8888 push action monstereosio battlestart '{ "host": "monsterusera", "player": "monsterusere", "picks": {"pets": [14], "randoms": [169, 147, 130, 65, 251, 7, 209, 45, 56, 104, 151, 118, 32, 172, 43, 25, 95, 79, 190, 97, 66, 94, 192, 160, 4, 180, 1, 20, 94, 94, 187, 58]} }' -p monsterusere
 
-cleos push action monstereosio battleattack '[ "monsterusera", "monsterusere", 5, 1, 0 ]' -p monsterusere
+cleos push action monstereosio battleattack '[ "monsterusera", "monsterusere", 14, 13, 0 ]' -p monsterusere
 
 
 cleos -u http://eosiodev:8888 push action monstereosio battleleave '[ "monsterusera", "monsterusera" ]' -p monsterusera

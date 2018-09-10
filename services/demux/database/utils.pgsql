@@ -6,6 +6,9 @@ SELECT * FROM "pets"."types" LIMIT 1000;
 SELECT * FROM "pets"."pets" ORDER BY id LIMIT 1000;
 SELECT * FROM "pets"."pet_actions" LIMIT 1000;
 SELECT * FROM "pets"."global_config" LIMIT 1000;
+SELECT * FROM "pets"."battles" LIMIT 1000;
+SELECT * FROM "pets"."battle_picks" LIMIT 1000;
+SELECT * FROM "pets"."battle_turns" LIMIT 1000;
 
 Wed Sep 05 2018 13:31:30 GMT-0400 (EDT)
 2018-09-05T13:31:30
@@ -21,7 +24,7 @@ SELECT pet_id, MAX(created_at) as last_feed_at FROM pets.pet_actions
 -- -- SELECT c.relname FROM pg_class c WHERE c.relkind = 'S';
 
 -- DELETE FROM pets.pet_actions; --WHERE id >= 21;
--- DELETE FROM pets.pets; -- WHERE id >= 12;
+DELETE FROM pets.pets WHERE id >= 15; -- WHERE id >= 12;
 
 DROP SCHEMA "pets" CASCADE;
 
@@ -102,7 +105,41 @@ DELETE FROM "pets"."elements";
 ALTER SEQUENCE "pets".elements_id_seq MINVALUE 0;
 ALTER SEQUENCE "pets".elements_id_seq RESTART WITH 0;
 
+
 -- DELETE FROM "pets"."pets";
--- DELETE FROM "pets"."pet_actions";
--- ALTER SEQUENCE "pets".pets_id_seq RESTART WITH 1;
--- ALTER SEQUENCE "pets".pet_actions_id_seq RESTART WITH 1;
+DELETE FROM "pets"."pet_actions" WHERE pet_id >= 15;
+ALTER SEQUENCE "pets".pets_id_seq RESTART WITH 15;
+ALTER SEQUENCE "pets".pet_actions_id_seq RESTART WITH 15;
+
+DROP TABLE "pets"."battles" CASCADE
+CREATE TABLE IF NOT EXISTS "pets"."battles" (
+  "id" SERIAL PRIMARY KEY,
+  "host" TEXT NOT NULL,
+  "mode" INTEGER NOT NULL,
+  "started_at" TIMESTAMP DEFAULT '1970-01-01T00:00:00' NOT NULL,
+  "winner" TEXT NOT NULL DEFAULT '',
+  "created_block" BIGINT NOT NULL,
+  "created_trx" TEXT NOT NULL,
+  "created_eosacc" TEXT NOT NULL,
+  "_dmx_created_at" TIMESTAMP DEFAULT current_timestamp NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "pets"."battle_picks" (
+  "id" SERIAL PRIMARY KEY,
+  "battle_id" INTEGER NOT NULL REFERENCES "pets"."battles",
+  "pet_id" INTEGER NOT NULL REFERENCES "pets"."pets",
+  "picker" TEXT NOT NULL,
+  "_dmx_created_at" TIMESTAMP DEFAULT current_timestamp NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "pets"."battle_turns" (
+  "id" SERIAL PRIMARY KEY,
+  "battle_id" INTEGER NOT NULL REFERENCES "pets"."battles",
+  "pet_id" INTEGER NOT NULL REFERENCES "pets"."pets",
+  "element_id" INTEGER NOT NULL REFERENCES "pets"."elements",
+  "enemy_pet_id" INTEGER NOT NULL REFERENCES "pets"."pets",
+  "created_block" BIGINT NOT NULL,
+  "created_trx" TEXT NOT NULL,
+  "created_eosacc" TEXT NOT NULL,
+  "_dmx_created_at" TIMESTAMP DEFAULT current_timestamp NOT NULL
+);
