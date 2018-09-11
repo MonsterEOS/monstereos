@@ -34,7 +34,7 @@ CREATE VIEW "${schema^}".vranking_battle_pets AS
       ON bl.id = bp.battle_id
      AND NOT bl.winner = bp.picker
      AND NOT bl.winner = ''
-   GROUP BY bp.pet_id, p.pet_name, p.type_id
+   GROUP BY bp.pet_id, p.pet_name, p.type_id, p.owner
    ORDER BY wins DESC;
 
 CREATE VIEW "${schema^}".vranking_battle_players AS
