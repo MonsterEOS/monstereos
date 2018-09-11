@@ -14,6 +14,13 @@ Wed Sep 05 2018 13:31:30 GMT-0400 (EDT)
 2018-09-05T13:31:30
 2018-09-06T13:31:30.500Z
 
+SELECT cyanaudit.fn_update_audit_fields('pets')
+
+SHOW search_path;
+SET search_path TO pets;
+select definition from pg_views where viewname = 'pets_graveyard'
+select pg_get_viewdef(to_regclass('pets.pets_graveyard'));
+
 update "pets"."pets" SET death_at = '1970-01-01T00:00:00'
 
 update "pets"."_index_state" SET block_number = 907762, block_hash = '000dd9f285d36c03f6578f964b3f68c8492ee1bf435f50ba8c846293a2ee6c5d'
@@ -145,3 +152,40 @@ CREATE TABLE IF NOT EXISTS "pets"."battle_turns" (
   "created_eosacc" TEXT NOT NULL,
   "_dmx_created_at" TIMESTAMP DEFAULT current_timestamp NOT NULL
 );
+
+CREATE VIEW "pets".vranking_graveyard AS
+  SELECT *
+    FROM "pets".pets AS p
+   WHERE (p.death_at >= '2018-01-01 00:00:00')
+   ORDER BY id ASC;
+
+CREATE VIEW "pets".vranking_active AS
+  SELECT p.id, p.pet_name, p.owner, count(a.id) AS actions
+    FROM "pets".pets AS p
+   INNER JOIN "pets".pet_actions AS a
+      ON a.pet_id = p.id
+   GROUP BY p.id
+   ORDER BY actions DESC;
+
+CREATE VIEW "pets".vranking_collectors AS
+  SELECT p.owner, count(distinct p.type_id) AS pets
+    FROM "pets".pets AS p
+   GROUP BY p.owner
+   ORDER BY pets DESC;
+
+CREATE VIEW "pets".vranking_battle_pets AS
+  SELECT bp.pet_id, p.pet_name, p.type_id,
+         count(bw.id) AS wins,
+         count(bl.id) AS losses
+    FROM "pets".battle_picks AS bp
+   INNER JOIN "pets".pets AS p
+      ON p.id = bp.pet_id
+    LEFT JOIN "pets".battles AS bw
+      ON bw.id = bp.battle_id
+     AND bw.winner = bp.picker
+    LEFT JOIN "pets".battles AS bl
+      ON bl.id = bp.battle_id
+     AND NOT bl.winner = bp.picker
+     AND NOT bl.winner = ''
+   GROUP BY bp.pet_id, p.pet_name, p.type_id
+   ORDER BY wins DESC;
