@@ -16,7 +16,7 @@ Wed Sep 05 2018 13:31:30 GMT-0400 (EDT)
 
 update "pets"."pets" SET death_at = '1970-01-01T00:00:00'
 
-update "pets"."_index_state" SET block_number = 907763, block_hash = ''
+update "pets"."_index_state" SET block_number = 907762, block_hash = '000dd9f285d36c03f6578f964b3f68c8492ee1bf435f50ba8c846293a2ee6c5d'
 
 SELECT pet_id, MAX(created_at) as last_feed_at FROM pets.pet_actions
  WHERE action = 'feedpet' GROUP BY pet_id

@@ -210,14 +210,31 @@ const battleattack = async (db: any, payload: any, blockInfo: BlockInfo) => {
     created_eosacc: payload.authorization[0].actor,
   }
 
-  console.info("wooo checking inline actions", payload)
-  // throw new Error("woooww, checking inline action")
-
   console.info("DB Data to Insert >>> ", data)
 
   const res = await db.battle_turns.insert(data)
 
   console.info("DB State Result >>> ", res)
+
+  console.info("Checking battle winner...")
+  if (payload.inlineActions && payload.inlineActions.length) {
+    const { act: finishAction }: any = payload.inlineActions.find(
+      ({act}: any) => act.account === "monstereosio" &&
+        act.name === "battlefinish") || {}
+
+    if (finishAction && finishAction.data && finishAction.data.winner) {
+      console.info("Battle has a winner: ", finishAction.data.winner)
+
+      await db.battles.update(
+        { id: battle.id },
+        { winner: finishAction.data.winner },
+      )
+    } else {
+      console.info("battle has inline actions but no winner...")
+    }
+  } else {
+    console.info("battle has no winner...")
+  }
 
 }
 
