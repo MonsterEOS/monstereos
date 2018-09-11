@@ -34,6 +34,7 @@ services:
       - "9840:9876"
     depends_on:
       - mongo
+      - eosiodev
     volumes:
       - "fullnode:/opt/eosio/bin/data-dir"
       - "./services/eos-node/config-full-node.ini:/opt/eosio/bin/data-dir/config.ini"
