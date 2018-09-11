@@ -71,7 +71,7 @@ export class MongoActionReader extends AbstractActionReader {
         .collection("transaction_traces")
         .find({id: {$in: inlineTrxsIds} })
         .toArray()
-      block.AddInlineActions(transactionTraces)
+      block.addInlineActions(transactionTraces)
     }
 
     return true

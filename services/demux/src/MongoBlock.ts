@@ -15,7 +15,7 @@ export class MongoBlock implements Block {
     }
   }
 
-  public AddInlineActions(transactionTraces: any): void {
+  public addInlineActions(transactionTraces: any): void {
 
     const newActions = this.actions.map((action) => {
 
