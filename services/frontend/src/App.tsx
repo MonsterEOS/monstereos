@@ -31,6 +31,7 @@ class App extends React.Component<{}, {}> {
           <Route path="/my-monsters" exact component={MyMonstersScreen} />
           <Route path="/monster/:id" component={MonsterDetailsScreen} />
           <Route path="/market" component={MarketScreen} />
+          <Route path="/rank/:type" component={RankScreen} />
           <Route path="/rank" exact component={RankScreen} />
           <Route path="/about" exact component={AboutScreen} />
           <Route path="/faq" exact component={FaqScreen} />

@@ -7,7 +7,7 @@ CREATE VIEW "${schema^}".vranking_graveyard AS
    ORDER BY id ASC;
 
 CREATE VIEW "${schema^}".vranking_active AS
-  SELECT p.id, p.pet_name, p.owner, count(a.id) AS actions
+  SELECT p.id, p.pet_name, p.owner, p.type_id, count(a.id) AS actions
     FROM "${schema^}".pets AS p
    INNER JOIN "${schema^}".pet_actions AS a
       ON a.pet_id = p.id
@@ -21,7 +21,7 @@ CREATE VIEW "${schema^}".vranking_collectors AS
    ORDER BY pets DESC;
 
 CREATE VIEW "${schema^}".vranking_battle_pets AS
-  SELECT bp.pet_id, p.pet_name, p.type_id,
+  SELECT bp.pet_id, p.pet_name, p.type_id, p.owner,
          count(bw.id) AS wins,
          count(bl.id) AS losses
     FROM "${schema^}".battle_picks AS bp

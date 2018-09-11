@@ -61,6 +61,12 @@ form {
     flex-wrap: wrap;
     max-width: 100%;
   }
+
+  table {
+    td {
+      vertical-align: middle;
+    }
+  }
 }
 
 progress {

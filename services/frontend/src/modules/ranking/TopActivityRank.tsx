@@ -1,13 +1,12 @@
 import * as React from "react"
 import { Query } from "react-apollo"
-import * as moment from "moment"
 import { Link } from "react-router-dom"
 
 import TitleBar from "../shared/TitleBar"
-import { QUERY_ELDEST_RANK } from "./ranking.gql"
+import { QUERY_TOP_ACTIVITY } from "./ranking.gql"
 import { monsterImageSrc } from "../monsters/monsters"
 
-class EldestRank extends React.Component<{}, {}> {
+class TopActivityRank extends React.Component<{}, {}> {
 
   public render() {
 
@@ -17,24 +16,24 @@ class EldestRank extends React.Component<{}, {}> {
     }
 
     return <div className="rank">
-      <TitleBar title="Eldest Alive Monsters" />
-      <Query query={QUERY_ELDEST_RANK} variables={variables}>
-        {({data: {allPets}, loading, refetch}) => {
+      <TitleBar title="Top Activity Monsters" />
+      <Query query={QUERY_TOP_ACTIVITY} variables={variables}>
+        {({data: {allVrankingActives}, loading, refetch}) => {
 
-          if (loading || !allPets) {
+          if (loading || !allVrankingActives) {
             return <span>
               <i className="fa fa-spin fa-spinner" /> Loading...
             </span>
           }
 
-          const monsters = allPets ? allPets.edges : []
+          const monsters = allVrankingActives ? allVrankingActives.edges : []
           return <table>
             <thead>
               <tr>
                 <th>#</th>
                 <th>Monster</th>
+                <th>Total Actions</th>
                 <th className="is-hidden-mobile">Owner</th>
-                <th>Birth</th>
               </tr>
             </thead>
             <tbody>
@@ -45,8 +44,8 @@ class EldestRank extends React.Component<{}, {}> {
                   <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" />
                   <Link to={`/monster/${node.id}`}>{node.petName} <small>#{node.id}</small></Link>
                 </td>
+                <td>{node.actions}</td>
                 <td className="is-hidden-mobile">{node.owner}</td>
-                <td>{moment(node.createdAt).format("MMMM, D YYYY @ h:mm a")}</td>
               </tr>
             ))}
             </tbody>
@@ -57,4 +56,4 @@ class EldestRank extends React.Component<{}, {}> {
   }
 }
 
-export default EldestRank
+export default TopActivityRank

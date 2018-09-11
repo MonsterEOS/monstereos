@@ -33,6 +33,7 @@ query TopActivityRank($limit: Int!, $offset: Int!) {
     edges {
       node {
         id
+        actions
         petName
         typeId
         owner

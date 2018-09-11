@@ -288,6 +288,10 @@
   min-width: 310px;
   max-width: 310px; }
 
+.monster-rank-icon {
+  max-height: 80px;
+  vertical-align: middle; }
+
 .monster-card-header {
   font-size: 0.8rem; }
 
@@ -537,6 +541,9 @@ form {
 .rank .tabs ul {
   flex-wrap: wrap;
   max-width: 100%; }
+
+.rank table td {
+  vertical-align: middle; }
 
 progress {
   text-align: center;

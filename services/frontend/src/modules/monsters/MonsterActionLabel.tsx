@@ -24,6 +24,11 @@ const MonsterActionLabel = (props: Props) => {
       label.class = "is-warning"
       label.text = "Wake up"
       break
+    case "createpet":
+      label.icon = "fa-birthday-cake"
+      label.class = "is-info"
+      label.text = "Birth"
+      break
     default:
       label.icon = "fa-question-circle"
       label.class = "is-light"
