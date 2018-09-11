@@ -47,17 +47,18 @@ const init = async () => {
   //   INITIAL_BLOCK,
   // )
 
+  const inlineListeners = [
+    "monstereosio::battleattack",
+  ]
+
   const actionReader = new MongoActionReader(
     MONGO_URI,
     INITIAL_BLOCK,
     false,
     600,
     MONGO_DB,
+    inlineListeners,
   )
-
-  actionReader.inlineListeners = [
-    "monstereosio::battleattack",
-  ]
 
   await actionReader.initialize()
 
