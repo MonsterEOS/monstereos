@@ -33,7 +33,7 @@ const createPet = async (db: any, payload: any, blockInfo: BlockInfo) => {
 
   console.info("DB Action Data to Insert >>> ", actionData)
 
-  const actionRes = await db.pets.insert(data)
+  const actionRes = await db.pet_actions.insert(actionData)
 
   console.info("DB State Action Result >>> ", actionRes)
 }

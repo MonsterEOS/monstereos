@@ -1,6 +1,5 @@
 DELETE FROM "pets"."_index_state";
-INSERT INTO "pets"."_index_state" (id, block_number, block_hash, is_replay) VALUES (1, 1200000, '', false); -- bubble at 1293913
-SELECT * FROM "pets"."_index_state" LIMIT 1000;
+SELECT * FROM "pets"."_index_state" ORDER BY block_number DESC LIMIT 1000;
 SELECT * FROM "pets"."elements" LIMIT 1000;
 SELECT * FROM "pets"."types" LIMIT 1000;
 SELECT * FROM "pets"."pets" ORDER BY id LIMIT 1000;
@@ -10,9 +9,9 @@ SELECT * FROM "pets"."battles" LIMIT 1000;
 SELECT * FROM "pets"."battle_picks" LIMIT 1000;
 SELECT * FROM "pets"."battle_turns" LIMIT 1000;
 
-Wed Sep 05 2018 13:31:30 GMT-0400 (EDT)
-2018-09-05T13:31:30
-2018-09-06T13:31:30.500Z
+-- Wed Sep 05 2018 13:31:30 GMT-0400 (EDT)
+-- 2018-09-05T13:31:30
+-- 2018-09-06T13:31:30.500Z
 
 SELECT cyanaudit.fn_update_audit_fields('pets')
 
@@ -117,7 +116,7 @@ ALTER SEQUENCE "pets".elements_id_seq RESTART WITH 0;
 
 -- DELETE FROM "pets"."pets";
 DELETE FROM "pets"."pet_actions" WHERE pet_id >= 15;
-ALTER SEQUENCE "pets".pets_id_seq RESTART WITH 15;
+ALTER SEQUENCE "pets".pets_id_seq RESTART WITH 3;
 ALTER SEQUENCE "pets".pet_actions_id_seq RESTART WITH 15;
 
 DROP TABLE "pets"."battles" CASCADE
@@ -159,8 +158,9 @@ CREATE VIEW "pets".vranking_graveyard AS
    WHERE (p.death_at >= '2018-01-01 00:00:00')
    ORDER BY id ASC;
 
+DROP VIEW "pets".vranking_active
 CREATE VIEW "pets".vranking_active AS
-  SELECT p.id, p.pet_name, p.owner, count(a.id) AS actions
+  SELECT p.id, p.pet_name, p.owner, p.type_id, count(a.id) AS actions
     FROM "pets".pets AS p
    INNER JOIN "pets".pet_actions AS a
       ON a.pet_id = p.id
@@ -173,8 +173,9 @@ CREATE VIEW "pets".vranking_collectors AS
    GROUP BY p.owner
    ORDER BY pets DESC;
 
+DROP VIEW "pets".vranking_battle_pets
 CREATE VIEW "pets".vranking_battle_pets AS
-  SELECT bp.pet_id, p.pet_name, p.type_id,
+  SELECT bp.pet_id, p.pet_name, p.type_id, p.owner,
          count(bw.id) AS wins,
          count(bl.id) AS losses
     FROM "pets".battle_picks AS bp
@@ -187,5 +188,5 @@ CREATE VIEW "pets".vranking_battle_pets AS
       ON bl.id = bp.battle_id
      AND NOT bl.winner = bp.picker
      AND NOT bl.winner = ''
-   GROUP BY bp.pet_id, p.pet_name, p.type_id
+   GROUP BY bp.pet_id, p.pet_name, p.type_id, p.owner
    ORDER BY wins DESC;
