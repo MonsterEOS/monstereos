@@ -75,7 +75,7 @@ services:
       DB_HOST: postgres
       DB_SCHEMA: pets
       CHAIN_HOST: "http://eosiodev:8888"
-      CHAIN_INIT_BLOCK: 558000
+      CHAIN_INIT_BLOCK: 10
       MONGO_URI: "mongodb://mongo:27017"
       MONGO_DB: EOSFN
     ports:
