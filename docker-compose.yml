@@ -26,7 +26,7 @@ services:
 
   fullnode:
     image: eosio/eos:v1.2.4
-    command: nodeosd.sh --http-alias=fullnode:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888 --read-mode=read-only
+    command: nodeosd.sh --http-alias=fullnode:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888
     #--genesis-json /opt/eosio/bin/genesis.json
     stop_grace_period: 3m0s
     ports:

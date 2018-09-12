@@ -1,5 +1,7 @@
-cleos wallet unlock -n default --password PW5K7L99xZeJT8Gu8ww2jP1UGis3KgqkGk8WjSbmxmhk17w8P4Ljg
-PW5Hwhi3a5Rzvv8qCCjs3hzrZCd6igMvYPezhFpeTfUfyqJuScfHo
+cleos wallet unlock -n default --password PW5Hwhi3a5Rzvv8qCCjs3hzrZCd6igMvYPezhFpeTfUfyqJuScfHo
+PW5K7L99xZeJT8Gu8ww2jP1UGis3KgqkGk8WjSbmxmhk17w8P4Ljg
+
+cleos push action monstereosio techrevive '[1, "just testing revival"]' -p monstereosio
 
 cleos -u http://eosiodev:8888 push action monstereosio battlejoin '[ "monsterusera", "monsterusere", "1342c65d924cd4839c776d6f7f7a7c575ad24cde49c347cb14ff359be52e9629" ]' -p monsterusere
 

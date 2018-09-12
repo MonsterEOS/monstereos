@@ -26,6 +26,7 @@ EOSIO_ABI_EX(pet,
     (bedpet)
     (awakepet)
     (destroypet)
+    (techrevive)
     (transferpet2)
 
     // battles

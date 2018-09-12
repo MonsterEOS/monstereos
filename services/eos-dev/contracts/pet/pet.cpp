@@ -84,6 +84,23 @@ void pet::updatepet(uuid pet_id) {
     });
 }
 
+void pet::techrevive(uuid pet_id, string memo) {
+    require_auth(_self);
+    print(pet_id, "| reviving pet for technical reasons... ");
+    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
+
+    auto itr_pet = pets.find(pet_id);
+    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    st_pets pet = *itr_pet;
+
+    pets.modify(itr_pet, 0, [&](auto &r) {
+        r.death_at = 0;
+        r.last_fed_at = now();
+        r.last_bed_at = r.last_fed_at;
+        r.last_awake_at = r.last_fed_at + 1;
+    });
+}
+
 void pet::destroypet(uuid pet_id) {
 
     const auto& pet = pets.get(pet_id, "E404|Invalid pet, destroying action is unrecoverable");

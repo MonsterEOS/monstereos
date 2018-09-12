@@ -52,6 +52,7 @@ public:
     void bedpet       ( uuid pet_id );
     void awakepet     ( uuid pet_id );
     void destroypet   ( uuid pet_id );
+    void techrevive   ( uuid pet_id, string reason );
     void transferpet2 ( uuid pet_id, name new_owner);
 
     // battle interface
