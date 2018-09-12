@@ -18,7 +18,6 @@ After you installed docker just run the following single command:
 ```
 docker-compose up -d
 docker-compose run demux yarn _migrate # credentials: user // pass  (for three steps)
-*from a psql connected to this postgres docker:* INSERT INTO "pets"."_index_state" (id, block_number, block_hash, is_replay) VALUES (0, 10, '', false);
 docker restart monstereos_demux_1
 
 docker exec -it monstereos_eosiodev_1 /bin/sh
