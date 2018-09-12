@@ -31,26 +31,27 @@ cd /opt/application/scripts
 
 Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
 
-- eosdev: this is the local blockchain with basic data (ready for development) and development of the contracts
-- postgres: this is our database, the chain is the source of truth, and this is just a cache layer to help our application to query nice reports fast
-- demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain, save records to database and also submit emails, notifications, external apis etc <3
-- backend: this is our web api server used to read and present data from the database, also serving websockets to nice realtime interactions in the app, in our case we are using node.js
-- frontend: this is our UI app, in our case we are using react.js
-- nginx: nginx is our webserver, serving the frontend static files and proxying the backend, also nginx can act as a load balancer if we want to scale
+- eosdev: this is the local single-producer blockchain with basic data (ready for development) and development of the contracts
+- fullnode: this is a node that will simulate your mainnet fullnode that will listen for the blockchain and persist data in mongo with mongodb_plugin
+- mongo: this is our chain database, fed by fullnode
+- postgres: this is our database, the chain is the source of truth, and this is just a cache layer to help our application to query nice and fast reports
+- demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3 - we serve data with GraphQL out-of-the-box through postgraphile under port 3030
+
+## Frontend App: UI
+
+With all these nodes running you can just access it with our frontend app:
+
+```
+cd services/frontend
+yarn
+yarn start
+```
+
+Feel free to build any other apps and/or dockerize it. We didn't create a docker container for it because we usually build the static files (`yarn build`) and serve it on `gh-pages` branch.
 
 ### EOS Dream Stack
 
-You can build any Dapp using the above structure. Tweak the structure a little bit to satisfy all your needs, i.e.: you can change the postgres for other database as mongo or mysql; you might not need the backend if your app is very basic, allowing the frontend to read directly from the chain; change the frontend to whatever framework you want to use as Vue or Angular, not only this but your frontend can be a mobile native app, why not?
-
-### Initialize Chain and Setup Database
-
-// TODO: improve it! (run ./setup.sh after running docker-compose up -d)
-
-1. execute the eosiodev container and run the scripts to initialize the chain with some data
-2. open demux folder and execute `yarn migrate` to create basic tables in database
-3. restart demux
-4. enjoy your app
-
+You can build any Dapp using the above structure. Tweak the structure a little bit to satisfy all your needs, i.e.: you can change the postgres for other database as mongo or mysql; you might not need demux and the backend if your app is very basic, allowing the frontend to read directly from the chain; change the frontend to whatever framework you want to use as Vue or Angular, not only this but your frontend can be a mobile native app, why not?
 
 ## About
 
@@ -66,22 +67,18 @@ We would love to have more and more developers to get in touch in GitHub reposit
 
 We love EOS Community and we think that we can build a better world together!
 
-Monsters Pictures Package: Itch.io @Pipoya - Free RPG Monster Pack
-
-Sleeping GIF Credits: Giphy @AlabasterPizzo
-
-Arena Background Credits: Freebies from craftpix.net - license here: https://craftpix.net/file-licenses/
-
 ## Disclaimer
 
 This project remains purely experimental software and is not to be considered in any way production fit nor has any guarantee of any kind. Use at your own risk.
 
 Any transferred tokens sent to account name 'monstereosio' will not return any entitlement of any asset, investment digital or physical including the sent asset itself. Any proceeds received from any user transfers are of the sole control and discretion of the receiver.
 
-## Big Thanks
+## Big Thanks & Credits
 
 Open source is all :heart:
 
 Monsters Pictures Package: [Itch.io @Pipoya - Free RPG Monster Pack](https://pipoya.itch.io/free-rpg-monster-pack)
 
 Sleeping GIF Credits: [Giphy @AlabasterPizzo](https://giphy.com/stickers/zzz-snore-51WvIEoUKKHlGwgmgy)
+
+Arena Background Credits: Freebies from craftpix.net - license here: [Craftpix](https://craftpix.net/file-licenses/)
