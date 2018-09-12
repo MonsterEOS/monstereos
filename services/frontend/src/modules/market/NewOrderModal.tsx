@@ -134,23 +134,20 @@ class NewOrderModal extends React.Component<Props, {}> {
   }
 
   private handleChangeMonster = (event: any) => {
-    const monsterName = event.target.value
-    // tslint:disable-next-line:no-console
-    console.log(" name " + monsterName)
-    const {dispatchPushNotification, monsters} = this.props
-    const monstersWithName = monsters.filter((monster:MonsterProps) => monsterName && monster.name.toLowerCase() === monsterName.toLowerCase())
-
-    if (monstersWithName.length > 0) {
-      if (monstersWithName.length > 1) {
-        dispatchPushNotification(`More than one monster found with this name. Using the first one`, NOTIFICATION_WARNING)
+    if (event.type === "change") {
+      const monsterName = event.target.value
+      const {dispatchPushNotification, monsters} = this.props
+      const monstersWithName = monsters.filter((monster:MonsterProps) => monsterName && monster.name.toLowerCase() === monsterName.toLowerCase())      
+      if (monstersWithName.length > 0) {              
+        if (monstersWithName.length > 1) {
+          dispatchPushNotification(`More than one monster found with this name. Using the first one`, NOTIFICATION_WARNING)
+        }  
+        this.setState({monstername:monsterName,
+          monster: monstersWithName[0]})
+      } else {    
+        this.setState({monstername:monsterName,
+          monster: undefined})      
       }
-      // tslint:disable-next-line:no-console
-      console.log("monsters found:" + monstersWithName)
-      this.setState({monstername:monsterName,
-        monster: monstersWithName[0]})
-    } else {
-      this.setState({monstername:monsterName,
-        monster: undefined})
     }
   }
 
@@ -183,7 +180,10 @@ class NewOrderModal extends React.Component<Props, {}> {
       })
   }
 
-  private getMonsterSuggestionValue = (monster:MonsterProps) => monster.name
+  private getMonsterSuggestionValue = (monster:MonsterProps) => {
+    this.setState({monster, monstername: monster.name})
+    return monster.name
+  }
   
   private renderMonsterSuggestion = (monster:MonsterProps) => {
     return (
@@ -194,7 +194,7 @@ class NewOrderModal extends React.Component<Props, {}> {
     )
   }
 
-  private getSuggestedMonsters = (monsterName:string) => {
+  private getSuggestedMonsters = (monsterName:string) => {    
     if (monsterName && monsterName.length > 1) {
       const {monsters} = this.props
       return monsters.filter((monster) => monster.name.toLowerCase().indexOf(monsterName) >= 0)
@@ -202,13 +202,13 @@ class NewOrderModal extends React.Component<Props, {}> {
       return []
     }
   }
-  private onSuggestionsFetchRequested = ( event:AutoSuggest.SuggestionsFetchRequestedParams  ) => {
+  private onSuggestionsFetchRequested = ( event:AutoSuggest.SuggestionsFetchRequestedParams  ) => {    
     this.setState({
       suggestedMonsters: this.getSuggestedMonsters(event.value.toLowerCase())
     })
   }
 
-  private onSuggestionsClearRequested = () => {
+  private onSuggestionsClearRequested = () => {    
     this.setState({
       suggestedMonsters:[]
     })

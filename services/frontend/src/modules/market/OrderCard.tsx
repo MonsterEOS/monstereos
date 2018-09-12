@@ -5,7 +5,7 @@ import { monsterImageSrc } from "../monsters/monsters"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
-import { trxClaimPetMarket, trxRemoveOrderMarket, MONSTERS_ACCOUNT, trxTokenTransfer } from "../../utils/eos"
+import { trxClaimPetMarket, trxRemoveOfferMarket, MONSTERS_ACCOUNT, trxTokenTransfer } from "../../utils/eos"
 import { Link } from "react-router-dom"
 
 import NewOrderModal  from "./NewOrderModal"
@@ -231,7 +231,7 @@ class OrderCard extends React.Component<Props, ReactState> {
     const { scatter, order, requestUpdate, dispatchPushNotification} = this.props
     const monster = order.monster
 
-    trxRemoveOrderMarket(scatter, monster.id)
+    trxRemoveOfferMarket(scatter, monster.id)
       .then((res:any) => {
         console.info(`Order for monster #${monster.id} was deleted successfully`, res)
         dispatchPushNotification(`Order for ${monster.name} was deleted successfully`, NOTIFICATION_SUCCESS)
