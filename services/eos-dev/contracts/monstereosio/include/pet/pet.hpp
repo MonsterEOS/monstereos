@@ -35,7 +35,6 @@ public:
     pets(_self,_self),
     orders(_self,_self),
     petinbattles(_self,_self),
-    pet_config(_self,_self),
     pet_config2(_self,_self)
     {}
 
@@ -80,7 +79,7 @@ public:
     void changebatami ( uint8_t new_attack_min_factor );
     void changebatama ( uint8_t new_attack_max_factor );
     void techrevive   ( uuid pet_id, string reason );
-    void migrate      ( string reason );
+    void delbattles   ( string reason );
 
     // token deposits
     void transfer     ( uint64_t sender, uint64_t receiver );
@@ -90,25 +89,6 @@ public:
     /* ****************************************** */
     /* ------------ Contract Config Data -------- */
     /* ****************************************** */
-
-    // DEPRECATED OLD PETCONFIG FOR MIGRATION
-    // @abi table petconfig i64
-    struct st_pet_config {
-        uuid     last_id = 0;
-        asset    creation_fee = asset{0,S(4,EOS)};
-        uint8_t  max_health = 100;
-        uint32_t hunger_to_zero = 10 * HOUR;
-        uint32_t min_hunger_interval = 3 * HOUR;
-        uint8_t  max_hunger_points = 100;
-        uint8_t  hunger_hp_modifier = 1;
-        uint32_t min_awake_interval = 8 * HOUR;
-        uint32_t min_sleep_period = 4 * HOUR;
-        uint32_t creation_tolerance = 1 * HOUR;
-        uint32_t monsters_to_activate_fee = 1000;
-    };
-
-    typedef singleton<N(petconfig), st_pet_config> pet_config_singleton;
-    pet_config_singleton pet_config;
 
     // @abi table petconfig2 i64
     struct st_pet_config2 {
