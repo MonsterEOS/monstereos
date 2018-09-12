@@ -21,12 +21,10 @@ extern "C" { \
 EOSIO_ABI_EX(pet,
     // pet core
     (createpet)
-    (updatepet)
     (feedpet)
     (bedpet)
     (awakepet)
     (destroypet)
-    (techrevive)
     (transferpet2)
 
     // battles
@@ -54,6 +52,7 @@ EOSIO_ABI_EX(pet,
     (changebatidt)
     (changebatami)
     (changebatama)
+    (techrevive)
     (migrate)
 
     // tokens deposits

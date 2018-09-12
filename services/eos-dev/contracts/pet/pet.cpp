@@ -69,38 +69,6 @@ void pet::createpet(name owner,
     });
 }
 
-void pet::updatepet(uuid pet_id) {
-    require_auth(_self);
-    print(pet_id, "| updating pet ");
-
-    auto itr_pet = pets.find(pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-    st_pets pet = *itr_pet;
-
-    _update(pet);
-
-    pets.modify(itr_pet, pet.owner, [&](auto &r) {
-        r.death_at = pet.death_at;
-    });
-}
-
-void pet::techrevive(uuid pet_id, string memo) {
-    require_auth(_self);
-    print(pet_id, "| reviving pet for technical reasons... ");
-    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
-
-    auto itr_pet = pets.find(pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-    st_pets pet = *itr_pet;
-
-    pets.modify(itr_pet, 0, [&](auto &r) {
-        r.death_at = 0;
-        r.last_fed_at = now();
-        r.last_bed_at = r.last_fed_at;
-        r.last_awake_at = r.last_fed_at + 1;
-    });
-}
-
 void pet::destroypet(uuid pet_id) {
 
     const auto& pet = pets.get(pet_id, "E404|Invalid pet, destroying action is unrecoverable");
@@ -134,27 +102,16 @@ void pet::feedpet(uuid pet_id) {
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     st_pets pet = *itr_pet;
 
-    _update(pet);
-
     auto pc = _get_pet_config();
 
+    eosio_assert(_is_alive(pet, pc), "dead don't eat");
+
+    bool can_eat = (now() - pet.last_fed_at) > pc.min_hunger_interval &&
+            !pet.is_sleeping();
+    eosio_assert(can_eat, "not hungry");
+
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
-        r.death_at = pet.death_at;
-
-        uint32_t current_time = now();
-
-        bool can_eat = (current_time - pet.last_fed_at) > pc.min_hunger_interval &&
-            !r.is_sleeping();
-
-        if (can_eat && r.is_alive()) {
-            r.last_fed_at = now();
-        } else if (r.is_sleeping()) {
-            print("I111|Zzzzzzzz...");
-        } else if (!can_eat) {
-            print("I110|Not hungry");
-        } else if(!r.is_alive()) {
-            print("I199|Dead don't feed");
-        }
+        r.last_fed_at = now();
     });
 }
 
@@ -166,25 +123,16 @@ void pet::bedpet(uuid pet_id) {
     // only owners can make pets sleep
     require_auth(pet.owner);
 
-    _update(pet);
-
     auto pc = _get_pet_config();
 
+    eosio_assert(_is_alive(pet, pc), "dead don't sleep");
+
+    bool can_sleep = (now() - pet.last_awake_at) > pc.min_awake_interval &&
+        !pet.is_sleeping();
+    eosio_assert(can_sleep, "not now!");
+
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
-        r.death_at = pet.death_at;
-
-        uint32_t current_time = now();
-
-        bool can_sleep = (current_time - pet.last_awake_at) > pc.min_awake_interval &&
-            !r.is_sleeping();
-
-        if (can_sleep && r.is_alive()) {
-            r.last_bed_at = now();
-        } else if (!can_sleep) {
-            print("I201|Not now sir!");
-        } else if(!r.is_alive()) {
-            print("I299|Dead don't sleep");
-        }
+        r.last_bed_at = now();
     });
 }
 
@@ -196,24 +144,16 @@ void pet::awakepet(uuid pet_id) {
     // only owners can wake up pets
     require_auth(pet.owner);
 
-    _update(pet);
-
     auto pc = _get_pet_config();
 
+    eosio_assert(_is_alive(pet, pc), "dead don't awake");
+
+    bool can_awake = (now() - pet.last_bed_at) > pc.min_sleep_period &&
+        pet.is_sleeping();
+    eosio_assert(can_awake, "zzzzzz");
+
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
-        r.death_at = pet.death_at;
-
-        uint32_t current_time = now();
-        bool can_awake = (current_time - pet.last_bed_at) > pc.min_sleep_period &&
-            r.is_sleeping();
-
-        if (can_awake && r.is_alive()) {
-            r.last_awake_at = now();
-        } else if (!can_awake) {
-            print("I301|Zzzzzzz");
-        } else if(!r.is_alive()) {
-            print("I399|Dead don't awake");
-        }
+        r.last_awake_at = now();
     });
 }
 
@@ -281,11 +221,9 @@ uint32_t pet::_calc_hunger_hp(const uint8_t &max_hunger_points, const uint32_t &
     return effect_hp_hunger;
 }
 
-void pet::_update(st_pets &pet) {
+bool pet::_is_alive(st_pets &pet, const st_pet_config2 &pc) {
 
-    eosio_assert(pet.is_alive(), "E099|Pet is dead.");
-
-    auto pc = _get_pet_config();
+    // auto pc = _get_pet_config();
 
     uint32_t current_time = now();
 
@@ -298,7 +236,5 @@ void pet::_update(st_pets &pet) {
     print("\npet hp=", hp);
     print("\npet effect_hp_hunger=", effect_hp_hunger);
 
-    if (hp <= 0) {
-        pet.death_at = current_time;
-    }
+    return hp <= 0;
 }

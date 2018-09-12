@@ -47,12 +47,10 @@ public:
 
     // pet interactions
     void createpet    ( name owner, string pet_name );
-    void updatepet    ( uuid pet_id );
     void feedpet      ( uuid pet_id );
     void bedpet       ( uuid pet_id );
     void awakepet     ( uuid pet_id );
     void destroypet   ( uuid pet_id );
-    void techrevive   ( uuid pet_id, string reason );
     void transferpet2 ( uuid pet_id, name new_owner);
 
     // battle interface
@@ -81,6 +79,7 @@ public:
     void changebatidt ( uint32_t new_idle_tolerance );
     void changebatami ( uint8_t new_attack_min_factor );
     void changebatama ( uint8_t new_attack_max_factor );
+    void techrevive   ( uuid pet_id, string reason );
     void migrate      ( string reason );
 
     // token deposits
@@ -116,7 +115,7 @@ public:
         uuid     last_id = 0;
         asset    creation_fee = asset{0,S(4,EOS)};
         uint8_t  max_health = 100;
-        uint32_t hunger_to_zero = 10 * HOUR;
+        uint32_t hunger_to_zero = 36 * HOUR;
         uint32_t min_hunger_interval = 3 * HOUR;
         uint8_t  max_hunger_points = 100;
         uint8_t  hunger_hp_modifier = 1;
@@ -147,7 +146,7 @@ public:
     uint64_t _next_pet_type_id();
 
     // internal pet calcs
-    void _update(st_pets &pet);
+    bool _is_alive(st_pets &pet, const st_pet_config2 &pc);
     uint32_t _calc_hunger_hp(const uint8_t &max_hunger_points,
                              const uint32_t &hunger_to_zero,
                              const uint8_t &hunger_hp_modifier,
@@ -161,6 +160,6 @@ public:
 
 
     // battle helpers
-    void _battle_add_pets(st_battle &battle, name player, vector<uint64_t> pet_ids);
+    void _battle_add_pets(st_battle &battle, name player, vector<uint64_t> pet_ids, const st_pet_config2 &pc);
 
 };

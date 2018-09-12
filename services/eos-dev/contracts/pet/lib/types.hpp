@@ -87,9 +87,9 @@ namespace types {
           return last_bed_at > last_awake_at;
       }
 
-      bool is_alive() const {
-          return death_at == 0;
-      }
+      // bool is_alive() const {
+      //     return death_at == 0;
+      // }
   };
 
   typedef multi_index<N(pets), st_pets,

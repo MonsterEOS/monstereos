@@ -1,14 +1,6 @@
-# CONTRACT FOR pet::awakepet
-
-## ACTION NAME: awakepet
-
-### Parameters
-Input parameters:
-
-* `pet_id` (identifier of monster)
-
-### Intent
-INTENT. The intent of the `{{ awakepet }}` action is to change the state of the monster with the given id from sleeping to awake. Before awaking, the monster has to have slept for at least 4 hours. The monster has to be awake for at least 8 hours.
-
-### Term
-TERM. This Contract expires 8 hours after code execution.
+---
+title: Awake Monster
+summary: Wakes up a Monster
+icon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74
+---
+I'm waking the monster {{pet_id}} to be awake and active. I understand that I cannot put him to sleep in the next 8 hours.

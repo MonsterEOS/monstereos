@@ -1,14 +1,6 @@
-# CONTRACT FOR pet::changecrtol
-
-## ACTION NAME: changecrtol
-
-### Parameters
-Input parameters:
-
-* `new_interval` (new minimum duration between creating monsters)
-
-### Intent
-INTENT. The intent of the `{{ changecrtol }}` action is to set the minimal interval between creating monsters to the given value. This action can only be called by the contract owner. 
-
-### Term
-TERM. This Contract expires after code execution.
+---
+title: Change Birth Interv.
+summary: Change Monsters creation interval time seconds
+icon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74
+---
+In behalf of MonsterEOS and its community, and in the overall gameplay ecosystem, I allow the change of the creation monster tolerance interval to be {{new_interval}} seconds.

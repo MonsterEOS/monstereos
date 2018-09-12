@@ -87,6 +87,7 @@ void pet::battlestart(name host, name player, st_pick picks) {
   eosio_assert(battle.commits.size() == 2, "battle has not enough players");
 
   // validates and summarize reveals
+  auto pc = _get_pet_config();
   bool valid_reveal = false;
   vector<st_commit> reveals{};
   for(auto& commit : battle.commits) {
@@ -99,7 +100,7 @@ void pet::battlestart(name host, name player, st_pick picks) {
       commit.randoms = picks.randoms;
       reveals.emplace_back(commit);
 
-      _battle_add_pets(battle, player, picks.pets);
+      _battle_add_pets(battle, player, picks.pets, pc);
 
       valid_reveal = true;
     } else if (commit.randoms.size() > 0) {
@@ -131,7 +132,8 @@ void pet::battlestart(name host, name player, st_pick picks) {
 
 void pet::_battle_add_pets(st_battle &battle,
                            name player,
-                           vector<uint64_t> pet_ids) {
+                           vector<uint64_t> pet_ids,
+                           const st_pet_config2 &pc) {
 
   for (auto& pet_id : pet_ids) {
 
@@ -141,7 +143,7 @@ void pet::_battle_add_pets(st_battle &battle,
 
     // only owners can make fight with pets
     require_auth(pet.owner);
-    eosio_assert(pet.is_alive(), "dead pets don't battle");
+    eosio_assert(_is_alive(pet, pc), "dead pets don't battle");
     eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
 
     auto itr_pet_battle = petinbattles.find(pet_id);

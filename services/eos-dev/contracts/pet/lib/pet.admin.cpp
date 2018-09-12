@@ -99,6 +99,23 @@ void pet::changepettyp(uint64_t id, vector<uint8_t> elements) {
     });
 }
 
+void pet::techrevive(uuid pet_id, string memo) {
+    require_auth(_self);
+    print(pet_id, "| reviving pet for technical reasons... ");
+    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
+
+    auto itr_pet = pets.find(pet_id);
+    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    st_pets pet = *itr_pet;
+
+    pets.modify(itr_pet, 0, [&](auto &r) {
+        r.death_at = 0;
+        r.last_fed_at = now();
+        r.last_bed_at = r.last_fed_at;
+        r.last_awake_at = r.last_fed_at + 1;
+    });
+}
+
 uuid pet::_next_id(){
     auto pc = _get_pet_config();
     pc.last_id++;
@@ -110,7 +127,7 @@ uuid pet::_next_id(){
 uint64_t pet::_next_element_id(){
     auto pc = _get_pet_config();
     pc.last_element_id++;
-    eosio_assert(pc.last_element_id > 0, "_next_element_id overflow detected");    
+    eosio_assert(pc.last_element_id > 0, "_next_element_id overflow detected");
     _update_pet_config(pc);
     return pc.last_element_id-1; // zero based id
 }
@@ -118,7 +135,7 @@ uint64_t pet::_next_element_id(){
 uint64_t pet::_next_pet_type_id(){
     auto pc = _get_pet_config();
     pc.last_pet_type_id++;
-    eosio_assert(pc.last_pet_type_id > 0, "_next_pet_type_id overflow detected");    
+    eosio_assert(pc.last_pet_type_id > 0, "_next_pet_type_id overflow detected");
     _update_pet_config(pc);
     return pc.last_pet_type_id-1; // zero based id
 }
