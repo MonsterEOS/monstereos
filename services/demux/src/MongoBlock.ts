@@ -51,9 +51,10 @@ export class MongoBlock implements Block {
   protected collectActionsFromBlock(rawBlock: any = { actions: [] }): EosAction[] {
     return this.flattenArray(rawBlock.block.transactions.map(({ trx }: any) => {
 
-      if (!trx.transaction.actions) {
-        return []
-      }
+      // DANGEROUS.... discards possible failed blocks
+      // if (!trx.transaction.actions) {
+      //   return []
+      // }
 
       return trx.transaction.actions.map((action: any, actionIndex: number) => {
 
