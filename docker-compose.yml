@@ -5,7 +5,7 @@ services:
   postgres:
     image: postgres:10.4
     volumes:
-      - ./.pgsql-data:/var/lib/postgresql/data
+      - ../.monstereos/.pgsql-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     environment:
@@ -20,7 +20,7 @@ services:
     image: mongo
     restart: always
     volumes:
-      - ./.mongo-data:/data/db
+      - ../.monstereos/.mongo-data:/data/db
     ports:
       - "27017:27017"
 
