@@ -87,9 +87,12 @@ namespace types {
           return last_bed_at > last_awake_at;
       }
 
-      // bool is_alive() const {
-      //     return death_at == 0;
-      // }
+      bool has_energy(const uint8_t min_energy) const {
+          uint32_t awake_seconds = now() - last_awake_at;
+          uint32_t energy_bar = (100 * (awake_seconds / 3600)) / DAY;
+
+          return energy_bar > min_energy;
+      }
   };
 
   typedef multi_index<N(pets), st_pets,
