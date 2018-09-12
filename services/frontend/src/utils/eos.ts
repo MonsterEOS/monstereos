@@ -25,7 +25,7 @@ export const ELEMENTS_TABLE = "elements"
 export const PET_TYPES_TABLE = "pettypes"
 export const CONFIG_TABLE = "petconfig2"
 export const BALANCES_TABLE = "accounts"
-export const ORDERS_TABLE = "orders" 
+export const ORDERS_TABLE = "orders"
 export const TOKEN_SYMBOL = "EOS"
 export const MEMO = "MonsterEOS Wallet Deposit"
 
@@ -88,7 +88,7 @@ export const trxOrderPetMarket = async (
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  return contract.orderask(petId, newOwner, `${amount.toFixed(4)} EOS`, 0, eosAuthorization.permission)
+  return contract.orderask(petId, newOwner, `${amount} EOS`, 0, eosAuthorization.permission)
 }
 
 export const trxRemoveOrderMarket = async (
