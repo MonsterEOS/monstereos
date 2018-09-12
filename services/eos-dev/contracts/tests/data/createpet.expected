@@ -1,0 +1,63 @@
+
+createpet: success bubble
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "someone",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "owner": "someone",
+        "pet_name": "bubble"
+      }
+    }
+  ]
+}
+Exception: i64.rem_u by 0
+table: monstereosio monstereosio pets
+
+createpet: missing authority
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "someone",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "owner": "anyone",
+        "pet_name": "bubble"
+      }
+    }
+  ]
+}
+Exception: missing authority of anyone
+table: monstereosio monstereosio pets
+
+createpet: too fast tolerance exception
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "someone",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "owner": "someone",
+        "pet_name": "charmander"
+      }
+    }
+  ]
+}
+Exception: i64.rem_u by 0
+table: monstereosio monstereosio pets

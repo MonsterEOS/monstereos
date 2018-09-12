@@ -1,0 +1,10 @@
+#pragma once
+#include <eosio/testing/tester.hpp>
+
+namespace eosio { namespace testing {
+
+struct contracts {
+   static std::vector<uint8_t> monstereosio_wasm() { return read_wasm("${CMAKE_BINARY_DIR}/../monstereosio/monstereosio.wasm"); }
+   static std::vector<char>    monstereosio_abi() { return read_abi("${CMAKE_BINARY_DIR}/../monstereosio/monstereosio.abi"); }
+};
+}} //ns eosio::testing
