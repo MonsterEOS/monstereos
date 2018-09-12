@@ -51,7 +51,7 @@ export class MongoBlock implements Block {
   protected collectActionsFromBlock(rawBlock: any = { actions: [] }): EosAction[] {
     return this.flattenArray(rawBlock.block.transactions.map(({ trx }: any) => {
 
-      if (!trx.transactions.actions) {
+      if (!trx.transaction.actions) {
         return []
       }
 
