@@ -14,8 +14,8 @@
 #include <math.h>
 #include <vector>
 #include <map>
-#include "lib/utils.hpp"
-#include "lib/types.hpp"
+#include <pet/utils.hpp>
+#include <pet/types.hpp>
 
 using namespace eosio;
 using namespace types;

@@ -1,8 +1,8 @@
-#include "pet.hpp"
-#include "lib/utils.hpp"
-#include "lib/pet.admin.cpp"
-#include "lib/pet.battle.cpp"
-#include "lib/pet.market.cpp"
+#include <pet/pet.hpp>
+
+#include "pet.admin.cpp"
+#include "pet.battle.cpp"
+#include "pet.market.cpp"
 
 using namespace utils;
 using namespace types;
@@ -17,7 +17,7 @@ void pet::createpet(name owner,
     // boost::algorithm::trim(pet_name);
 
     // validates pet naming
-    eosio_assert(pet_name.length() >= 1, "name must have at least 1 character");
+    eosio_assert(pet_name.length() >= 1, "name must have at least 1 character!");
     eosio_assert(pet_name.length() <= 20, "name cannot exceed 20 chars");
     eosio_assert(pet_name.length() > count_spaces(pet_name), "name cannot be composed of spaces only");
     // eosio_assert(!_pet_name_exists(pet_name), "duplicated pet name");

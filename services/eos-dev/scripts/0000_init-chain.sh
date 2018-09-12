@@ -135,12 +135,12 @@ cleos set account permission monstereosio active \
   }]}' owner -p monstereosio
 
 
-echo "Compiling monsters Contract"
-./eosiocpp -o "$CONTRACTS_DIR"/pet/pet.wast "$CONTRACTS_DIR"/pet/petcode.cpp
-./eosiocpp -g "$CONTRACTS_DIR"/pet/pet.abi "$CONTRACTS_DIR"/pet/petabi.cpp
+# echo "Compiling monsters Contract"
+# ./eosiocpp -o "$CONTRACTS_DIR"/pet/pet.wast "$CONTRACTS_DIR"/pet/petcode.cpp
+# ./eosiocpp -g "$CONTRACTS_DIR"/pet/pet.abi "$CONTRACTS_DIR"/pet/petabi.cpp
 
 echo "Deploying Monsters Contract"
-cleos -u http://eosiodev:8888 set contract monstereosio "$CONTRACTS_DIR"/pet
+cleos -u http://eosiodev:8888 set contract monstereosio "$CONTRACTS_DIR"/monstereosio
 
 sleep .5
 echo "Creating players"

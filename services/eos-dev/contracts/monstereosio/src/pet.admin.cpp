@@ -63,7 +63,7 @@ void pet::addelemttype ( vector<uint8_t> ratios ) {
 void pet::changeelemtt(uint64_t id, vector<uint8_t> ratios) {
     require_auth(_self);
 
-    eosio_assert(ratios.size() > 0, "each type must have at least 1 ratio");
+    eosio_assert(ratios.size() > 0, "each type must have at least 1 ratio!");
 
     auto itr_elmt = elements.find(id);
     eosio_assert(itr_elmt != elements.end(), "E404|Invalid element");
