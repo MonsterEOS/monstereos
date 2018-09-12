@@ -25,11 +25,9 @@ export const ELEMENTS_TABLE = "elements"
 export const PET_TYPES_TABLE = "pettypes"
 export const CONFIG_TABLE = "petconfig2"
 export const BALANCES_TABLE = "accounts"
+export const ORDERS_TABLE = "orders" 
 export const TOKEN_SYMBOL = "EOS"
 export const MEMO = "MonsterEOS Wallet Deposit"
-
-export const MONSTER_MARKET_ACCOUNT = "monstereosmt"
-export const OFFER_TABLE = "offers"
 
 // battle resources
 export const BATTLE_REQ_CPU = 30 * 1000
@@ -89,17 +87,17 @@ export const trxOrderPetMarket = async (
   console.info(amount)
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
-  const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
-  return contract.offerpet(petId, newOwner, `${amount.toFixed(4)} EOS`, 0, eosAuthorization.permission)
+  const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
+  return contract.orderask(petId, newOwner, `${amount.toFixed(4)} EOS`, 0, eosAuthorization.permission)
 }
 
-export const trxRemoveOfferMarket = async (
+export const trxRemoveOrderMarket = async (
   scatter: any,
   petId: number
 ) => {
   const eosAuthorization = getEosAuthorization(scatter.identity)
-  const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
-  return contract.removeoffer(eosAuthorization.account.name, petId, eosAuthorization.permission)
+  const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
+  return contract.removeask(eosAuthorization.account.name, petId, eosAuthorization.permission)
 }
 
 export const trxClaimPetMarket = async (
@@ -108,7 +106,7 @@ export const trxClaimPetMarket = async (
     oldOwner: string
 ) => {
   const eosAuthorization = getEosAuthorization(scatter.identity)
-  const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+  const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
   return contract.claimpet(oldOwner, petId, eosAuthorization.account.name, eosAuthorization.permission)
 }
 
@@ -118,7 +116,7 @@ export const trxPlaceBidMarket = async (
   amount: number
 ) => {
   const eosAuthorization = getEosAuthorization(scatter.identity)
-    const contract = await getContract(scatter, network, MONSTER_MARKET_ACCOUNT)
+    const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
     return contract.bidpet(petId, eosAuthorization.account.name, 0, amount, eosAuthorization.permission)
 }  
 
@@ -193,6 +191,13 @@ export const loadPets = async (id?: number) => {
   }
 
   return await apiList(id, id ? 1 : 5000)
+}
+
+export const loadMonsters = async (
+  config: GlobalConfig
+) => {
+  const pets = await loadPets()
+  return pets.map((pet: any) => parseMonstersFromChain(pet, config))
 }
 
 export const loadMonstersByOwner = async (
@@ -424,9 +429,9 @@ export const loadOrders = async(config: GlobalConfig, id?:number) => {
   const apiList = (lowerBound = 0, limit = 5000): any => {
     return e2DefaultRpc.get_table_rows({
         json: true,
-        scope: MONSTER_MARKET_ACCOUNT,
-        code: MONSTER_MARKET_ACCOUNT,
-        table: OFFER_TABLE,
+        scope: MONSTERS_ACCOUNT,
+        code: MONSTERS_ACCOUNT,
+        table: ORDERS_TABLE,
         lower_bound: lowerBound,
         limit
     }).then(async res => {
@@ -440,8 +445,8 @@ export const loadOrders = async(config: GlobalConfig, id?:number) => {
     })
   }
 
-  const chainOffers = await apiList(id, id ? 1 : 5000)
+  const chainOrders = await apiList(id, id ? 1 : 5000)
   const chainMonsters = await loadPets()
   const monsters = chainMonsters.map((pet: any) => parseMonstersFromChain(pet, config))
-  return chainOffers.map((o:any) => parseOrderFromChain(o, monsters))
+  return chainOrders.map((o:any) => parseOrderFromChain(o, monsters))
 }
