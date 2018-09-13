@@ -82,11 +82,5 @@ services:
       - "3030:3030"
 
 volumes:
-  eosiochainjn11:
-  eosiochainjn12:
-  eosiochainmn:
   eosiodevapp:
-  postgres:
-  mongo:
   fullnode:
-  mainnode:

@@ -103,10 +103,9 @@ const killMonsters = async (db: any, dbFull: any) => {
         return {id: pet.id, death_at: isDead ? moment(deathTime).toISOString() : pet.death_at }
       }).filter((pet: any) => pet.death_at !== EMPTY_TIMESTAMP)
 
-      console.info("Dead pets: ", deadPets)
-
       const updatedDeadPets = deadPets.map((pet: any) => (db.pets.save(pet)))
       if (updatedDeadPets.length) {
+        console.info("Dead pets: ", deadPets)
         await Promise.all(updatedDeadPets)
       }
     }
@@ -127,10 +126,10 @@ const loop = async (db: any, dbFull: any) => {
 
   const isSync = await isChainSync(db)
 
+  await updatePetsWithoutTypes(db)
+
   if (isSync) {
     console.info("Chain is synched, starting cleaning tasks")
-
-    await updatePetsWithoutTypes(db)
 
     await cleanOldArenas(db)
 
