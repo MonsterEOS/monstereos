@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS "${schema^}"._block_number_txid (
 );
 
 CREATE TABLE IF NOT EXISTS "${schema^}"._block_failures (
-  block_number integer PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
+  block_number integer NOT NULL,
   block_timestamp TIMESTAMP NOT NULL,
   _created_at TIMESTAMP DEFAULT current_timestamp NOT NULL
 );
