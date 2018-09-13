@@ -1,24 +1,21 @@
 
 createpet: success bubble
 =========================
-push_transaction {
-  "actions": [{
-      "account": "monstereosio",
-      "name": "createpet",
-      "authorization": [{
-          "actor": "someone",
-          "permission": "active"
-        }
-      ],
-      "data": {
-        "owner": "someone",
-        "pet_name": "bubble"
-      }
-    }
-  ]
-}
-Exception: i64.rem_u by 0
 table: monstereosio monstereosio pets
+    add row:
+        {
+          "id": 1,
+          "owner": "john",
+          "name": "bubble",
+          "type": 11,
+          "created_at": 1577836802,
+          "death_at": 0,
+          "last_fed_at": 1577836802,
+          "last_bed_at": 1577836802,
+          "last_awake_at": 1577836803,
+          "last_play_at": 1577836802,
+          "last_shower_at": 1577836802
+        }
 
 createpet: missing authority
 =========================
@@ -27,18 +24,18 @@ push_transaction {
       "account": "monstereosio",
       "name": "createpet",
       "authorization": [{
-          "actor": "someone",
+          "actor": "mary",
           "permission": "active"
         }
       ],
       "data": {
-        "owner": "anyone",
-        "pet_name": "bubble"
+        "owner": "john",
+        "pet_name": "oops"
       }
     }
   ]
 }
-Exception: missing authority of anyone
+Exception: missing authority of john
 table: monstereosio monstereosio pets
 
 createpet: too fast tolerance exception
@@ -48,16 +45,72 @@ push_transaction {
       "account": "monstereosio",
       "name": "createpet",
       "authorization": [{
-          "actor": "someone",
+          "actor": "john",
           "permission": "active"
         }
       ],
       "data": {
-        "owner": "someone",
-        "pet_name": "charmander"
+        "owner": "john",
+        "pet_name": "second"
       }
     }
   ]
 }
-Exception: i64.rem_u by 0
+Exception: assertion failure with message: You can't create another pet now
 table: monstereosio monstereosio pets
+
+createpet: too fast tolerance 30 minutes
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "owner": "john",
+        "pet_name": "second"
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: You can't create another pet now
+table: monstereosio monstereosio pets
+
+createpet: 1h tolerance recreation accepted
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "owner": "john",
+        "pet_name": "second"
+      }
+    }
+  ]
+}
+transaction pushed
+table: monstereosio monstereosio pets
+    add row:
+        {
+          "id": 2,
+          "owner": "john",
+          "name": "second",
+          "type": 1,
+          "created_at": 1577840523,
+          "death_at": 0,
+          "last_fed_at": 1577840523,
+          "last_bed_at": 1577840523,
+          "last_awake_at": 1577840524,
+          "last_play_at": 1577840523,
+          "last_shower_at": 1577840523
+        }

@@ -2,12 +2,13 @@ DELETE FROM "pets"."_index_state";
 SELECT * FROM "pets"."_index_state" ORDER BY block_number DESC LIMIT 1000;
 SELECT * FROM "pets"."elements" LIMIT 1000;
 SELECT * FROM "pets"."types" LIMIT 1000;
-SELECT * FROM "pets"."pets" ORDER BY id LIMIT 1000;
+SELECT * FROM "pets"."pets" where id > 564 ORDER BY id LIMIT 1000;
 SELECT * FROM "pets"."pet_actions" LIMIT 1000;
 SELECT * FROM "pets"."global_config" LIMIT 1000;
 SELECT * FROM "pets"."battles" LIMIT 1000;
 SELECT * FROM "pets"."battle_picks" LIMIT 1000;
 SELECT * FROM "pets"."battle_turns" LIMIT 1000;
+select count(*) from "pets"._block_failures;
 
 -- Wed Sep 05 2018 13:31:30 GMT-0400 (EDT)
 -- 2018-09-05T13:31:30

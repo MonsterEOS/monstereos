@@ -64,6 +64,22 @@ public:
     } catch (fc::exception& e) {
       outfile << "Exception: " << e.top_message() << "\n";
     }
+
+    // push_transaction example usage:
+    //   t.push_transaction("john"_n, R"({
+    //       "actions": [{
+    //          "account":              "monstereosio",
+    //          "name":                 "createpet",
+    //          "authorization": [{
+    //             "actor":             "john",
+    //             "permission":        "active",
+    //          }],
+    //          "data": {
+    //             "owner":          "john",
+    //             "pet_name":       "bubble"
+    //          },
+    //       }]
+    //    })");
   }
 
   monstereosio_tester(const std::string& test_name)
@@ -80,25 +96,76 @@ public:
     set_abi("monstereosio"_n, contracts::monstereosio_abi().data());
 
     push_action(N(monstereosio), N(addelemttype), N(monstereosio),
-                mvo()("ratios", std::vector{8,8,8,8,8,8,5,8,8,8}));
+                mvo()("ratios", std::vector<uint8_t>{8,8,8,8,8,8,5,8,8,8}));
 
     push_action(N(monstereosio), N(addelemttype), N(monstereosio),
-                mvo()("ratios", std::vector{8,8,20,15,10,5,10,10,8,8}));
+                mvo()("ratios", std::vector<uint8_t>{8,8,20,15,10,5,10,10,8,8}));
 
     push_action(N(monstereosio), N(addelemttype), N(monstereosio),
-                mvo()("ratios", std::vector{8,5,8,20,15,10,10,10,8,8}));
+                mvo()("ratios", std::vector<uint8_t>{8,5,8,20,15,10,10,10,8,8}));
 
     push_action(N(monstereosio), N(addelemttype), N(monstereosio),
-                mvo()("ratios", std::vector{8,10,5,8,20,15,10,10,8,5}));
+                mvo()("ratios", std::vector<uint8_t>{8,10,5,8,20,15,10,10,8,5}));
 
     push_action(N(monstereosio), N(addelemttype), N(monstereosio),
-                mvo()("ratios", std::vector{8,15,10,5,8,20,10,10,8,8}));
+                mvo()("ratios", std::vector<uint8_t>{8,15,10,5,8,20,10,10,8,8}));
+
+    push_action(N(monstereosio), N(addelemttype), N(monstereosio),
+                mvo()("ratios", std::vector<uint8_t>{8,20,15,10,5,8,10,10,8,8}));
+
+    push_action(N(monstereosio), N(addelemttype), N(monstereosio),
+                mvo()("ratios", std::vector<uint8_t>{15,10,10,10,10,10,8,5,8,8}));
+
+    push_action(N(monstereosio), N(addelemttype), N(monstereosio),
+                mvo()("ratios", std::vector<uint8_t>{8,10,10,10,10,10,20,8,8,8}));
+
+    push_action(N(monstereosio), N(addelemttype), N(monstereosio),
+                mvo()("ratios", std::vector<uint8_t>{12,12,12,12,12,12,12,12,12,5}));
+
+    push_action(N(monstereosio), N(addelemttype), N(monstereosio),
+                mvo()("ratios", std::vector<uint8_t>{8,10,10,20,10,10,10,10,20,20}));
+
+    produce_blocks();
 
     push_action(N(monstereosio), N(addpettype), N(monstereosio),
-                mvo()("elements", std::vector{0}));
+                mvo()("elements", std::vector<uint8_t>{0,6}));
 
     push_action(N(monstereosio), N(addpettype), N(monstereosio),
-                mvo()("elements", std::vector{0,4}));
+                mvo()("elements", std::vector<uint8_t>{0,6,4}));
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,9}));
+
+    produce_blocks();
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6}));
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,3}));
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,4}));
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,2}));
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,1}));
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,7}));
+
+    produce_blocks();
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,3}));
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,2}));
+
+    push_action(N(monstereosio), N(addpettype), N(monstereosio),
+                mvo()("elements", std::vector<uint8_t>{0,6,9}));
   }
 
   struct row {
@@ -186,61 +253,42 @@ public:
 
 BOOST_AUTO_TEST_SUITE(monstereosio)
 
-BOOST_AUTO_TEST_CASE(createpet) try {
+BOOST_AUTO_TEST_CASE(pet_creations) try {
   monstereosio_tester        t{"createpet"};
-  monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "pets"_n, "stored_pets"};
+  monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "pets"_n, "st_pets"};
 
-  t.create_account("someone"_n);
+  t.create_account("john"_n);
+  t.create_account("mary"_n);
 
   t.heading("createpet: success bubble");
-  t.push_transaction("someone"_n, R"({
-      "actions": [{
-         "account":              "monstereosio",
-         "name":                 "createpet",
-         "authorization": [{
-            "actor":             "someone",
-            "permission":        "active",
-         }],
-         "data": {
-            "owner":          "someone",
-            "pet_name":       "bubble"
-         },
-      }]
-   })");
+  t.push_action(N(monstereosio), N(createpet), N(john),
+                mvo()("pet_name", "bubble")("owner", "john"));
   t.diff_table(pets);
+  t.produce_blocks();
 
   t.heading("createpet: missing authority");
-  t.push_transaction("someone"_n, R"({
-      "actions": [{
-         "account":              "monstereosio",
-         "name":                 "createpet",
-         "authorization": [{
-            "actor":             "someone",
-            "permission":        "active",
-         }],
-         "data": {
-            "owner":          "anyone",
-            "pet_name":       "bubble"
-         },
-      }]
-   })");
+  t.push_action(N(monstereosio), N(createpet), N(mary),
+                mvo()("pet_name", "oops")("owner", "john"));
   t.diff_table(pets);
+  t.produce_blocks();
 
   t.heading("createpet: too fast tolerance exception");
-  t.push_transaction("someone"_n, R"({
-      "actions": [{
-         "account":              "monstereosio",
-         "name":                 "createpet",
-         "authorization": [{
-            "actor":             "someone",
-            "permission":        "active",
-         }],
-         "data": {
-            "owner":          "someone",
-            "pet_name":       "charmander"
-         },
-      }]
-   })");
+  t.push_action(N(monstereosio), N(createpet), N(john),
+                mvo()("pet_name", "second")("owner", "john"));
+  t.diff_table(pets);
+
+  // produce for 30 minutes
+  t.produce_blocks(120 * 30);
+  t.heading("createpet: too fast tolerance 30 minutes");
+  t.push_action(N(monstereosio), N(createpet), N(john),
+                mvo()("pet_name", "second")("owner", "john"));
+  t.diff_table(pets);
+
+  // produce for 30+ minutes
+  t.produce_blocks(120 * 32);
+  t.heading("createpet: 1h tolerance recreation accepted");
+  t.push_action(N(monstereosio), N(createpet), N(john),
+                mvo()("pet_name", "second")("owner", "john"));
   t.diff_table(pets);
 
   t.check_file();
