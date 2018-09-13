@@ -105,9 +105,9 @@ void pet::feedpet(uuid pet_id) {
     auto pc = _get_pet_config();
 
     eosio_assert(_is_alive(pet, pc), "dead don't eat");
+    eosio_assert(!pet.is_sleeping(), "zzzzzz");
 
-    bool can_eat = (now() - pet.last_fed_at) > pc.min_hunger_interval &&
-            !pet.is_sleeping();
+    bool can_eat = (now() - pet.last_fed_at) > pc.min_hunger_interval;
     eosio_assert(can_eat, "not hungry");
 
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
@@ -126,9 +126,9 @@ void pet::bedpet(uuid pet_id) {
     auto pc = _get_pet_config();
 
     eosio_assert(_is_alive(pet, pc), "dead don't sleep");
+    eosio_assert(!pet.is_sleeping(), "already sleeping");
 
-    bool can_sleep = (now() - pet.last_awake_at) > pc.min_awake_interval &&
-        !pet.is_sleeping();
+    bool can_sleep = (now() - pet.last_awake_at) > pc.min_awake_interval;
     eosio_assert(can_sleep, "not now!");
 
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
@@ -147,9 +147,9 @@ void pet::awakepet(uuid pet_id) {
     auto pc = _get_pet_config();
 
     eosio_assert(_is_alive(pet, pc), "dead don't awake");
+    eosio_assert(pet.is_sleeping(), "already awake");
 
-    bool can_awake = (now() - pet.last_bed_at) > pc.min_sleep_period &&
-        pet.is_sleeping();
+    bool can_awake = (now() - pet.last_bed_at) > pc.min_sleep_period;
     eosio_assert(can_awake, "zzzzzz");
 
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
@@ -236,5 +236,5 @@ bool pet::_is_alive(st_pets &pet, const st_pet_config2 &pc) {
     print("\npet hp=", hp);
     print("\npet effect_hp_hunger=", effect_hp_hunger);
 
-    return hp <= 0;
+    return hp > 0;
 }
