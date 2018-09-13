@@ -52,9 +52,15 @@ export class MongoBlock implements Block {
     return this.flattenArray(rawBlock.block.transactions.map(({ trx }: any) => {
 
       // DANGEROUS.... discards possible failed blocks
-      // if (!trx.transaction.actions) {
-      //   return []
-      // }
+      if (!trx.transaction.actions) {
+        return [{
+          type: `fail::emptytrx`,
+          payload: {
+            transactionId: trx.id,
+            actionIndex: 0,
+          }
+        }]
+      }
 
       return trx.transaction.actions.map((action: any, actionIndex: number) => {
 
