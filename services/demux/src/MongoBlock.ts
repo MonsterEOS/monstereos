@@ -51,10 +51,10 @@ export class MongoBlock implements Block {
   protected collectActionsFromBlock(rawBlock: any = { actions: [] }): EosAction[] {
     return this.flattenArray(rawBlock.block.transactions.map(({ trx }: any) => {
 
-      // DANGEROUS.... discards possible failed blocks
+      // Deferred transactions
       if (!trx.transaction) {
         return [{
-          type: `fail::emptytrx`,
+          type: `deferred::emptytrx`,
           payload: {
             transactionId: trx.id,
             actionIndex: 0,

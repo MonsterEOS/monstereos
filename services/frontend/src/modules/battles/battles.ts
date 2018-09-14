@@ -1,4 +1,4 @@
-import { GlobalConfig } from "../../store"
+import { GlobalConfig, ENERGY_TO_ZERO } from "../../store"
 import { MonsterProps } from "../monsters/monsters"
 
 export interface BattleCommitment {
@@ -100,6 +100,7 @@ export const parseConfigFromChain = (config: any): GlobalConfig => {
     creation_tolerance: config.creation_tolerance,
     hunger_hp_modifier: config.hunger_hp_modifier,
     hunger_to_zero: config.hunger_to_zero,
+    energy_to_zero: ENERGY_TO_ZERO,
     last_element_id: config.last_element_id,
     last_id: config.last_id,
     last_pet_type_id: config.last_pet_type_id,

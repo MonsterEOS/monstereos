@@ -294,7 +294,7 @@ const updaters = [
     updater: battleattack,
   },
   {
-    actionType: "fail::emptytrx",
+    actionType: "deferred::emptytrx",
     updater: persistFailBlocks,
   },
 ]

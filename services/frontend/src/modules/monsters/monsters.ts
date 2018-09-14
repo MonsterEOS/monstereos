@@ -17,7 +17,7 @@ export interface MonsterProps {
   deathAt: number,
   hunger: number,
   health: number,
-  awake: number,
+  energy: number,
   lastFeedAt: number,
   lastAwakeAt: number,
   lastBedAt: number,
@@ -39,7 +39,7 @@ export const parseMonstersFromChain = (pet: any, config: GlobalConfig): MonsterP
     isSleeping: pet.last_bed_at > pet.last_awake_at,
     hunger: 100,
     health: 100,
-    awake: 100,
+    energy: 100,
     actions: []
   }
 
@@ -67,11 +67,15 @@ export const calcMonsterStats = (
       Math.round((hungryPoints - config.max_hunger_points) / config.hunger_hp_modifier) :
       0
 
+    // calculates energy
+    const awakeSeconds = (currentTime - monster.lastAwakeAt) / 1000
+    const awakePoints = 100 * awakeSeconds / (24 * 3600)
+    monster.energy = 100 - awakePoints
+
     // calculates health and death time
-    monster.awake = 100
     monster.health = config.max_health - effectHpHunger
     if (monster.health <= 0) {
-      monster.hunger = monster.health = monster.awake = 0
+      monster.hunger = monster.health = monster.energy = 0
 
       monster.deathAt = ((monster.lastFeedAt / 1000) + config.hunger_to_zero
         + (config.hunger_to_zero * config.hunger_hp_modifier)) * 1000

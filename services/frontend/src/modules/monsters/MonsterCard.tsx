@@ -131,7 +131,7 @@ class MonsterCard extends React.Component<Props, {}> {
             <progress className="progress is-primary" max="100" value={monster.hunger} data-label="Food" />
           </div>
           <div className="column is-half">
-            <progress className="progress is-success" max="100" value={monster.awake} data-label="Energy" />
+            <progress className="progress is-success" max="100" value={monster.energy} data-label="Energy" />
           </div>
         </div>
       </div>

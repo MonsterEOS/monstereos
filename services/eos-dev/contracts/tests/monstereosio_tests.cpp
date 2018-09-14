@@ -267,117 +267,143 @@ public:
 
 BOOST_AUTO_TEST_SUITE(monstereosio)
 
-BOOST_AUTO_TEST_CASE(pet_creations_and_interactions) try {
-  monstereosio_tester        t{"pet_creations_and_interactions"};
+// BOOST_AUTO_TEST_CASE(pet_creations_and_interactions) try {
+//   monstereosio_tester        t{"pet_creations_and_interactions"};
+//   monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "pets"_n, "st_pets"};
+
+//   t.create_account("john"_n);
+//   t.create_account("mary"_n);
+
+//   t.heading("createpet: success bubble");
+//   t.push_trx("monstereosio", "createpet", "john",
+//     R"({"pet_name": "bubble", "owner": "john"})");
+//   t.diff_table(pets);
+//   t.produce_blocks();
+
+//   t.heading("createpet: missing authority");
+//   t.push_trx("monstereosio", "createpet", "mary",
+//     R"({"pet_name": "ooopps", "owner": "john"})");
+//   t.diff_table(pets);
+//   t.produce_blocks();
+
+//   t.heading("createpet: too fast tolerance exception");
+//   t.push_trx("monstereosio", "createpet", "john",
+//     R"({"pet_name": "second", "owner": "john"})");
+//   t.diff_table(pets);
+
+//   // produce for 30 minutes
+//   t.produce_blocks(120 * 30);
+//   t.heading("createpet: too fast tolerance 30 minutes");
+//   t.push_trx("monstereosio", "createpet", "john",
+//     R"({"pet_name": "second", "owner": "john"})");
+//   t.diff_table(pets);
+
+//   // produce for 30+ minutes
+//   t.produce_blocks(120 * 32);
+//   t.heading("createpet: 1h tolerance recreation accepted");
+//   t.push_trx("monstereosio", "createpet", "john",
+//     R"({"pet_name": "second", "owner": "john"})");
+//   t.diff_table(pets);
+
+//   // attempt to feed them
+//   t.heading("feed first pet after 1 hour");
+//   t.push_trx("monstereosio", "feedpet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.heading("feed/bed/wake second pet immediately");
+//   t.push_trx("monstereosio", "feedpet", "john",
+//     R"({"pet_id": 2})");
+//   t.diff_table(pets);
+//   t.produce_blocks();
+//   t.push_trx("monstereosio", "bedpet", "john",
+//     R"({"pet_id": 2})");
+//   t.diff_table(pets);
+//   t.produce_blocks();
+//   t.push_trx("monstereosio", "awakepet", "john",
+//     R"({"pet_id": 2})");
+//   t.diff_table(pets);
+
+//   t.produce_blocks(120 * 70 * 2);
+//   t.heading("feed first pet after 4 hours");
+//   t.push_trx("monstereosio", "feedpet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.heading("bed first pet after 4 hours");
+//   t.push_trx("monstereosio", "awakepet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.produce_blocks(120 * 60 * 4);
+//   t.heading("feed and bed first pet after 8 hours");
+//   t.push_trx("monstereosio", "feedpet", "john",
+//     R"({"pet_id": 1})");
+//   t.push_trx("monstereosio", "bedpet", "john",
+//     R"({"pet_id": 1})");
+//   t.produce_blocks();
+
+//   t.heading("attempt to duplicate sleep pet");
+//   t.push_trx("monstereosio", "bedpet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.heading("immediate awake pet");
+//   t.push_trx("monstereosio", "awakepet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.heading("test pet is alive after 24h with no food");
+//   t.produce_blocks(120 * 60 * 24);
+//   t.push_trx("monstereosio", "awakepet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.heading("test pet is alive after 48h with no food");
+//   t.produce_blocks(120 * 60 * 24);
+//   t.push_trx("monstereosio", "bedpet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.heading("test pet is alive before 72h with no food");
+//   t.produce_blocks(120 * 60 * 23);
+//   t.push_trx("monstereosio", "awakepet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.heading("test pet is dead after 72h with no food");
+//   t.produce_blocks(120 * 60);
+//   t.push_trx("monstereosio", "feedpet", "john",
+//     R"({"pet_id": 1})");
+//   t.diff_table(pets);
+
+//   t.check_file();
+// } FC_LOG_AND_RETHROW()
+
+BOOST_AUTO_TEST_CASE(battles) try {
+  monstereosio_tester        t{"battles"};
   monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "pets"_n, "st_pets"};
+  monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "battles"_n, "st_battle"};
 
   t.create_account("john"_n);
   t.create_account("mary"_n);
 
-  t.heading("createpet: success bubble");
+  t.heading("createpet: success pet creations");
   t.push_trx("monstereosio", "createpet", "john",
-    R"({"pet_name": "bubble", "owner": "john"})");
-  t.diff_table(pets);
-  t.produce_blocks();
-
-  t.heading("createpet: missing authority");
+    R"({"pet_name": "pikachu", "owner": "john"})");
   t.push_trx("monstereosio", "createpet", "mary",
-    R"({"pet_name": "ooopps", "owner": "john"})");
+  R"({"pet_name": "bulbasaur", "owner": "john"})");
   t.diff_table(pets);
   t.produce_blocks();
 
-  t.heading("createpet: too fast tolerance exception");
-  t.push_trx("monstereosio", "createpet", "john",
-    R"({"pet_name": "second", "owner": "john"})");
-  t.diff_table(pets);
-
-  // produce for 30 minutes
-  t.produce_blocks(120 * 30);
-  t.heading("createpet: too fast tolerance 30 minutes");
-  t.push_trx("monstereosio", "createpet", "john",
-    R"({"pet_name": "second", "owner": "john"})");
-  t.diff_table(pets);
-
-  // produce for 30+ minutes
-  t.produce_blocks(120 * 32);
-  t.heading("createpet: 1h tolerance recreation accepted");
-  t.push_trx("monstereosio", "createpet", "john",
-    R"({"pet_name": "second", "owner": "john"})");
-  t.diff_table(pets);
-
-  // attempt to feed them
-  t.heading("feed first pet after 1 hour");
-  t.push_trx("monstereosio", "feedpet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.heading("feed/bed/wake second pet immediately");
-  t.push_trx("monstereosio", "feedpet", "john",
-    R"({"pet_id": 2})");
+  t.heading("create and join battle");
+  t.push_trx("monstereosio", "battlecreate", "john",
+    R"({"host": "john", "mode": 1, "secret": "12313131"})");
+  t.push_trx("monstereosio", "battlejoin", "mary",
+  R"({"host": "john", "player": "mary", "secret": "john"})");
   t.diff_table(pets);
   t.produce_blocks();
-  t.push_trx("monstereosio", "bedpet", "john",
-    R"({"pet_id": 2})");
-  t.diff_table(pets);
-  t.produce_blocks();
-  t.push_trx("monstereosio", "awakepet", "john",
-    R"({"pet_id": 2})");
-  t.diff_table(pets);
 
-  t.produce_blocks(120 * 70 * 2);
-  t.heading("feed first pet after 4 hours");
-  t.push_trx("monstereosio", "feedpet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.heading("bed first pet after 4 hours");
-  t.push_trx("monstereosio", "awakepet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.produce_blocks(120 * 60 * 4);
-  t.heading("feed and bed first pet after 8 hours");
-  t.push_trx("monstereosio", "feedpet", "john",
-    R"({"pet_id": 1})");
-  t.push_trx("monstereosio", "bedpet", "john",
-    R"({"pet_id": 1})");
-  t.produce_blocks();
-
-  t.heading("attempt to duplicate sleep pet");
-  t.push_trx("monstereosio", "bedpet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.heading("immediate awake pet");
-  t.push_trx("monstereosio", "awakepet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.heading("test pet is alive after 24h with no food");
-  t.produce_blocks(120 * 60 * 24);
-  t.push_trx("monstereosio", "awakepet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.heading("test pet is alive after 48h with no food");
-  t.produce_blocks(120 * 60 * 24);
-  t.push_trx("monstereosio", "bedpet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.heading("test pet is alive before 72h with no food");
-  t.produce_blocks(120 * 60 * 23);
-  t.push_trx("monstereosio", "awakepet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.heading("test pet is dead after 72h with no food");
-  t.produce_blocks(120 * 60);
-  t.push_trx("monstereosio", "feedpet", "john",
-    R"({"pet_id": 1})");
-  t.diff_table(pets);
-
-  t.check_file();
 } FC_LOG_AND_RETHROW()
 
 BOOST_AUTO_TEST_SUITE_END()

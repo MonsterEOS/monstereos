@@ -27,7 +27,7 @@ export interface OrderProps {
             isSleeping: false,
             hunger: 100,
             health: 100,
-            awake: 100,
+            energy: 100,
             actions: []
       }
 }

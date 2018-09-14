@@ -9,6 +9,8 @@ import { OrderProps } from "../modules/market/market"
 import { getEosAccount } from "../utils/scatter"
 
 // state
+export const HUNGER_TO_ZERO = 32 * 3600
+export const ENERGY_TO_ZERO = 24 * 3600
 
 export interface State {
   readonly scatter: any
@@ -28,6 +30,7 @@ export interface GlobalConfig {
   creation_tolerance: number
   hunger_hp_modifier: number
   hunger_to_zero: number
+  energy_to_zero: number
   last_element_id: number
   last_id: number
   last_pet_type_id: number
@@ -46,7 +49,8 @@ export const initialGlobalConfig = {
   battle_max_arenas: 10,
   creation_tolerance: 3600,
   hunger_hp_modifier: 1,
-  hunger_to_zero: 36000,
+  hunger_to_zero: HUNGER_TO_ZERO,
+  energy_to_zero: ENERGY_TO_ZERO,
   last_element_id: 10,
   last_id: 13,
   last_pet_type_id: 109,

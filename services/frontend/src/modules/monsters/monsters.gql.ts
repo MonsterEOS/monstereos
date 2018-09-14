@@ -178,7 +178,7 @@ export const petsGqlToMonsters = (allPets: any, globalConfig: GlobalConfig) => {
       owner: String(node.owner),
       health: 100,
       hunger: 100,
-      awake: 100,
+      energy: 100,
       createdAt,
       deathAt,
       lastFeedAt,
