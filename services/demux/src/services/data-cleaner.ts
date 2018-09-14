@@ -36,7 +36,7 @@ const isChainSync = async (db: any) => {
 
 const updatePetsWithoutTypes = async (db: any) => {
   try {
-    const pendingPets = await db.pets.find({type_id: PENDING_TYPE_PET, destroyed_at: EMPTY_TIMESTAMP})
+    const pendingPets = await db.pets.find({type_id: PENDING_TYPE_PET, destroyed_at: EMPTY_TIMESTAMP}, { limit: 100 })
 
     if (pendingPets.length) {
       console.info(pendingPets.length + " Pets to Update Type")
