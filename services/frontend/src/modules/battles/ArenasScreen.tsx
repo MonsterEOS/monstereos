@@ -31,8 +31,14 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   public state = { arenas: [], showMonstersSelection: false, arenaHost: "" }
 
+  private refreshHandler: any = undefined
+
   public componentDidMount() {
     this.refresh()
+  }
+
+  public componentWillUnmount() {
+    clearTimeout(this.refreshHandler)
   }
 
   public render() {
@@ -94,6 +100,9 @@ class ArenasScreen extends React.Component<Props, ReactState> {
     try {
       const arenas = await loadArenas()
       this.setState({arenas})
+
+      // refresh arenas each 5 seconds
+      this.refreshHandler = setTimeout(this.refresh, 5 * 1000) 
     } catch (error) {
       console.error("Fail to load Arenas", error)
       dispatchPushNotification("Fail to load Arenas")
