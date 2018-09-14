@@ -3,9 +3,8 @@ import { combineReducers, createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
 import {v4 as uuid} from "uuid"
 
-import { network as eosNetwork, loadMonstersByOwner, loadOrders } from "../utils/eos"
+import { network as eosNetwork, loadMonstersByOwner } from "../utils/eos"
 import { MonsterProps } from "../modules/monsters/monsters"
-import { OrderProps } from "../modules/market/market"
 import { getEosAccount } from "../utils/scatter"
 
 // state
@@ -18,7 +17,6 @@ export interface State {
   readonly globalConfig: GlobalConfig,
   readonly notifications: Notification[]
   readonly myMonsters: MonsterProps[]
-  readonly orders: OrderProps[]
 }
 
 export interface GlobalConfig {
@@ -85,7 +83,6 @@ const DELETE_NOTIFICATION = "DELETE_NOTIFICATION"
 const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
 const LOAD_GLOBAL_CONFIG = "LOAD_GLOBAL_CONFIG"
 const LOAD_MY_MONSTERS = "LOAD_MY_MONSTERS"
-const LOAD_ORDERS = "LOAD_ORDERS"
 const DO_LOGOUT = "DO_LOGOUT"
 
 // auth actions
@@ -100,7 +97,6 @@ const actionDeleteNotificaction = (id: string) => tsAction(DELETE_NOTIFICATION, 
 // read chain actions
 const actionLoadConfig = (config: GlobalConfig) => tsAction(LOAD_GLOBAL_CONFIG, config)
 const actionLoadMyMonsters = (monsters: MonsterProps[]) => tsAction(LOAD_MY_MONSTERS, monsters)
-const actionLoadOrders = (orders: OrderProps[]) => tsAction(LOAD_ORDERS, orders)
 
 // actions definitions
 const actions = {
@@ -110,8 +106,7 @@ const actions = {
   actionPushNotificaction,
   actionDeleteNotificaction,
   actionLoadConfig,
-  actionLoadMyMonsters,
-  actionLoadOrders
+  actionLoadMyMonsters
 }
 type Actions = ActionType<typeof actions>
 
@@ -149,20 +144,11 @@ export const doLoadMyMonsters = () => async (
 ) => {
   // autoload monsters
   const { globalConfig, identity } = getState()
-  const account = getEosAccount(identity)
-  const accountMonsters = await loadMonstersByOwner(account, globalConfig)
-  dispatch(actionLoadMyMonsters(accountMonsters))
-  dispatch(doLoadOrders())
-}
-
-export const doLoadOrders = () => async (
-  dispatch: any,
-  getState: any
-) => {
-  const orders = await loadOrders(getState().globalConfig)
-  // tslint:disable-next-line:no-console
-  console.log("orders have been loaded")
-  dispatch(actionLoadOrders(orders))
+  if (identity) {  
+    const account = getEosAccount(identity)
+    const accountMonsters = await loadMonstersByOwner(account, globalConfig)
+    dispatch(actionLoadMyMonsters(accountMonsters))
+  }
 }
 
 export const requestScatterIdentity = () => async (dispatch: any, getState: any) => {
@@ -241,16 +227,6 @@ const reducers = combineReducers<State, Actions>({
         return state.concat(notification)
       case DELETE_NOTIFICATION:
         return state.filter((item) => item.id !== action.payload)
-      default:
-        return state
-    }
-  },
-  orders: (state = [], action) => {
-    switch (action.type) {
-      case LOAD_ORDERS:
-        return action.payload
-      case DO_LOGOUT:
-        return []
       default:
         return state
     }

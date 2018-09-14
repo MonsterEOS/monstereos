@@ -169,7 +169,8 @@ class OrderCard extends React.Component<Props, ReactState> {
       }
       actions.push({action: this.requestDeleteOrder, label: "Delete Order"})
     }
-    if ((!order.newOwner || order.newOwner === eosAccount) && order.user !== eosAccount && isReal) {
+    if (eosAccount && (!order.newOwner || order.newOwner === eosAccount) && 
+      order.user !== eosAccount && isReal) {
       actions.push({action: this.requestClaimMonster, label: "Claim Monster"})
     }
 

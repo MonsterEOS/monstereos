@@ -84,12 +84,9 @@ export const trxOrderPetMarket = async (
   newOwner: string,
   amount: number
 ) => {
-
-  console.info(amount)
-
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  return contract.orderask(petId, newOwner, `${amount} EOS`, 0, eosAuthorization.permission)
+  return contract.orderask(petId, newOwner, `${amount || "0.0000"} EOS`, 0, eosAuthorization.permission)
 }
 
 export const trxRemoveOrderMarket = async (

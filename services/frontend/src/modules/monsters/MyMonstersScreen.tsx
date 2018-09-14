@@ -28,12 +28,22 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     showNewMonsterModal: false
   }
 
+  private refreshHandler: any = undefined
+
+  public componentDidMount() {
+    this.refresh()
+  }
+
+  public componentWillUnmount() {
+    clearTimeout(this.refreshHandler)
+  }
+
   public render() {
 
     const { eosAccount } = this.props
 
     if (eosAccount) {
-      return this.renderMonsters(eosAccount)
+      return this.renderMonsters()
     } else {
       return <PageContainer>
           <div>Ooopss... looks like you are not identified</div>
@@ -41,7 +51,7 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     }
   }
 
-  private renderMonsters(eosAccount: string) {
+  private renderMonsters() {
 
     const { myMonsters, dispatchDoLoadMyMonsters } = this.props
     const { showNewMonsterModal } = this.state
@@ -96,6 +106,15 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
         }
       </PageContainer>
     )
+  }
+
+  private refresh = async () => {
+    const { dispatchDoLoadMyMonsters } = this.props
+
+    dispatchDoLoadMyMonsters()
+
+    // refresh monsters each minute
+    this.refreshHandler = setTimeout(this.refresh, 60 * 1000) 
   }
 }
 

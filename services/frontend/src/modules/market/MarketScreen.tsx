@@ -1,6 +1,6 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import { State, doLoadOrders, doLoadMyMonsters } from "../../store"
+import { State, doLoadMyMonsters } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 import { OrderProps } from "./market"
 
@@ -8,63 +8,60 @@ import PageContainer from "../shared/PageContainer"
 import TitleBar from "../shared/TitleBar"
 import OrderCard from "./OrderCard"
 import NewOrderModal from "./NewOrderModal"
+import { loadOrders } from "../../utils/eos"
 
 // Bid is Off for now due to monsters autocomplete.
 // no way to select all monsters in memory? demux to the rescue
 // import NewBidModal from "./NewBidModal"
 
 interface Props {
-  eosAccount: string,
-  orders:OrderProps[],
+  eosAccount: any,
   globalConfig: any,
-  dispatchDoLoadOrders: any,
-  dispatchDoLoadMyMonsters: any
+  dispatchDoLoadMyMonsters: any,
 }
 
 interface ReactState {
   showNewOrderModal: boolean,
-  showNewBidModal: boolean
+  showNewBidModal: boolean,
+  orders:OrderProps[],
 }
 
 class MarketScreen extends React.Component<Props, ReactState> {
 
   public state = {
     showNewOrderModal: false,
-    showNewBidModal: false
+    showNewBidModal: false,
+    orders: [],
+  }
+
+  private refreshHandler: any = undefined
+
+  public componentDidMount() {
+    this.refresh()
+  }
+
+  public componentWillUnmount() {
+    clearTimeout(this.refreshHandler)
   }
 
   public render() {
 
-    const { eosAccount } = this.props
-
-    if (eosAccount) {
-      return this.renderMarket(eosAccount)
-    } else {
-      return <PageContainer>
-          <div>Ooopss... looks like you are not identified</div>
-        </PageContainer>
-    }
-  }
-
-  private renderMarket(eosAccount: string) {
-
-    const { orders, dispatchDoLoadOrders, dispatchDoLoadMyMonsters } = this.props
-    // const { showNewOrderModal, showNewBidModal } = this.state
-    const { showNewOrderModal } = this.state
+    const { dispatchDoLoadMyMonsters, eosAccount } = this.props
+    const { showNewOrderModal, orders } = this.state
 
     const subHeader = (<small className="is-hidden-mobile">
      {orders.length} orders
       </small>)
 
     const refetchOrders = () => {
-      setTimeout(() => dispatchDoLoadOrders(), 500)
+      setTimeout(() => this.refresh(), 500)
     }
 
     const refetchMonsters = () => {
       setTimeout(() => dispatchDoLoadMyMonsters(), 500)
     }
 
-    const newOrderButton = (
+    const newOrderButton = eosAccount && (
       <a
         className="button is-success"
         onClick={() => this.setState({showNewOrderModal: true})}>
@@ -114,6 +111,20 @@ class MarketScreen extends React.Component<Props, ReactState> {
       </PageContainer>
     )
   }
+
+  private refresh = async () => {
+
+    const { globalConfig, eosAccount } = this.props
+
+    const orders = await loadOrders(globalConfig)
+
+    const validOrders = orders.filter(isValidForUser(eosAccount.name))
+
+    this.setState({orders: validOrders})
+
+    // refresh orders each minute
+    this.refreshHandler = setTimeout(this.refresh, 60 * 1000) 
+  }
 }
 
 const OrderList = ({ orders, update }: any) => (
@@ -145,13 +156,11 @@ const mapStateToProps = (state: State) => {
 
   return {
     eosAccount,
-    orders: state.orders.filter(isValidForUser(eosAccount.name)),
     globalConfig: state.globalConfig,
   }
 }
 
 const mapDispatchToProps = {
-  dispatchDoLoadOrders: doLoadOrders,
   dispatchDoLoadMyMonsters: doLoadMyMonsters,
 }
 
