@@ -100,10 +100,12 @@ const killMonsters = async (db: any, dbFull: any) => {
 
         const isDead = Date.now() - deathTime > 0
 
-        return {id: pet.id, death_at: isDead ? moment(deathTime).toISOString() : pet.death_at }
-      }).filter((pet: any) => pet.death_at !== EMPTY_TIMESTAMP)
+        const death_at = isDead ? moment(deathTime).toISOString() : pet.death_at
 
-      const updatedDeadPets = deadPets.map((pet: any) => (db.pets.save(pet)))
+        return {id: pet.id, isDead, death_at }
+      }).filter((pet: any) => pet.isDead)
+
+      const updatedDeadPets = deadPets.map((pet: any) => (db.pets.save({id: pet.id, death_at: pet.death_at})))
       if (updatedDeadPets.length) {
         console.info("Dead pets: ", deadPets)
         await Promise.all(updatedDeadPets)
