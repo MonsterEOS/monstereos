@@ -121,7 +121,8 @@ export const getCurrentBattle = (arenas: Arena[], player: string) => {
 
 export const getAvailableMonstersToBattle = (monsters: MonsterProps[]) => {
   return monsters.filter((monster: MonsterProps) =>
-    monster.health > 40 &&
+    monster.health === 100 &&
+    monster.energy > 30 &&
     !monster.isSleeping &&
     !monster.deathAt
   )

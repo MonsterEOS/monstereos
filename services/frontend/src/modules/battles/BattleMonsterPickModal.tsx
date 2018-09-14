@@ -45,6 +45,7 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
         title="Pick your Monster to Battle"
         close={() => closeModal()}
         footerButtons={footerButtons}>
+        <p className="has-text-info"><small><em>Only Alive, Awake and Fed Monsters with more than 30% Energy can Join a Battle</em></small></p>
         <div className="columns is-multiline">
           {monsters.map(this.renderMonsterCard)}
         </div>
