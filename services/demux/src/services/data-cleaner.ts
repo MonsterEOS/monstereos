@@ -126,10 +126,10 @@ const loop = async (db: any, dbFull: any) => {
 
   const isSync = await isChainSync(db)
 
-  await updatePetsWithoutTypes(db)
-
   if (isSync) {
     console.info("Chain is synched, starting cleaning tasks")
+
+    await updatePetsWithoutTypes(db)
 
     await cleanOldArenas(db)
 

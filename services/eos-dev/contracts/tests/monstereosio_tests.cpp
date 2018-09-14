@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_SUITE(monstereosio)
 BOOST_AUTO_TEST_CASE(battles) try {
   monstereosio_tester        t{"battles"};
   monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "pets"_n, "st_pets"};
-  monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "battles"_n, "st_battle"};
+  monstereosio_tester::table battles{"monstereosio"_n, "monstereosio"_n, "battles"_n, "st_battle"};
 
   t.create_account("john"_n);
   t.create_account("mary"_n);
