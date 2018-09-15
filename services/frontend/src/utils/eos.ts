@@ -8,8 +8,7 @@ import { parseBattlesFromChain, parseConfigFromChain, Arena } from "../modules/b
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
-import { parseOrderFromChain } from "../modules/market/market"
-
+import { parseOrderFromChain} from "../modules/market/market"
 // chain info constants
 const CHAIN_PROTOCOL = process.env.REACT_APP_CHAIN_PROTOCOL || "http"
 const CHAIN_HOST = process.env.REACT_APP_CHAIN_HOST || "localhost"
@@ -116,7 +115,7 @@ export const trxPlaceBidMarket = async (
   const eosAuthorization = getEosAuthorization(scatter.identity)
     const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
     return contract.bidpet(petId, eosAuthorization.account.name, 0, amount, eosAuthorization.permission)
-}
+}  
 
 // eos api
 const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
