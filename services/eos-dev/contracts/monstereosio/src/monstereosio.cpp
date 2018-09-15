@@ -10,7 +10,11 @@
                    "onerror action's are only valid from the \"eosio\" system account");           \
     }                                                                                              \
     auto self = receiver;                                                                          \
-    if (code == self || code == N(eosio.token) || action == N(onerror)) {                          \
+                                                                                                   \
+    bool valid_internal_actions = code == self &&                                                  \
+      action != N(transfer);     /* put all external actions separated by && */                    \
+                                                                                                   \
+    if (valid_internal_actions || code == N(eosio.token) || action == N(onerror)) {                \
       TYPE thiscontract(self);                                                                     \
       switch (action) { EOSIO_API(TYPE, MEMBERS) }                                                 \
       /* does not allow destructor of thiscontract to run: eosio_exit(0); */                       \
@@ -55,6 +59,6 @@ EOSIO_ABI_EX(pet,
   (techrevive)
   (delbattles)
 
-  // tokens deposits
+  // EXTERNAL ACTIONS - VALIDATE ABOVE:  deposits
   (transfer)
 )
