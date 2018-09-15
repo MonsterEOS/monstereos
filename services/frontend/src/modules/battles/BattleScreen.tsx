@@ -225,9 +225,8 @@ class BattleScreen extends React.Component<Props, ReactState> {
     } = this.state
 
     await attackBattle(scatter, host, selectedAttackPetId, selectedAttackEnemyId, selectedAttackElementId)
-      .catch((error: any) => {
-        console.error("Fail to submit attack", error)
-        dispatchPushNotification("Fail to Submit Attack", NOTIFICATION_ERROR)
+      .catch((err: any) => {
+        dispatchPushNotification(`Fail to Submit Attack ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 
@@ -238,9 +237,8 @@ class BattleScreen extends React.Component<Props, ReactState> {
         setTimeout(() => history.push("/arenas"), 500)
         dispatchPushNotification("Leaving Battle Successfully...", NOTIFICATION_SUCCESS)
       })
-      .catch((error: any) => {
-        console.error("Fail to leave battle", error)
-        dispatchPushNotification("Fail to Leave Battle", NOTIFICATION_ERROR)
+      .catch((err: any) => {
+        dispatchPushNotification(`Fail to Leave Battle ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 
@@ -251,10 +249,9 @@ class BattleScreen extends React.Component<Props, ReactState> {
         setTimeout(this.refresh, 500)
         dispatchPushNotification("Ready to Battle!", NOTIFICATION_SUCCESS)
       })
-      .catch((error: any) => {
-        console.error("Fail to confirm battle", error)
+      .catch((err: any) => {
         setTimeout(this.refresh, 500)
-        dispatchPushNotification("Fail to confirm Battle", NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to confirm Battle ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 

@@ -145,8 +145,7 @@ class NewBidModal extends React.Component<Props, {}> {
         dispatchPushNotification(`Bid for ${monster.name} was created successfully`, NOTIFICATION_SUCCESS)
         closeModal(true)
       }).catch((err: any) => {
-        console.error(`Fail to place a bid for monster ${monster.id}`, err)
-        dispatchPushNotification(`Fail to place a bid for ${monster.name}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to place a bid for ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 }

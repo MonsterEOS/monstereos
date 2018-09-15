@@ -41,6 +41,27 @@ export const network = {
   // chainId: CHAIN_ID
 }
 
+const trxError = (error: any) => {
+  console.error(`Trx Error`, error)
+
+  let eosError
+
+  if (error.message) {
+    eosError = error.message
+  } else if (error.indexOf("assertion failure with message") > 0) {
+    // Chain Error
+    const errorStart = error.indexOf("assertion failure with message") + 32
+    const errorStartTxt =error.substring(errorStart)
+    const errorEnd = errorStartTxt.indexOf("\"")
+    eosError = errorStartTxt.substring(0, errorEnd)
+    console.info(errorStart, errorEnd, eosError)
+  } else {
+    eosError = "Unknown Error"
+  }
+
+  throw { eosError, error }
+}
+
 export const trxTokenTransfer = async (
   scatter: any,
   to: string,
@@ -49,7 +70,7 @@ export const trxTokenTransfer = async (
 ) => {
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, EOSIO_TOKEN_ACCOUNT)
-  return contract.transfer(eosAuthorization.account.name, to, asset, memo, eosAuthorization.permission)
+  return contract.transfer(eosAuthorization.account.name, to, asset, memo, eosAuthorization.permission).catch(trxError)
 }
 
 export const trxPet = async (
@@ -62,7 +83,7 @@ export const trxPet = async (
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
   // feedpet, bedpet, awakepet
-  return contract[action](petId, eosAuthorization.permission)
+  return contract[action](petId, eosAuthorization.permission).catch(trxError)
 }
 
 export const trxCreatePet = async (
@@ -74,7 +95,7 @@ export const trxCreatePet = async (
 
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
-  return contract.createpet(eosAccount, petName, eosAuthorization.permission)
+  return contract.createpet(eosAccount, petName, eosAuthorization.permission).catch(trxError)
 }
 
 export const trxOrderPetMarket = async (
@@ -85,7 +106,7 @@ export const trxOrderPetMarket = async (
 ) => {
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  return contract.orderask(petId, newOwner, `${amount || "0.0000"} EOS`, 0, eosAuthorization.permission)
+  return contract.orderask(petId, newOwner, `${amount || "0.0000"} EOS`, 0, eosAuthorization.permission).catch(trxError)
 }
 
 export const trxRemoveOrderMarket = async (
@@ -94,7 +115,7 @@ export const trxRemoveOrderMarket = async (
 ) => {
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  return contract.removeask(eosAuthorization.account.name, petId, eosAuthorization.permission)
+  return contract.removeask(eosAuthorization.account.name, petId, eosAuthorization.permission).catch(trxError)
 }
 
 export const trxClaimPetMarket = async (
@@ -104,7 +125,7 @@ export const trxClaimPetMarket = async (
 ) => {
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  return contract.claimpet(oldOwner, petId, eosAuthorization.account.name, eosAuthorization.permission)
+  return contract.claimpet(oldOwner, petId, eosAuthorization.account.name, eosAuthorization.permission).catch(trxError)
 }
 
 export const trxPlaceBidMarket = async (
@@ -114,7 +135,7 @@ export const trxPlaceBidMarket = async (
 ) => {
   const eosAuthorization = getEosAuthorization(scatter.identity)
     const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-    return contract.bidpet(petId, eosAuthorization.account.name, 0, amount, eosAuthorization.permission)
+    return contract.bidpet(petId, eosAuthorization.account.name, 0, amount, eosAuthorization.permission).catch(trxError)
 }  
 
 // eos api
@@ -326,7 +347,7 @@ export const createBattle = async (
   .catch((err: any) => {
     destroyHashInfo()
     throw err
-  })
+  }).catch(trxError)
 }
 
 export const joinBattle = async(
@@ -346,7 +367,7 @@ export const joinBattle = async(
   .catch((err: any) => {
     destroyHashInfo()
     throw err
-  })
+  }).catch(trxError)
 }
 
 export const leaveBattle = async(
@@ -361,7 +382,7 @@ export const leaveBattle = async(
   .then((res: any) => {
     destroyHashInfo()
     return res
-  })
+  }).catch(trxError)
 }
 
 export const startBattle = async(
@@ -380,7 +401,7 @@ export const startBattle = async(
   .then((res: any) => {
     destroyHashInfo()
     return res
-  })
+  }).catch(trxError)
 }
 
 export const attackBattle = async(
@@ -393,7 +414,7 @@ export const attackBattle = async(
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
-  return contract.battleattack(host, host, petId, petEnemyId, elementId, eosAuthorization.permission)
+  return contract.battleattack(host, host, petId, petEnemyId, elementId, eosAuthorization.permission).catch(trxError)
 }
 
 export const getWinner = async (host: string) => {

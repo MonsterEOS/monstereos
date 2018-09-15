@@ -240,8 +240,7 @@ class OrderCard extends React.Component<Props, ReactState> {
           requestUpdate()
         }
       }).catch((err: any) => {
-        console.error(`Fail to delete order for monster #${monster.id}`, err)
-        dispatchPushNotification(`Fail to order for ${monster.name}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to order for ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 
@@ -258,8 +257,7 @@ class OrderCard extends React.Component<Props, ReactState> {
           requestUpdate()
         }
       }).catch((err: any) => {
-        console.error(`Fail to claim monster ${monster.id}`, err)
-        dispatchPushNotification(`Fail to claim ${monster.name}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to claim ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
       })
     } else {
       trxClaimPetMarket(scatter, monster.id, order.user)
@@ -270,8 +268,7 @@ class OrderCard extends React.Component<Props, ReactState> {
             requestUpdate()
           }
         }).catch((err: any) => {
-          console.error(`Fail to claim monster ${monster.id}`, err)
-          dispatchPushNotification(`Fail to claim ${monster.name}`, NOTIFICATION_ERROR)
+          dispatchPushNotification(`Fail to claim ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
         })
     }
   }

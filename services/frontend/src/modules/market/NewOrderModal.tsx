@@ -63,14 +63,14 @@ class NewOrderModal extends React.Component<Props, {}> {
         footerButtons={footerButtons}>
         <div>
           <div className="field">
-            <label className="label is-large">Monster Name</label>     
+            <label className="label is-large">Monster Name</label>
             <div className="control has-icons-left">
               <div className="select is-fullwidth">
                 <select 
                   className="is-large" 
                   onChange={this.handleChangeMonster}
                   value={monster ? monster.id : ""}>
-                  <option value="" selected>Please select the Monster you want to Sell</option>
+                  <option value="">Please select the Monster you want to Sell</option>
                   {monsters.map((opt) => 
                     <option 
                       key={opt.id}
@@ -156,8 +156,7 @@ class NewOrderModal extends React.Component<Props, {}> {
         dispatchPushNotification(`Pet ${monster.name} was offered to ${name} successfully`, NOTIFICATION_SUCCESS)
         closeModal(true)
       }).catch((err: any) => {
-        console.error(`Fail to offer monster ${monster.id}`, err)
-        dispatchPushNotification(`Fail to offer ${monster.name}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to offer ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 }
