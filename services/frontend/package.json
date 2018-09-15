@@ -6,6 +6,7 @@
     "@types/classnames": "^2.2.6",
     "@types/enzyme": "^3.1.13",
     "@types/history": "^4.7.0",
+    "@types/react-autosuggest": "^9.3.5",
     "@types/react-router-dom": "^4.3.0",
     "@types/uuid": "^3.4.3",
     "apollo-boost": "^0.1.13",
