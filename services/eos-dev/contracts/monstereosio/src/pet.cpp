@@ -157,6 +157,21 @@ void pet::awakepet(uuid pet_id) {
     });
 }
 
+void pet::signup(name user) {
+
+    require_auth(user);
+    asset new_balance = asset{0,S(4,EOS)};
+
+    // check user is already signed up
+    _tb_accounts accounts(_self, user);
+    auto itr_balance = accounts.find(new_balance.symbol.name());
+    eosio_assert(itr_balance == accounts.end(), "you have signed up already");
+
+    accounts.emplace(user, [&](auto& r){
+        r.balance = new_balance;
+    });
+}
+
 void pet::transfer(uint64_t sender, uint64_t receiver) {
     print("\n>>> sender >>>", sender, " - name: ", name{sender});
     print("\n>>> receiver >>>", receiver, " - name: ", name{receiver});

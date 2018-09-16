@@ -8,7 +8,8 @@ interface Props {
   scatter: any,
   identity: any,
   dispatchDoLogout: any,
-  dispatchRequestScatterIdentity: any
+  dispatchRequestScatterIdentity: any,
+  myWalletBalance: string,
 }
 
 interface ReactState {
@@ -97,13 +98,15 @@ class TopMenu extends React.Component<Props, ReactState> {
   }
 
   private myWalletButton() {
+    const { myWalletBalance } = this.props
+
     return (
       <div className="navbar-item">
         <div className="field is-grouped">
           <p className="control">
             <Link className="button is-primary" to="/my-wallet">
               <span className="icon"><i className="fa fa-suitcase" /></span>
-              <span>0 EOS</span>
+              <span>{myWalletBalance}</span>
             </Link>
           </p>
         </div>
@@ -176,6 +179,7 @@ class TopMenu extends React.Component<Props, ReactState> {
 const mapStateToProps = (state: State) => ({
   scatter: state.scatter,
   identity: state.identity,
+  myWalletBalance: state.myWalletBalance,
 })
 
 const mapDispatchToProps = {

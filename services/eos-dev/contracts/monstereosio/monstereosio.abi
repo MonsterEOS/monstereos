@@ -595,6 +595,14 @@
         }
       ]
     },{
+      "name": "signup",
+      "base": "",
+      "fields": [{
+          "name": "user",
+          "type": "name"
+        }
+      ]
+    },{
       "name": "transfer",
       "base": "",
       "fields": [{
@@ -722,6 +730,10 @@
     },{
       "name": "migrate",
       "type": "migrate",
+      "ricardian_contract": ""
+    },{
+      "name": "signup",
+      "type": "signup",
       "ricardian_contract": ""
     },{
       "name": "transfer",

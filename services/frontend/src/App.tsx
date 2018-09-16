@@ -17,6 +17,7 @@ import MyMonstersScreen from "./modules/monsters/MyMonstersScreen"
 import MarketScreen from "./modules/market/MarketScreen"
 import MonsterDetailsScreen from "./modules/monsters/MonsterDetailsScreen"
 import Toaster from "./modules/shared/Toaster"
+import MyWalletScreen from "./modules/wallet/MyWalletScreen"
 
 class App extends React.Component<{}, {}> {
   public render() {
@@ -29,6 +30,7 @@ class App extends React.Component<{}, {}> {
           <Route path="/arenas" exact component={ArenasScreen} />
           <Route path="/arenas/:host" exact component={BattleScreen} />
           <Route path="/my-monsters" exact component={MyMonstersScreen} />
+          <Route path="/my-wallet" exact component={MyWalletScreen} />
           <Route path="/monster/:id" component={MonsterDetailsScreen} />
           <Route path="/market" component={MarketScreen} />
           <Route path="/rank/:type" component={RankScreen} />

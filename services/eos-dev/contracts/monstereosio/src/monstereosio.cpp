@@ -40,6 +40,7 @@ EOSIO_ABI_EX(pet,
   (battlefinish)
 
   // market
+  (signup)
   (orderask)
   (removeask)
   (claimpet)

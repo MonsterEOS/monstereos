@@ -3,7 +3,7 @@ import { combineReducers, createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
 import {v4 as uuid} from "uuid"
 
-import { network as eosNetwork, loadMonstersByOwner } from "../utils/eos"
+import { network as eosNetwork, loadMonstersByOwner, loadWalletFunds } from "../utils/eos"
 import { MonsterProps } from "../modules/monsters/monsters"
 import { getEosAccount } from "../utils/scatter"
 import { browserNotify } from "../utils/browserNotifications"
@@ -15,9 +15,10 @@ export const ENERGY_TO_ZERO = 24 * 3600
 export interface State {
   readonly scatter: any
   readonly identity: any
-  readonly globalConfig: GlobalConfig,
+  readonly globalConfig: GlobalConfig
   readonly notifications: Notification[]
   readonly myMonsters: MonsterProps[]
+  readonly myWalletBalance: string
 }
 
 export interface GlobalConfig {
@@ -71,11 +72,6 @@ export const NOTIFICATION_SUCCESS = 1
 export const NOTIFICATION_WARNING = 2
 export const NOTIFICATION_ERROR = 3
 
-// const initialState: State = {
-//   scatter: null,
-//   eosAccount: ""
-// }
-
 // actions constants
 const LOAD_SCATTER = "LOAD_SCATTER"
 const LOAD_EOS_IDENTITY = "LOAD_EOS_IDENTITY"
@@ -83,6 +79,7 @@ const DELETE_NOTIFICATION = "DELETE_NOTIFICATION"
 const PUSH_NOTIFICATION = "PUSH_NOTIFICATION"
 const LOAD_GLOBAL_CONFIG = "LOAD_GLOBAL_CONFIG"
 const LOAD_MY_MONSTERS = "LOAD_MY_MONSTERS"
+const LOAD_MY_WALLET = "LOAD_MY_WALLET"
 const DO_LOGOUT = "DO_LOGOUT"
 
 // auth actions
@@ -97,6 +94,7 @@ const actionDeleteNotificaction = (id: string) => tsAction(DELETE_NOTIFICATION, 
 // read chain actions
 const actionLoadConfig = (config: GlobalConfig) => tsAction(LOAD_GLOBAL_CONFIG, config)
 const actionLoadMyMonsters = (monsters: MonsterProps[]) => tsAction(LOAD_MY_MONSTERS, monsters)
+const actionLoadMyWallet = (myWalletBalance: string) => tsAction(LOAD_MY_WALLET, myWalletBalance)
 
 // actions definitions
 const actions = {
@@ -106,7 +104,8 @@ const actions = {
   actionPushNotificaction,
   actionDeleteNotificaction,
   actionLoadConfig,
-  actionLoadMyMonsters
+  actionLoadMyMonsters,
+  actionLoadMyWallet
 }
 type Actions = ActionType<typeof actions>
 
@@ -140,6 +139,7 @@ export const doLoadScatter = (scatter: any) => {
 export const doLoadIdentity = (identity: any) => async (dispatch: any) => {
   dispatch(actionLoadEosIdentity(identity))
   dispatch(doLoadMyMonsters())
+  dispatch(doLoadMyWallet())
 }
 
 export const doLoadMyMonsters = () => async (
@@ -152,6 +152,19 @@ export const doLoadMyMonsters = () => async (
     const account = getEosAccount(identity)
     const accountMonsters = await loadMonstersByOwner(account, globalConfig)
     dispatch(actionLoadMyMonsters(accountMonsters))
+  }
+}
+
+export const doLoadMyWallet = () => async (
+  dispatch: any,
+  getState: any,
+) => {
+  // autoload monsters
+  const { identity } = getState()
+  if (identity) {
+    const account = getEosAccount(identity)
+    const accountWallet = await loadWalletFunds(account) || 0
+    dispatch(actionLoadMyWallet(`${accountWallet} EOS`))
   }
 }
 
@@ -231,6 +244,14 @@ const reducers = combineReducers<State, Actions>({
         return state.concat(notification)
       case DELETE_NOTIFICATION:
         return state.filter((item) => item.id !== action.payload)
+      default:
+        return state
+    }
+  },
+  myWalletBalance: (state = "0 EOS", action) => {
+    switch (action.type) {
+      case LOAD_MY_WALLET:
+        return action.payload
       default:
         return state
     }

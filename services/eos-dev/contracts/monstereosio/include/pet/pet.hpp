@@ -82,6 +82,7 @@ public:
     void delbattles   ( string reason );
 
     // token deposits
+    void signup       ( name user );
     void transfer     ( uint64_t sender, uint64_t receiver );
 
     private:
