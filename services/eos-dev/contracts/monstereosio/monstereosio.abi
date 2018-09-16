@@ -177,52 +177,17 @@
         }
       ]
     },{
-      "name": "st_pet_config",
-      "base": "",
-      "fields": [{
-          "name": "last_id",
-          "type": "uuid"
-        },{
-          "name": "creation_fee",
-          "type": "asset"
-        },{
-          "name": "max_health",
-          "type": "uint8"
-        },{
-          "name": "hunger_to_zero",
-          "type": "uint32"
-        },{
-          "name": "min_hunger_interval",
-          "type": "uint32"
-        },{
-          "name": "max_hunger_points",
-          "type": "uint8"
-        },{
-          "name": "hunger_hp_modifier",
-          "type": "uint8"
-        },{
-          "name": "min_awake_interval",
-          "type": "uint32"
-        },{
-          "name": "min_sleep_period",
-          "type": "uint32"
-        },{
-          "name": "creation_tolerance",
-          "type": "uint32"
-        },{
-          "name": "monsters_to_activate_fee",
-          "type": "uint32"
-        }
-      ]
-    },{
       "name": "st_pet_config2",
       "base": "",
       "fields": [{
           "name": "last_id",
           "type": "uuid"
         },{
-          "name": "creation_fee",
-          "type": "asset"
+          "name": "creation_awake",
+          "type": "int64"
+        },{
+          "name": "market_fee",
+          "type": "uint64"
         },{
           "name": "max_health",
           "type": "uint8"
@@ -333,7 +298,7 @@
         }
       ]
     },{
-      "name": "transferpet2",
+      "name": "transferpet",
       "base": "",
       "fields": [{
           "name": "pet_id",
@@ -587,9 +552,34 @@
         }
       ]
     },{
-      "name": "migrate",
+      "name": "changemktfee",
       "base": "",
       "fields": [{
+          "name": "new_fee",
+          "type": "uint64"
+        },{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
+      "name": "changecreawk",
+      "base": "",
+      "fields": [{
+          "name": "new_creation_awake",
+          "type": "int64"
+        },{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
+      "name": "changehungtz",
+      "base": "",
+      "fields": [{
+          "name": "new_hunger_to_zero",
+          "type": "uint32"
+        },{
           "name": "reason",
           "type": "string"
         }
@@ -644,8 +634,8 @@
       "type": "techrevive",
       "ricardian_contract": ""
     },{
-      "name": "transferpet2",
-      "type": "transferpet2",
+      "name": "transferpet",
+      "type": "transferpet",
       "ricardian_contract": ""
     },{
       "name": "battlecreate",
@@ -728,8 +718,16 @@
       "type": "changebatama",
       "ricardian_contract": ""
     },{
-      "name": "migrate",
-      "type": "migrate",
+      "name": "changemktfee",
+      "type": "changemktfee",
+      "ricardian_contract": ""
+    },{
+      "name": "changecreawk",
+      "type": "changecreawk",
+      "ricardian_contract": ""
+    },{
+      "name": "changehungtz",
+      "type": "changehungtz",
       "ricardian_contract": ""
     },{
       "name": "signup",
@@ -811,16 +809,6 @@
         "uuid"
       ],
       "type": "st_orders"
-    },{
-      "name": "petconfig",
-      "index_type": "i64",
-      "key_names": [
-        "last_id"
-      ],
-      "key_types": [
-        "uuid"
-      ],
-      "type": "st_pet_config"
     },{
       "name": "petconfig2",
       "index_type": "i64",

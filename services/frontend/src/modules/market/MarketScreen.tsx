@@ -58,7 +58,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
     }
 
     const refetchMonsters = () => {
-      setTimeout(() => dispatchDoLoadMyMonsters(), 500)
+      setTimeout(() => dispatchDoLoadMyMonsters() && this.refresh(), 500)
     }
 
     const newOrderButton = eosAccount && (
@@ -123,7 +123,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
     this.setState({orders: validOrders})
 
     // refresh orders each minute
-    this.refreshHandler = setTimeout(this.refresh, 60 * 1000) 
+    this.refreshHandler = setTimeout(this.refresh, 60 * 1000)
   }
 }
 

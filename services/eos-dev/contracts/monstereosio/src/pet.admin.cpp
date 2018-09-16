@@ -1,17 +1,38 @@
 using namespace types;
 
 // command to delete stuff
-void pet::delbattles(string /* reason */) {
-  require_auth(_self);
+// void pet::delbattles(string /* reason */) {
+//   require_auth(_self);
 
-  // multi_index can't erase when the format changed
-  auto it = db_lowerbound_i64(_self, _self, N(battles), 0);
-  while (it >= 0) {
-    auto     del = it;
-    uint64_t dummy;
-    it = db_next_i64(it, &dummy);
-    db_remove_i64(del);
-  }
+//   // multi_index can't erase when the format changed
+//   auto it = db_lowerbound_i64(_self, _self, N(battles), 0);
+//   while (it >= 0) {
+//     auto     del = it;
+//     uint64_t dummy;
+//     it = db_next_i64(it, &dummy);
+//     db_remove_i64(del);
+//   }
+// }
+
+void pet::changemktfee(uint64_t new_fee, string /* reason */) {
+  require_auth(_self);
+  auto pc       = _get_pet_config();
+  pc.market_fee = new_fee;
+  _update_pet_config(pc);
+}
+
+void pet::changecreawk(int64_t new_creation_awake, string /* reason */) {
+  require_auth(_self);
+  auto pc           = _get_pet_config();
+  pc.creation_awake = new_creation_awake;
+  _update_pet_config(pc);
+}
+
+void pet::changehungtz(uint32_t new_hunger_to_zero, string /* reason */) {
+  require_auth(_self);
+  auto pc           = _get_pet_config();
+  pc.hunger_to_zero = new_hunger_to_zero;
+  _update_pet_config(pc);
 }
 
 void pet::changecrtol(uint32_t new_interval) {

@@ -54,12 +54,20 @@ const trxError = (error: any) => {
     const errorStartTxt =error.substring(errorStart)
     const errorEnd = errorStartTxt.indexOf("\"")
     eosError = errorStartTxt.substring(0, errorEnd)
+
+    // pretty balance error
+    if (eosError === "no balance object found" || eosError === "overdrawn balance") {
+      eosError = "Insufficient Funds"
+    }
+
     console.info(errorStart, errorEnd, eosError)
+  } else if (error.indexOf(`"code":13`) > 0 && error.indexOf(`"get_account"`) > 0) {
+    eosError = "Invalid EOS Account"
   } else {
     eosError = "Unknown Error"
   }
 
-  throw { eosError, error }
+  throw { eosError: `- ${eosError}`, error }
 }
 
 export const trxTokenTransfer = async (
@@ -136,7 +144,7 @@ export const trxPlaceBidMarket = async (
   const eosAuthorization = getEosAuthorization(scatter.identity)
     const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
     return contract.bidpet(petId, eosAuthorization.account.name, 0, amount, eosAuthorization.permission).catch(trxError)
-}  
+}
 
 // eos api
 const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })

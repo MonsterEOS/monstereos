@@ -61,7 +61,7 @@ void pet::createpet(name owner,
         pet.last_play_at = pet.created_at;
         pet.last_shower_at = pet.created_at;
         pet.last_bed_at = pet.created_at;
-        pet.last_awake_at = pet.created_at + 1; // TODO: should we create awake pets?
+        pet.last_awake_at = pet.created_at + pc.creation_awake;
 
         pet.type = (pet.created_at + pet.id + owner) % pc.last_pet_type_id;
 
@@ -79,21 +79,20 @@ void pet::destroypet(uuid pet_id) {
 
 }
 
-void pet::transferpet2(uuid pet_id, name new_owner) {
+void pet::transferpet(uuid pet_id, name new_owner) {
 
     auto itr_pet = pets.find(pet_id);
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     auto pet = *itr_pet;
 
-    require_auth(pet.owner);
+    eosio_assert(has_auth(_self) || has_auth(pet.owner),
+        "missing required authority of contract or owner");
 
-    print(pet_id, "| transfering pet ");
+    // require_auth(pet.owner);
 
     pets.modify(itr_pet, 0, [&](auto &r) {
         r.owner = new_owner;
     });
-
-    print("new owner ", new_owner);
 }
 
 void pet::feedpet(uuid pet_id) {
@@ -209,11 +208,7 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
                 r.balance += transfer_data.quantity;
                 new_balance = r.balance;
             });
-
-            print("\n", name{transfer_data.from}, " funds available: ", new_balance);
         }
-
-        print("\n", name{transfer_data.from}, " deposited:       ", transfer_data.quantity);
     }
 
 }
@@ -230,9 +225,6 @@ uint32_t pet::_calc_hunger_hp(const uint8_t &max_hunger_points, const uint32_t &
         effect_hp_hunger = (hungry_points - max_hunger_points) / hunger_hp_modifier;
     }
 
-    print("\npet hungry_points=", hungry_points);
-    print("\npet hungry_seconds=", hungry_seconds);
-
     return effect_hp_hunger;
 }
 
@@ -247,9 +239,6 @@ bool pet::_is_alive(st_pets &pet, const st_pet_config2 &pc) {
         pet.last_fed_at, current_time);
 
     int32_t hp = pc.max_health - effect_hp_hunger;
-
-    print("\npet hp=", hp);
-    print("\npet effect_hp_hunger=", effect_hp_hunger);
 
     return hp > 0;
 }

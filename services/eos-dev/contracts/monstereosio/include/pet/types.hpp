@@ -17,7 +17,6 @@ namespace types {
   typedef uint8_t  battle_mode;
   typedef uint8_t  element_type;
 
-  constexpr uint8_t  PET_TYPES = 109;
   constexpr uint32_t DAY = 86400;
   constexpr uint32_t HOUR = 3600;
   constexpr uint32_t MINUTE = 60;
@@ -26,7 +25,6 @@ namespace types {
   constexpr battle_mode V1 = 1;
   constexpr battle_mode V2 = 2;
   constexpr battle_mode V3 = 3;
-  constexpr battle_mode RAID = 100;
 
   // market order types
   typedef uint8_t order_type;

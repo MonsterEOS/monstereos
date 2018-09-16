@@ -29,7 +29,7 @@ EOSIO_ABI_EX(pet,
   (bedpet)
   (awakepet)
   (destroypet)
-  (transferpet2)
+  (transferpet)
 
   // battles
   (battlecreate)
@@ -58,7 +58,9 @@ EOSIO_ABI_EX(pet,
   (changebatami)
   (changebatama)
   (techrevive)
-  (delbattles)
+  (changemktfee)
+  (changecreawk)
+  (changehungtz)
 
   // EXTERNAL ACTIONS - VALIDATE ABOVE:  deposits
   (transfer)

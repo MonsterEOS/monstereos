@@ -50,7 +50,7 @@ public:
     void bedpet       ( uuid pet_id );
     void awakepet     ( uuid pet_id );
     void destroypet   ( uuid pet_id );
-    void transferpet2 ( uuid pet_id, name new_owner);
+    void transferpet  ( uuid pet_id, name new_owner);
 
     // battle interface
     void battlecreate ( name host, battle_mode mode, checksum256 secret );
@@ -79,7 +79,9 @@ public:
     void changebatami ( uint8_t new_attack_min_factor );
     void changebatama ( uint8_t new_attack_max_factor );
     void techrevive   ( uuid pet_id, string reason );
-    void delbattles   ( string reason );
+    void changemktfee ( uint64_t new_fee, string reason );
+    void changecreawk ( int64_t new_creation_awake, string reason );
+    void changehungtz ( uint32_t new_hunger_to_zero, string reason );
 
     // token deposits
     void signup       ( name user );
@@ -94,9 +96,10 @@ public:
     // @abi table petconfig2 i64
     struct st_pet_config2 {
         uuid     last_id = 0;
-        asset    creation_fee = asset{0,S(4,EOS)};
+        int64_t  creation_awake = 1;
+        uint64_t market_fee = 100;
         uint8_t  max_health = 100;
-        uint32_t hunger_to_zero = 36 * HOUR;
+        uint32_t hunger_to_zero = 36 * HOUR; // 129600
         uint32_t min_hunger_interval = 3 * HOUR;
         uint8_t  max_hunger_points = 100;
         uint8_t  hunger_hp_modifier = 1;
@@ -137,7 +140,7 @@ public:
     // pet transfers
     void _transfer_value (name receiver, asset quantity, string memo);
     void _handle_transf  (string memo, asset quantity, account_name from);
-    void _transfer_pet   ( uuid pet_id, name new_owner);
+    // void _transfer_pet   ( uuid pet_id, name new_owner);
 
 
     // battle helpers

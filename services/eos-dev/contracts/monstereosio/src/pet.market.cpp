@@ -2,7 +2,7 @@ using namespace types;
 using namespace utils;
 
 void pet::orderask(uuid pet_id, name new_owner, asset amount, uint32_t until = 0) {
-    const auto& pet = pets.get(pet_id, "E404|Invalid pet");
+    const auto& pet = pets.get(pet_id, "Invalid pet");
 
     require_auth(pet.owner);
     eosio_assert(pet.owner != new_owner, "new owner must be different than current owner");
@@ -20,7 +20,7 @@ void pet::orderask(uuid pet_id, name new_owner, asset amount, uint32_t until = 0
 
     order_type type;
     if (until > 0) {
-        eosio_assert(until > placed_at, "E404|End of temporary transfer must be in the future");
+        eosio_assert(until > placed_at, "End of temporary transfer must be in the future");
         type = ORDER_TYPE_ASK_RENT; // temporary transfer
     } else {
         type = ORDER_TYPE_ASK; // indefinite transfer
@@ -29,7 +29,7 @@ void pet::orderask(uuid pet_id, name new_owner, asset amount, uint32_t until = 0
     if (itr_user_pet != idx_existent_order.end()) {
         auto order = *itr_user_pet;
 
-        eosio_assert(order.type != ORDER_TYPE_RENTING, "E404|order can't be updated during temporary transfers");
+        eosio_assert(order.type != ORDER_TYPE_RENTING, "order can't be updated during temporary transfers");
 
         orders.modify(*itr_user_pet, pet.owner, [&](auto &r) {
             r.value = amount;
@@ -67,11 +67,11 @@ void pet::removeask(name owner, uuid pet_id) {
     require_auth(owner);
 
     auto idx_existent_order = orders.get_index<N(by_user_and_pet)>();
-    const auto& order = idx_existent_order.get(combine_ids(owner, pet_id), "E404|Invalid order");
+    const auto& order = idx_existent_order.get(combine_ids(owner, pet_id), "Invalid order");
 
-    eosio_assert(order.user == owner, "E404|order can only be removed by owner of order");
+    eosio_assert(order.user == owner, "order can only be removed by owner of order");
 
-    eosio_assert(order.type != ORDER_TYPE_RENTING, "E404|orders can't be removed during temporary transfers");
+    eosio_assert(order.type != ORDER_TYPE_RENTING, "orders can't be removed during temporary transfers");
 
     orders.erase(order);
 }
@@ -80,22 +80,22 @@ void pet::claimpet(name old_owner, uuid pet_id, name claimer) {
     require_auth(claimer);
 
     auto idx_existent_order = orders.get_index<N(by_user_and_pet)>();
-    const auto& order = idx_existent_order.get(combine_ids(old_owner, pet_id), "E404|Invalid order");
-    const auto& pet = pets.get(pet_id, "E404|Invalid pet");
+    const auto& order = idx_existent_order.get(combine_ids(old_owner, pet_id), "Invalid order");
+    const auto& pet = pets.get(pet_id, "Invalid pet");
 
     const name new_owner = order.new_owner;
     eosio_assert(
         claimer == new_owner ||
         new_owner == (const name) {0},
         "E404|Invalid claimer");
-    eosio_assert(old_owner == pet.owner, "E404|Pet already transferred");
+    eosio_assert(old_owner == pet.owner, "Pet already transferred");
 
     eosio_assert(order.type != ORDER_TYPE_RENTING || order.transfer_ends_at < now(), "E404|Temporary transfer not yet over");
-    eosio_assert(order.value.amount == 0, "E404|orders requires value transfer");
+    eosio_assert(order.value.amount == 0, "orders requires value transfer");
 
     // transfer pet
-    // action(permission_level{_self, N(active)}, N(monstereosio), N(transferpet), std::make_tuple(pet.id, claimer)).send();
-    _transfer_pet(pet.id, claimer);
+    SEND_INLINE_ACTION( *this, transferpet, {_self,N(active)}, {pet.id, claimer});
+    // _transfer_pet(pet.id, claimer);
 
     if (order.transfer_ends_at > 0) {
         if (order.type == ORDER_TYPE_ASK_RENT) {
@@ -178,20 +178,18 @@ void pet::removebid(name bidder, uuid pet_id) {
     orders.erase(order);
 }
 
-void pet::_transfer_pet(uuid pet_id, name new_owner) {
+// void pet::_transfer_pet(uuid pet_id, name new_owner) {
 
-    auto itr_pet = pets.find(pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-    auto pet = *itr_pet;
+//     auto itr_pet = pets.find(pet_id);
+//     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+//     auto pet = *itr_pet;
 
-    print(pet_id, "| transfering pet ");
+//     print(pet_id, "| transfering pet ");
 
-    pets.modify(itr_pet, 0, [&](auto &r) {
-        r.owner = new_owner;
-    });
-
-    print("new owner ", new_owner);
-}
+//     pets.modify(itr_pet, 0, [&](auto &r) {
+//         r.owner = new_owner;
+//     });
+// }
 
 void pet::_handle_transf(string memo, asset quantity, account_name from) {
 
@@ -220,9 +218,10 @@ void pet::_handle_transf(string memo, asset quantity, account_name from) {
     eosio_assert(pet.owner == order.user, "E499|monster does not to belong to order's user");
 
     name old_owner = pet.owner;
-    pets.modify(itr_pet, 0, [&](auto &r) {
-        r.owner = name{from};
-    });
+    // pets.modify(itr_pet, 0, [&](auto &r) {
+    //     r.owner = name{from};
+    // });
+    SEND_INLINE_ACTION( *this, transferpet, {_self,N(active)}, {pet.id, name{from}});
 
     orders.erase(itr_order);
 

@@ -41,7 +41,7 @@ class OrderCard extends React.Component<Props, ReactState> {
 
   public render() {
 
-    const { order, selected, dispatchDoLoadMyMonsters } = this.props
+    const { order, selected, dispatchDoLoadMyMonsters, requestUpdate } = this.props
     const monster = order.monster
 
     const { showNewOrderModal } = this.state
@@ -56,6 +56,10 @@ class OrderCard extends React.Component<Props, ReactState> {
       this.setState({showNewOrderModal: false})
       if (doRefetch) {
         refetchMonstersAndOrders()
+
+        if (requestUpdate) {
+          requestUpdate()
+        }
       }
     }
 
@@ -169,9 +173,14 @@ class OrderCard extends React.Component<Props, ReactState> {
       }
       actions.push({action: this.requestDeleteOrder, label: "Delete Order"})
     }
-    if (eosAccount && (!order.newOwner || order.newOwner === eosAccount) && 
+    if (eosAccount && (!order.newOwner || order.newOwner === eosAccount) &&
       order.user !== eosAccount && isReal) {
-      actions.push({action: this.requestClaimMonster, label: "Claim Monster"})
+
+      const amount = amountOfAsset(order.value)
+      actions.push({
+        action: this.requestClaimMonster,
+        label: amount > 0 ? `Buy ${amount.toLocaleString()} EOS` : `Claim for FREE`
+      })
     }
 
     if (customActions) {
@@ -203,19 +212,16 @@ class OrderCard extends React.Component<Props, ReactState> {
     return (
       <div className="card-content">
         <span className="is-6">
-          owned by {monster.owner}
+          current owner {monster.owner}
         </span>
         <div className="is-6">
-          ordered by {order.user}
+          order by {order.user}
         </div>
         {order.newOwner &&
           <div className="is-6">
             ordered to {order.newOwner}
           </div>
         }
-        <div className="is-6">
-          for {order.value}
-        </div>
         {order.transferEndsAt > 0 &&
         <div className="is-6">
           <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
