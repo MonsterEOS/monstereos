@@ -89,7 +89,7 @@ namespace types {
 
       bool has_energy(const uint8_t min_energy) const {
           uint32_t awake_seconds = now() - last_awake_at;
-          uint32_t energy_bar = (100 * (awake_seconds / 3600)) / DAY;
+          uint32_t energy_bar = 100 - ((100 * awake_seconds) / DAY);
 
           return energy_bar > min_energy;
       }

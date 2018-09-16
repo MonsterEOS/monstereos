@@ -185,6 +185,12 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
       if (newArena) {
         this.setState({arena: newArena})
+
+        if (arena !== undefined) {
+          const currentArena = arena as Arena
+          this.handleArenaNotifications(currentArena, newArena)
+        }
+
       } else if (arena !== null && arena !== undefined && arena.petsStats.length) {
         const confirmedArena = arena as Arena
         const winner = await getWinner(confirmedArena.host)
@@ -213,6 +219,27 @@ class BattleScreen extends React.Component<Props, ReactState> {
       console.error("Fail to load Arena", error)
       dispatchPushNotification("Fail to load Arena")
     }
+  }
+
+  private handleArenaNotifications = (currentArena: Arena, newArena: Arena) => {
+
+    const { dispatchPushNotification } = this.props
+
+    // check someone joined in arena
+    newArena.commits.forEach((commit) => {
+      const oldArenaCommit = currentArena.commits.find((oldCommit) => oldCommit.player === commit.player)
+
+      if (!oldArenaCommit) {
+        const notification = `${commit.player} has joined the battle. Be Ready!`
+        console.info(notification)
+        dispatchPushNotification(notification, NOTIFICATION_SUCCESS, true)
+      } else if (oldArenaCommit.randoms.length !== commit.randoms.length) {
+        const notification = `${commit.player} is ready! Let the Battle Start!`
+        console.info(notification)
+        dispatchPushNotification(notification, NOTIFICATION_SUCCESS, true)
+      }
+    })
+
   }
 
   private submitAttack = async (host: string) => {

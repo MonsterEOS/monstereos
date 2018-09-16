@@ -49,6 +49,7 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
         <div className="columns is-multiline">
           {monsters.map(this.renderMonsterCard)}
         </div>
+        {monsters.length < 1 && <p className="has-text-danger">Ooops... Looks like you have no Monsters available to battle</p>}
       </Modal>
     )
   }
