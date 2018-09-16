@@ -199,7 +199,7 @@ void pet::_handle_transf(string memo, asset quantity, account_name from) {
 
     auto itr_order = orders.find(orderid);
 
-    eosio_assert(itr_order != orders.end(), "E404|Invalid order");
+    eosio_assert(itr_order != orders.end(), "Invalid order");
 
     auto order = *itr_order;
 
@@ -208,14 +208,19 @@ void pet::_handle_transf(string memo, asset quantity, account_name from) {
         "only ask orders are allowed to receive transfers");
 
     auto itr_pet = pets.find(order.pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    eosio_assert(itr_pet != pets.end(), "Invalid pet");
     auto pet = *itr_pet;
 
-    eosio_assert(order.type != 10, "E499|order is already RENTING");
-    eosio_assert(order.user != from, "E499|You cant buy your own order DUH");
-    eosio_assert(quantity.amount == order.value.amount, "E499|amounts does not match order's amount");
-    eosio_assert(quantity.symbol == order.value.symbol, "E499|token does not match order's token");
-    eosio_assert(pet.owner == order.user, "E499|monster does not to belong to order's user");
+    eosio_assert(order.type != 10, "order is already RENTING");
+    eosio_assert(order.user != from, "You cant buy your own order DUH");
+    eosio_assert(pet.owner == order.user, "monster does not to belong to order's user");
+
+    eosio_assert(quantity.symbol == order.value.symbol, "token does not match order's token");
+
+    auto pc = _get_pet_config();
+    auto order_amount = order.value.amount * (1 + (pc.market_fee / 10000 ));
+    eosio_assert(quantity.amount > order_amount,
+        "amount is not sufficient to pay for offer's amount and market fees");
 
     name old_owner = pet.owner;
     // pets.modify(itr_pet, 0, [&](auto &r) {
@@ -226,7 +231,7 @@ void pet::_handle_transf(string memo, asset quantity, account_name from) {
     orders.erase(itr_order);
 
     // transfer money to old owner
-    _transfer_value(old_owner, quantity, "MonsterEOS order " + sorderid);
+    _transfer_value(old_owner, order.value, "MonsterEOS order " + sorderid);
 }
 
 void pet::_transfer_value(name receiver, asset quantity, string memo) {

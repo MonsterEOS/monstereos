@@ -98,6 +98,8 @@ export const parseConfigFromChain = (config: any): GlobalConfig => {
     battle_idle_tolerance: config.battle_idle_tolerance,
     battle_max_arenas: config.battle_max_arenas,
     creation_tolerance: config.creation_tolerance,
+    creation_awake: config.creation_awake,
+    market_fee: config.market_fee,
     hunger_hp_modifier: config.hunger_hp_modifier,
     hunger_to_zero: config.hunger_to_zero,
     energy_to_zero: ENERGY_TO_ZERO,

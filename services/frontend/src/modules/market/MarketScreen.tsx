@@ -46,12 +46,18 @@ class MarketScreen extends React.Component<Props, ReactState> {
 
   public render() {
 
-    const { dispatchDoLoadMyMonsters, eosAccount } = this.props
+    const { dispatchDoLoadMyMonsters, eosAccount, globalConfig } = this.props
     const { showNewOrderModal, orders } = this.state
 
-    const subHeader = (<small className="is-hidden-mobile">
-     {orders.length} orders
-      </small>)
+    const subHeader =
+      <small className="is-hidden-mobile">
+        {orders.length} orders
+      </small>
+
+    const subHeaderFee =
+      <small className="is-hidden-mobile">
+        Market Fees: {globalConfig.market_fee / 100}%
+      </small>
 
     const refetchOrders = () => {
       setTimeout(() => this.refresh(), 500)
@@ -96,7 +102,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
         <TitleBar
           title="Monsters Market"
           notMobile
-          menu={[subHeader, newOrderButton]} />
+          menu={[subHeader, subHeaderFee, newOrderButton]} />
           <OrderList
             orders={orders}
             update={refetchMonsters} />

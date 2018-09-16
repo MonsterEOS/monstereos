@@ -59,3 +59,8 @@ export const amountOfAsset = (asset: string) => {
   }
 
 }
+
+export const amountOfAssetPlusFees = (asset: string, marketFee: number) => {
+  const amount = amountOfAsset(asset)
+  return amount * (1 + (marketFee / 10000))
+}

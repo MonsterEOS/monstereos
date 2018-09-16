@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as moment from "moment"
-import { OrderProps, amountOfAsset } from "./market"
+import { OrderProps, amountOfAsset, amountOfAssetPlusFees } from "./market"
 import { monsterImageSrc } from "../monsters/monsters"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
@@ -161,7 +161,7 @@ class OrderCard extends React.Component<Props, ReactState> {
 
   private renderFooter() {
 
-    const { order, customActions, eosAccount } = this.props
+    const { order, customActions, eosAccount, globalConfig } = this.props
 
     let actions: MonsterAction[] = []
 
@@ -176,7 +176,7 @@ class OrderCard extends React.Component<Props, ReactState> {
     if (eosAccount && (!order.newOwner || order.newOwner === eosAccount) &&
       order.user !== eosAccount && isReal) {
 
-      const amount = amountOfAsset(order.value)
+      const amount = amountOfAssetPlusFees(order.value, globalConfig.market_fee)
       actions.push({
         action: this.requestClaimMonster,
         label: amount > 0 ? `Buy ${amount.toLocaleString()} EOS` : `Claim for FREE`
@@ -202,12 +202,15 @@ class OrderCard extends React.Component<Props, ReactState> {
 
   private renderOrderData = () => {
 
-    const { order } = this.props
+    const { order, globalConfig } = this.props
     const { monster } = order
 
     const transferEnds = moment(order.transferEndsAt)
     const transferEndsText = transferEnds.format("MMMM, D YYYY @ h:mm a")
     const transferEndsIso = transferEnds.toLocaleString()
+
+    const amount = amountOfAsset(order.value)
+    const fees = (amount * globalConfig.market_fee / 10000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
     return (
       <div className="card-content">
@@ -226,6 +229,11 @@ class OrderCard extends React.Component<Props, ReactState> {
         <div className="is-6">
           <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
         </div>}
+        { amount > 0 &&
+        <div className="is-6">
+          <strong>Order Fees: {fees} EOS</strong>
+        </div>
+        }
       </div>
     )
   }
@@ -251,11 +259,15 @@ class OrderCard extends React.Component<Props, ReactState> {
   }
 
   private requestClaimMonster = () => {
-    const { scatter, order, requestUpdate, dispatchPushNotification} = this.props
+    const { scatter, order, requestUpdate, dispatchPushNotification, globalConfig} = this.props
     const monster = order.monster
 
-    if (amountOfAsset(order.value) > 0 ) {
-      trxTokenTransfer(scatter, MONSTERS_ACCOUNT, order.value, "MTT" + order.id)
+    const amount = amountOfAssetPlusFees(order.value, globalConfig.market_fee)
+
+    if (amount > 0 ) {
+      const orderAmount = `${amount.toFixed(4)} EOS`
+
+      trxTokenTransfer(scatter, MONSTERS_ACCOUNT, orderAmount, "mtt" + order.id)
       .then((res:any) => {
         console.info(`Pet ${monster.id} was claimed successfully`, res)
         dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)

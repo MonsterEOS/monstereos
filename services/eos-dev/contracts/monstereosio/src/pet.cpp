@@ -190,7 +190,7 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
     eosio_assert(transfer_data.quantity.is_valid(), "Invalid token transfer");
     eosio_assert(transfer_data.quantity.amount > 0, "Quantity must be positive");
 
-    string memoprefix = "MTT";
+    string memoprefix = "mtt";
     auto startsWithMTT = transfer_data.memo.rfind(memoprefix, 0);
 
     // Monster Market Transfer

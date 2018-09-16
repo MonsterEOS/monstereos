@@ -39,6 +39,8 @@ export interface GlobalConfig {
   min_awake_interval: number
   min_hunger_interval: number
   min_sleep_period: number
+  market_fee: number
+  creation_awake: number
 }
 
 export const initialGlobalConfig = {
@@ -58,7 +60,9 @@ export const initialGlobalConfig = {
   max_hunger_points: 100,
   min_awake_interval: 28800,
   min_hunger_interval: 10800,
-  min_sleep_period: 14400
+  min_sleep_period: 14400,
+  market_fee: 125,
+  creation_awake: 1
 }
 
 export interface Notification {
