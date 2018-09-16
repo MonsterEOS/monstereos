@@ -1,7 +1,6 @@
 # Compiled codes
 build/
 dist/
-*.wasm
 *.wast
 
 # IDE's
