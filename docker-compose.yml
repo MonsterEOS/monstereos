@@ -48,7 +48,7 @@ services:
       dockerfile: Dockerfile
     image: monstereos/eosdev
     stop_grace_period: 3m0s
-    command: /opt/eosio/bin/nodeos --config-dir /opt/application/config --data-dir /root/.local/share -e --hard-replay
+    command: /opt/eosio/bin/nodeos --config-dir /opt/application/config --data-dir /root/.local/share -e
     ports:
       - "8888:8888"
       - "9830:9876"

@@ -162,9 +162,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
         setTimeout(() => history.push(`/arenas/${identity}`), 500)
         dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
       })
-      .catch((error: any) => {
-        console.error("Fail to create battle", error)
-        dispatchPushNotification("Fail to Create Battle", NOTIFICATION_ERROR)
+      .catch((err: any) => {
+        dispatchPushNotification(`Fail to Create Battle ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 
@@ -175,9 +174,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
         setTimeout(() => history.push(`/arenas/${host}`), 500)
         dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
       })
-      .catch((error: any) => {
-        console.error("Fail to join battle", error)
-        dispatchPushNotification("Fail to Join Battle", NOTIFICATION_ERROR)
+      .catch((err: any) => {
+        dispatchPushNotification(`Fail to Join Battle ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 }

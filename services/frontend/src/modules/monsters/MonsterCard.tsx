@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as moment from "moment"
 import { MonsterProps, monsterImageSrc } from "./monsters"
-import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, NOTIFICATION_WARNING } from "../../store"
+import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
 import { trxPet } from "../../utils/eos"
@@ -171,45 +171,19 @@ class MonsterCard extends React.Component<Props, {}> {
   }
 
   private requestFeed = () => {
-    const { monster, globalConfig } = this.props
-
-    const feedInterval = (Date.now() - monster.lastFeedAt) / 1000
-    if (feedInterval < globalConfig.min_hunger_interval) {
-      return this.warnAction(`${monster.name} is not hungry yet`)
-    }
-
     this.petAction("feedpet", "feed")
   }
 
   private requestAwake = async () => {
-    const { monster, globalConfig } = this.props
-
-    const awakeInterval = (Date.now() - monster.lastBedAt) / 1000
-    if (awakeInterval < globalConfig.min_sleep_period) {
-      return this.warnAction(`${monster.name} is not recovered yet`)
-    }
-
     this.petAction("awakepet", "wake")
   }
 
   private requestSleep = async () => {
-    const { monster, globalConfig } = this.props
-
-    const bedInterval = (Date.now() - monster.lastAwakeAt) / 1000
-    if (bedInterval < globalConfig.min_awake_interval) {
-      return this.warnAction(`${monster.name} is not tired yet`)
-    }
-
     this.petAction("bedpet", "bed")
   }
 
   private requestDestroy = async () => {
     this.petAction("destroypet", "destroy")
-  }
-
-  private warnAction = (text: string) => {
-    const { dispatchPushNotification } = this.props
-    dispatchPushNotification(text, NOTIFICATION_WARNING)
   }
 
   private petAction = (action: string, text: string) => {
@@ -223,8 +197,7 @@ class MonsterCard extends React.Component<Props, {}> {
           requestUpdate()
         }
       }).catch((err: any) => {
-        console.error(`Fail to ${text} ${monster.id}`, err)
-        dispatchPushNotification(`Fail to ${text} ${monster.name}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to ${text} ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 }

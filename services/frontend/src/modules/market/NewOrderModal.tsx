@@ -1,5 +1,5 @@
 import * as React from "react"
-import { State, pushNotification, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR, NOTIFICATION_WARNING } from "../../store"
+import { State, pushNotification, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from "../../store"
 import { connect } from "react-redux"
 import { trxOrderPetMarket } from "../../utils/eos"
 import Modal from "../shared/Modal"
@@ -20,6 +20,7 @@ interface ReactState {
   monstername: string,
   amount: number,
   monster: MonsterProps | undefined
+  suggestedMonsters: MonsterProps[]
 }
 
 class NewOrderModal extends React.Component<Props, {}> {
@@ -28,14 +29,15 @@ class NewOrderModal extends React.Component<Props, {}> {
     name: this.props.initialName ? this.props.initialName: "",
     monstername: this.props.initialMonster ? this.props.initialMonster.name: "",
     amount: this.props.initialAmount ? this.props.initialAmount : 0,
-    monster: this.props.initialMonster
+    monster: this.props.initialMonster,
+    suggestedMonsters: []
   }
 
   public render() {
 
     const { closeModal, monsters } = this.props
 
-    const { name, monstername, monster, amount } = this.state
+    const { name, monster, amount } = this.state
 
     const footerButtons = [
       <button
@@ -62,25 +64,21 @@ class NewOrderModal extends React.Component<Props, {}> {
         <div>
           <div className="field">
             <label className="label is-large">Monster Name</label>
-            <div className="control has-icons-left has-icons-right">
-              <datalist id="mymonsters">
-                {monsters.map((m) =>
-                    <option key={m.name} value={m.name} />
-                )}
-              </datalist>
-              <input
-                className="input is-large"
-                placeholder="Bubble"
-                type="text"
-                list="mymonsters"
-                onChange={this.handleChangeMonster}
-                value={monstername} />
-              <span className="icon is-left">
-                <i className="fa fa-paw" />
-              </span>
-              {monster && <span className="label">
-                #{monster.id}
-              </span>}
+            <div className="control has-icons-left">
+              <div className="select is-fullwidth">
+                <select 
+                  className="is-large" 
+                  onChange={this.handleChangeMonster}
+                  value={monster ? monster.id : ""}>
+                  <option value="">Please select the Monster you want to Sell</option>
+                  {monsters.map((opt) => 
+                    <option 
+                      key={opt.id}
+                      value={opt.id}>{opt.name} (#{opt.id})</option> 
+                  )}
+                </select>
+              </div>
+              <span className="icon is-left"><i className="fa fa-paw" /></span>
             </div>
           </div>
           <div className="field">
@@ -124,21 +122,13 @@ class NewOrderModal extends React.Component<Props, {}> {
   }
 
   private handleChangeMonster = (event: any) => {
-    const monsterName = event.target.value
-    const {dispatchPushNotification, monsters} = this.props
-    const monstersWithName = monsters.filter((monster:MonsterProps) => monster.name === monsterName)
 
-    if (monstersWithName.length > 0) {
-      if (monstersWithName.length > 1) {
-        dispatchPushNotification(`More than one monster found with this name. Using the first one`, NOTIFICATION_WARNING)
-      }
-      // tslint:disable-next-line:no-console
-      console.log("monsters found:" + monstersWithName)
-      this.setState({monstername:monsterName,
-        monster: monstersWithName[0]})
-    } else {
-      this.setState({monstername:monsterName,
-        monster: undefined})
+    const {monsters} = this.props
+
+    const monster = monsters.find((m) => m.id === Number(event.target.value))
+
+    if (monster) {
+      this.setState({monster})
     }
   }
 
@@ -166,11 +156,11 @@ class NewOrderModal extends React.Component<Props, {}> {
         dispatchPushNotification(`Pet ${monster.name} was offered to ${name} successfully`, NOTIFICATION_SUCCESS)
         closeModal(true)
       }).catch((err: any) => {
-        console.error(`Fail to offer monster ${monster.id}`, err)
-        dispatchPushNotification(`Fail to offer ${monster.name}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to offer ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 }
+  
 
 const mapStateToProps = (state: State) => {
   return {

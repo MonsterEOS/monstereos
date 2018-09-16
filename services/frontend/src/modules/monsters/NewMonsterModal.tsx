@@ -83,8 +83,7 @@ class NewMonsterModal extends React.Component<Props, {}> {
         dispatchPushNotification(`Pet ${name} created successfully`, NOTIFICATION_SUCCESS)
         closeModal(true)
       }).catch((err: any) => {
-        console.error(`Fail to create ${name}`, err)
-        dispatchPushNotification(`Fail to create ${name}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to create ${name} ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 }
