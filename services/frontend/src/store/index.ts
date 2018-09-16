@@ -6,6 +6,7 @@ import {v4 as uuid} from "uuid"
 import { network as eosNetwork, loadMonstersByOwner } from "../utils/eos"
 import { MonsterProps } from "../modules/monsters/monsters"
 import { getEosAccount } from "../utils/scatter"
+import { browserNotify } from "../utils/browserNotifications"
 
 // state
 export const HUNGER_TO_ZERO = 32 * 3600
@@ -63,7 +64,6 @@ export interface Notification {
   id: string,
   text: string,
   type: number,
-  link?: string,
   time: number
 }
 
@@ -115,13 +115,17 @@ export const deleteNotification = (id: string) => {
   return actionDeleteNotificaction(id)
 }
 
-export const pushNotification = (text: string, type: number, link?: string) => {
+export const pushNotification = (text: string, type: number, browserNotification = false) => {
+
+  if (browserNotification) {
+    browserNotify(text)
+  }
+
   return actionPushNotificaction({
     id: uuid(),
     time: Date.now(),
     text,
-    type,
-    link
+    type
   })
 }
 
@@ -144,7 +148,7 @@ export const doLoadMyMonsters = () => async (
 ) => {
   // autoload monsters
   const { globalConfig, identity } = getState()
-  if (identity) {  
+  if (identity) {
     const account = getEosAccount(identity)
     const accountMonsters = await loadMonstersByOwner(account, globalConfig)
     dispatch(actionLoadMyMonsters(accountMonsters))

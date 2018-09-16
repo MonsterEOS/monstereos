@@ -50,7 +50,7 @@ services:
     stop_grace_period: 3m0s
     command: /opt/eosio/bin/nodeos --config-dir /opt/application/config --data-dir /root/.local/share -e --hard-replay
     ports:
-      - "8830:8888"
+      - "8888:8888"
       - "9830:9876"
     volumes:
       - eosiodevapp:/root/.local/share

@@ -12,6 +12,8 @@ import { getEosAccount } from "../../utils/scatter"
 import { MonsterProps } from "../monsters/monsters"
 import BattleMonsterPickModal from "./BattleMonsterPickModal"
 
+import { requestNotificationPermission } from "../../utils/browserNotifications"
+
 interface Props {
   globalConfig: GlobalConfig,
   dispatchPushNotification: any,
@@ -35,6 +37,7 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   public componentDidMount() {
     this.refresh()
+    requestNotificationPermission()
   }
 
   public componentWillUnmount() {
@@ -96,17 +99,39 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   private refresh = async () => {
     const { dispatchPushNotification } = this.props
+    const { arenas: currentArenas } = this.state
 
     try {
       const arenas = await loadArenas()
+
+      // start notifications after initial load
+      if (this.refreshHandler !== undefined) {
+        this.notifyNewArenas(currentArenas, arenas)
+      }
+
       this.setState({arenas})
 
       // refresh arenas each 5 seconds
-      this.refreshHandler = setTimeout(this.refresh, 5 * 1000) 
+      this.refreshHandler = setTimeout(this.refresh, 5 * 1000)
     } catch (error) {
       console.error("Fail to load Arenas", error)
       dispatchPushNotification("Fail to load Arenas")
     }
+  }
+
+  private notifyNewArenas(currentArenas: Arena[], newArenas: Arena[]) {
+
+    const { dispatchPushNotification } = this.props
+
+    newArenas.forEach((arena) => {
+      const oldArena = currentArenas.find((currentArena) => currentArena.host === arena.host)
+
+      if (!oldArena) {
+        const notification = `${arena.host} created a new arena. Go battle!`
+        console.info(notification)
+        dispatchPushNotification(notification, NOTIFICATION_SUCCESS, true)
+      }
+    })
   }
 
   private confirmSelection = async (pets: number[]) => {
