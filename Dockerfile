@@ -1,5 +1,7 @@
 FROM keymetrics/pm2:8-alpine
 
+RUN npm install pm2@3.1.2 -g
+
 ARG SERVICE
 
 RUN apk add --no-cache git
