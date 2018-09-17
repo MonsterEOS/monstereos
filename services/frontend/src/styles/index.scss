@@ -1,0 +1,21 @@
+// @import url('https://fonts.googleapis.com/css?family=Gloria+Hallelujah');
+@import url('https://fonts.googleapis.com/css?family=Freckle+Face');
+
+@import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+
+@import "node_modules/bulma/sass/utilities/initial-variables";
+@import "node_modules/bulma/sass/utilities/functions";
+
+$logo-font: 'Freckle Face', cursive;
+
+.logo {
+  font-family: $logo-font;
+  font-size: 40px;
+  margin: 24px;
+}
+
+@import "./_spacing.scss";
+@import "./_monsters.scss";
+@import "./_battles.scss";
+@import "./_buttons.scss";
+@import "./_layout.scss";

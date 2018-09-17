@@ -1,0 +1,102 @@
+// monster images filters
+// dead monsters must be grayscaled
+@mixin filter($filter-type,$filter-amount) {
+  -webkit-filter: $filter-type+unquote('(#{$filter-amount})');
+  -moz-filter: $filter-type+unquote('(#{$filter-amount})');
+  -ms-filter: $filter-type+unquote('(#{$filter-amount})');
+  -o-filter: $filter-type+unquote('(#{$filter-amount})');
+  filter: $filter-type+unquote('(#{$filter-amount})');
+}
+
+@mixin grayscale_element($value) {
+    -webkit-filter: #{"grayscale(#{$value})"};
+    -moz-filter: #{"grayscale(#{$value})"};
+    filter:#{"grayscale(#{$value})"};
+}
+
+// hp animation
+@keyframes slideInFromBottom {
+  0% {
+    transform: translateY(150%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.grayscale {
+    @include grayscale_element(100%);
+    transition: all 200ms ease-in-out;
+    opacity: 0.3;
+    &:hover {
+        @include grayscale_element(30%);
+    }
+}
+
+.sleeping {
+  @include filter(brightness, 5%);
+}
+
+.sleep-gif {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.monster-image {
+  // height: 222px; //!important;
+  max-height: 300px !important;
+}
+
+.home-monster {
+  max-height: 300px !important;
+}
+
+.monster-column {
+  min-width: 310px;
+  max-width: 310px;
+}
+
+.monster-rank-icon {
+  max-height: 80px;
+  vertical-align: middle;
+}
+
+.monster-card-header {
+  font-size: 0.8rem;
+}
+
+.monster-card-stats {
+  margin: 0 14px 14px;
+}
+
+.monster-header-link .title {
+  color: $blue;
+
+  &:hover {
+    color: #000;
+  }
+
+}
+
+.monster-selected {
+  background-color: greenyellow;
+}
+
+/* mobile */
+@media screen and (max-width: 768px) {
+
+  .monster-column {
+    max-width: 400px;
+  }
+
+  // .monster-image {
+  //   // height: 150px !important;
+  //   min-height: 150px !important;
+  //   max-height: 150px !important;
+  // }
+}

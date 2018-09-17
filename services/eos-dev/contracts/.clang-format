@@ -1,0 +1,7 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+ColumnLimit: 100
+PointerAlignment: Left
+AlwaysBreakTemplateDeclarations: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: true

@@ -1,0 +1,458 @@
+
+createpet: success bubble
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_name": "bubble",
+        "owner": "john"
+      }
+    }
+  ]
+}
+transaction pushed
+table: monstereosio monstereosio pets
+    add row:
+        {
+          "id": 1,
+          "owner": "john",
+          "name": "bubble",
+          "type": 11,
+          "created_at": 1577836802,
+          "death_at": 0,
+          "last_fed_at": 1577836802,
+          "last_bed_at": 1577836802,
+          "last_awake_at": 1577836803,
+          "last_play_at": 1577836802,
+          "last_shower_at": 1577836802
+        }
+
+createpet: missing authority
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "mary",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_name": "ooopps",
+        "owner": "john"
+      }
+    }
+  ]
+}
+Exception: missing authority of john
+table: monstereosio monstereosio pets
+
+createpet: too fast tolerance exception
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_name": "second",
+        "owner": "john"
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: You can't create another pet now
+table: monstereosio monstereosio pets
+
+createpet: too fast tolerance 30 minutes
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_name": "second",
+        "owner": "john"
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: You can't create another pet now
+table: monstereosio monstereosio pets
+
+createpet: 1h tolerance recreation accepted
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "createpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_name": "second",
+        "owner": "john"
+      }
+    }
+  ]
+}
+transaction pushed
+table: monstereosio monstereosio pets
+    add row:
+        {
+          "id": 2,
+          "owner": "john",
+          "name": "second",
+          "type": 1,
+          "created_at": 1577840523,
+          "death_at": 0,
+          "last_fed_at": 1577840523,
+          "last_bed_at": 1577840523,
+          "last_awake_at": 1577840524,
+          "last_play_at": 1577840523,
+          "last_shower_at": 1577840523
+        }
+
+feed first pet after 1 hour
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "feedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: not hungry
+table: monstereosio monstereosio pets
+
+feed/bed/wake second pet immediately
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "feedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 2
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: not hungry
+table: monstereosio monstereosio pets
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "bedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 2
+      }
+    }
+  ]
+}
+transaction pushed
+table: monstereosio monstereosio pets
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "awakepet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 2
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: already awake
+table: monstereosio monstereosio pets
+
+feed first pet after 4 hours
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "feedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+transaction pushed
+table: monstereosio monstereosio pets
+    change row:
+        {
+          "id": 1,
+          "owner": "john",
+          "name": "bubble",
+          "type": 11,
+          "created_at": 1577836802,
+          "death_at": 0,
+          "last_fed_at": 1577848924,
+          "last_bed_at": 1577836802,
+          "last_awake_at": 1577836803,
+          "last_play_at": 1577836802,
+          "last_shower_at": 1577836802
+        }
+
+bed first pet after 4 hours
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "awakepet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: already awake
+table: monstereosio monstereosio pets
+
+feed and bed first pet after 8 hours
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "feedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+transaction pushed
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "bedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: not now!
+
+attempt to duplicate sleep pet
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "bedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: not now!
+table: monstereosio monstereosio pets
+    change row:
+        {
+          "id": 1,
+          "owner": "john",
+          "name": "bubble",
+          "type": 11,
+          "created_at": 1577836802,
+          "death_at": 0,
+          "last_fed_at": 1577863324,
+          "last_bed_at": 1577836802,
+          "last_awake_at": 1577836803,
+          "last_play_at": 1577836802,
+          "last_shower_at": 1577836802
+        }
+
+immediate awake pet
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "awakepet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: already awake
+table: monstereosio monstereosio pets
+
+test pet is alive after 24h with no food
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "awakepet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: already awake
+table: monstereosio monstereosio pets
+
+test pet is alive after 48h with no food
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "bedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+transaction pushed
+table: monstereosio monstereosio pets
+    change row:
+        {
+          "id": 1,
+          "owner": "john",
+          "name": "bubble",
+          "type": 11,
+          "created_at": 1577836802,
+          "death_at": 0,
+          "last_fed_at": 1577863324,
+          "last_bed_at": 1578036124,
+          "last_awake_at": 1577836803,
+          "last_play_at": 1577836802,
+          "last_shower_at": 1577836802
+        }
+
+test pet is alive before 72h with no food
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "awakepet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+transaction pushed
+table: monstereosio monstereosio pets
+    change row:
+        {
+          "id": 1,
+          "owner": "john",
+          "name": "bubble",
+          "type": 11,
+          "created_at": 1577836802,
+          "death_at": 0,
+          "last_fed_at": 1577863324,
+          "last_bed_at": 1578036124,
+          "last_awake_at": 1578118924,
+          "last_play_at": 1577836802,
+          "last_shower_at": 1577836802
+        }
+
+test pet is dead after 72h with no food
+=========================
+push_transaction {
+  "actions": [{
+      "account": "monstereosio",
+      "name": "feedpet",
+      "authorization": [{
+          "actor": "john",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "pet_id": 1
+      }
+    }
+  ]
+}
+Exception: assertion failure with message: dead don't eat
+table: monstereosio monstereosio pets

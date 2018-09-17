@@ -1,61 +1,7 @@
-# MonsterEOS
+import * as React from "react"
+import PageContainer from "../shared/PageContainer"
 
-![MonsterEOS Icon](https://github.com/MonsterEOS/monstereos/raw/master/services/frontend/public/3d-icon.jpeg)
-
-## Setup
-
-First of all, clone the repo and enter in the root folder of the project:
-
-```
-git clone https://github.com/MonsterEOS/monstereos
-cd monstereos
-```
-
-### Chain and Backend
-
-We structured everything in microservices and it can be automagically initialized by docker! Don't be afraid of docker, a lot of people hear docker and run away but we already did the hard part (configuration) for you. You will just need to install docker in your computer (a simple installer that you will press next next next finish lol).
-
-After you installed docker just run the following single command:
-
-```
-docker-compose up -d
-docker-compose run demux yarn _migrate # credentials: user // pass  (for three steps)
-docker restart monstereos_demux_1
-
-docker exec -it monstereos_eosiodev_1 /bin/sh
-
-cd /opt/application/scripts
-./0000_init-chain.sh
-./0010_load-elements.sh
-./0020_load-pet-types.sh
-./0030_load-data.sh
-```
-
-Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
-
-- eosdev: this is the local single-producer blockchain with basic data (ready for development) and development of the contracts
-- fullnode: this is a node that will simulate your mainnet fullnode that will listen for the blockchain and persist data in mongo with mongodb_plugin
-- mongo: this is our chain database, fed by fullnode
-- postgres: this is our database, the chain is the source of truth, and this is just a cache layer to help our application to query nice and fast reports
-- demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3 - we serve data with GraphQL out-of-the-box through postgraphile under port 3030
-
-### Frontend App: UI
-
-With all these nodes running you can just access it with our frontend app:
-
-```
-cd services/frontend
-yarn
-yarn start
-```
-
-Feel free to build any other apps and/or dockerize it. We didn't create a docker container for it because we usually build the static files (`yarn build`) and serve it on `gh-pages` branch.
-
-### EOS Dream Stack
-
-You can build any Dapp using the above structure. Tweak the structure a little bit to satisfy all your needs, i.e.: you can change the postgres for other database as mongo or mysql; you might not need demux and the backend if your app is very basic, allowing the frontend to read directly from the chain; change the frontend to whatever framework you want to use as Vue or Angular, not only this but your frontend can be a mobile native app, why not?
-
-
+const aboutMarkdown = `
 ## About
 MonsterEOS was born as an experimental decentralized application in EOS Blockchain, a Tamagotchi game where you could keep it alive by feeding and putting your monsters to sleep. Then, with some adoption from EOS community, we started to add requested features as battles and monsters market.
 
@@ -116,10 +62,22 @@ Any transferred tokens sent to account name 'monstereosio' will not return any e
 
 ## Big Thanks & Credits
 
-Open source is all :heart:
+Open source is all <3
 
 Monsters Pictures Package: [Itch.io @Pipoya - Free RPG Monster Pack](https://pipoya.itch.io/free-rpg-monster-pack)
 
 Sleeping GIF Credits: [Giphy @AlabasterPizzo](https://giphy.com/stickers/zzz-snore-51WvIEoUKKHlGwgmgy)
 
 Arena Background Credits: Freebies from craftpix.net - license here: [Craftpix](https://craftpix.net/file-licenses/)
+
+`
+
+import * as ReactMarkdown from "react-markdown"
+
+const AboutScreen = (props: any) => (
+  <PageContainer>
+    <ReactMarkdown source={aboutMarkdown} linkTarget="_blank" />
+  </PageContainer>
+)
+
+export default AboutScreen

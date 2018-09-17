@@ -1,0 +1,132 @@
+// design/layout
+.navbar-item.is-active {
+  color: $blue!important;
+}
+
+// layout
+form {
+  margin-bottom: 20px;
+}
+
+.help-button {
+  margin-right: 40px;
+  margin-left: 40px;
+}
+
+.new-monster-button {
+  margin: 25px;
+}
+
+.footer {
+  margin-top: 50px;
+
+  a {
+    margin: 5px;
+  }
+}
+
+.greetings {
+  span { margin-left: 6px !important; }
+}
+
+.has-margin-top {
+  margin-top: 16px;
+}
+
+/* toast */
+.toast {
+  position: fixed;
+  width: 365px;
+  right: -365px;
+  top: 5em;
+  z-index: 9999;
+
+  .notification {
+      transition: 0.15s ease-in-out;
+      width: 325px;
+  }
+
+  .notification.on {
+    transform: translateX(-365px);
+  }
+}
+
+.rank {
+  .tabs {
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .tabs ul {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  table {
+    td {
+      vertical-align: middle;
+    }
+  }
+}
+
+progress {
+  text-align: center;
+
+  /* Set the progressbar to relative */
+  position:relative;
+}
+
+progress:before {
+  content: attr(data-label);
+  font-size: 0.9em;
+  // vertical-align: 0;
+  color: #fff;
+  font-weight: 700;
+
+  /*Position text over the progress bar */
+  position: absolute;
+  left: 8px;
+  top: -2px;
+  right: 8px;
+  bottom: 1px;
+}
+
+/* mobile */
+@media screen and (max-width: 768px) {
+  .navbar {
+    min-height: 60px;
+
+    .navbar-menu {
+      box-shadow: none;
+      border-bottom: 1px solid #eee;
+    }
+  }
+
+  .navbar-burger {
+    margin-top: 12px;
+  }
+
+  .logo {
+    margin: 12px;
+  }
+
+  .section {
+    padding: 1rem;
+  }
+
+  .footer {
+    padding-bottom: 3rem;
+  }
+
+  .content h1 {
+    font-size: 1.5em;
+  }
+
+  .content h2 {
+    font-size: 1.25em;
+  }
+
+  .content h3 {
+    font-size: 1em;
+  }
+}

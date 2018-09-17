@@ -1,19 +1,24 @@
-# Distribution
+# Compiled codes
 build/
+dist/
+*.wast
 
-# elm-package generated files
-elm-stuff
-
-# elm-repl generated files
-repl-temp-*
+# IDE's
+.vscode
+.idea
+*.iml
 
 # Dependency directories
 node_modules
+*.log
 
 # Desktop Services Store on macOS
 .DS_Store
 
-*.wasm
-*.wast
-
+# Temp
 temp
+.mongo-data
+.pgsql-data
+
+# wallet keys
+keys
