@@ -1,10 +1,10 @@
 {
-  "short_name": "Elm App",
-  "name": "Create Elm App Sample",
+  "short_name": "MonsterEOS",
+  "name": "First EOS game deployed to MainNet. Raise, feed and battle your Monsters!",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "192x192",
+      "src": "favicon.png",
+      "sizes": "256x256 128x128 64x64 32x32 24x24 16x16",
       "type": "image/png"
     }
   ],
