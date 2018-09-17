@@ -1,5 +1,8 @@
 import * as React from "react"
 
+const FOOTER_VERSION = process.env.REACT_APP_VERSION || "n/a"
+const FOOTER_NETWORK = process.env.REACT_APP_NETWORK || "Testing LocalHost"
+
 const Footer = (props: any) => (
   <footer className="footer">
     <div className="container">
@@ -27,6 +30,9 @@ const Footer = (props: any) => (
             <i className="fa fa-2x fa-twitter" style={{verticalAlign: "middle", marginRight: 3}} />
             Twitter
           </a>
+        </p>
+        <p>
+          {FOOTER_NETWORK} - {FOOTER_VERSION}
         </p>
       </div>
     </div>
