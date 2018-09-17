@@ -1,6 +1,6 @@
 # MonsterEOS
 
-![MonsterEOS Demo](https://github.com/leordev/monstereos/raw/master/public/images/demo.png)
+![MonsterEOS Icon](https://github.com/MonsterEOS/monstereos/raw/master/services/frontend/public/3d-icon.jpeg)
 
 ## Setup
 
@@ -10,6 +10,8 @@ First of all, clone the repo and enter in the root folder of the project:
 git clone https://github.com/MonsterEOS/monstereos
 cd monstereos
 ```
+
+### Chain and Backend
 
 We structured everything in microservices and it can be automagically initialized by docker! Don't be afraid of docker, a lot of people hear docker and run away but we already did the hard part (configuration) for you. You will just need to install docker in your computer (a simple installer that you will press next next next finish lol).
 
@@ -37,7 +39,7 @@ Open Kitematic (a nice UI for docker containers management that comes by default
 - postgres: this is our database, the chain is the source of truth, and this is just a cache layer to help our application to query nice and fast reports
 - demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3 - we serve data with GraphQL out-of-the-box through postgraphile under port 3030
 
-## Frontend App: UI
+### Frontend App: UI
 
 With all these nodes running you can just access it with our frontend app:
 
@@ -53,25 +55,52 @@ Feel free to build any other apps and/or dockerize it. We didn't create a docker
 
 You can build any Dapp using the above structure. Tweak the structure a little bit to satisfy all your needs, i.e.: you can change the postgres for other database as mongo or mysql; you might not need demux and the backend if your app is very basic, allowing the frontend to read directly from the chain; change the frontend to whatever framework you want to use as Vue or Angular, not only this but your frontend can be a mobile native app, why not?
 
+
 ## About
+MonsterEOS was born as an experimental decentralized application in EOS Blockchain, a Tamagotchi game where you could keep it alive by feeding and putting your monsters to sleep. Then, with some adoption from EOS community, we started to add requested features as battles and monsters market.
 
-It's Just a Tamagotchi Game to show off EOS blockchain potential! You as an early adopter, will have a chance to carry a very old Monster while the game is in progress, getting cool functionalities and public traction :D
+The project will ALWAYS be open source because we believe it’s a must for a decentralized world and also because we want the project to be a reference for games and dapps of EOS Blockchain. In fact, we encourage you to browse our code repository, extend/modify the game and publish as you wish - the more dapps EOS community have the better.
 
-This project is a mini-game experiment for EOS Blockchain, still in progress. It's open sourced and all of us can tweak the contract, architecture and design of tables to see what works the best in terms of performance and good practices for EOS.
+The game is in **BETA** phase, under constant developments and improvements but it does not restrict us of implementing profit channels to fund the required resources and the team. For now, we are getting 1% of all the market transfers and we are studying ways of implementing in-app purchases avoiding PAY-TO-WIN schemes. 
 
-To keep your pet alive you must feed him, play with him, take him to the bed and wash him!
-
-Only the feeding and sleeping/awake feature is done for now... There's a lot of interesting stuff that we can do here to improve the project like experience points (+ age and evolutions), inventory of items, multiplayer options, breeding, ownership transferring and tokenization.
-
-We would love to have more and more developers to get in touch in GitHub repository, open issues, open discussions and so on, about what would be the best way to design the architecture and implement the contracts, how things should work in blockchain, how we should integrate Scatter, other wallets and provide top-security, what we should avoid, what's the best practice in terms of coding and everything else.
+In the crypto world, the majority of the games are established for a get-rich scheme like gambling and Ponzi. We are NOT. We want everyone to have FUN, period. It’s ok to collect monsters, raise them and then exchange them, that’s why we have the market but don’t think it’s the main purpose of the game.
 
 We love EOS Community and we think that we can build a better world together!
+
+
+## Official Collaborators & Shareholders
+
+Name | Title | Social Info
+---|---|---
+Leo Ribeiro | Founder and Head of Development | GitHub / Twitter / Steemit
+Alex Rozgo | Head of Gaming Engineering | GitHub / Twitter / Steemit
+Vertex Studio | Arts & Gaming Studio | Website / Twitter / Steemit
+To-Be-Announced | Sponsor of Infrastructure and EOS Resources | Website / Twitter / Steemit
+Friedger Muffke | Community Developer | GitHub / Twitter / Steemit
+John Williamson | Community Developer | GitHub | Twitter | LinkedIn | Steemit
+
+The project is open to the public and we welcome anyone to collaborate in our Github, but in order to receive shares of the project and participate in our distribution, you must be approved by the current Head Board members consensus.
+
+Our Decentralized Autonomous Organization is still being defined but [you can check our current proposal here](https://github.com/MonsterEOS/dao/blob/master/README.md). This model is inspired by Slicing Pie for startups companies, believing that it’s the fairest way to reward collaborators in an open source project. We intend to translate it into an EOS Smart Contract and automate the distribution process in the future.
+
+
+##  Partnerships
+
+Large Seafaring Mammal T-Shirts: [Buy your shirt here!](https://largeseafaringmammal.com/products/monstereos-x-lsm)
+
+MyEOSKit - EOS Blockchain Explorer: https://www.myeoskit.com/#/tx/monstereosio - This is where we link our transactions and explore them.
+
+MonsterEOS Animal Jungle Version - JungleNet is the TestNet that we consider as our staging environment, and guess what?! They just prepared an Animal Version of Monsters! Coming out Soon...
+
+If you have any partnership ideas, feel free to contact us in our Telegram, GitHub or Email.
+
 
 ## Disclaimer
 
 This project remains purely experimental software and is not to be considered in any way production fit nor has any guarantee of any kind. Use at your own risk.
 
 Any transferred tokens sent to account name 'monstereosio' will not return any entitlement of any asset, investment digital or physical including the sent asset itself. Any proceeds received from any user transfers are of the sole control and discretion of the receiver.
+
 
 ## Big Thanks & Credits
 
