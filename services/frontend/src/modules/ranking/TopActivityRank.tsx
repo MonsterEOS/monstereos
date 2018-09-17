@@ -18,13 +18,15 @@ class TopActivityRank extends React.Component<{}, {}> {
     return <div className="rank">
       <TitleBar title="Top Activity Monsters" />
       <Query query={QUERY_TOP_ACTIVITY} variables={variables}>
-        {({data: {allVrankingActives}, loading, refetch}) => {
+        {({data, loading, refetch}) => {
 
-          if (loading || !allVrankingActives) {
+          if (loading || !data || !data.allVrankingActives) {
             return <span>
-              <i className="fa fa-spin fa-spinner" /> Loading...
+              <i className="fa fa-spin fa-spinner" /> Loading... Our servers are Syncing with the Chain
             </span>
           }
+
+          const { allVrankingActives } = data
 
           const monsters = allVrankingActives ? allVrankingActives.edges : []
           return <table>

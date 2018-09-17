@@ -40,17 +40,17 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     const { monster } = this.state
 
     return <Query query={GET_MONSTER} variables={variables}>
-      {({ data: { allPets }, loading, refetch }) => {
+      {({ data , loading, refetch }) => {
 
         let subHeader = null
 
-        const monsters = allPets ? petsGqlToMonsters(allPets, globalConfig) : []
+        const monsters = data && data.allPets ? petsGqlToMonsters(data.allPets, globalConfig) : []
         let monsterDetails = null
 
-        if (loading || !allPets) {
+        if (loading || !data || !data.allPets) {
           subHeader = (
             <small>
-              <i className="fa fa-spin fa-spinner" /> Loading Monster...
+              <i className="fa fa-spin fa-spinner" /> Loading Monster... Our servers are Syncing with the Chain
             </small>
           )
         } else {

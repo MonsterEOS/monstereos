@@ -14,7 +14,8 @@ const CHAIN_PROTOCOL = process.env.REACT_APP_CHAIN_PROTOCOL || "http"
 const CHAIN_HOST = process.env.REACT_APP_CHAIN_HOST || "localhost"
 const CHAIN_PORT = process.env.REACT_APP_CHAIN_PORT || "8830"
 const CHAIN_URL = `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
-export const CHAIN_ID = "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
+const HISTORY_CHAIN_URL = process.env.REACT_APP_HISTORY_URL || `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
+export const CHAIN_ID = process.env.REACT_APP_CHAIN_ID || "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
 
 // contract constants
 export const EOSIO_TOKEN_ACCOUNT = "eosio.token"
@@ -38,7 +39,7 @@ export const network = {
   blockchain: "eos",
   host: CHAIN_HOST,
   port: CHAIN_PORT,
-  // chainId: CHAIN_ID
+  chainId: CHAIN_ID
 }
 
 const trxError = (error: any) => {
@@ -148,6 +149,7 @@ export const trxPlaceBidMarket = async (
 
 // eos api
 const e2DefaultRpc = new e2Rpc.JsonRpc(CHAIN_URL, { fetch })
+const e2HistoryRpc = new e2Rpc.JsonRpc(HISTORY_CHAIN_URL, { fetch })
 const signatureProvider = new e2SignatureProvider([])
 const e2DefaultApi = new e2Api({ rpc: e2DefaultRpc, signatureProvider, chainId: CHAIN_ID})
 
@@ -427,7 +429,7 @@ export const attackBattle = async(
 
 export const getWinner = async (host: string) => {
   try {
-    const data = await e2DefaultRpc.history_get_actions(MONSTERS_ACCOUNT, undefined, -300)
+    const data = await e2HistoryRpc.history_get_actions(MONSTERS_ACCOUNT, undefined, -300)
 
     if (data && data.actions) {
       const actionData = data.actions

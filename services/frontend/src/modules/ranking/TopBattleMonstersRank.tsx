@@ -18,13 +18,15 @@ class TopBattleMonstersRank extends React.Component<{}, {}> {
     return <div className="rank">
       <TitleBar title="Top Battle Monsters" />
       <Query query={QUERY_TOP_BATTLE_MONSTERS} variables={variables}>
-        {({data: {allVrankingBattlePets}, loading, refetch}) => {
+        {({data, loading, refetch}) => {
 
-          if (loading || !allVrankingBattlePets) {
+          if (loading || !data || !data.allVrankingBattlePets) {
             return <span>
-              <i className="fa fa-spin fa-spinner" /> Loading...
+              <i className="fa fa-spin fa-spinner" /> Loading... Our servers are Syncing with the Chain
             </span>
           }
+
+          const { allVrankingBattlePets } = data
 
           const monsters = allVrankingBattlePets ? allVrankingBattlePets.edges : []
           return <table>

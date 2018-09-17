@@ -19,13 +19,15 @@ class EldestRank extends React.Component<{}, {}> {
     return <div className="rank">
       <TitleBar title="Eldest Alive Monsters" />
       <Query query={QUERY_ELDEST_RANK} variables={variables}>
-        {({data: {allPets}, loading, refetch}) => {
+        {({data, loading, refetch}) => {
 
-          if (loading || !allPets) {
+          if (loading || !data || !data.allPets) {
             return <span>
-              <i className="fa fa-spin fa-spinner" /> Loading...
+              <i className="fa fa-spin fa-spinner" /> Loading... Our servers are Syncing with the Chain
             </span>
           }
+
+          const { allPets } = data
 
           const monsters = allPets ? allPets.edges : []
           return <table>

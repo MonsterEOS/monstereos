@@ -1,6 +1,8 @@
 import * as React from "react"
 import PageHero from "../shared/PageHero"
 
+const PAGE_WELCOME = process.env.REACT_APP_PAGE_WELCOME || "A Monster Tamagotchi and Battle game for EOS blockchain! :)"
+
 const HomeScreen = (props: any) => (
   <PageHero>
     <div className="columns">
@@ -11,7 +13,7 @@ const HomeScreen = (props: any) => (
       </div>
       <div className="column">
         <h1 className="title logo">
-          A Monster Tamagotchi and Battle game for EOS blockchain! :)
+          {PAGE_WELCOME}
         </h1>
       </div>
     </div>

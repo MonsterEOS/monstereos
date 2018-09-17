@@ -19,15 +19,15 @@ class GraveyardRank extends React.Component<{}, {}> {
     return <div className="rank">
       <TitleBar title="Graveyard" />
       <Query query={QUERY_GRAVEYARD} variables={variables}>
-        {({data: {allVrankingGraveyards}, loading, refetch}) => {
+        {({data, loading, refetch}) => {
 
-          if (loading || !allVrankingGraveyards) {
+          if (loading || !data || !data.allVrankingGraveyards) {
             return <span>
-              <i className="fa fa-spin fa-spinner" /> Loading...
+              <i className="fa fa-spin fa-spinner" /> Loading... Our servers are Syncing with the Chain
             </span>
           }
 
-          const monsters = allVrankingGraveyards ? allVrankingGraveyards.edges : []
+          const monsters = data.allVrankingGraveyards ? data.allVrankingGraveyards.edges : []
           return <table>
             <thead>
               <tr>

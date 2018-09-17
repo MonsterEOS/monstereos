@@ -24,17 +24,6 @@ export default (store: any) => {
         customWindow.scatter = null
       }
     })
-
-  // if (customWindow.scatter) {
-  //   console.info("Scatter detected initially")
-  //   loadScatter(customWindow.scatter, store)
-  // } else {
-  //   console.info("setting scatterLoaded event")
-  //   document.addEventListener("scatterLoaded", scatterExtension => {
-  //     console.info("scatterLoaded event detected!")
-  //     loadScatter(customWindow.scatter, store)
-  //   })
-  // }
 }
 
 export const getEosAccount = (identity: any) => {
