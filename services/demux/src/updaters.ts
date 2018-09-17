@@ -238,20 +238,6 @@ const battleattack = async (db: any, payload: any, blockInfo: BlockInfo) => {
 
 }
 
-const persistFailBlocks = async (db: any, _: any, blockInfo: BlockInfo) => {
-  const data = {
-    block_number: blockInfo.blockNumber,
-    block_timestamp: blockInfo.timestamp
-  }
-
-  console.info("BLOCK FAIL Insert >>> ", data)
-
-  const res = await db._block_failures.insert(data)
-
-  console.info("BLOCK FAIL Result >>> ", res)
-
-}
-
 const updaters = [
   {
     actionType: "monstereosio::createpet",
@@ -292,10 +278,6 @@ const updaters = [
   {
     actionType: "monstereosio::battleattack",
     updater: battleattack,
-  },
-  {
-    actionType: "deferred::emptytrx",
-    updater: persistFailBlocks,
   },
 ]
 

@@ -47,6 +47,7 @@ export class MongoActionReader extends AbstractActionReader {
     // Will not handle scenario of a fork since it only grabs first block
     const [rawBlock] = await this.mongodb!.collection("blocks")
       .find({ block_num: blockNumber })
+      .sort({ createdAt: -1})
       .toArray()
 
     const block = new MongoBlock(rawBlock)
