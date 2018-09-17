@@ -67,17 +67,29 @@ In the crypto world, the majority of the games are established for a get-rich sc
 
 We love EOS Community and we think that we can build a better world together!
 
+## Connect to us!
+
+GitHub: https://github.com/MonsterEOS
+
+Telegram: https://t.me/joinchat/Hel9rgyuHrEwzsjG2SlUNQ
+
+Medium: https://medium.com/@monstereos
+
+Twitter: https://twitter.com/MonsterEos
+
 
 ## Official Collaborators & Shareholders
 
+Access our DAO here: https://github.com/MonsterEOS/dao
+
 Name | Title | Social Info
 ---|---|---
-Leo Ribeiro | Founder and Head of Development | GitHub / Twitter / Steemit
-Alex Rozgo | Head of Gaming Engineering | GitHub / Twitter / Steemit
-Vertex Studio | Arts & Gaming Studio | Website / Twitter / Steemit
-To-Be-Announced | Sponsor of Infrastructure and EOS Resources | Website / Twitter / Steemit
-Friedger Muffke | Community Developer | GitHub / Twitter / Steemit
-John Williamson | Community Developer | GitHub | Twitter | LinkedIn | Steemit
+Leo Ribeiro | Founder and Head of Development | [GitHub](http://github.com/leordev) / [Twitter](https://twitter.com/leordev) / [Steemit](https://steemit.com/@leordev)
+Alex Rozgo | Head of Gaming Engineering | [GitHub](http://github.com/rozgo) / [Twitter](https://twitter.com/rozgo) / [Steemit](https://steemit.com/@rozgo)
+Vertex Studio | Arts & Gaming Studio | [Official Website](https://vertexstudio.github.io)
+To-Be-Announced | Sponsor of Infrastructure and EOS Resources | -
+Friedger Muffke | Community Developer | [GitHub](http://github.com/friedger) / [Twitter](https://twitter.com/fmdroid) / [Steemit](https://steemit.com/@friedger)
+John Williamson | Community Developer | [GitHub](http://github.com/velua) / [Twitter](https://twitter.com/velua) / [Steemit](https://steemit.com/@johnwilliamson)
 
 The project is open to the public and we welcome anyone to collaborate in our Github, but in order to receive shares of the project and participate in our distribution, you must be approved by the current Head Board members consensus.
 

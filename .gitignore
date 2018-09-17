@@ -10,6 +10,7 @@ dist/
 
 # Dependency directories
 node_modules
+*.log
 
 # Desktop Services Store on macOS
 .DS_Store

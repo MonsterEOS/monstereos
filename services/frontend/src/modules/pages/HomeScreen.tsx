@@ -11,7 +11,7 @@ const HomeScreen = (props: any) => (
       </div>
       <div className="column">
         <h1 className="title logo">
-          I'm a Monster Tamagotchi alike game for EOS blockchain! :)
+          A Monster Tamagotchi and Battle game for EOS blockchain! :)
         </h1>
       </div>
     </div>
