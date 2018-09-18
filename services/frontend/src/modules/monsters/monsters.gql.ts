@@ -117,7 +117,7 @@ query MonsterById($id: Int) {
             }
           }
         }
-        actions: petActionsByPetId(last: 9999, orderBy: CREATED_AT_DESC) {
+        actions: petActionsByPetId(last: 9999, orderBy: CREATED_AT_DESC, condition: { isInvalid: false }) {
           edges {
             node {
               action
