@@ -6,3 +6,6 @@ node_modules
 temp
 services
 .vscode
+
+*.iml
+.idea
