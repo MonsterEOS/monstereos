@@ -87,11 +87,11 @@ export const calcMonsterStats = (
 }
 
 export const getCurrentAction = (monster: MonsterProps, ActionType: any) => {
-  if (monster.isSleeping) {
-    return ActionType.SLEEPING
-  } else if (monster.deathAt) {
-    return ActionType.DEAD
-  }
+  // if (monster.isSleeping) {
+  //   return ActionType.SLEEPING
+  // } else if (monster.deathAt) {
+  //   return ActionType.DEAD
+  // }
   return ActionType.IDLE
 }
 
@@ -100,7 +100,7 @@ export const getCurrentAction = (monster: MonsterProps, ActionType: any) => {
  * @param typeId id of the monster
  */
 export const getType3d = (typeId: number) => {
-  const availableTypes = [0, 1]
+  const availableTypes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
   return typeId % availableTypes.length
 }
   
