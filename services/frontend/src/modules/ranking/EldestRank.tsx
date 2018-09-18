@@ -7,19 +7,26 @@ import TitleBar from "../shared/TitleBar"
 import { QUERY_ELDEST_RANK } from "./ranking.gql"
 import { monsterImageSrc } from "../monsters/monsters"
 
-class EldestRank extends React.Component<{}, {}> {
+interface ReactState {
+  loadMore:boolean
+}
+
+class EldestRank extends React.Component<{}, ReactState> {
+
+  public state = {loadMore:true}
 
   public render() {
 
     const variables = {
-      limit: 21,
+      limit: 2,
       offset: 0
     }
+    const {loadMore} = this.state
 
     return <div className="rank">
       <TitleBar title="Eldest Alive Monsters" />
       <Query query={QUERY_ELDEST_RANK} variables={variables}>
-        {({data, loading, refetch}) => {
+        {({data, loading, fetchMore}) => {
 
           if (loading || !data || !data.allPets) {
             return <span>
@@ -30,7 +37,34 @@ class EldestRank extends React.Component<{}, {}> {
           const { allPets } = data
 
           const monsters = allPets ? allPets.edges : []
-          return <table>
+
+          const onLoadMore = () => {
+            // tslint:disable-next-line:no-console
+            console.log("length" + allPets.edges.length)
+            
+            fetchMore({
+              variables: {
+                offset: allPets.edges.length
+              },
+              updateQuery: (prev, { fetchMoreResult }) => {
+                // tslint:disable-next-line:no-console
+                console.log("more "+ JSON.stringify(fetchMoreResult))
+                // tslint:disable-next-line:no-console
+                console.log("prev "+ JSON.stringify(prev))
+                
+                if (!fetchMoreResult) { 
+                  this.setState({loadMore:false})
+                  return prev 
+                }              
+                this.setState({loadMore:fetchMoreResult.allPets.edges.length === variables.limit })
+                return Object.assign({}, prev, {allPets : 
+                  Object.assign({}, prev.allPets, {edges:[...prev.allPets.edges, ...fetchMoreResult.allPets.edges]})
+                  })
+            }})
+          }
+
+          return <div>
+            <table>
             <thead>
               <tr>
                 <th>#</th>
@@ -53,6 +87,15 @@ class EldestRank extends React.Component<{}, {}> {
             ))}
             </tbody>
           </table>
+          {loadMore &&
+            <footer className="card-footer">
+              <a className="card-footer-item"
+                onClick={onLoadMore}>
+                Load more
+              </a>
+            </footer> 
+          }
+        </div>
         }}
       </Query>
     </div>
