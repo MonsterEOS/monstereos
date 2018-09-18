@@ -5,14 +5,14 @@ import fetch from "node-fetch"
 
 const BLOCK_SYNC_TOLERANCE = process.env.BLOCK_SYNC_TOLERANCE || 10
 
-const NODEOS = process.env.CHAIN_HOST || "http://localhost:8830"
+const NODEOS = process.env.CHAIN_HOST || "http://localhost:5988"
 const rpc = new Rpc.JsonRpc(NODEOS, { fetch })
 
 const dbConfig = {
   user: process.env.DB_USER || "user",
   password: process.env.DB_PASSWORD || "pass",
   host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 5432,
+  port: Number(process.env.DB_PORT) || 5932,
   database: process.env.DB_NAME || "monstereosio",
   schema: process.env.DB_SCHEMA || "pets",
 }

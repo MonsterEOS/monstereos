@@ -21,6 +21,7 @@ export class MongoActionReader extends AbstractActionReader {
   }
 
   public async initialize() {
+    console.info("initializing mongodb")
     const mongoInstance = await MongoClient.connect(this.mongoEndpoint, { useNewUrlParser: true })
     this.mongodb = await mongoInstance.db(this.dbName)
   }
@@ -34,6 +35,9 @@ export class MongoActionReader extends AbstractActionReader {
       .sort({ $natural: -1 })
       .toArray()
 
+    console.info("Mongo Block State Header -- Block Num", 
+      blockInfo.block_header_state.block_num)
+
     if (this.onlyIrreversible) {
       return blockInfo.block_header_state.dpos_irreversible_blocknum
     }
@@ -43,6 +47,8 @@ export class MongoActionReader extends AbstractActionReader {
 
   public async getBlock(blockNumber: number): Promise<MongoBlock> {
     this.throwIfNotInitialized()
+
+    console.info("Mongo Getting blockNumber:", blockNumber)
 
     // Will not handle scenario of a fork since it only grabs first block
     const [rawBlock] = await this.mongodb!.collection("blocks")

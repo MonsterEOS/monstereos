@@ -15,12 +15,6 @@ export const requestNotificationPermission = () => {
 }
 
 export const browserNotify = (text: string) => {
-  if (!document.hidden) {
-    return
-  }
-
-  console.info()
-
   const notification = new Notify("MonsterEOS!", {
     body: text
   })
