@@ -2,10 +2,10 @@ import * as React from "react"
 import * as moment from "moment"
 import {
   MonsterProps,
-  monsterImageSrc,
+  // monsterImageSrc,
   monsterModelSrc,
   getCurrentAction,
-  validateTypeId
+  getType3d
 } from "./monsters"
 import getConfig from "./monsterTypeConfiguration"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
@@ -49,7 +49,7 @@ class MonsterCard extends React.Component<Props, {}> {
           <div className="card-content">
             {this.renderHeader()}
           </div>
-          {this.renderMonster(monster.type)}
+          {this.renderMonster()}
           {!monster.deathAt && this.renderStats()}
           {hasControl && this.renderFooter()}
         </div>
@@ -57,38 +57,41 @@ class MonsterCard extends React.Component<Props, {}> {
     )
   }
 
-  private renderImage() {
+  // private renderImage() {
 
-    const { monster } = this.props
+  //   const { monster } = this.props
 
-    const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
-    const monsterImage = monsterImageSrc(monster.type)
+  //   const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
+  //   const monsterImage = monsterImageSrc(monster.type)
 
-    const sleepingClass = monster.isSleeping ? "sleeping" : ""
-    const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
+  //   const sleepingClass = monster.isSleeping ? "sleeping" : ""
+  //   const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
 
-    return (
-      <div className="card-image">
-        <figure className={figureClass}>
-          <img
-            alt={monster.name}
-            className={sleepingClass}
-            src={monsterImage} />
-          {sleepingAnimation}
-        </figure>
-      </div>
-    )
-  }
+  //   return (
+  //     <div className="card-image">
+  //       <figure className={figureClass}>
+  //         <img
+  //           alt={monster.name}
+  //           className={sleepingClass}
+  //           src={monsterImage} />
+  //         {sleepingAnimation}
+  //       </figure>
+  //     </div>
+  //   )
+  // }
 
   private render3DProfile() {
 
     const { monster } = this.props
-    const { position, rotation, cameraPosition } = getConfig(monster.type)
+
+    const type3d = getType3d(monster.type)
+
+    const { position, rotation, cameraPosition } = getConfig(type3d)
 
     return (
       <Monster3DProfile
-        typeId={monster.type}
-        path={monsterModelSrc(monster.type)}
+        typeId={type3d}
+        path={monsterModelSrc(type3d)}
         action={getCurrentAction(monster, ActionType)}
         position={position}
         rotation={rotation}
@@ -100,10 +103,8 @@ class MonsterCard extends React.Component<Props, {}> {
     )
   }
 
-  private renderMonster = (typeId: number) =>
-    validateTypeId(typeId)
-      ? this.render3DProfile()
-      : this.renderImage()
+  private renderMonster = () =>
+    this.render3DProfile()
 
   private renderHeader() {
 

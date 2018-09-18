@@ -96,11 +96,14 @@ export const getCurrentAction = (monster: MonsterProps, ActionType: any) => {
 }
 
 /**
- * temporal validator while we have few 3D models
+ * temporal getter while we have few 3D models
  * @param typeId id of the monster
  */
-export const validateTypeId = (typeId: number) =>
-  [0, 1].includes(typeId)
+export const getType3d = (typeId: number) => {
+  const availableTypes = [0, 1]
+  return typeId % availableTypes.length
+}
+  
 
 export const monsterImageSrc = (typeId: number) =>
   (`/images/monsters/monster-${typeId}.png`)
