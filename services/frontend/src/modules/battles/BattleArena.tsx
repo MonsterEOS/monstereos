@@ -4,9 +4,8 @@ import { State, pushNotification } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 import { connect } from "react-redux"
 import {
-  monsterImageSrc,
   monsterModelSrc,
-  validateTypeId
+  getType3d
 } from "../monsters/monsters"
 import getConfig from "../monsters/monsterTypeConfiguration"
 import { Monster3DProfile, ActionType } from "react-monstereos-profile"
@@ -182,40 +181,28 @@ class BattleArena extends React.Component<Props, ReactState> {
       () => enemySelection(monster.pet_id) :
       undefined
 
-    const { position, rotation, cameraPosition } = getConfig(monster.pet_type)
+    const type3d = getType3d(monster.pet_type)
+
+    const { position, rotation, cameraPosition } = getConfig(type3d)
 
     return <div className="arena-monster"
       key={monster.pet_id}>
-      {
-        validateTypeId(monster.pet_type)
-          ? (
-            <div
-              className={`image ${monsterClass}`}
-              onClick={enemyClick}
-            >
-              <Monster3DProfile
-                typeId={monster.pet_type}
-                path={monsterModelSrc(monster.pet_type)}
-                action={ActionType.IDLE}
-                position={position}
-                rotation={rotation}
-                cameraPosition={cameraPosition}
-                size={{ width: "200px", height: "228px" }}
-                background={{ alpha: 0 }}
-                zoom={false}
-              />
-            </div>
-          )
-          : (
-            <figure
-              className="image">
-              <img
-                src={monsterImageSrc(monster.pet_type)}
-                className={monsterClass}
-                onClick={enemyClick} />
-            </figure>
-          )
-      }
+        <div
+          className={`image ${monsterClass}`}
+          onClick={enemyClick}
+        >
+          <Monster3DProfile
+            typeId={type3d}
+            path={monsterModelSrc(type3d)}
+            action={ActionType.IDLE}
+            position={position}
+            rotation={rotation}
+            cameraPosition={cameraPosition}
+            size={{ width: "200px", height: "228px" }}
+            background={{ alpha: 0 }}
+            zoom={false}
+          />
+        </div>
       {this.hpNotification(monster.pet_id)}
       {hpBar(monster.hp, monster.player)}
       {myMonster && myTurn && this.attackButtons(monster)}
