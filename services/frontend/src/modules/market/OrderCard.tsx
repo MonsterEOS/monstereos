@@ -179,7 +179,7 @@ class OrderCard extends React.Component<Props, ReactState> {
       const amount = amountOfAssetPlusFees(order.value, globalConfig.market_fee)
       actions.push({
         action: this.requestClaimMonster,
-        label: amount > 0 ? `Buy ${amount.toLocaleString()} EOS` : `Claim for FREE`
+        label: amount > 0 ? `Buy for ${amount.toLocaleString()} EOS` : `Claim for FREE`
       })
     }
 
@@ -211,7 +211,7 @@ class OrderCard extends React.Component<Props, ReactState> {
 
     const amount = amountOfAsset(order.value)
     const fees = (amount * globalConfig.market_fee / 10000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
+    
     return (
       <div className="card-content">
         <span className="is-6">
@@ -231,6 +231,7 @@ class OrderCard extends React.Component<Props, ReactState> {
         </div>}
         { amount > 0 &&
         <div className="is-6">
+          <strong>Price: {amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EOS</strong><br/>
           <strong>Order Fees: {fees} EOS</strong>
         </div>
         }
