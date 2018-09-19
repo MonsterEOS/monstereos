@@ -18,7 +18,7 @@ class EldestRank extends React.Component<{}, ReactState> {
   public render() {
 
     const variables = {
-      limit: 2,
+      limit: 21,
       offset: 0
     }
     const {loadMore} = this.state
