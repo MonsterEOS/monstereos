@@ -231,7 +231,7 @@ class OrderCard extends React.Component<Props, ReactState> {
         </div>}
         { amount > 0 &&
         <div className="is-6">
-          <strong>Price: {amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><br/>
+          <strong>Price: {amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EOS</strong><br/>
           <strong>Order Fees: {fees} EOS</strong>
         </div>
         }
