@@ -4,8 +4,14 @@ import { Query } from "react-apollo"
 import TitleBar from "../shared/TitleBar"
 import { QUERY_TOP_BATTLE_PLAYERS } from "./ranking.gql"
 
-class TopBattlePlayersRank extends React.Component<{}, {}> {
+interface ReactState {
+  loadMore:boolean
+}
+class TopBattlePlayersRank extends React.Component<{}, ReactState> {
 
+  public state = {
+    loadMore:true
+  }
   public render() {
 
     const variables = {
@@ -13,10 +19,12 @@ class TopBattlePlayersRank extends React.Component<{}, {}> {
       offset: 0
     }
 
+    const {loadMore} = this.state
+
     return <div className="rank">
       <TitleBar title="Top Battle Players" />
       <Query query={QUERY_TOP_BATTLE_PLAYERS} variables={variables}>
-        {({data, loading, refetch}) => {
+        {({data, loading, fetchMore}) => {
 
           if (loading || !data || !data.allVrankingBattlePlayers) {
             return <span>
@@ -25,7 +33,25 @@ class TopBattlePlayersRank extends React.Component<{}, {}> {
           }
 
           const monsters = data.allVrankingBattlePlayers ? data.allVrankingBattlePlayers.edges : []
-          return <table>
+          const onLoadMore = () => {
+            fetchMore({
+              variables: {
+                offset: data.allVrankingBattlePlayers.length
+              },
+              updateQuery: (prev, { fetchMoreResult }) => {
+                if (!fetchMoreResult) { 
+                  this.setState({loadMore:false})
+                  return prev 
+                }              
+                this.setState({loadMore:fetchMoreResult.allVrankingBattlePlayers.edges.length === variables.limit })
+                return Object.assign({}, prev, {allVrankingBattlePets : 
+                  Object.assign({}, prev.allVrankingBattlePets, {edges:[...prev.allVrankingBattlePets.edges, ...fetchMoreResult.allVrankingBattlePets.edges]})
+                  })
+              }
+            })
+          }
+
+          return <div><table>
             <thead>
               <tr>
                 <th>#</th>
@@ -45,6 +71,15 @@ class TopBattlePlayersRank extends React.Component<{}, {}> {
             ))}
             </tbody>
           </table>
+          {loadMore &&
+            <footer className="card-footer">
+              <a className="card-footer-item"
+                onClick={onLoadMore}>
+                Load more
+              </a>
+            </footer> 
+          }
+        </div>
         }}
       </Query>
     </div>

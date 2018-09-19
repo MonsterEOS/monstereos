@@ -38,20 +38,13 @@ class EldestRank extends React.Component<{}, ReactState> {
 
           const monsters = allPets ? allPets.edges : []
 
-          const onLoadMore = () => {
-            // tslint:disable-next-line:no-console
-            console.log("length" + allPets.edges.length)
+          const onLoadMore = () => {            
             
             fetchMore({
               variables: {
                 offset: allPets.edges.length
               },
-              updateQuery: (prev, { fetchMoreResult }) => {
-                // tslint:disable-next-line:no-console
-                console.log("more "+ JSON.stringify(fetchMoreResult))
-                // tslint:disable-next-line:no-console
-                console.log("prev "+ JSON.stringify(prev))
-                
+              updateQuery: (prev, { fetchMoreResult }) => {                
                 if (!fetchMoreResult) { 
                   this.setState({loadMore:false})
                   return prev 
