@@ -6,7 +6,7 @@ module.exports = {
       script: "./src/index.ts",
       restart_delay: 5000,
       min_uptime: "20s",
-      max_restarts: 5,
+      max_restarts: 9999,
       ignore_watch: ["node_modules", "./src/services"],
     },
     {
