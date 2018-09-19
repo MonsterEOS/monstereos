@@ -44,8 +44,8 @@ class TopBattlePlayersRank extends React.Component<{}, ReactState> {
                   return prev 
                 }              
                 this.setState({loadMore:fetchMoreResult.allVrankingBattlePlayers.edges.length === variables.limit })
-                return Object.assign({}, prev, {allVrankingBattlePets : 
-                  Object.assign({}, prev.allVrankingBattlePets, {edges:[...prev.allVrankingBattlePets.edges, ...fetchMoreResult.allVrankingBattlePets.edges]})
+                return Object.assign({}, prev, {allVrankingBattlePlayers : 
+                  Object.assign({}, prev.allVrankingBattlePlayers, {edges:[...prev.allVrankingBattlePlayers.edges, ...fetchMoreResult.allVrankingBattlePlayers.edges]})
                   })
               }
             })
