@@ -338,6 +338,10 @@
       -o-filter: brightness(100%);
       filter: brightness(100%); }
 
+.loading-message {
+  color: white;
+  font-size: 6em; }
+
 .monster-hp-name {
   position: absolute;
   margin-top: -25px;
@@ -417,10 +421,6 @@
   .battle-arena .arena-monster {
     width: 1020px;
     height: 600px; }
-    .battle-arena .arena-monster figure {
-      max-height: 180px;
-      max-width: 180px;
-      margin: 10px; }
     .battle-arena .arena-monster progress {
       margin-bottom: 6px !important; }
     .battle-arena .arena-monster .monster-hp-notification {
