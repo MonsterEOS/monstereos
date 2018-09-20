@@ -415,9 +415,8 @@
     background: url("../assets/images/arenas/17.png") no-repeat center center;
     background-size: cover; }
   .battle-arena .arena-monster {
-    margin-top: 200px;
-    max-width: 200px;
-    max-height: 200px; }
+    width: 1020px;
+    height: 600px; }
     .battle-arena .arena-monster figure {
       max-height: 180px;
       max-width: 180px;
