@@ -7,8 +7,7 @@ import {
   monsterModelSrc,
   getType3d
 } from "../monsters/monsters"
-import getConfig from "../monsters/monsterTypeConfiguration"
-import { Monster3DProfile, ActionType } from "react-monstereos-profile"
+import Arena3D from "monster-battle-react-component"
 
 const AVAILABLE_ARENA_ARTS = 18
 
@@ -16,71 +15,71 @@ const getArenaBackground = (startedAt: number) => {
   return `arena-${startedAt % AVAILABLE_ARENA_ARTS}`
 }
 
-const elementButton = (
-  elementId: number,
-  onClick: any,
-  showLabelAndCancel: boolean
-) => {
+// const elementButton = (
+//   elementId: number,
+//   onClick: any,
+//   showLabelAndCancel: boolean
+// ) => {
 
-  let elementDisplay = []
+//   let elementDisplay = []
 
-  switch (elementId) {
-    case 1:
-      elementDisplay = ["is-brown", "tree", "Wood"]
-      break
-    case 2:
-      elementDisplay = ["is-success", "leaf", "Earth"]
-      break
-    case 3:
-      elementDisplay = ["is-info", "tint", "Water"]
-      break
-    case 4:
-      elementDisplay = ["is-danger", "fire", "Fire"]
-      break
-    case 5:
-      elementDisplay = ["is-dark", "wrench", "Metal"]
-      break
-    case 6:
-      elementDisplay = ["is-primary", "paw", "Animal"]
-      break
-    case 7:
-      elementDisplay = ["is-purple", "bug", "Poison"]
-      break
-    case 8:
-      elementDisplay = ["is-black", "adjust", "Undead"]
-      break
-    case 9:
-      elementDisplay = ["is-warning", "bolt", "Lightning"]
-      break
-    default:
-      elementDisplay = ["", "asterisk", "Neutral"]
-  }
+//   switch (elementId) {
+//     case 1:
+//       elementDisplay = ["is-brown", "tree", "Wood"]
+//       break
+//     case 2:
+//       elementDisplay = ["is-success", "leaf", "Earth"]
+//       break
+//     case 3:
+//       elementDisplay = ["is-info", "tint", "Water"]
+//       break
+//     case 4:
+//       elementDisplay = ["is-danger", "fire", "Fire"]
+//       break
+//     case 5:
+//       elementDisplay = ["is-dark", "wrench", "Metal"]
+//       break
+//     case 6:
+//       elementDisplay = ["is-primary", "paw", "Animal"]
+//       break
+//     case 7:
+//       elementDisplay = ["is-purple", "bug", "Poison"]
+//       break
+//     case 8:
+//       elementDisplay = ["is-black", "adjust", "Undead"]
+//       break
+//     case 9:
+//       elementDisplay = ["is-warning", "bolt", "Lightning"]
+//       break
+//     default:
+//       elementDisplay = ["", "asterisk", "Neutral"]
+//   }
 
-  const elementClass = `button is-small ${elementDisplay[0]}`
+//   const elementClass = `button is-small ${elementDisplay[0]}`
 
-  return !showLabelAndCancel ? <a key={elementId}
-    className={elementClass}
-    onClick={onClick}>
-    <i className={`fa fa-${elementDisplay[1]}`} />
-  </a> : <React.Fragment>
-      <a className={elementClass} onClick={() => onClick(0, -1)}>{elementDisplay[2]} Attack <i className="fa fa-ban" style={{ marginLeft: 5 }} /></a>
-    </React.Fragment>
-}
+//   return !showLabelAndCancel ? <a key={elementId}
+//     className={elementClass}
+//     onClick={onClick}>
+//     <i className={`fa fa-${elementDisplay[1]}`} />
+//   </a> : <React.Fragment>
+//       <a className={elementClass} onClick={() => onClick(0, -1)}>{elementDisplay[2]} Attack <i className="fa fa-ban" style={{ marginLeft: 5 }} /></a>
+//     </React.Fragment>
+// }
 
-const hpBar = (hpValue: number, monsterName: string) => {
-  const hpClass = hpValue > 65 ? "is-success" :
-    hpValue > 30 ? "is-warning" : "is-danger"
+// const hpBar = (hpValue: number, monsterName: string) => {
+//   const hpClass = hpValue > 65 ? "is-success" :
+//     hpValue > 30 ? "is-warning" : "is-danger"
 
-  return <div>
-    <progress
-      className={`progress ${hpClass}`}
-      value={hpValue}
-      data-label={monsterName}
-      max={100}>
-      {hpValue}%
-    </progress>
-  </div>
-}
+//   return <div>
+//     <progress
+//       className={`progress ${hpClass}`}
+//       value={hpValue}
+//       data-label={monsterName}
+//       max={100}>
+//       {hpValue}%
+//     </progress>
+//   </div>
+// }
 
 const winnerBanner = (winner: string, isWinner?: boolean) => {
   const status = isWinner === undefined ?
@@ -131,7 +130,7 @@ class BattleArena extends React.Component<Props, ReactState> {
     const isBattleGoing = arena.phase === BATTLE_PHASE_GOING
 
     return <div className={`battle-arena ${getArenaBackground(arena.startedAt)}`}>
-      {arena.petsStats.map((monster) => this.renderArenaMonster(monster, isBattleGoing))}
+      {this.renderArenaMonster(arena.petsStats, isBattleGoing)}
       {winner && winnerBanner(winner, isWinner)}
     </div>
   }
@@ -158,101 +157,102 @@ class BattleArena extends React.Component<Props, ReactState> {
     }
   }
 
-  private renderArenaMonster = (monster: MonsterArenaStats, isBattleGoing: boolean) => {
+  private renderArenaMonster = (petsStats: MonsterArenaStats[], isBattleGoing: boolean) => {
     const {
-      arena,
+      // arena,
       identity,
-      selectedEnemyId,
-      enemySelection,
-      selectedElementId
+      // selectedEnemyId,
+      // enemySelection,
+      // selectedElementId
     } = this.props
 
-    const myMonster = monster.player === identity
+    if (identity === "") {
+      return <div>Loading...</div>
+    }
 
-    const myTurn = isBattleGoing &&
-      (arena.commits[0].player === identity ||
-        Date.now() - arena.lastMoveAt > 60000)
+    // const myMonster = monster.player === identity
+    const monsters: any = petsStats.reduce((fightingMonsters, current) => {
+      fightingMonsters[
+        current.player === identity
+          ? "myMonster"
+          : "enemyMonster"
+      ] = current
+      return fightingMonsters
+    }, {})
 
-    const monsterClass =
-      (myMonster ? "my-monster" : "enemy-monster") +
-      (monster.pet_id === selectedEnemyId && isBattleGoing ? " active" : "")
+    // const myTurn = isBattleGoing &&
+    //   (arena.commits[0].player === identity ||
+    //     Date.now() - arena.lastMoveAt > 60000)
 
-    const enemyClick = !myMonster ?
-      () => enemySelection(monster.pet_id) :
-      undefined
+    // const monsterClass =
+    //   (myMonster ? "my-monster" : "enemy-monster") +
+    //   (monster.pet_id === selectedEnemyId && isBattleGoing ? " active" : "")
 
-    const type3d = getType3d(monster.pet_type)
+    // const enemyClick = !myMonster ?
+    //   () => enemySelection(monster.pet_id) :
+    //   undefined
 
-    const { position, rotation, cameraPosition } = getConfig(type3d)
+    const myMonsterType3D = getType3d(monsters.myMonster.pet_type)
+    const enemyMonsterType3D = getType3d(monsters.enemyMonster.pet_type)
 
-    return <div className="arena-monster"
-      key={monster.pet_id}>
-        <div
-          className={`image ${monsterClass}`}
-          onClick={enemyClick}
-        >
-          <Monster3DProfile
-            typeId={type3d}
-            path={monsterModelSrc(type3d)}
-            action={ActionType.IDLE}
-            position={position}
-            rotation={rotation}
-            cameraPosition={cameraPosition}
-            size={{ width: "200px", height: "228px" }}
-            background={{ alpha: 0 }}
-            zoom={false}
-          />
-        </div>
-      {this.hpNotification(monster.pet_id)}
+    return <div className="arena-monster">
+      <Arena3D
+        myMonster={monsterModelSrc(myMonsterType3D)}
+        enemyMonster={monsterModelSrc(enemyMonsterType3D)}
+        // size={{ width: "100vw", height: "50vw" }}
+        size={{ width: "100%", height: "100%" }}
+        background={{ alpha: 1 }}
+        zoom
+      />
+      {/* {this.hpNotification(monster.pet_id)}
       {hpBar(monster.hp, monster.player)}
       {myMonster && myTurn && this.attackButtons(monster)}
       {myTurn && selectedEnemyId === monster.pet_id &&
         (selectedElementId !== undefined && selectedElementId >= 0) &&
-        this.confirmAttackButton()}
+        this.confirmAttackButton()} */}
     </div>
   }
 
+  // private hpNotification = (petId: number) => {
+  //   const { hpLog } = this.state
 
-  private hpNotification = (petId: number) => {
-    const { hpLog } = this.state
+  //   const notifications = hpLog
+  //     .filter((item) => item.petId === petId && (Date.now() - item.time) < 5000).map((item, index) => (
+  //       <span
+  //         key={index}
+  //         className="monster-hp-notification">
+  //         {item.hpDiff}
+  //       </span>
+  //     ))
 
-    const notifications = hpLog
-      .filter((item) => item.petId === petId && (Date.now() - item.time) < 5000).map((item, index) => (
-        <span
-          key={index}
-          className="monster-hp-notification">
-          {item.hpDiff}
-        </span>
-      ))
+  //   return notifications.length ? notifications : null
+  // }
 
-    return notifications.length ? notifications : null
-  }
+  // private confirmAttackButton = () => {
+  //   return <a
+  //     className="button is-small is-danger"
+  //     onClick={this.props.submitAttack}>
+  //     Submit Attack
+  //   </a>
+  // }
 
-  private confirmAttackButton = () => {
-    return <a
-      className="button is-small is-danger"
-      onClick={this.props.submitAttack}>
-      Submit Attack
-    </a>
-  }
+  // private attackButtons = (pet: MonsterArenaStats) => {
 
-  private attackButtons = (pet: MonsterArenaStats) => {
+  //   const { monsterTypes, attackSelection, selectedElementId, selectedPetId } = this.props
 
-    const { monsterTypes, attackSelection, selectedElementId, selectedPetId } = this.props
+  //   const monsterType = monsterTypes.find((type) => type.id === pet.pet_type)
 
-    const monsterType = monsterTypes.find((type) => type.id === pet.pet_type)
+  //   const elements = monsterType ? monsterType.elements : [0] // neutral
 
-    const elements = monsterType ? monsterType.elements : [0] // neutral
-
-    return <div className="buttons elements">
-      {pet.pet_id === selectedPetId ?
-        elementButton(selectedElementId!, attackSelection, true) :
-        elements.map((element) => {
-          const doAttack = () => attackSelection(pet.pet_id, element)
-          return elementButton(element, doAttack, false)
-        })}
-    </div>
-  }
+  //   return <div className="buttons elements">
+  //     {pet.pet_id === selectedPetId ?
+  //       elementButton(selectedElementId!, attackSelection, true) :
+  //       elements.map((element) => {
+  //         const doAttack = () => attackSelection(pet.pet_id, element)
+  //         return elementButton(element, doAttack, false)
+  //       })}
+  //   </div>
+  // }
 }
 
 const mapStateToProps = (state: State) => {

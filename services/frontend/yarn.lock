@@ -5943,6 +5943,12 @@ mongodb@^3.1.3:
     mongodb-core "3.1.3"
     safe-buffer "^5.1.2"
 
+"monster-battle-react-component@https://github.com/VertexStudio/monster-battle-react-component":
+  version "0.0.3"
+  resolved "https://github.com/VertexStudio/monster-battle-react-component#f126a1d7c3e4fe26d6ec6efcf95deab2f94db693"
+  dependencies:
+    react-jss "^8.6.1"
+
 moo@^0.4.3:
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/moo/-/moo-0.4.3.tgz#3f847a26f31cf625a956a87f2b10fbc013bfd10e"

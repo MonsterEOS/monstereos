@@ -78,9 +78,11 @@
     &.arena-17 { @include arena_bg('17'); }
 
   .arena-monster {
-    margin-top: 200px;
-    max-width: 200px;
-    max-height: 200px;
+    // margin-top: 200px;
+    // max-width: 200px;
+    // max-height: 200px;
+    width: 1020px;
+  height: 600px;
 
     figure {
       max-height: 180px;
