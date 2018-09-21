@@ -675,3 +675,7 @@ progress:before {
 
 .button {
   color: #00ffea; }
+
+a:hover {
+  color: yellow
+}
