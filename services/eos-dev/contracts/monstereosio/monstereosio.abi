@@ -255,6 +255,17 @@
         }
       ]
     },{
+      "name": "messagefrom",
+      "base": "",
+      "fields": [{
+          "name": "pet_id",
+          "type": "uuid"
+        },{
+          "name": "message",
+          "type": "string"
+        }
+      ]
+    },{
       "name": "feedpet",
       "base": "",
       "fields": [{
@@ -628,6 +639,10 @@
     },{
       "name": "destroypet",
       "type": "destroypet",
+      "ricardian_contract": ""
+    },{
+      "name": "messagefrom",
+      "type": "messagefrom",
       "ricardian_contract": ""
     },{
       "name": "techrevive",
