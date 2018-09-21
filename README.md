@@ -89,25 +89,19 @@ We structured everything in microservices and it can be automagically initialize
 
 After you installed docker just run the following commands:
 
-**Create/Update Postgres database**
-```
-cd services/demux
-yarn migrate # credentials: user // pass  (for all steps)
-cd ../..
-docker restart monstereos_demux_1
-```
 **Start docker container**
 ```
 docker-compose up -d
 ```
-**Init chain and monster data**
+
+**Create postgres database and init chain and monster data**
 ```
-docker exec -it monstereos_eosiodev_1 /bin/bash
-cd /opt/application/scripts
-./0000_init-chain.sh
-./0010_load-elements.sh
-./0020_load-pet-types.sh
-./0030_load-data.sh
+./setup.sh
+```
+
+**Restart docker container**
+```
+docker-compose restart
 ```
 
 Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
@@ -141,4 +135,5 @@ You can build any Dapp using the above structure. Tweak the structure a little b
 * mongo and postgres data is stored in parent folder of this git repo under `.monstereos`
 * eos data is stored in the docker volume `monstereos_eosiodevapp`
 * to compile the contract you need to use `eosio.cdt` and build it using `make`
+* to change postgres schema run `yarn migrate` from console (outside docker) in folder `services/demux`.
 
