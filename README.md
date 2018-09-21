@@ -39,7 +39,7 @@ Cypherglass | Sponsor of Infrastructure and EOS Resources | [Official Website](h
 Friedger Muffke | Developer | [GitHub](http://github.com/friedger) / [Twitter](https://twitter.com/fmdroid) / [Steemit](https://steemit.com/@friedger)
 John Williamson | Developer | [GitHub](http://github.com/velua) / [Twitter](https://twitter.com/velua) / [Steemit](https://steemit.com/@johnwilliamson)
 Jenny Calpu | PR & Marketing | [Twitter](https://twitter.com/topkpop) / [Steemit](https://steemit.com/@topkpop)
-Daniel Wagner | Curator | [Medium](https://medium.com/@tikuzero)
+Daniel Wagner | Gaming Curator | [Medium](https://medium.com/@tikuzero)
 
 The project is open to the public and we welcome anyone who would like to collaborate. Our Github repository is there for the community, but in order to receive shares of the project and participate in our distribution, you must be approved by board members.
 
