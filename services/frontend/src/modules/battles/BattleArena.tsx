@@ -57,13 +57,19 @@ const elementButton = (
 
   const elementClass = `button is-small ${elementDisplay[0]}`
 
-  return !showLabelAndCancel ? <a key={elementId}
-    className={elementClass}
-    onClick={onClick}>
-    <i className={`fa fa-${elementDisplay[1]}`} />
-  </a> : <React.Fragment>
-      <a className={elementClass} onClick={() => onClick(0, -1)}>{elementDisplay[2]} Attack <i className="fa fa-ban" style={{ marginLeft: 5 }} /></a>
-    </React.Fragment>
+  return !showLabelAndCancel
+    ? (<a key={elementId}
+      className={elementClass}
+      onClick={onClick}
+    >
+      <i className={`fa fa-${elementDisplay[1]}`} />
+    </a>)
+    : (<a
+      className={elementClass}
+      onClick={() => onClick(0, -1)}
+    >
+      {elementDisplay[2]} Attack <i className="fa fa-ban" style={{ marginLeft: 5 }} />
+    </a>)
 }
 
 const hpBar = (hpValue: number, monsterName: string, isMyMonster: boolean) => {
@@ -212,9 +218,11 @@ class BattleArena extends React.Component<Props, ReactState> {
       />
       {this.renderHpBars(monsters)}
       {this.renderHpNotifications(monsters)}
-      {myTurn && this.attackButtons(monsters.myMonster)}
-      {myTurn && (selectedElementId !== undefined &&
-        selectedElementId >= 0) && this.confirmAttackButton()}
+      <div className="battle-buttons-container">
+        {myTurn && this.attackButtons(monsters.myMonster)}
+        {myTurn && (selectedElementId !== undefined &&
+          selectedElementId >= 0) && this.confirmAttackButton()}
+      </div>
     </div>
   }
 
@@ -252,8 +260,8 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     const notifications = hpLog
       .filter(
-        (item) => item.petId === petId  &&
-           (Date.now() - item.time) < 5000
+        (item) => item.petId === petId &&
+          (Date.now() - item.time) < 5000
       ).map((item, index) => (
         <span
           key={index}
@@ -281,14 +289,14 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     const elements = monsterType ? monsterType.elements : [0] // neutral
 
-    return <div className="buttons elements">
+    return <React.Fragment>
       {pet.pet_id === selectedPetId ?
         elementButton(selectedElementId!, attackSelection, true) :
         elements.map((element) => {
           const doAttack = () => attackSelection(pet.pet_id, element)
           return elementButton(element, doAttack, false)
         })}
-    </div>
+    </React.Fragment>
   }
 }
 

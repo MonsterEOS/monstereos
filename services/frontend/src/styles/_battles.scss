@@ -53,9 +53,20 @@ $battle_arena_height: 600px;
   height: 30px;
 }
 
+.battle-buttons-container {
+  display: flex;
+  position: absolute;
+  bottom: 7px;
+  left: 35px;
+}
+
+.battle-buttons-container * {
+  margin-right: 5px;
+}
+
 .my-monster-hp {
   left: 30px;
-  bottom: 70px;
+  bottom: 80px;
 }
 
 .enemy-monster-hp {
