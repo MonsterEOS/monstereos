@@ -91,6 +91,17 @@
         }
       ]
     },{
+      "name": "st_house_types",
+      "base": "",
+      "fields": [{
+          "name": "id",
+          "type": "uint64"
+        },{
+          "name": "room_slots",
+          "type": "uint8[]"
+        }
+      ]
+    },{
       "name": "st_commit",
       "base": "",
       "fields": [{
@@ -512,6 +523,25 @@
         }
       ]
     },{
+      "name": "addhousetype",
+      "base": "",
+      "fields": [{
+          "name": "slots",
+          "type": "uint8[]"
+        }
+      ]
+    },{
+      "name": "chghousetype",
+      "base": "",
+      "fields": [{
+          "name": "id",
+          "type": "uint64"
+        },{
+          "name": "slots",
+          "type": "uint8[]"
+        }
+      ]
+    },{
       "name": "changecrtol",
       "base": "",
       "fields": [{
@@ -698,6 +728,14 @@
       "type": "changepettyp",
       "ricardian_contract": ""
     },{
+      "name": "addhousetype",
+      "type": "addhousetype",
+      "ricardian_contract": ""
+    },{
+      "name": "chghousetype",
+      "type": "chghousetype",
+      "ricardian_contract": ""
+    },{
       "name": "changecrtol",
       "type": "changecrtol",
       "ricardian_contract": ""
@@ -789,6 +827,16 @@
         "uint64"
       ],
       "type": "st_pet_types"
+    },{
+      "name": "housetypes",
+      "index_type": "i64",
+      "key_names": [
+        "id"
+      ],
+      "key_types": [
+        "uint64"
+      ],
+      "type": "st_house_types"
     },{
       "name": "battles",
       "index_type": "i64",

@@ -35,6 +35,7 @@ public:
     pets(_self,_self),
     orders(_self,_self),
     petinbattles(_self,_self),
+    housetypes(_self,_self),
     pet_config2(_self,_self)
     {}
 
@@ -43,6 +44,7 @@ public:
     _tb_pet pets;
     _tb_orders orders;
     _tb_pet_in_battle petinbattles;
+    _tb_house_types housetypes;
 
     // pet interactions
     void createpet    ( name owner, string pet_name );
@@ -82,6 +84,10 @@ public:
     void changemktfee ( uint64_t new_fee, string reason );
     void changecreawk ( int64_t new_creation_awake, string reason );
     void changehungtz ( uint32_t new_hunger_to_zero, string reason );
+
+    // housing
+    void addhousetype ( vector<uint8_t> slots );
+    void chghousetype ( uint64_t id, vector<uint8_t> slots );
 
     // token deposits
     void signup       ( name user );

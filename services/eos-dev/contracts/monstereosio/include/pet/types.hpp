@@ -213,4 +213,26 @@ namespace types {
   typedef multi_index<N(orders), st_orders,
       indexed_by<N(by_user_and_pet), const_mem_fun<st_orders, uint128_t, &st_orders::get_by_user_and_pet>>
   > _tb_orders;
+
+
+/*****************************************************************
+ * Housing
+ ****************************************************************/
+
+  struct st_house_types {
+      uint64_t id;
+      vector<uint8_t> room_slots = {};
+
+      uint64_t primary_key() const { return id; }
+  };
+
+  // room types
+  constexpr uint8_t HOUSE_ROOM_KITCHEN    = 0;
+  constexpr uint8_t HOUSE_ROOM_BEDROOM    = 1;
+  constexpr uint8_t HOUSE_ROOM_RESTROOM   = 2;
+  constexpr uint8_t HOUSE_ROOM_PLAYGROUND = 3;
+
+  typedef multi_index<N(housetypes), st_house_types> _tb_house_types;
+
+
 }

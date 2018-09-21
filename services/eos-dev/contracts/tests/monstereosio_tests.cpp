@@ -36,6 +36,14 @@ inline constexpr auto operator""_n(const char* s, std::size_t) { return string_t
 
 static const fc::microseconds abi_serializer_max_time{1'000'000};
 
+// test types
+struct housetype {
+  uint64_t id;
+  vector<uint8_t> room_slots = {};
+};
+FC_REFLECT(housetype, (id)(room_slots));
+
+
 class monstereosio_tester : public TESTER {
 public:
   using TESTER::push_transaction;
@@ -380,37 +388,97 @@ BOOST_AUTO_TEST_SUITE(monstereosio)
 //   t.check_file();
 // } FC_LOG_AND_RETHROW()
 
-BOOST_AUTO_TEST_CASE(battles) try {
-  monstereosio_tester        t{"battles"};
-  monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "pets"_n, "st_pets"};
-  monstereosio_tester::table battles{"monstereosio"_n, "monstereosio"_n, "battles"_n, "st_battle"};
+// BOOST_AUTO_TEST_CASE(battles) try {
+//   monstereosio_tester        t{"battles"};
+//   monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "pets"_n, "st_pets"};
+//   monstereosio_tester::table battles{"monstereosio"_n, "monstereosio"_n, "battles"_n, "st_battle"};
 
-  t.create_account("john"_n);
-  t.create_account("mary"_n);
+//   t.create_account("john"_n);
+//   t.create_account("mary"_n);
 
-  t.heading("createpet: success pet creations");
-  t.push_trx("monstereosio", "createpet", "john",
-    R"({"pet_name": "pikachu", "owner": "john"})");
-  t.push_trx("monstereosio", "createpet", "mary",
-  R"({"pet_name": "bulbasaur", "owner": "john"})");
-  t.diff_table(pets);
+//   t.heading("createpet: success pet creations");
+//   t.push_trx("monstereosio", "createpet", "john",
+//     R"({"pet_name": "pikachu", "owner": "john"})");
+//   t.push_trx("monstereosio", "createpet", "mary",
+//   R"({"pet_name": "bulbasaur", "owner": "john"})");
+//   t.diff_table(pets);
+//   t.produce_blocks();
+
+//   t.heading("create and join battle");
+//   t.push_trx("monstereosio", "battlecreate", "john",
+//     R"({"host": "john", "mode": 1, "secret": "12313131"})");
+//   t.push_trx("monstereosio", "battlejoin", "mary",
+//   R"({"host": "john", "player": "mary", "secret": "john"})");
+//   t.diff_table(pets);
+//   t.produce_blocks();
+
+//   // pet id: 1
+//   // randoms: 200, 199, 89, 69, 10, 248, 69, 159, 108, 138, 197, 99, 233, 72, 139, 144, 182, 115, 158, 192, 181, 217, 197, 97, 24, 99, 254, 203, 93, 165, 124, 130
+//   // secret: ffb50ca56fd78baa1c93606fd3996d92a326bfbbcedf88ef7e554514919b0e09
+
+//   // pet id: 2
+//   // randoms: 20, 83, 233, 196, 69, 118, 131, 26, 134, 179, 171, 31, 109, 111, 173, 142, 58, 184, 99, 89, 252, 200, 85, 39, 0, 220, 89, 63, 148, 20, 106, 103
+//   // secret: fc4bc8f4432e124294aba8c2ac964f8fb499ac372bd9c2720f61254cbef2960f
+
+// } FC_LOG_AND_RETHROW()
+
+BOOST_AUTO_TEST_CASE(housing) try {
+  monstereosio_tester t{"housing"};
+
+  housetype housetypes;
+
+  t.create_account("usertest"_n);
+  
+  // validates configuration 
+  t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
+                mvo()("slots", std::vector<uint8_t>{1,1,1,1}));
   t.produce_blocks();
 
-  t.heading("create and join battle");
-  t.push_trx("monstereosio", "battlecreate", "john",
-    R"({"host": "john", "mode": 1, "secret": "12313131"})");
-  t.push_trx("monstereosio", "battlejoin", "mary",
-  R"({"host": "john", "player": "mary", "secret": "john"})");
-  t.diff_table(pets);
+  t.get_table_entry(housetypes, N(monstereosio), N(monstereosio), N(housetypes), 0);
+  BOOST_REQUIRE_EQUAL(1, housetypes.room_slots[0]);
+  BOOST_REQUIRE_EQUAL(1, housetypes.room_slots[1]);
+  BOOST_REQUIRE_EQUAL(1, housetypes.room_slots[2]);
+  BOOST_REQUIRE_EQUAL(1, housetypes.room_slots[3]);
   t.produce_blocks();
 
-  // pet id: 1
-  // randoms: 200, 199, 89, 69, 10, 248, 69, 159, 108, 138, 197, 99, 233, 72, 139, 144, 182, 115, 158, 192, 181, 217, 197, 97, 24, 99, 254, 203, 93, 165, 124, 130
-  // secret: ffb50ca56fd78baa1c93606fd3996d92a326bfbbcedf88ef7e554514919b0e09
+  t.push_action(N(monstereosio), N(chghousetype), N(monstereosio), mvo()
+                ("id", 0)
+                ("slots", std::vector<uint8_t>{2,2,2,2}));
+  t.produce_blocks();
+  
+  t.get_table_entry(housetypes, N(monstereosio), N(monstereosio), N(housetypes), 0);
+  BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[0]);
+  BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[1]);
+  BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[2]);
+  BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[3]);
+  t.produce_blocks();
 
-  // pet id: 2
-  // randoms: 20, 83, 233, 196, 69, 118, 131, 26, 134, 179, 171, 31, 109, 111, 173, 142, 58, 184, 99, 89, 252, 200, 85, 39, 0, 220, 89, 63, 148, 20, 106, 103
-  // secret: fc4bc8f4432e124294aba8c2ac964f8fb499ac372bd9c2720f61254cbef2960f
+  // only admins can add or change houses
+  BOOST_REQUIRE_THROW(
+    t.push_action(N(monstereosio), N(addhousetype), N(usertest),
+                  mvo()("slots", std::vector<uint8_t>{3,3,3,3})), 
+    missing_auth_exception);
+  BOOST_REQUIRE_THROW(
+    t.push_action(N(monstereosio), N(chghousetype), N(usertest), mvo()
+                ("id", 0)
+                ("slots", std::vector<uint8_t>{3,3,3,3})), 
+    missing_auth_exception);
+  t.produce_blocks();
+
+  // revert and add more houses
+  t.push_action(N(monstereosio), N(chghousetype), N(monstereosio), mvo()
+                ("id", 0)
+                ("slots", std::vector<uint8_t>{1,1,1,1}));
+  t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
+                mvo()("slots", std::vector<uint8_t>{2,2,1,1}));
+  t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
+                mvo()("slots", std::vector<uint8_t>{3,2,2,1}));
+  t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
+                mvo()("slots", std::vector<uint8_t>{3,3,2,1}));
+  t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
+                mvo()("slots", std::vector<uint8_t>{3,4,2,4}));
+  t.get_table_entry(housetypes, N(monstereosio), N(monstereosio), N(housetypes), 4);
+  BOOST_REQUIRE_EQUAL(4, housetypes.room_slots[3]);
 
 } FC_LOG_AND_RETHROW()
 
