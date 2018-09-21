@@ -538,11 +538,17 @@ form {
     margin-left: 6px !important; }
 
 .level-item span,
-.content table thead td,
-.content table thead th,
+.level-item,
 .tabs a,
-.content p {
-  color: #dadada; }
+.content p,
+.content strong,
+td, th {
+  color: #dadada !important; 
+}
+
+.is-hidden-mobile strong {
+color: #363636 !important;
+}
 
 .has-margin-top {
   margin-top: 16px; }
@@ -597,6 +603,9 @@ progress:before {
       border-bottom: 1px solid #eee; }
   .navbar-burger {
     margin-top: 12px; }
+  .navbar-item {
+    color: #000
+  }
   .logo {
     margin: 12px; }
   .section {

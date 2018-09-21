@@ -38,13 +38,12 @@ form {
 }
 
 .level-item span, 
-.content table thead td, 
-.content table thead th,
 .tabs a,
-.content p {
-  color: #dadada;
+.content p,
+.content strong,
+td, th {
+  color: #dadada !important;
 }
-
 
 .has-margin-top {
   margin-top: 16px;
