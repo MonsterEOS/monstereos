@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cleos wallet unlock < ../config/keys/default_wallet_password.txt
 
 # monsters creation
 echo "\ncreating few monsters"

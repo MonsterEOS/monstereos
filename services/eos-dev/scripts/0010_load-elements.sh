@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cleos wallet unlock < ../config/keys/default_wallet_password.txt
 
 ROOT_DIR="/opt/eosio/bin"
 cd $ROOT_DIR
