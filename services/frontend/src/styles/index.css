@@ -340,7 +340,8 @@
 
 .loading-message {
   color: white;
-  font-size: 6em; }
+  font-size: 6em;
+  font-family: "Freckle Face", cursive; }
 
 .monster-hp-name {
   position: absolute;
@@ -353,6 +354,14 @@
 .battle-actions {
   height: 30px; }
 
+.my-monster-hp {
+  left: 30px;
+  bottom: 70px; }
+
+.enemy-monster-hp {
+  left: 713px;
+  top: -569px; }
+
 .battle-arena {
   width: 1020px;
   height: 600px;
@@ -360,7 +369,7 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background: gray no-repeat center center fixed;
+  background-color: #000000;
   background-size: cover; }
   .battle-arena .elements {
     margin-left: 14px; }
@@ -419,10 +428,13 @@
     background: url("../assets/images/arenas/17.png") no-repeat center center;
     background-size: cover; }
   .battle-arena .arena-monster {
+    position: relative;
     width: 1020px;
     height: 600px; }
     .battle-arena .arena-monster progress {
-      margin-bottom: 6px !important; }
+      margin-bottom: 6px !important;
+      position: relative;
+      width: 275px; }
     .battle-arena .arena-monster .monster-hp-notification {
       color: #ff3860;
       font-weight: bold;
