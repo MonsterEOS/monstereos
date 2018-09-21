@@ -11,7 +11,7 @@ const Footer = (props: any) => (
           <strong>MonsterEOS</strong> - The source code is licensed MIT.
         </p>
         <p>
-          <a href="https://discord.gg/ne9Y3ry" target="_blank">
+          <a href="https://discord.gg/gmrDtHF" target="_blank">
             <i className="fa fa-2x fa-discord" style={{verticalAlign: "middle", marginRight: 3}} />
             Discord
           </a>
