@@ -66,19 +66,18 @@ import Arena3D from "monster-battle-react-component"
 //     </React.Fragment>
 // }
 
-const hpBar = (hpValue: number, monsterName: string) => {
+const hpBar = (hpValue: number, monsterName: string, isMyMonster: boolean) => {
   const hpClass = hpValue > 65 ? "is-success" :
     hpValue > 30 ? "is-warning" : "is-danger"
 
-  return <div>
-    <progress
-      className={`progress ${hpClass}`}
-      value={hpValue}
-      data-label={monsterName}
-      max={100}>
-      {hpValue}%
-    </progress>
-  </div>
+  return <progress
+    key={monsterName}
+    className={`progress ${hpClass} ${isMyMonster ? "my-monster-hp" : "enemy-monster-hp"}`}
+    value={hpValue}
+    data-label={monsterName}
+    max={100}>
+    {hpValue}%
+</progress>
 }
 
 const winnerBanner = (winner: string, isWinner?: boolean) => {
@@ -203,16 +202,26 @@ class BattleArena extends React.Component<Props, ReactState> {
         background={{ alpha: 1 }}
         zoom
       />
+      {this.renderHpBars(monsters)}
+      
       {this.hpNotification(monsters.myMonster.pet_id)}
-      {hpBar(monsters.myMonster.hp, monsters.myMonster.player)}
       {this.hpNotification(monsters.enemyMonster.pet_id)}
-      {hpBar(monsters.enemyMonster.hp, monsters.enemyMonster.player)}
 
       {/* {myMonster && myTurn && this.attackButtons(monster)}
       {myTurn && selectedEnemyId === monster.pet_id &&
         (selectedElementId !== undefined && selectedElementId >= 0) &&
         this.confirmAttackButton()} */}
     </div>
+  }
+
+  private renderHpBars = (monsters: any) => {
+    const { identity } = this.props
+    return Object.keys(monsters).map(
+      monster => {
+        const { hp, player } = monsters[monster]
+        return hpBar(hp, player, player === identity)
+      }
+    )
   }
 
   private hpNotification = (petId: number) => {

@@ -37,6 +37,7 @@ $battle_arena_height: 600px;
 .loading-message {
   color: rgb(255, 255, 255);
   font-size: 6em;
+  font-family: $logo-font;
 }
 
 .monster-hp-name {
@@ -52,6 +53,16 @@ $battle_arena_height: 600px;
   height: 30px;
 }
 
+.my-monster-hp {
+  left: 30px;
+  bottom: 70px;
+}
+
+.enemy-monster-hp {
+  left: 713px;
+  top: -569px;
+}
+
 .battle-arena {
   width: $battle_arena_width;
   height: $battle_arena_height;
@@ -59,7 +70,7 @@ $battle_arena_height: 600px;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background: gray no-repeat center center fixed;
+  background-color: #000000;
   background-size: cover;
 
   .elements {
@@ -86,11 +97,14 @@ $battle_arena_height: 600px;
     &.arena-17 { @include arena_bg('17'); }
 
   .arena-monster {
+    position: relative;
     width: $battle_arena_width;
     height: $battle_arena_height;
 
     progress {
       margin-bottom: 6px!important;
+      position: relative;
+      width: 275px;
     }
 
     .monster-hp-notification {
