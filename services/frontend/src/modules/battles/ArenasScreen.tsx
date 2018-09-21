@@ -115,7 +115,7 @@ class ArenasScreen extends React.Component<Props, ReactState> {
       this.refreshHandler = setTimeout(this.refresh, 5 * 1000)
     } catch (error) {
       console.error("Fail to load Arenas", error)
-      dispatchPushNotification("Fail to load Arenas")
+      // dispatchPushNotification("Fail to load Arenas")
     }
   }
 

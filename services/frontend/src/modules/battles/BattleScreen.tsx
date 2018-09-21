@@ -217,7 +217,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
       }
     } catch (error) {
       console.error("Fail to load Arena", error)
-      dispatchPushNotification("Fail to load Arena")
+      // dispatchPushNotification("Fail to load Arena")
     }
   }
 
