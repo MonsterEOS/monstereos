@@ -195,7 +195,6 @@ class BattleArena extends React.Component<Props, ReactState> {
       return <span className="loading-message">Loading...</span>
     }
 
-
     const myMonsterType3D = getType3d(monsters.myMonster.pet_type)
     const enemyMonsterType3D = getType3d(monsters.enemyMonster.pet_type)
 
@@ -252,7 +251,10 @@ class BattleArena extends React.Component<Props, ReactState> {
     const { hpLog } = this.state
 
     const notifications = hpLog
-      .filter((item) => item.petId === petId && (Date.now() - item.time) < 5000).map((item, index) => (
+      .filter(
+        (item) => item.petId === petId  &&
+           (Date.now() - item.time) < 5000
+      ).map((item, index) => (
         <span
           key={index}
           className="monster-hp-notification">
