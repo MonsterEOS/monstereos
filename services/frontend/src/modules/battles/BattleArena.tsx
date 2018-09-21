@@ -15,69 +15,73 @@ import Arena3D from "monster-battle-react-component"
 //   return `arena-${startedAt % AVAILABLE_ARENA_ARTS}`
 // }
 
-// const elementButton = (
-//   elementId: number,
-//   onClick: any,
-//   showLabelAndCancel: boolean
-// ) => {
+const elementButton = (
+  elementId: number,
+  onClick: any,
+  showLabelAndCancel: boolean
+) => {
 
-//   let elementDisplay = []
+  let elementDisplay = []
 
-//   switch (elementId) {
-//     case 1:
-//       elementDisplay = ["is-brown", "tree", "Wood"]
-//       break
-//     case 2:
-//       elementDisplay = ["is-success", "leaf", "Earth"]
-//       break
-//     case 3:
-//       elementDisplay = ["is-info", "tint", "Water"]
-//       break
-//     case 4:
-//       elementDisplay = ["is-danger", "fire", "Fire"]
-//       break
-//     case 5:
-//       elementDisplay = ["is-dark", "wrench", "Metal"]
-//       break
-//     case 6:
-//       elementDisplay = ["is-primary", "paw", "Animal"]
-//       break
-//     case 7:
-//       elementDisplay = ["is-purple", "bug", "Poison"]
-//       break
-//     case 8:
-//       elementDisplay = ["is-black", "adjust", "Undead"]
-//       break
-//     case 9:
-//       elementDisplay = ["is-warning", "bolt", "Lightning"]
-//       break
-//     default:
-//       elementDisplay = ["", "asterisk", "Neutral"]
-//   }
+  switch (elementId) {
+    case 1:
+      elementDisplay = ["is-brown", "tree", "Wood"]
+      break
+    case 2:
+      elementDisplay = ["is-success", "leaf", "Earth"]
+      break
+    case 3:
+      elementDisplay = ["is-info", "tint", "Water"]
+      break
+    case 4:
+      elementDisplay = ["is-danger", "fire", "Fire"]
+      break
+    case 5:
+      elementDisplay = ["is-dark", "wrench", "Metal"]
+      break
+    case 6:
+      elementDisplay = ["is-primary", "paw", "Animal"]
+      break
+    case 7:
+      elementDisplay = ["is-purple", "bug", "Poison"]
+      break
+    case 8:
+      elementDisplay = ["is-black", "adjust", "Undead"]
+      break
+    case 9:
+      elementDisplay = ["is-warning", "bolt", "Lightning"]
+      break
+    default:
+      elementDisplay = ["", "asterisk", "Neutral"]
+  }
 
-//   const elementClass = `button is-small ${elementDisplay[0]}`
+  const elementClass = `button is-small ${elementDisplay[0]}`
 
-//   return !showLabelAndCancel ? <a key={elementId}
-//     className={elementClass}
-//     onClick={onClick}>
-//     <i className={`fa fa-${elementDisplay[1]}`} />
-//   </a> : <React.Fragment>
-//       <a className={elementClass} onClick={() => onClick(0, -1)}>{elementDisplay[2]} Attack <i className="fa fa-ban" style={{ marginLeft: 5 }} /></a>
-//     </React.Fragment>
-// }
+  return !showLabelAndCancel ? <a key={elementId}
+    className={elementClass}
+    onClick={onClick}>
+    <i className={`fa fa-${elementDisplay[1]}`} />
+  </a> : <React.Fragment>
+      <a className={elementClass} onClick={() => onClick(0, -1)}>{elementDisplay[2]} Attack <i className="fa fa-ban" style={{ marginLeft: 5 }} /></a>
+    </React.Fragment>
+}
 
 const hpBar = (hpValue: number, monsterName: string, isMyMonster: boolean) => {
   const hpClass = hpValue > 65 ? "is-success" :
     hpValue > 30 ? "is-warning" : "is-danger"
 
-  return <progress
-    key={monsterName}
-    className={`progress ${hpClass} ${isMyMonster ? "my-monster-hp" : "enemy-monster-hp"}`}
-    value={hpValue}
-    data-label={monsterName}
-    max={100}>
-    {hpValue}%
-</progress>
+  return (
+    <progress
+      key={monsterName}
+      className={`progress ${hpClass} ` +
+        `${isMyMonster ? "my-monster-hp" : "enemy-monster-hp"}`}
+      value={hpValue}
+      data-label={monsterName}
+      max={100}
+    >
+      {hpValue}%
+    </progress>
+  )
 }
 
 const winnerBanner = (winner: string, isWinner?: boolean) => {
@@ -112,13 +116,20 @@ interface HpLog {
   time: number
 }
 
+interface FightingMonsters {
+  myMonster: MonsterArenaStats,
+  enemyMonster: MonsterArenaStats
+}
+
 interface ReactState {
   hpLog: HpLog[]
 }
 
 class BattleArena extends React.Component<Props, ReactState> {
 
-  public state = { hpLog: [] as HpLog[] }
+  public state = {
+    hpLog: [] as HpLog[]
+  }
 
   public render() {
 
@@ -128,7 +139,6 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     const isBattleGoing = arena.phase === BATTLE_PHASE_GOING
 
-    // return <div className={`battle-arena ${getArenaBackground(arena.startedAt)}`}>
     return <div className={`battle-arena`}>
       {this.renderArenaMonster(arena.petsStats, isBattleGoing)}
       {winner && winnerBanner(winner, isWinner)}
@@ -136,9 +146,20 @@ class BattleArena extends React.Component<Props, ReactState> {
   }
 
   public componentDidUpdate(prevProps: Props) {
+    const { arena, identity } = this.props
     // Typical usage (don't forget to compare props):
-    if (this.props.arena.petsStats !== prevProps.arena.petsStats) {
-      this.updateHpLog(this.props.arena.petsStats, prevProps.arena.petsStats)
+    if (arena.petsStats !== prevProps.arena.petsStats) {
+      this.updateHpLog(arena.petsStats, prevProps.arena.petsStats)
+    }
+    // pre-selecting the enemy pet_id
+    if (identity !== "" && (identity !== prevProps.identity)) {
+      this.props.enemySelection(
+        this.getFightingMonsters(
+          arena.petsStats, identity
+        )
+          .enemyMonster
+          .pet_id
+      )
     }
   }
 
@@ -159,40 +180,28 @@ class BattleArena extends React.Component<Props, ReactState> {
 
   private renderArenaMonster = (petsStats: MonsterArenaStats[], isBattleGoing: boolean) => {
     const {
-      // arena,
+      arena,
       identity,
-      // selectedEnemyId,
-      // enemySelection,
-      // selectedElementId
+      selectedElementId
     } = this.props
 
     if (identity === "") {
       return <span className="loading-message">Loading...</span>
     }
 
-    const monsters: any = petsStats.reduce((fightingMonsters, current) => {
-      fightingMonsters[
-        current.player === identity
-          ? "myMonster"
-          : "enemyMonster"
-      ] = current
-      return fightingMonsters
-    }, {})
+    const monsters: any = this.getFightingMonsters(petsStats, identity)
 
-    // const myTurn = isBattleGoing &&
-    //   (arena.commits[0].player === identity ||
-    //     Date.now() - arena.lastMoveAt > 60000)
+    if (!(monsters.myMonster && monsters.enemyMonster)) {
+      return <span className="loading-message">Loading...</span>
+    }
 
-    // const monsterClass =
-    //   (myMonster ? "my-monster" : "enemy-monster") +
-    //   (monster.pet_id === selectedEnemyId && isBattleGoing ? " active" : "")
-
-    // const enemyClick = !myMonster ?
-    //   () => enemySelection(monster.pet_id) :
-    //   undefined
 
     const myMonsterType3D = getType3d(monsters.myMonster.pet_type)
     const enemyMonsterType3D = getType3d(monsters.enemyMonster.pet_type)
+
+    const myTurn = isBattleGoing &&
+      (arena.commits[0].player === identity ||
+        Date.now() - arena.lastMoveAt > 60000)
 
     return <div className="arena-monster">
       <Arena3D
@@ -203,15 +212,25 @@ class BattleArena extends React.Component<Props, ReactState> {
         zoom
       />
       {this.renderHpBars(monsters)}
-      
-      {this.hpNotification(monsters.myMonster.pet_id)}
-      {this.hpNotification(monsters.enemyMonster.pet_id)}
-
-      {/* {myMonster && myTurn && this.attackButtons(monster)}
-      {myTurn && selectedEnemyId === monster.pet_id &&
-        (selectedElementId !== undefined && selectedElementId >= 0) &&
-        this.confirmAttackButton()} */}
+      {this.renderHpNotifications(monsters)}
+      {myTurn && this.attackButtons(monsters.myMonster)}
+      {myTurn && (selectedElementId !== undefined &&
+        selectedElementId >= 0) && this.confirmAttackButton()}
     </div>
+  }
+
+  private getFightingMonsters = (
+    petsStats: MonsterArenaStats[],
+    identity: string
+  ): FightingMonsters => {
+    return petsStats.reduce((fightingMonsters, current) => {
+      fightingMonsters[
+        current.player === identity
+          ? "myMonster"
+          : "enemyMonster"
+      ] = current
+      return fightingMonsters
+    }, {} as FightingMonsters)
   }
 
   private renderHpBars = (monsters: any) => {
@@ -223,6 +242,11 @@ class BattleArena extends React.Component<Props, ReactState> {
       }
     )
   }
+
+  private renderHpNotifications = (monsters: any) =>
+    Object.keys(monsters).map(
+      monster => this.hpNotification(monsters[monster].pet_id)
+    )
 
   private hpNotification = (petId: number) => {
     const { hpLog } = this.state
@@ -239,31 +263,31 @@ class BattleArena extends React.Component<Props, ReactState> {
     return notifications.length ? notifications : null
   }
 
-  // private confirmAttackButton = () => {
-  //   return <a
-  //     className="button is-small is-danger"
-  //     onClick={this.props.submitAttack}>
-  //     Submit Attack
-  //   </a>
-  // }
+  private confirmAttackButton = () => {
+    return <a
+      className="button is-small is-danger"
+      onClick={this.props.submitAttack}>
+      Submit Attack
+    </a>
+  }
 
-  // private attackButtons = (pet: MonsterArenaStats) => {
+  private attackButtons = (pet: MonsterArenaStats) => {
 
-  //   const { monsterTypes, attackSelection, selectedElementId, selectedPetId } = this.props
+    const { monsterTypes, attackSelection, selectedElementId, selectedPetId } = this.props
 
-  //   const monsterType = monsterTypes.find((type) => type.id === pet.pet_type)
+    const monsterType = monsterTypes.find((type) => type.id === pet.pet_type)
 
-  //   const elements = monsterType ? monsterType.elements : [0] // neutral
+    const elements = monsterType ? monsterType.elements : [0] // neutral
 
-  //   return <div className="buttons elements">
-  //     {pet.pet_id === selectedPetId ?
-  //       elementButton(selectedElementId!, attackSelection, true) :
-  //       elements.map((element) => {
-  //         const doAttack = () => attackSelection(pet.pet_id, element)
-  //         return elementButton(element, doAttack, false)
-  //       })}
-  //   </div>
-  // }
+    return <div className="buttons elements">
+      {pet.pet_id === selectedPetId ?
+        elementButton(selectedElementId!, attackSelection, true) :
+        elements.map((element) => {
+          const doAttack = () => attackSelection(pet.pet_id, element)
+          return elementButton(element, doAttack, false)
+        })}
+    </div>
+  }
 }
 
 const mapStateToProps = (state: State) => {
