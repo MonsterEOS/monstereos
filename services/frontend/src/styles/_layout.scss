@@ -29,6 +29,14 @@ form {
   span { margin-left: 6px !important; }
 }
 
+.level-item span, 
+.tabs a,
+.content p,
+.content strong,
+td, th {
+  color: #dadada !important;
+}
+
 .has-margin-top {
   margin-top: 16px;
 }
