@@ -1,68 +1,72 @@
 import * as React from "react"
 import { MonsterProps } from "../monsters/monsters"
+import { Query } from "react-apollo"
+import gql from "graphql-tag"
 
 export interface Message {
     monster:MonsterProps,
     message:string
 }
 
-interface ReactState {
-    messages: Message[]
+
+const MessageCard = (props:any) => {    
+    return(
+    <div key={props.message.id}>
+       A monster says {props.message.message}
+    </div>
+    )
 }
 
-const MessageCard = (props:any) => (
-    <div>
-        {props.message.monster.name} says {props.message.message}
-    </div>
-)
 
-class MessageBoard extends React.Component<{}, ReactState> {
-    public state = {
-        messages:[]
-    }
-
-    public componentDidMount() {
-        this.loadMessages()
-    }
-
-    public render() {
-        const {messages} = this.state
-        return <div className="container">
-            {messages.map((message: any) => (
-                <MessageCard
-                    key={message.id}
-                    message={message}
-                    />
-                    ))
-            }
-            </div>
-    }
-
-    private loadMessages = async () => {        
-        this.setState({messages:[
-            {monster:someMonster(1, "Bubble"), message:"Hello"},
-            {monster:someMonster(2, "White Tiger"), message:"Hi"}
-        ]})
-    }
-}  
-
-const someMonster = (petId: number, name: string): MonsterProps => {
-    return {
-      id: petId,
-      name,
-      owner: "anowner",
-      type: 1,
-      deathAt: 0,
-      createdAt: 0,
-      lastFeedAt: 0,
-      lastAwakeAt: 0,
-      lastBedAt: 0,
-      isSleeping: false,
-      hunger: 100,
-      health: 100,
-      energy: 100,
-      actions: []
+export const QUERY_MESSAGES = gql`
+query LatestMessages($limit: Int!, $offset: Int!) {
+  allMessages(
+    first: $limit,
+    offset: $offset,
+    orderBy: ID_DESC,
+  ) {
+    edges {
+      node { 
+        id       
+        message
+      }
     }
   }
+}
+`
+
+class MessageBoard extends React.Component<{}, {}> {
+
+    public render() {
+        const variables = {
+            limit: 3,
+            offset: 0
+          }
+
+        return <div className="container">
+            <Query query={QUERY_MESSAGES} variables={variables}>
+                {({data, loading, refetch}) => {
+
+                if (loading || !data || !data.allMessages) {
+                    return <span>
+                    <i className="fa fa-spin fa-spinner" /> Loading... Our servers are Syncing with the Chain
+                    </span>
+                }
+                const messages = data.allMessages.edges                
+                
+                return <div>
+                    {messages.map(({node}:any, index:number) => {                        
+                        return(
+                    <MessageCard 
+                        key = {node.id}                    
+                        message = {node}/>
+                    )})}
+                    </div>
+                }
+            }
+            </Query>
+        </div>
+    }
+}  
 
 export default MessageBoard
