@@ -9,6 +9,7 @@ import TitleBar from "../shared/TitleBar"
 import OrderCard from "./OrderCard"
 import NewOrderModal from "./NewOrderModal"
 import { loadOrders } from "../../utils/eos"
+import MessageBoard from "../shared/MessageBoard"
 
 // Bid is Off for now due to monsters autocomplete.
 // no way to select all monsters in memory? demux to the rescue
@@ -110,6 +111,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
           <NewOrderModal
             closeModal={newOrderClosure}
           />}
+          <MessageBoard/>
           {/* {showNewBidModal &&
           <NewBidModal
             closeModal={newBidClosure}
