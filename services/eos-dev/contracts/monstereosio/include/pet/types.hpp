@@ -117,11 +117,12 @@ namespace types {
       name     owner; 
       asset    balance;
       uint8_t  house_type = 0;
+      vector<vector<uuid>> house_pets = {{},{},{},{},{},{}};
 
       uint64_t primary_key() const { return owner; }
   };
   typedef multi_index<N(accounts2), st_account2> _tb_accounts2;
-  
+
   // @abi table elements i64
   struct st_elements {
       uint64_t id;
@@ -237,10 +238,12 @@ namespace types {
   };
 
   // room types
-  constexpr uint8_t HOUSE_ROOM_KITCHEN    = 0;
+  constexpr uint8_t HOUSE_ROOM_LIVING     = 0;
   constexpr uint8_t HOUSE_ROOM_BEDROOM    = 1;
-  constexpr uint8_t HOUSE_ROOM_RESTROOM   = 2;
-  constexpr uint8_t HOUSE_ROOM_PLAYGROUND = 3;
+  constexpr uint8_t HOUSE_ROOM_KITCHEN    = 2;
+  constexpr uint8_t HOUSE_ROOM_RESTROOM   = 3;
+  constexpr uint8_t HOUSE_ROOM_PLAYGROUND = 4;
+  constexpr uint8_t HOUSE_ROOM_RECOVERY   = 5;
 
   typedef multi_index<N(housetypes), st_house_types> _tb_house_types;
 

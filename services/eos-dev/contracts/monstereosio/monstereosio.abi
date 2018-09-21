@@ -12,6 +12,9 @@
     },{
       "new_type_name": "element_type",
       "type": "uint8"
+    },{
+      "new_type_name": "petids",
+      "type": "uuid[]"
     }
   ],
   "structs": [{
@@ -80,6 +83,9 @@
         },{
           "name": "house_type",
           "type": "uint8"
+        },{
+          "name": "house_pets",
+          "type": "petids[]"
         }
       ]
     },{

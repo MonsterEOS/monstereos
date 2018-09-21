@@ -47,8 +47,24 @@ struct account2 {
   name     owner; 
   asset    balance;
   uint8_t  house_type;
+  vector<vector<uint8_t>> house_pets;
 };
-FC_REFLECT(account2, (owner)(balance)(house_type));
+FC_REFLECT(account2, (owner)(balance)(house_type)(house_pets));
+
+struct pet {
+  uint64_t id;
+  name owner;
+  string name;
+  uint8_t type;
+  uint32_t created_at;
+  uint32_t death_at = 0;
+  uint32_t last_fed_at;
+  uint32_t last_bed_at;
+  uint32_t last_awake_at = 0;
+  uint32_t last_play_at;
+  uint32_t last_shower_at;
+};
+FC_REFLECT(pet, (id)(owner)(name)(type)(created_at)(death_at)(last_fed_at)(last_bed_at)(last_awake_at)(last_play_at)(last_shower_at));
 
 class monstereosio_tester : public TESTER {
 public:
@@ -433,12 +449,17 @@ BOOST_AUTO_TEST_CASE(housing) try {
 
   housetype housetypes;
   account2 accounts2;
+  pet pets;
 
   t.create_account("usertest"_n);
+
+  // allow creation of pets instantaneously
+  t.push_action(N(monstereosio), N(changecrtol), N(monstereosio),
+                mvo()("new_interval", 1));
   
   // validates configuration 
   t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
-                mvo()("slots", std::vector<uint8_t>{1,1,1,1}));
+                mvo()("slots", std::vector<uint8_t>{1,1,1,1,1,0}));
   t.produce_blocks();
 
   t.get_table_entry(housetypes, N(monstereosio), N(monstereosio), N(housetypes), 0);
@@ -446,11 +467,13 @@ BOOST_AUTO_TEST_CASE(housing) try {
   BOOST_REQUIRE_EQUAL(1, housetypes.room_slots[1]);
   BOOST_REQUIRE_EQUAL(1, housetypes.room_slots[2]);
   BOOST_REQUIRE_EQUAL(1, housetypes.room_slots[3]);
+  BOOST_REQUIRE_EQUAL(1, housetypes.room_slots[4]);
+  BOOST_REQUIRE_EQUAL(0, housetypes.room_slots[5]);
   t.produce_blocks();
 
   t.push_action(N(monstereosio), N(chghousetype), N(monstereosio), mvo()
                 ("id", 0)
-                ("slots", std::vector<uint8_t>{2,2,2,2}));
+                ("slots", std::vector<uint8_t>{2,2,2,2,2,2}));
   t.produce_blocks();
   
   t.get_table_entry(housetypes, N(monstereosio), N(monstereosio), N(housetypes), 0);
@@ -458,6 +481,8 @@ BOOST_AUTO_TEST_CASE(housing) try {
   BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[1]);
   BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[2]);
   BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[3]);
+  BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[4]);
+  BOOST_REQUIRE_EQUAL(2, housetypes.room_slots[5]);
   t.produce_blocks();
 
   // only admins can add or change houses
@@ -475,19 +500,29 @@ BOOST_AUTO_TEST_CASE(housing) try {
   // revert and add more houses
   t.push_action(N(monstereosio), N(chghousetype), N(monstereosio), mvo()
                 ("id", 0)
-                ("slots", std::vector<uint8_t>{1,1,1,1}));
+                ("slots", std::vector<uint8_t>{1,1,1,1,3,0}));
   t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
-                mvo()("slots", std::vector<uint8_t>{2,2,1,1}));
+                mvo()("slots", std::vector<uint8_t>{1,2,2,1,3,0}));
   t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
-                mvo()("slots", std::vector<uint8_t>{3,2,2,1}));
+                mvo()("slots", std::vector<uint8_t>{3,2,2,1,4,0}));
   t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
-                mvo()("slots", std::vector<uint8_t>{3,3,2,1}));
+                mvo()("slots", std::vector<uint8_t>{3,3,2,1,4,0}));
   t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
-                mvo()("slots", std::vector<uint8_t>{3,4,2,4}));
+                mvo()("slots", std::vector<uint8_t>{3,4,2,4,5,1}));
+  t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
+                mvo()("slots", std::vector<uint8_t>{3,4,2,4,5,3}));
+  t.push_action(N(monstereosio), N(addhousetype), N(monstereosio),
+                mvo()("slots", std::vector<uint8_t>{3,4,2,4,5,5}));
   t.get_table_entry(housetypes, N(monstereosio), N(monstereosio), N(housetypes), 4);
   BOOST_REQUIRE_EQUAL(4, housetypes.room_slots[3]);
 
   t.produce_blocks();
+
+  // the next pet should fail because there's no available living room
+  BOOST_CHECK_EXCEPTION(
+    t.push_action(N(monstereosio), N(createpet), N(usertest),
+                  mvo()("owner", "usertest")("pet_name", "secondone")), 
+    eosio_assert_message_exception, eosio_assert_message_is("account not found"));
 
   // create a new account
   t.push_action(N(monstereosio), N(signup), N(usertest), mvo()
@@ -495,6 +530,26 @@ BOOST_AUTO_TEST_CASE(housing) try {
   t.produce_blocks();
   t.get_table_entry(accounts2, N(monstereosio), N(monstereosio), N(accounts2), N(usertest));
   BOOST_REQUIRE_EQUAL(0, accounts2.house_type);
+  BOOST_REQUIRE_EQUAL(name{"usertest"}, accounts2.owner);
+  t.produce_blocks();
+
+  // create a pet
+  t.push_action(N(monstereosio), N(createpet), N(usertest), mvo()
+                ("owner", "usertest")
+                ("pet_name", "leordev"));
+  t.get_table_entry(pets, N(monstereosio), N(monstereosio), N(pets), 0);
+  BOOST_REQUIRE_EQUAL("leordev", pets.name);
+  t.get_table_entry(accounts2, N(monstereosio), N(monstereosio), N(accounts2), N(usertest));
+  BOOST_REQUIRE_EQUAL(0, accounts2.house_type);
+  BOOST_REQUIRE_EQUAL(6, accounts2.house_pets.size());
+  BOOST_REQUIRE_EQUAL(1, accounts2.house_pets[0].size());
+  BOOST_REQUIRE_EQUAL(0, accounts2.house_pets[0][0]);
+
+  // the next pet should fail because there's no available living room
+  BOOST_CHECK_EXCEPTION(
+    t.push_action(N(monstereosio), N(createpet), N(usertest),
+                  mvo()("owner", "usertest")("pet_name", "secondone")), 
+    eosio_assert_message_exception, eosio_assert_message_is("not enough space in living room"));
 
 } FC_LOG_AND_RETHROW()
 

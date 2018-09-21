@@ -23,6 +23,15 @@ void pet::createpet(name owner,
     eosio_assert(pet_name.length() > count_spaces(pet_name), "name cannot be composed of spaces only");
     // eosio_assert(!_pet_name_exists(pet_name), "duplicated pet name");
 
+    // check user has signed up prior to pet creation
+    auto itr_account = accounts2.find(owner);
+    eosio_assert(itr_account != accounts2.end(), "account not found");
+
+    // check user has space in the living room
+    auto busy_slots = itr_account->house_pets[HOUSE_ROOM_LIVING].size();
+    auto house = housetypes.get(itr_account->house_type, "house not found");
+    eosio_assert(house.room_slots[HOUSE_ROOM_LIVING] > busy_slots, "not enough space in living room");
+
     // initialize config
     auto pc = _get_pet_config();
 
@@ -49,7 +58,7 @@ void pet::createpet(name owner,
         eosio_assert(last_creation_interval > pc.creation_tolerance, "You can't create another pet now");
     }
 
-    uuid new_id = _next_id();
+    uuid new_id = pets.available_primary_key();
 
     // creates the pet
     pets.emplace(owner, [&](auto &r) {
@@ -67,6 +76,11 @@ void pet::createpet(name owner,
         pet.type = (pet.created_at + pet.id + owner) % pc.last_pet_type_id;
 
         r = pet;
+    });
+
+    // allocate pet in living room
+    accounts2.modify(itr_account, 0, [&](auto &r) {
+        r.house_pets[HOUSE_ROOM_LIVING].push_back(new_id);
     });
 }
 
