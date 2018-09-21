@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cleos wallet unlock < ../config/keys/default_wallet_password.txt
+/opt/application/scripts/init_wallet.sh
 
 # add pets types
 cleos -u http://eosiodev:8888 push action monstereosio addpettype '{ "elements": [0,6] }' -p monstereosio

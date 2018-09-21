@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cleos wallet unlock < ../config/keys/default_wallet_password.txt
+/opt/application/scripts/init_wallet.sh
 
 # monsters creation
 echo "\ncreating few monsters"
