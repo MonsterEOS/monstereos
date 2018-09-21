@@ -25,9 +25,26 @@ form {
   }
 }
 
+.title, 
+.card-header-title, 
+.navbar-item,
+.content li {
+  color: rgb(240, 240, 240);
+}
+
 .greetings {
   span { margin-left: 6px !important; }
+  color:  rgb(240, 240, 240);
 }
+
+.level-item span, 
+.content table thead td, 
+.content table thead th,
+.tabs a,
+.content p {
+  color: #dadada;
+}
+
 
 .has-margin-top {
   margin-top: 16px;
