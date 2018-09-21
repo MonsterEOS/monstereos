@@ -36,6 +36,7 @@ public:
     orders(_self,_self),
     petinbattles(_self,_self),
     housetypes(_self,_self),
+    accounts2(_self, _self),
     pet_config2(_self,_self)
     {}
 
@@ -45,6 +46,7 @@ public:
     _tb_orders orders;
     _tb_pet_in_battle petinbattles;
     _tb_house_types housetypes;
+    _tb_accounts2 accounts2;
 
     // pet interactions
     void createpet    ( name owner, string pet_name );

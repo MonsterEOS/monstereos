@@ -161,15 +161,29 @@ void pet::signup(name user) {
 
     require_auth(user);
     asset new_balance = asset{0,S(4,EOS)};
-
+    
     // check user is already signed up
     _tb_accounts accounts(_self, user);
     auto itr_balance = accounts.find(new_balance.symbol.name());
-    eosio_assert(itr_balance == accounts.end(), "you have signed up already");
 
-    accounts.emplace(user, [&](auto& r){
-        r.balance = new_balance;
-    });
+    auto itr_account = accounts2.find(user);
+    eosio_assert(itr_account == accounts2.end(), "you have signed up already");
+
+    // migrates from old account table
+    if (itr_balance != accounts.end()) {
+        accounts2.emplace(user, [&](auto& r){
+            r.balance = itr_balance->balance;
+            r.owner = user;
+        });
+        accounts.erase(itr_balance);
+    } else {
+        accounts2.emplace(user, [&](auto& r){
+            r.balance = new_balance;
+            r.owner = user;
+        });
+    }
+
+    
 }
 
 void pet::transfer(uint64_t sender, uint64_t receiver) {

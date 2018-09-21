@@ -69,6 +69,20 @@
         }
       ]
     },{
+      "name": "st_account2",
+      "base": "",
+      "fields": [{
+          "name": "owner",
+          "type": "name"
+        },{
+          "name": "balance",
+          "type": "asset"
+        },{
+          "name": "house_type",
+          "type": "uint8"
+        }
+      ]
+    },{
       "name": "st_elements",
       "base": "",
       "fields": [{
@@ -807,6 +821,16 @@
         "asset"
       ],
       "type": "st_account"
+    },{
+      "name": "accounts2",
+      "index_type": "i64",
+      "key_names": [
+        "owner"
+      ],
+      "key_types": [
+        "uint64"
+      ],
+      "type": "st_account2"
     },{
       "name": "elements",
       "index_type": "i64",

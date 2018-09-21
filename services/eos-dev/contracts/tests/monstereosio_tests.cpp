@@ -43,6 +43,12 @@ struct housetype {
 };
 FC_REFLECT(housetype, (id)(room_slots));
 
+struct account2 {
+  name     owner; 
+  asset    balance;
+  uint8_t  house_type;
+};
+FC_REFLECT(account2, (owner)(balance)(house_type));
 
 class monstereosio_tester : public TESTER {
 public:
@@ -426,6 +432,7 @@ BOOST_AUTO_TEST_CASE(housing) try {
   monstereosio_tester t{"housing"};
 
   housetype housetypes;
+  account2 accounts2;
 
   t.create_account("usertest"_n);
   
@@ -479,6 +486,15 @@ BOOST_AUTO_TEST_CASE(housing) try {
                 mvo()("slots", std::vector<uint8_t>{3,4,2,4}));
   t.get_table_entry(housetypes, N(monstereosio), N(monstereosio), N(housetypes), 4);
   BOOST_REQUIRE_EQUAL(4, housetypes.room_slots[3]);
+
+  t.produce_blocks();
+
+  // create a new account
+  t.push_action(N(monstereosio), N(signup), N(usertest), mvo()
+                ("user", "usertest"));
+  t.produce_blocks();
+  t.get_table_entry(accounts2, N(monstereosio), N(monstereosio), N(accounts2), N(usertest));
+  BOOST_REQUIRE_EQUAL(0, accounts2.house_type);
 
 } FC_LOG_AND_RETHROW()
 
