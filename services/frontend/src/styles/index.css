@@ -450,10 +450,14 @@
       font-family: "Freckle Face", cursive;
       font-size: 30px;
       position: absolute;
-      top: 0px;
-      right: 150px;
       text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
       animation: 2s ease-out 0s 1 slideInFromBottom; }
+  .battle-arena .my-monster-hp-notification {
+    bottom: 100px;
+    left: 150px; }
+  .battle-arena .enemy-monster-hp-notification {
+    top: 0px;
+    right: 150px; }
   .battle-arena .battle-winner-banner {
     position: absolute;
     z-index: 999;

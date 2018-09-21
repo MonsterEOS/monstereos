@@ -128,13 +128,15 @@ interface FightingMonsters {
 }
 
 interface ReactState {
-  hpLog: HpLog[]
+  hpLog: HpLog[],
+  enemyIsSet: boolean
 }
 
 class BattleArena extends React.Component<Props, ReactState> {
 
   public state = {
-    hpLog: [] as HpLog[]
+    hpLog: [] as HpLog[],
+    enemyIsSet: false
   }
 
   public render() {
@@ -158,7 +160,7 @@ class BattleArena extends React.Component<Props, ReactState> {
       this.updateHpLog(arena.petsStats, prevProps.arena.petsStats)
     }
     // pre-selecting the enemy pet_id
-    if (identity !== "" && (identity !== prevProps.identity)) {
+    if (identity && !this.state.enemyIsSet) {
       this.props.enemySelection(
         this.getFightingMonsters(
           arena.petsStats, identity
@@ -166,6 +168,7 @@ class BattleArena extends React.Component<Props, ReactState> {
           .enemyMonster
           .pet_id
       )
+      this.setState({ enemyIsSet: true })
     }
   }
 
@@ -250,22 +253,33 @@ class BattleArena extends React.Component<Props, ReactState> {
     )
   }
 
-  private renderHpNotifications = (monsters: any) =>
-    Object.keys(monsters).map(
-      monster => this.hpNotification(monsters[monster].pet_id)
+  private renderHpNotifications = (monsters: any) => {
+    const { identity } = this.props
+    return Object.keys(monsters).map(
+      monster => {
+        const { player } = monsters[monster]
+        return this.hpNotification(
+          monsters[monster].pet_id,
+          player === identity
+        )
+      }
     )
+  }
 
-  private hpNotification = (petId: number) => {
+  private hpNotification = (petId: number, isMyMonster: boolean) => {
     const { hpLog } = this.state
 
     const notifications = hpLog
       .filter(
-        (item) => item.petId === petId &&
-          (Date.now() - item.time) < 5000
+        (item) => (item.petId === petId &&
+          (Date.now() - item.time) < 5000)
       ).map((item, index) => (
         <span
           key={index}
-          className="monster-hp-notification">
+          className={`monster-hp-notification ` +
+            `${isMyMonster
+              ? "my-monster-hp-notification"
+              : "enemy-monster-hp-notification"}`}>
           {item.hpDiff}
         </span>
       ))

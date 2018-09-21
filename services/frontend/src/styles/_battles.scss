@@ -124,11 +124,19 @@ $battle_arena_height: 600px;
       font-family: $logo-font;
       font-size: 30px;
       position: absolute;
-      top: 0px;
-      right: 150px;
       text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
       animation: 2s ease-out 0s 1 slideInFromBottom;
     }
+  }
+
+  .my-monster-hp-notification {
+    bottom: 100px;
+    left: 150px;
+  }
+
+  .enemy-monster-hp-notification {
+    top: 0px;
+    right: 150px;
   }
 
   .battle-winner-banner {
