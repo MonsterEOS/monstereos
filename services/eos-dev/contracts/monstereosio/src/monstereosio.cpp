@@ -65,6 +65,7 @@ EOSIO_ABI_EX(pet,
   // housing
   (addhousetype)
   (chghousetype)
+  (housemove)
 
   // EXTERNAL ACTIONS - VALIDATE ABOVE:  deposits
   (transfer)

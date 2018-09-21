@@ -543,6 +543,17 @@
         }
       ]
     },{
+      "name": "housemove",
+      "base": "",
+      "fields": [{
+          "name": "owner",
+          "type": "name"
+        },{
+          "name": "house_pets",
+          "type": "petids[]"
+        }
+      ]
+    },{
       "name": "addhousetype",
       "base": "",
       "fields": [{
@@ -746,6 +757,10 @@
     },{
       "name": "changepettyp",
       "type": "changepettyp",
+      "ricardian_contract": ""
+    },{
+      "name": "housemove",
+      "type": "housemove",
       "ricardian_contract": ""
     },{
       "name": "addhousetype",

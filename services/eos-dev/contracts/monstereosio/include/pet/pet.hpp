@@ -90,6 +90,7 @@ public:
     // housing
     void addhousetype ( vector<uint8_t> slots );
     void chghousetype ( uint64_t id, vector<uint8_t> slots );
+    void housemove    ( name owner, vector<vector<uuid>> house_pets );
 
     // token deposits
     void signup       ( name user );

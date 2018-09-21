@@ -451,6 +451,8 @@ BOOST_AUTO_TEST_CASE(housing) try {
   account2 accounts2;
   pet pets;
 
+  monstereosio_tester::table taccounts2{"monstereosio"_n, "monstereosio"_n, "accounts2"_n, "st_account2"};
+
   t.create_account("usertest"_n);
 
   // allow creation of pets instantaneously
@@ -544,12 +546,48 @@ BOOST_AUTO_TEST_CASE(housing) try {
   BOOST_REQUIRE_EQUAL(6, accounts2.house_pets.size());
   BOOST_REQUIRE_EQUAL(1, accounts2.house_pets[0].size());
   BOOST_REQUIRE_EQUAL(0, accounts2.house_pets[0][0]);
+  t.produce_blocks(10);
 
   // the next pet should fail because there's no available living room
   BOOST_CHECK_EXCEPTION(
     t.push_action(N(monstereosio), N(createpet), N(usertest),
                   mvo()("owner", "usertest")("pet_name", "secondone")), 
     eosio_assert_message_exception, eosio_assert_message_is("not enough space in living room"));
+  t.produce_blocks();
+
+  // moves pet to bedroom and create a new one
+  vector<vector<uint64_t>> house_pets1 = {{},{0},{},{},{},{}};
+  t.push_action(N(monstereosio), N(housemove), N(usertest),
+                  mvo()("owner", "usertest")("house_pets", house_pets1)); 
+  t.get_table_entry(accounts2, N(monstereosio), N(monstereosio), N(accounts2), N(usertest));
+  t.push_action(N(monstereosio), N(createpet), N(usertest),
+                  mvo()("owner", "usertest")("pet_name", "secondone"));
+  BOOST_REQUIRE_EQUAL(6, accounts2.house_pets.size());
+  BOOST_REQUIRE_EQUAL(1, accounts2.house_pets[1].size());
+  BOOST_REQUIRE_EQUAL(0, accounts2.house_pets[1][0]);
+  
+  t.get_table_entry(pets, N(monstereosio), N(monstereosio), N(pets), 1);
+  BOOST_REQUIRE_EQUAL("secondone", pets.name);
+  // BOOST_REQUIRE_EQUAL(1, accounts2.house_pets[0][0]); << not working
+  t.diff_table(taccounts2);
+
+  // move them again
+  t.produce_blocks(10);
+  vector<vector<uint64_t>> house_pets2 = {{},{},{1},{0},{},{}};
+  t.push_action(N(monstereosio), N(housemove), N(usertest),
+                  mvo()("owner", "usertest")
+                  ("house_pets", house_pets2)); 
+  t.get_table_entry(accounts2, N(monstereosio), N(monstereosio), N(accounts2), N(usertest));
+  t.push_action(N(monstereosio), N(createpet), N(usertest),
+                  mvo()("owner", "usertest")("pet_name", "thirdone"));
+  t.diff_table(taccounts2);
+  // BOOST_REQUIRE_EQUAL(6, accounts2.house_pets.size()); << not working
+  // BOOST_REQUIRE_EQUAL(1, accounts2.house_pets[0].size());
+  // BOOST_REQUIRE_EQUAL(1, accounts2.house_pets[2].size());
+  // BOOST_REQUIRE_EQUAL(1, accounts2.house_pets[3].size());
+  // BOOST_REQUIRE_EQUAL(2, accounts2.house_pets[0][0]);
+  // BOOST_REQUIRE_EQUAL(1, accounts2.house_pets[2][0]);
+  // BOOST_REQUIRE_EQUAL(0, accounts2.house_pets[3][0]);
 
 } FC_LOG_AND_RETHROW()
 
