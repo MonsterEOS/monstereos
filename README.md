@@ -101,8 +101,8 @@ docker restart monstereos_demux_1
 docker-compose up -d
 ```
 **Init chain and monster data**
+```
 docker exec -it monstereos_eosiodev_1 /bin/bash
-
 cd /opt/application/scripts
 ./0000_init-chain.sh
 ./0010_load-elements.sh
@@ -140,4 +140,5 @@ You can build any Dapp using the above structure. Tweak the structure a little b
 ### Notes
 * mongo and postgres data is stored in parent folder of this git repo under `.monstereos`
 * eos data is stored in the docker volume `monstereos_eosiodevapp`
-* to compile the contract you need eosio.cdt
+* to compile the contract you need to use `eosio.cdt` and build it using `make`
+
