@@ -5,9 +5,8 @@ import {
   // monsterImageSrc, 
   monsterModelSrc,
   getCurrentAction,
-  getType3d
 } from "../monsters/monsters"
-import getConfig from "../monsters/monsterTypeConfiguration"
+import get3dModel from "../monsters/monster3DMatrix"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
@@ -96,14 +95,12 @@ class OrderCard extends React.Component<Props, ReactState> {
     const { order } = this.props
     const monster = order.monster
 
-    const type3d = getType3d(monster.type)
-
-    const { position, rotation, cameraPosition } = getConfig(type3d)
+    const { model, position, rotation, cameraPosition } = get3dModel(monster.type)
 
     return (
       <Monster3DProfile
-        typeId={type3d}
-        path={monsterModelSrc(type3d)}
+        typeId={model}
+        path={monsterModelSrc(model)}
         action={getCurrentAction(monster, ActionType)}
         position={position}
         rotation={rotation}

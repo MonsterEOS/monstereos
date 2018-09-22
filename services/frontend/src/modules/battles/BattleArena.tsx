@@ -5,8 +5,8 @@ import { getEosAccount } from "../../utils/scatter"
 import { connect } from "react-redux"
 import {
   monsterModelSrc,
-  getType3d
 } from "../monsters/monsters"
+import get3dModel from "../monsters/monster3DMatrix"
 import Arena3D from "monster-battle-react-component"
 
 // const AVAILABLE_ARENA_ARTS = 18
@@ -204,8 +204,11 @@ class BattleArena extends React.Component<Props, ReactState> {
       return <span className="loading-message">Loading...</span>
     }
 
-    const myMonsterType3D = getType3d(monsters.myMonster.pet_type)
-    const enemyMonsterType3D = getType3d(monsters.enemyMonster.pet_type)
+    const { model: myModel } = get3dModel(monsters.myMonster.pet_type)
+    const { model: enemyModel } = get3dModel(monsters.enemyMonster.pet_type)
+
+    // const myMonsterType3D = getType3d(monsters.myMonster.pet_type)
+    // const enemyMonsterType3D = getType3d(monsters.enemyMonster.pet_type)
 
     const myTurn = isBattleGoing &&
       (arena.commits[0].player === identity ||
@@ -213,8 +216,8 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     return <div className="arena-monster">
       <Arena3D
-        myMonster={monsterModelSrc(myMonsterType3D)}
-        enemyMonster={monsterModelSrc(enemyMonsterType3D)}
+        myMonster={monsterModelSrc(myModel)}
+        enemyMonster={monsterModelSrc(enemyModel)}
         size={{ width: "100%", height: "100%" }}
         background={{ alpha: 1 }}
         zoom

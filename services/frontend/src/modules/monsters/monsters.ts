@@ -108,5 +108,5 @@ export const getType3d = (typeId: number) => {
 export const monsterImageSrc = (typeId: number) =>
   (`/images/monsters/monster-${typeId}.png`)
 
-export const monsterModelSrc = (typeId: number) =>
-  (`/models/monsters/monster-${typeId}.gltf`)
+export const monsterModelSrc = (model: string) =>
+  (`/models/monsters/${model}.gltf`)
