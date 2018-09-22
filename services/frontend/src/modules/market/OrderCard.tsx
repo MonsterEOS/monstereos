@@ -1,12 +1,19 @@
 import * as React from "react"
 import * as moment from "moment"
 import { OrderProps, amountOfAsset, amountOfAssetPlusFees } from "./market"
-import { monsterImageSrc } from "../monsters/monsters"
+import { 
+  // monsterImageSrc, 
+  monsterModelSrc,
+  getCurrentAction,
+  getType3d
+} from "../monsters/monsters"
+import getConfig from "../monsters/monsterTypeConfiguration"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
 import { trxClaimPetMarket, trxRemoveOrderMarket, MONSTERS_ACCOUNT, trxTokenTransfer } from "../../utils/eos"
 import { Link } from "react-router-dom"
+import { Monster3DProfile, ActionType } from "react-monstereos-profile"
 
 import NewOrderModal  from "./NewOrderModal"
 
@@ -69,7 +76,7 @@ class OrderCard extends React.Component<Props, ReactState> {
           <div className="card-content">
             {this.renderHeader()}
           </div>
-          {this.renderImage()}
+          {this.renderMonster()}
           {this.renderOrderData()}
           {this.renderFooter()}
         </div>
@@ -84,28 +91,46 @@ class OrderCard extends React.Component<Props, ReactState> {
     )
   }
 
-  private renderImage() {
+  private renderMonster() {
 
     const { order } = this.props
     const monster = order.monster
 
-    const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
-    const monsterImage = monsterImageSrc(monster.type)
+    const type3d = getType3d(monster.type)
 
-    const sleepingClass = monster.isSleeping ? "sleeping" : ""
-    const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
+    const { position, rotation, cameraPosition } = getConfig(type3d)
 
     return (
-      <div className="card-image">
-        <figure className={figureClass}>
-          <img
-            alt={monster.name}
-            className={sleepingClass}
-            src={monsterImage} />
-          {sleepingAnimation}
-        </figure>
-      </div>
+      <Monster3DProfile
+        typeId={type3d}
+        path={monsterModelSrc(type3d)}
+        action={getCurrentAction(monster, ActionType)}
+        position={position}
+        rotation={rotation}
+        cameraPosition={cameraPosition}
+        size={{ height: "228px" }}
+        background={{ alpha: 0 }}
+        zoom={false}
+      />
     )
+
+    // const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
+    // const monsterImage = monsterImageSrc(monster.type)
+
+    // const sleepingClass = monster.isSleeping ? "sleeping" : ""
+    // const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
+
+    // return (
+    //   <div className="card-image">
+    //     <figure className={figureClass}>
+    //       <img
+    //         alt={monster.name}
+    //         className={sleepingClass}
+    //         src={monsterImage} />
+    //       {sleepingAnimation}
+    //     </figure>
+    //   </div>
+    // )
   }
 
   private renderHeader() {

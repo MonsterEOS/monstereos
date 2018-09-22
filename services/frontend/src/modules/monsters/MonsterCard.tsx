@@ -45,12 +45,18 @@ class MonsterCard extends React.Component<Props, {}> {
 
     return (
       <div className="column monster-column">
-        <div className={`card ${selectedClass}`}>
+        <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
-            {this.renderHeader()}
+            <div className="columns is-mobile">
+              <div className="column">
+                {this.renderMonster()}
+              </div>
+              <div className="column is-three-fifths">
+                {this.renderHeader()}
+                {!monster.deathAt && this.renderStats()}
+              </div>
+            </div>
           </div>
-          {this.renderMonster()}
-          {!monster.deathAt && this.renderStats()}
           {hasControl && this.renderFooter()}
         </div>
       </div>
@@ -123,19 +129,22 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const headerContent =
       <React.Fragment>
-        <span className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
-          {monster.name}
-          <small className="is-pulled-right">#{monster.id}</small>
-        </span>
-        <br />
-        {monster.deathAt ?
-          <React.Fragment>
-            <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
-            <br />
-            <span className="is-6 has-text-danger"><time dateTime={deathAtIso}>DEAD IN {deathAtText}</time></span>
-          </React.Fragment>
-          : <span className="has-text-success">Is alive for {aliveDurationText}</span>
-        }
+        <div className={`monster-card-title ${!monster.deathAt ? "active" : ""}`}>
+          <div>
+            <div className="monster-name">{monster.name}</div>
+            <div className="monster-status">
+            {monster.deathAt ?
+              <p>
+                Stayed alive for {aliveDurationText}
+                <br />
+                <time dateTime={deathAtIso}>DEATH AT {deathAtText}</time>
+              </p>
+              : <p>Is alive for {aliveDurationText}</p>
+            }
+            </div>
+          </div>
+          <div className="monster-id">#{monster.id}</div>
+        </div>
       </React.Fragment>
 
     return (
@@ -157,17 +166,26 @@ class MonsterCard extends React.Component<Props, {}> {
 
     return (
       <div className="monster-card-stats">
-        <p className="is-large has-margin-top">
+        <div className="progress-bar red monster-hp-card">
+          <span style={{width: `${monster.health}%`}}>HP</span>
+        </div>
+        <p>Food</p>
+        <div className="progress-bar blue">
+          <span style={{width: `${monster.hunger}%`}} />
+        </div>
+        <p>Energy</p>
+        <div className="progress-bar green">
+          <span style={{width: `${monster.energy}%`}} />
+        </div>
+        {/* <p className="hp-card is-large has-margin-top">
           <progress className="progress is-danger" max="100" value={monster.health} data-label="HP" />
         </p>
-        <div className="columns is-multiline is-mobile">
-          <div className="column is-half">
-            <progress className="progress is-primary" max="100" value={monster.hunger} data-label="Food" />
-          </div>
-          <div className="column is-half">
-            <progress className="progress is-success" max="100" value={monster.energy} data-label="Energy" />
-          </div>
-        </div>
+        <p>
+          <progress className="food-card progress is-primary" max="100" value={monster.hunger} data-label="Food" />
+        </p>
+        <p>
+          <progress className="energy-card progress is-success" max="100" value={monster.energy} data-label="Energy" />
+        </p> */}
       </div>
     )
   }

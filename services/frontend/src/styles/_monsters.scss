@@ -66,22 +66,65 @@
   vertical-align: middle;
 }
 
-.monster-card-header {
-  font-size: 0.8rem;
-}
-
-.monster-card-stats {
-  margin: 0 14px 14px;
-}
-
-.monster-header-link .title {
-  color: $blue;
-
-  &:hover {
-    color: #000;
+.monster-card {
+  .card-content {
+    padding: 0.5rem;
   }
 
+  .monster-card-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 24px;
+    color: #fff6bd;
+    text-shadow: 2px 2px 5px black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 12px;
+  
+    .monster-status {
+      font-size: 14px;
+    }
+  
+    .monster-id {
+      // background: -webkit-linear-gradient(yellow, white, yellow);
+      // -webkit-background-clip: text;
+      // -webkit-text-fill-color: transparent;
+      font-size: 18px;
+      color: 	#DAA520;
+    }
+  }
+
+  .hp-card {
+    height: 40px;
+  }
+  
 }
+
+
+.monster-card-stats {
+  margin: 0;
+  padding: 0;
+  font-family: 'Oswald', sans-serif;
+  text-shadow: 2px 2px 5px black;
+
+  p {
+    margin-bottom: 2px!important;
+  }
+}
+
+.monster-hp-card {
+  height: 35px!important;
+}
+
+// .monster-header-link .title {
+//   // color: $blue;
+
+//   // &:hover {
+//   //   color: #000;
+//   // }
+
+// }
 
 .monster-selected {
   background-color: greenyellow;

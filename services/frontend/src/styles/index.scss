@@ -1,5 +1,5 @@
 // @import url('https://fonts.googleapis.com/css?family=Gloria+Hallelujah');
-@import url('https://fonts.googleapis.com/css?family=Freckle+Face');
+@import url('https://fonts.googleapis.com/css?family=Montserrat:700|Oswald|Freckle+Face');
 
 // @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 @import url('https://cdn.jsdelivr.net/npm/fork-awesome@1.1.0/css/fork-awesome.min.css');
@@ -20,6 +20,7 @@ $logo-font: 'Freckle Face', cursive;
 @import "./_battles.scss";
 @import "./_buttons.scss";
 @import "./_layout.scss";
+@import "./_progress-bars.scss";
 
 .logo-small-img {
   max-width: 65%;
@@ -42,16 +43,9 @@ $logo-font: 'Freckle Face', cursive;
 .footer {
   padding-bottom: 3rem; }
 .card {
-  /* background-color: #18265c; */
-  background: -moz-linear-gradient(45deg, #071439 0%, #046c78 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(45deg, #071439 0%,#046c78 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(45deg, #071439 0%,#046c78 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
+  background: linear-gradient(45deg, #071439 0%,#046c78 100%);
   border-radius: 5px;
-  -webkit-box-shadow: 0px 0px 10px 1px #00ffea;
-  -moz-box-shadow: 0px 0px 10px 1px #00ffea;
-  box-shadow: 0px 0px 10px 1px #00ffea;
+  box-shadow: 0px 0px 20px 1px #00ffea;
 }
 .content h1 {
   font-family: $logo-font;
@@ -65,4 +59,55 @@ $logo-font: 'Freckle Face', cursive;
   font-size: 1em; } 
 .button {
   color: #00ffea;
+}
+
+.monster-card {
+  .card-content {
+    padding: 0.5rem;
+  }
+
+  .monster-card-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 24px;
+    color: #fff6bd;
+    text-shadow: 2px 2px 5px black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  
+    .monster-status {
+      font-size: 14px;
+    }
+  
+    .monster-id {
+      // background: -webkit-linear-gradient(yellow, white, yellow);
+      // -webkit-background-clip: text;
+      // -webkit-text-fill-color: transparent;
+      font-size: 18px;
+      color: 	#DAA520;
+    }
+  }
+
+  .hp-card {
+    height: 40px;
+  }
+  
+}
+
+.card-footer {
+  border-top: none;
+  background: rgba(0, 0, 0, 0.3);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  
+  a { 
+    color: #fff; 
+  }
+
+  .card-footer-item:not(:last-child) {
+    border-width: 0 1px 0 0;
+    border-image:
+    linear-gradient(to bottom, rgba(123,229,167,0) 0%,rgba(124,211,193,1) 48%,rgba(124,202,206,1) 52%,rgba(125,185,232,0) 100%) 1 100%;
+  }
 }

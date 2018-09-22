@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Freckle+Face");
+@import url("https://fonts.googleapis.com/css?family=Montserrat:700|Oswald|Freckle+Face");
 @import url("https://cdn.jsdelivr.net/npm/fork-awesome@1.1.0/css/fork-awesome.min.css");
 .logo {
   font-family: "Freckle Face", cursive;
@@ -292,16 +292,38 @@
   max-height: 80px;
   vertical-align: middle; }
 
-.monster-card-header {
-  font-size: 0.8rem; }
+.monster-card .card-content {
+  padding: 0.5rem; }
+
+.monster-card .monster-card-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 24px;
+  color: #fff6bd;
+  text-shadow: 2px 2px 5px black;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px; }
+  .monster-card .monster-card-title .monster-status {
+    font-size: 14px; }
+  .monster-card .monster-card-title .monster-id {
+    font-size: 18px;
+    color: #DAA520; }
+
+.monster-card .hp-card {
+  height: 40px; }
 
 .monster-card-stats {
-  margin: 0 14px 14px; }
+  margin: 0;
+  padding: 0;
+  font-family: 'Oswald', sans-serif;
+  text-shadow: 2px 2px 5px black; }
+  .monster-card-stats p {
+    margin-bottom: 2px !important; }
 
-.monster-header-link .title {
-  color: #3273dc; }
-  .monster-header-link .title:hover {
-    color: #000; }
+.monster-hp-card {
+  height: 35px !important; }
 
 .monster-selected {
   background-color: greenyellow; }
@@ -615,6 +637,89 @@ progress:before {
   .content h3 {
     font-size: 1em; } }
 
+.progress-bar {
+  background-color: #1a1a1a;
+  height: 20px;
+  padding: 0px;
+  width: 100%;
+  margin: 2px 0 4px;
+  border-radius: 10px;
+  box-shadow: 1px 5px #000 inset, 2px 2px 10px #333; }
+
+.progress-bar span {
+  display: inline-block;
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  transition: width .4s ease-in-out;
+  padding: 4px;
+  font-size: 18px;
+  color: #fff;
+  text-shadow: 2px 2px 5px black; }
+
+.blue span {
+  background-color: #34c2e3; }
+
+.red span {
+  background-color: #ef3d23;
+  background-image: linear-gradient(to bottom, #ef3d23, #fd9215); }
+
+.orange span {
+  background-color: #fecf23;
+  background-image: linear-gradient(to bottom, #fecf23, #fd9215); }
+
+.green span {
+  background-color: #a5df41;
+  background-image: linear-gradient(to bottom, #a5df41, #4ca916); }
+
+.stripes span {
+  background-size: 30px 30px;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  animation: animate-stripes 3s linear infinite; }
+
+@keyframes animate-stripes {
+  0% {
+    background-position: 0 0; }
+  100% {
+    background-position: 60px 0; } }
+
+.shine span {
+  position: relative; }
+
+.shine span::after {
+  content: '';
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #fff;
+  border-radius: 3px;
+  animation: animate-shine 2s ease-out infinite; }
+
+@keyframes animate-shine {
+  0% {
+    opacity: 0;
+    width: 0; }
+  50% {
+    opacity: .5; }
+  100% {
+    opacity: 0;
+    width: 95%; } }
+
+.glow span {
+  box-shadow: 0 5px 5px rgba(255, 255, 255, 0.7) inset, 0 -5px 5px rgba(255, 255, 255, 0.7) inset;
+  animation: animate-glow 1s ease-out infinite; }
+
+@keyframes animate-glow {
+  0% {
+    box-shadow: 0 5px 5px rgba(255, 255, 255, 0.7) inset, 0 -5px 5px rgba(255, 255, 255, 0.7) inset; }
+  50% {
+    box-shadow: 0 5px 5px rgba(255, 255, 255, 0.3) inset, 0 -5px 5px rgba(255, 255, 255, 0.3) inset; }
+  100% {
+    box-shadow: 0 5px 5px rgba(255, 255, 255, 0.7) inset, 0 -5px 5px rgba(255, 255, 255, 0.7) inset; } }
+
 .logo-small-img {
   max-width: 65%; }
 
@@ -641,19 +746,9 @@ progress:before {
   padding-bottom: 3rem; }
 
 .card {
-  /* background-color: #18265c; */
-  background: -moz-linear-gradient(45deg, #071439 0%, #046c78 100%);
-  /* FF3.6-15 */
-  background: -webkit-linear-gradient(45deg, #071439 0%, #046c78 100%);
-  /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(45deg, #071439 0%, #046c78 100%);
-  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
   border-radius: 5px;
-  -webkit-box-shadow: 0px 0px 10px 1px #00ffea;
-  -moz-box-shadow: 0px 0px 10px 1px #00ffea;
-  box-shadow: 0px 0px 10px 1px #00ffea; }
+  box-shadow: 0px 0px 20px 1px #00ffea; }
 
 .content h1 {
   font-family: "Freckle Face", cursive;
@@ -670,3 +765,35 @@ progress:before {
 
 .button {
   color: #00ffea; }
+
+.monster-card .card-content {
+  padding: 0.5rem; }
+
+.monster-card .monster-card-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 24px;
+  color: #fff6bd;
+  text-shadow: 2px 2px 5px black;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; }
+  .monster-card .monster-card-title .monster-status {
+    font-size: 14px; }
+  .monster-card .monster-card-title .monster-id {
+    font-size: 18px;
+    color: #DAA520; }
+
+.monster-card .hp-card {
+  height: 40px; }
+
+.card-footer {
+  border-top: none;
+  background: rgba(0, 0, 0, 0.3);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; }
+  .card-footer a {
+    color: #fff; }
+  .card-footer .card-footer-item:not(:last-child) {
+    border-width: 0 1px 0 0;
+    border-image: linear-gradient(to bottom, rgba(123, 229, 167, 0) 0%, #7cd3c1 48%, #7ccace 52%, rgba(125, 185, 232, 0) 100%) 1 100%; }
