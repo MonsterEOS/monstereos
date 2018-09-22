@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Freckle+Face");
-@import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
+@import url("https://cdn.jsdelivr.net/npm/fork-awesome@1.1.0/css/fork-awesome.min.css");
 .logo {
   font-family: "Freckle Face", cursive;
   font-size: 40px;
@@ -557,6 +557,13 @@ form {
 td, th {
   color: #dadada !important; }
 
+.level-item span,
+.tabs a,
+.content p,
+.content strong,
+td, th {
+  color: #dadada !important; }
+
 .has-margin-top {
   margin-top: 16px; }
 
@@ -661,8 +668,7 @@ progress:before {
   border-radius: 5px;
   -webkit-box-shadow: 0px 0px 10px 1px #00ffea;
   -moz-box-shadow: 0px 0px 10px 1px #00ffea;
-  box-shadow: 0px 0px 10px 1px #00ffea;
-  color: #877e7e; }
+  box-shadow: 0px 0px 10px 1px #00ffea; }
 
 .content h1 {
   font-family: "Freckle Face", cursive;

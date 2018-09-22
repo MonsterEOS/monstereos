@@ -9,20 +9,18 @@ import { updaters } from "./updaters"
 
 console.info("==== Starting demux ====")
 
-const NODEOS = process.env.CHAIN_HOST || "http://localhost:8830"
 const INITIAL_BLOCK = Number(process.env.CHAIN_INIT_BLOCK || 100)
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017"
-const MONGO_DB = process.env.MONGO_DB || "EOSFN"
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:5901"
+const MONGO_DB = process.env.MONGO_DB || "EOSMN"
 
-console.info("Reading from node >>>> ", NODEOS)
 console.info("Initial Block to sync >>>> ", INITIAL_BLOCK)
 
 const dbConfig = {
   user: process.env.DB_USER || "user",
   password: process.env.DB_PASSWORD || "pass",
   host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 5432,
+  port: Number(process.env.DB_PORT) || 5932,
   database: process.env.DB_NAME || "monstereosio",
   schema: process.env.DB_SCHEMA || "pets",
 }
@@ -72,4 +70,12 @@ const init = async () => {
 
 }
 
+const exit = (e: any) => {
+  console.error("An error has occured. error is: %s and stack trace is: %s", e, e.stack)
+  console.error("Process will restart now.")
+  process.exit(1)
+}
+
+process.on("unhandledRejection", exit)
+process.on("uncaughtException", exit)
 setTimeout(init, 2500)

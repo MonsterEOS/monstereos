@@ -6,19 +6,26 @@ import TitleBar from "../shared/TitleBar"
 import { QUERY_TOP_ACTIVITY } from "./ranking.gql"
 import { monsterImageSrc } from "../monsters/monsters"
 
-class TopActivityRank extends React.Component<{}, {}> {
+interface ReactState {
+  loadMore:boolean
+}
+class TopActivityRank extends React.Component<{}, ReactState> {
 
+  public state = {
+    loadMore:true
+  }
   public render() {
 
     const variables = {
       limit: 21,
       offset: 0
     }
+    const {loadMore} = this.state
 
     return <div className="rank">
       <TitleBar title="Top Activity Monsters" />
       <Query query={QUERY_TOP_ACTIVITY} variables={variables}>
-        {({data, loading, refetch}) => {
+        {({data, loading, fetchMore}) => {
 
           if (loading || !data || !data.allVrankingActives) {
             return <span>
@@ -29,7 +36,27 @@ class TopActivityRank extends React.Component<{}, {}> {
           const { allVrankingActives } = data
 
           const monsters = allVrankingActives ? allVrankingActives.edges : []
-          return <table>
+
+          const onLoadMore = () => {            
+            
+            fetchMore({
+              variables: {
+                offset: monsters.length
+              },
+              updateQuery: (prev, { fetchMoreResult }) => {                
+                if (!fetchMoreResult) { 
+                  this.setState({loadMore:false})
+                  return prev 
+                }              
+                this.setState({loadMore:fetchMoreResult.allVrankingActives.edges.length === variables.limit })
+                return Object.assign({}, prev, {allVrankingActives : 
+                  Object.assign({}, prev.allVrankingActives, {edges:[...prev.allVrankingActives.edges, ...fetchMoreResult.allVrankingActives.edges]})
+                  })
+            }})
+          }
+
+          return <div>
+            <table>
             <thead>
               <tr>
                 <th>#</th>
@@ -52,6 +79,15 @@ class TopActivityRank extends React.Component<{}, {}> {
             ))}
             </tbody>
           </table>
+          {loadMore &&
+            <footer className="card-footer">
+              <a className="card-footer-item"
+                onClick={onLoadMore}>
+                Load more
+              </a>
+            </footer> 
+          }
+        </div>
         }}
       </Query>
     </div>
