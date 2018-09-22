@@ -60,6 +60,34 @@ $logo-font: 'Freckle Face', cursive;
   position:relative;
 }
 
+hr {
+  border: 0;
+  height: 1px;
+  margin: 8px 0 18px;
+  background-color: transparent;
+  background-image: linear-gradient(to right, rgba(124,211,193, 0), rgba(124,211,193, 0.75), rgba(124,211,193, 0));
+}
+
+.intro-title {
+  font-family: 'Montserrat', sans-serif;
+  color: rgb(138, 255, 231);
+  width: 100%;
+  text-transform: uppercase;
+  font-size: 1em; 
+  font-weight: 700;
+  background-image: map-get($gradients, warm);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position:relative;
+  margin-bottom: 0;
+}
+
+h1.title.extra {
+  background-image: map-get($gradients, warm);
+  margin: -12px 0 0;
+  font-size: 3em;
+}
+
 .content h2 {
   color: #00ffea;
   font-size: 1.25em; 
@@ -87,6 +115,6 @@ $logo-font: 'Freckle Face', cursive;
   .card-footer-item:not(:last-child) {
     border-width: 0 1px 0 0;
     border-image:
-    linear-gradient(to bottom, rgba(123,229,167,0) 0%,rgba(124,211,193,1) 48%,rgba(124,202,206,1) 52%,rgba(125,185,232,0) 100%) 1 100%;
+    linear-gradient(to bottom, rgba(124,211,193, 0), rgba(124,211,193, 0.5), rgba(124,211,193, 0)) 1 100%;
   }
 }

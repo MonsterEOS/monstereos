@@ -85,6 +85,7 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     return (
       <PageContainer>
         <TitleBar
+          notMobile
           title="My Monsters"
           menu={[subHeader, newMonsterButton]} />
         {aliveMonsters &&

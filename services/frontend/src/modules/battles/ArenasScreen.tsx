@@ -78,7 +78,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
       <PageContainer>
         <TitleBar
           notMobile
-          title="Welcome to the Arena!"
+          intro="WELCOME TO THE"
+          title="ARENA"
           menu={[arenasCounter, battleButton]} />
         {arenas.map((arena: Arena, index: number) =>
           <BattleCard

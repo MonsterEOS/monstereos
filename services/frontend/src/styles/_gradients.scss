@@ -3,10 +3,10 @@
 //
 $gradients: () !default;
 $gradients: map-merge((
-    chill: linear-gradient(135deg, #09e485 0%,#0291e3 100%),
-    warm: linear-gradient(135deg, #F2CD48 0%,#FD803F 100%),
-    hot: linear-gradient(135deg, #F9445A 0%,#FD803F 100%),
-    cold: linear-gradient(135deg, #8019C6 0%,#2F93CC 100%),
+    chill: linear-gradient(to bottom, #09e485 0%,#0291e3 100%),
+    warm: linear-gradient(to bottom, #F2CD48 0%,#FD803F 100%),
+    hot: linear-gradient(to bottom, #F9445A 0%,#FD803F 100%),
+    cold: linear-gradient(to bottom, #8019C6 0%,#2F93CC 100%),
     iceblue: linear-gradient(to bottom, rgb(138, 255, 231) 0%,rgb(28, 225, 201) 100%)
 ), $gradients);
 

@@ -314,7 +314,7 @@
       font-size: 22px;
       color: #DAA520;
       text-shadow: none;
-      background-image: linear-gradient(135deg, #F2CD48 0%, #FD803F 100%);
+      background-image: linear-gradient(to bottom, #F2CD48 0%, #FD803F 100%);
       color: transparent;
       -webkit-background-clip: text;
       background-clip: text; }
@@ -768,6 +768,31 @@ progress:before {
   -webkit-text-fill-color: transparent;
   position: relative; }
 
+hr {
+  border: 0;
+  height: 1px;
+  margin: 8px 0 18px;
+  background-color: transparent;
+  background-image: linear-gradient(to right, rgba(124, 211, 193, 0), rgba(124, 211, 193, 0.75), rgba(124, 211, 193, 0)); }
+
+.intro-title {
+  font-family: 'Montserrat', sans-serif;
+  color: #8affe7;
+  width: 100%;
+  text-transform: uppercase;
+  font-size: 1em;
+  font-weight: 700;
+  background-image: linear-gradient(to bottom, #F2CD48 0%, #FD803F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  margin-bottom: 0; }
+
+h1.title.extra {
+  background-image: linear-gradient(to bottom, #F2CD48 0%, #FD803F 100%);
+  margin: -12px 0 0;
+  font-size: 3em; }
+
 .content h2 {
   color: #00ffea;
   font-size: 1.25em; }
@@ -788,4 +813,4 @@ progress:before {
     color: #fff; }
   .card-footer .card-footer-item:not(:last-child) {
     border-width: 0 1px 0 0;
-    border-image: linear-gradient(to bottom, rgba(123, 229, 167, 0) 0%, #7cd3c1 48%, #7ccace 52%, rgba(125, 185, 232, 0) 100%) 1 100%; }
+    border-image: linear-gradient(to bottom, rgba(124, 211, 193, 0), rgba(124, 211, 193, 0.5), rgba(124, 211, 193, 0)) 1 100%; }
