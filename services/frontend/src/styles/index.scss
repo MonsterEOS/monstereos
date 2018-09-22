@@ -16,6 +16,7 @@ $logo-font: 'Freckle Face', cursive;
 }
 
 @import "./_spacing.scss";
+@import "./_gradients.scss";
 @import "./_monsters.scss";
 @import "./_battles.scss";
 @import "./_buttons.scss";
@@ -27,7 +28,7 @@ $logo-font: 'Freckle Face', cursive;
 }
 
 .navbar {
-  background-color: #18265c;
+  background-color: rgb(18,32,85);
   min-height: 60px; }
 .navbar .navbar-menu {
   box-shadow: none;
@@ -38,7 +39,7 @@ $logo-font: 'Freckle Face', cursive;
 .logo {
   margin: 12px; }
 .section {
-  background-color: rgb(26, 35, 80);
+  background-color: rgb(18,32,85);
   padding: 1rem; }
 .footer {
   padding-bottom: 3rem; }
@@ -48,51 +49,29 @@ $logo-font: 'Freckle Face', cursive;
   box-shadow: 0px 0px 20px 1px #00ffea;
 }
 .content h1 {
-  font-family: $logo-font;
-  color: #00ffea;
-  font-size: 1.5em; }
-.content h2 {
-  color: #00ffea;
-  font-size: 1.25em; }
-.content h3 {
-  color: #00ffea;
-  font-size: 1em; } 
-.button {
-  color: #00ffea;
+  font-family: 'Montserrat', sans-serif;
+  color: rgb(138, 255, 231);
+  text-transform: uppercase;
+  font-size: 1.75em; 
+  font-weight: 700;
+  background-image: map-get($gradients, iceblue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position:relative;
 }
 
-.monster-card {
-  .card-content {
-    padding: 0.5rem;
-  }
+.content h2 {
+  color: #00ffea;
+  font-size: 1.25em; 
+}
 
-  .monster-card-title {
-    font-family: 'Oswald', sans-serif;
-    font-size: 24px;
-    color: #fff6bd;
-    text-shadow: 2px 2px 5px black;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-  
-    .monster-status {
-      font-size: 14px;
-    }
-  
-    .monster-id {
-      // background: -webkit-linear-gradient(yellow, white, yellow);
-      // -webkit-background-clip: text;
-      // -webkit-text-fill-color: transparent;
-      font-size: 18px;
-      color: 	#DAA520;
-    }
-  }
+.content h3 {
+  color: #00ffea;
+  font-size: 1em; 
+} 
 
-  .hp-card {
-    height: 40px;
-  }
-  
+.button {
+  color: #00ffea;
 }
 
 .card-footer {

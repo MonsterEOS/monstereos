@@ -5,7 +5,7 @@ const TitleBar = (props: any) => (
     <div className={`level ${props.notMobile ? "" : "is-mobile"}`}>
       <div className="level-left">
         <div className="level-item">
-          <h1 className="title">{props.title}</h1>
+          <h1 className="title" data-text={props.title}>{props.title}</h1>
         </div>
       </div>
       <div className="level-right">

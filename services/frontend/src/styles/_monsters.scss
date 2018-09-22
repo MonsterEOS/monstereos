@@ -67,6 +67,10 @@
 }
 
 .monster-card {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  text-shadow: 2px 2px 5px black;
+
   .card-content {
     padding: 0.5rem;
   }
@@ -90,8 +94,11 @@
       // background: -webkit-linear-gradient(yellow, white, yellow);
       // -webkit-background-clip: text;
       // -webkit-text-fill-color: transparent;
-      font-size: 18px;
+      font-size: 22px;
       color: 	#DAA520;
+      text-shadow: none;
+
+      @include text-gradient(map-get($gradients, warm));
     }
   }
 

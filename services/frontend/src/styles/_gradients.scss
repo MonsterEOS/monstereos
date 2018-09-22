@@ -1,0 +1,37 @@
+//
+// Gradient system
+//
+$gradients: () !default;
+$gradients: map-merge((
+    chill: linear-gradient(135deg, #09e485 0%,#0291e3 100%),
+    warm: linear-gradient(135deg, #F2CD48 0%,#FD803F 100%),
+    hot: linear-gradient(135deg, #F9445A 0%,#FD803F 100%),
+    cold: linear-gradient(135deg, #8019C6 0%,#2F93CC 100%),
+    iceblue: linear-gradient(to bottom, rgb(138, 255, 231) 0%,rgb(28, 225, 201) 100%)
+), $gradients);
+
+@mixin border-gradient($parent, $gradient) {
+  #{$parent} {
+    border: 20px solid transparent;
+    border-width: 6px;
+    border-style: solid;
+    border-image: $gradient;
+    border-image-slice: 1;
+  }
+}
+
+
+// Gradient backgrounds
+@mixin bg-gradient($parent, $gradient) {
+  #{$parent} {
+    background: $gradient;
+  }
+}
+
+// Gradient text
+@mixin text-gradient($gradient) {
+    background-image: $gradient;
+    color:transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}

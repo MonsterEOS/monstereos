@@ -121,7 +121,8 @@ class MonsterCard extends React.Component<Props, {}> {
     // const createdAtIso = createdAt.toLocaleString()
 
     const deathAt = moment(monster.deathAt)
-    const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
+    const deathAtDate = deathAt.format("MMMM Do YYYY")
+    const deathAtTime = deathAt.format("h:mm:ss a")
     const deathAtIso = deathAt.toLocaleString()
 
     const aliveDuration = (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
@@ -129,15 +130,13 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const headerContent =
       <React.Fragment>
-        <div className={`monster-card-title ${!monster.deathAt ? "active" : ""}`}>
+        <div className={`monster-card-title ${monster.deathAt ? "dead" : ""}`}>
           <div>
             <div className="monster-name">{monster.name}</div>
             <div className="monster-status">
             {monster.deathAt ?
               <p>
                 Stayed alive for {aliveDurationText}
-                <br />
-                <time dateTime={deathAtIso}>DEATH AT {deathAtText}</time>
               </p>
               : <p>Is alive for {aliveDurationText}</p>
             }
@@ -145,6 +144,12 @@ class MonsterCard extends React.Component<Props, {}> {
           </div>
           <div className="monster-id">#{monster.id}</div>
         </div>
+        { monster.deathAt > 0 &&
+        <div>
+          <p>Death Date:<br/> {deathAtDate}</p>
+          <p>Time of Death:<br/> <time dateTime={deathAtIso}>{deathAtTime}</time></p>
+        </div>
+        }
       </React.Fragment>
 
     return (
