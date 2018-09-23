@@ -15,6 +15,12 @@ $logo-font: 'Freckle Face', cursive;
   margin: 24px;
 }
 
+$my-blue: rgb(138, 255, 231);
+$my-blue-transparent: rgba(138, 255, 231, 0.75);
+$my-dark-blue: #122055;
+$my-purple: rgb(132,32,118);
+$my-yellow: rgb(242,228,138);
+
 @import "./_spacing.scss";
 @import "./_gradients.scss";
 @import "./_monsters.scss";
@@ -31,7 +37,7 @@ h1, h2, h3, h4, h5 {
   -webkit-text-fill-color: transparent;
   position:relative;
   text-transform: uppercase;
-  color: rgb(138, 255, 231);
+  color: $my-blue;
 }
 
 .content h1 {
@@ -50,7 +56,7 @@ h1, h2, h3, h4, h5 {
 
 body {
   font-family: 'Oswald', sans-serif;
-  background-color: #122055;
+  background-color: $my-dark-blue;
   color: #eee;
 }
 
@@ -59,44 +65,46 @@ body {
 }
 
 .navbar {
-  background-color: rgb(18,32,85);
+  background-color: $my-dark-blue;
   min-height: 60px; }
+
 .navbar .navbar-menu {
   box-shadow: none;
   border-bottom: 1px solid #eee; }
+
 .navbar-burger {
-  color: #00fecb;
+  color: $my-blue;
   margin-top: 12px; }
 
 .logo {
   margin: 12px; }
 
 .section {
-  background-color: rgb(18,32,85);
+  background-color: $my-dark-blue;
   padding: 1rem; }
 
 .content table {
   border-collapse: initial;
-  background: linear-gradient(45deg, #071439 0%, rgb(132,32,118) 100%);
-  color: rgb(242,228,138);
+  background: linear-gradient(45deg, #071439 0%, $my-purple 100%);
+  color: $my-yellow;
   border-radius: 5px;
-  border: 1px solid rgb(242,228,138);
-  box-shadow: 0px 0px 20px 1px rgb(242,228,138);
+  border: 1px solid $my-yellow;
+  box-shadow: 0px 0px 20px 1px $my-yellow;
 
   td, th {
-    color: rgb(242,228,138)!important;
-    border: 1px solid rgb(242,228,138);
+    color: $my-yellow!important;
+    border: 1px solid $my-yellow;
     border-width: 0 0 1px;
   }
   
 }
 
 a {
-  color: rgb(242,228,138);
+  color: $my-yellow;
 
   &:hover {
     text-decoration: underline;
-    color: rgb(242,228,138);
+    color: $my-yellow;
   }
 }
 
@@ -110,12 +118,12 @@ hr {
   height: 1px;
   margin: 8px 0 18px;
   background-color: transparent;
-  background-image: linear-gradient(to right, rgba(124,211,193, 0), rgba(124,211,193, 0.75), rgba(124,211,193, 0));
+  background-image: linear-gradient(to right, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0));
 }
 
 .intro-title {
   font-family: 'Montserrat', sans-serif;
-  color: rgb(138, 255, 231);
+  color: $my-blue;
   width: 100%;
   text-transform: uppercase;
   font-size: 1em; 
@@ -133,15 +141,56 @@ h1.title.extra {
   font-size: 3em;
 }
 
+
 .button {
-  color: #00ffea;
+  border-top: 1px solid #01e1bf;
+  background: #01e1bf;
+  background: linear-gradient(to bottom, #89eef3, #01e1bf);
+  padding: 13px 26px;
+  border-radius: 4px;
+  box-shadow: rgba(0,0,0,1) 0 1px 0;
+  text-shadow: rgba(0,0,0,.4) 0 1px 0;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  text-decoration: none;
+  vertical-align: middle;
+
+  &:hover {
+    border-top-color: #01e1bf;
+    background: #01e1bf;
+    color: #ffffff;
+    text-decoration: none;
+  }
+  
+  &:active {
+    border-top-color: #01e1bf;
+    background: #01e1bf;
+    text-decoration: none;
+  }
+}
+
+.button.is-danger {
+  border-top: 1px solid #f71000;
+  background: #f71000;
+  background: linear-gradient(to bottom, #fbb482, #f71000);
+
+  &:hover {
+    border-top-color: #f71000;
+    background: #f71000;
+  }
+
+  &:active {
+    border-top-color: #f71000;
+    background: #f71000;
+  }
 }
 
 .card {
   background: linear-gradient(45deg, #071439 0%,#046c78 100%);
   border-radius: 5px;
-  border: 1px solid #00ffea;
-  box-shadow: 0px 0px 20px 1px #00ffea;
+  border: 1px solid $my-blue;
+  box-shadow: 0px 0px 20px 1px $my-blue;
 }
 
 .card-footer {
@@ -157,6 +206,6 @@ h1.title.extra {
   .card-footer-item:not(:last-child) {
     border-width: 0 1px 0 0;
     border-image:
-    linear-gradient(to bottom, rgba(124,211,193, 0), rgba(124,211,193, 0.5), rgba(124,211,193, 0)) 1 100%;
+    linear-gradient(to bottom, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0)) 1 100%;
   }
 }

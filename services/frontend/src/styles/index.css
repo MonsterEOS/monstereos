@@ -622,6 +622,48 @@ progress:before {
   right: 8px;
   bottom: 1px; }
 
+.navbar-mobile {
+  width: 100%;
+  margin: 0px;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; }
+  .navbar-mobile .navbar-brand {
+    width: 200px; }
+    .navbar-mobile .navbar-brand img {
+      width: 200px;
+      height: 45px; }
+  .navbar-mobile .navbar-signin-button {
+    margin-right: 10px; }
+  .navbar-mobile .navbar-profile-button {
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center; }
+    .navbar-mobile .navbar-profile-button .navbar-profile-coin {
+      width: 45px;
+      height: 60px; }
+      .navbar-mobile .navbar-profile-button .navbar-profile-coin img {
+        position: absolute;
+        top: -2px;
+        right: -6px;
+        width: 60px; }
+    .navbar-mobile .navbar-profile-button .navbar-profile-data {
+      flex: 2;
+      height: 60px;
+      display: flex;
+      flex-direction: column;
+      text-align: right; }
+      .navbar-mobile .navbar-profile-button .navbar-profile-data .navbar-profile-account {
+        margin-top: 5px;
+        font-family: 'Montserrat', sans-serif;
+        color: #8affe7;
+        letter-spacing: -1px; }
+      .navbar-mobile .navbar-profile-button .navbar-profile-data .navbar-profile-amount {
+        margin-top: -5px;
+        text-shadow: 2px 2px 5px black; }
+
 /* mobile */
 @media screen and (max-width: 768px) {
   .navbar {
@@ -765,7 +807,7 @@ body {
   border-bottom: 1px solid #eee; }
 
 .navbar-burger {
-  color: #00fecb;
+  color: #8affe7;
   margin-top: 12px; }
 
 .logo {
@@ -802,7 +844,7 @@ hr {
   height: 1px;
   margin: 8px 0 18px;
   background-color: transparent;
-  background-image: linear-gradient(to right, rgba(124, 211, 193, 0), rgba(124, 211, 193, 0.75), rgba(124, 211, 193, 0)); }
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(138, 255, 231, 0.75), rgba(0, 0, 0, 0)); }
 
 .intro-title {
   font-family: 'Montserrat', sans-serif;
@@ -823,13 +865,44 @@ h1.title.extra {
   font-size: 3em; }
 
 .button {
-  color: #00ffea; }
+  border-top: 1px solid #01e1bf;
+  background: #01e1bf;
+  background: linear-gradient(to bottom, #89eef3, #01e1bf);
+  padding: 13px 26px;
+  border-radius: 4px;
+  box-shadow: black 0 1px 0;
+  text-shadow: rgba(0, 0, 0, 0.4) 0 1px 0;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  text-decoration: none;
+  vertical-align: middle; }
+  .button:hover {
+    border-top-color: #01e1bf;
+    background: #01e1bf;
+    color: #ffffff;
+    text-decoration: none; }
+  .button:active {
+    border-top-color: #01e1bf;
+    background: #01e1bf;
+    text-decoration: none; }
+
+.button.is-danger {
+  border-top: 1px solid #f71000;
+  background: #f71000;
+  background: linear-gradient(to bottom, #fbb482, #f71000); }
+  .button.is-danger:hover {
+    border-top-color: #f71000;
+    background: #f71000; }
+  .button.is-danger:active {
+    border-top-color: #f71000;
+    background: #f71000; }
 
 .card {
   background: linear-gradient(45deg, #071439 0%, #046c78 100%);
   border-radius: 5px;
-  border: 1px solid #00ffea;
-  box-shadow: 0px 0px 20px 1px #00ffea; }
+  border: 1px solid #8affe7;
+  box-shadow: 0px 0px 20px 1px #8affe7; }
 
 .card-footer {
   border-top: none;
@@ -840,4 +913,4 @@ h1.title.extra {
     color: #fff; }
   .card-footer .card-footer-item:not(:last-child) {
     border-width: 0 1px 0 0;
-    border-image: linear-gradient(to bottom, rgba(124, 211, 193, 0), rgba(124, 211, 193, 0.5), rgba(124, 211, 193, 0)) 1 100%; }
+    border-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(138, 255, 231, 0.75), rgba(0, 0, 0, 0)) 1 100%; }

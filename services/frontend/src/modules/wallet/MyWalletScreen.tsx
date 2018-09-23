@@ -1,16 +1,17 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import { State, doLoadMyWallet } from "../../store"
+import { State, doLoadMyWallet, doLogout } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 
 import PageContainer from "../shared/PageContainer"
-import TitleBar from "../shared/TitleBar"
 
 interface Props {
   eosAccount: string,
   myWalletBalance: string,
   globalConfig: any,
-  dispatchDoLoadMyWallet: any
+  dispatchDoLoadMyWallet: any,
+  dispatchDoLogout: any,
+  history: any,
 }
 
 interface ReactState {
@@ -44,12 +45,18 @@ class MyWalletScreen extends React.Component<Props, ReactState> {
 
   private renderWallet() {
 
-    const { myWalletBalance } = this.props
+    const { myWalletBalance, dispatchDoLogout, history } = this.props
 
     return (
       <PageContainer>
-        <TitleBar
-          title="My Monsters Wallet" />
+        <p className="has-text-centered">
+          <a className="button is-danger" 
+            onClick={() => dispatchDoLogout() && history.push("/")}>
+            LOGOUT
+          </a>
+        </p>
+
+        <h2>My Wallet</h2>
         <p>Your current balance is {myWalletBalance}.</p>
         <p className="has-text-info">
           We are working to have a nice economic flow for in-app purchases, never ever being a PAY-TO-WIN scheme. Please stay tuned in our Telegram to watch the news!
@@ -79,7 +86,8 @@ const mapStateToProps = (state: State) => {
 }
 
 const mapDispatchToProps = {
-  dispatchDoLoadMyWallet: doLoadMyWallet
+  dispatchDoLoadMyWallet: doLoadMyWallet,
+  dispatchDoLogout: doLogout,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyWalletScreen)

@@ -99,6 +99,67 @@ progress:before {
   bottom: 1px;
 }
 
+.navbar-mobile {
+  width: 100%;
+  margin: 0px;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .navbar-brand {
+    width: 200px;
+
+    img {
+      width: 200px;
+      height: 45px;
+    }
+  }
+
+  .navbar-signin-button {
+    margin-right: 10px;
+  }
+
+  .navbar-profile-button {
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+
+    .navbar-profile-coin {
+      width: 45px;
+      height: 60px;
+
+      img {
+        position: absolute;
+        top: -2px;
+        right: -6px;
+        width: 60px;
+      }
+    }
+
+    .navbar-profile-data {
+      flex: 2;
+      height: 60px;
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+
+      .navbar-profile-account {
+        margin-top: 5px;
+        font-family: 'Montserrat', sans-serif;
+        color: $my-blue;
+        letter-spacing: -1px;
+      }
+
+      .navbar-profile-amount {
+        margin-top: -5px;
+        text-shadow: 2px 2px 5px black;
+      }
+    }
+  }
+}
+
 /* mobile */
 @media screen and (max-width: 768px) {
   .navbar {
