@@ -98,7 +98,7 @@
       color: 	#DAA520;
       text-shadow: none;
 
-      @include text-gradient(map-get($gradients, warm));
+      @include text-gradient(map-get($gradients, golden));
     }
   }
 

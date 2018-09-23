@@ -7,6 +7,7 @@ $gradients: map-merge((
     warm: linear-gradient(to bottom, #F2CD48 0%,#FD803F 100%),
     hot: linear-gradient(to bottom, #F9445A 0%,#FD803F 100%),
     cold: linear-gradient(to bottom, #8019C6 0%,#2F93CC 100%),
+    golden: linear-gradient(35deg, rgb(255,220,56) 0%, rgb(234,230,191) 50%, rgb(255,220,56) 100%),
     iceblue: linear-gradient(to bottom, rgb(138, 255, 231) 0%,rgb(28, 225, 201) 100%)
 ), $gradients);
 

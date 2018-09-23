@@ -314,7 +314,7 @@
       font-size: 22px;
       color: #DAA520;
       text-shadow: none;
-      background-image: linear-gradient(to bottom, #F2CD48 0%, #FD803F 100%);
+      background-image: linear-gradient(35deg, #ffdc38 0%, #eae6bf 50%, #ffdc38 100%);
       color: transparent;
       -webkit-background-clip: text;
       background-clip: text; }
@@ -685,7 +685,7 @@ progress:before {
   background-color: #122055;
   width: 100%;
   bottom: 0;
-  height: 65px; }
+  height: 55px; }
   .mobile-controls hr {
     margin: 0 0 8px; }
   .mobile-controls .mobile-controls-wrapper {
@@ -965,6 +965,34 @@ h1.title.extra {
 
 .section.page {
   min-height: 500px; }
+
+.modal-card {
+  background: linear-gradient(45deg, #0a0f2d 0%, #0bcaa5 100%);
+  border-radius: 5px;
+  border: 1px solid #8affe7;
+  box-shadow: 0px 0px 20px 1px #8affe7; }
+  .modal-card .modal-card-body, .modal-card .modal-card-head, .modal-card .modal-card-foot {
+    background-color: transparent;
+    border: 0; }
+  .modal-card .modal-card-head {
+    text-align: center; }
+    .modal-card .modal-card-head .delete {
+      position: absolute;
+      top: 3px;
+      right: 3px; }
+    .modal-card .modal-card-head .modal-card-title {
+      margin-top: 16px;
+      width: 100%;
+      font-family: 'Montserrat', sans-serif;
+      text-transform: uppercase;
+      font-size: 32px;
+      font-weight: 700;
+      background-image: linear-gradient(35deg, #ffdc38 0%, #eae6bf 50%, #ffdc38 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; }
+  .modal-card .modal-card-foot {
+    display: flex;
+    justify-content: space-around; }
 
 .home-monster {
   text-align: center;

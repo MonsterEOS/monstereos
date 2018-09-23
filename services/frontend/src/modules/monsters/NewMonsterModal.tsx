@@ -25,37 +25,33 @@ class NewMonsterModal extends React.Component<Props, {}> {
     const { name } = this.state
 
     const footerButtons = [
-      <button
+      <a
         key="submit"
-        className="button is-success"
+        className="button"
         onClick={this.createPet}>
         Submit
-      </button>,
-      <button
+      </a>,
+      <a
         key="cancel"
-        className="button is-light"
+        className="button is-danger"
         onClick={() => closeModal(false)}>
         Cancel
-      </button>
+      </a>
     ]
 
     return (
       <Modal
-        title="Create a New Monster"
+        title="New Monster"
         close={() => closeModal(false)}
         footerButtons={footerButtons}>
         <div className="field">
-          <label className="label is-large">New Monster Name</label>
-          <div className="control has-icons-left has-icons-right">
+          <div className="control">
             <input
               className="input is-large"
-              placeholder="Pikachu"
+              placeholder="New Monster Name"
               type="text"
               onChange={this.handleChangeName}
               value={name} />
-            <span className="icon is-left">
-              <i className="fa fa-paw" />
-            </span>
           </div>
         </div>
       </Modal>
