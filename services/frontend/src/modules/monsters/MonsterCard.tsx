@@ -92,17 +92,19 @@ class MonsterCard extends React.Component<Props, {}> {
     const { model, position, rotation, cameraPosition } = get3dModel(monster.type)
 
     return (
-      <Monster3DProfile
-        typeId={model}
-        path={monsterModelSrc(model)}
-        action={getCurrentAction(monster, ActionType)}
-        position={position}
-        rotation={rotation}
-        cameraPosition={cameraPosition}
-        size={{ height: "228px" }}
-        background={{ alpha: 0 }}
-        zoom={false}
-      />
+      <div style={{position: "absolute", marginLeft: -25, width: 160}}>
+        <Monster3DProfile
+          typeId={model}
+          path={monsterModelSrc(model)}
+          action={getCurrentAction(monster, ActionType)}
+          position={position}
+          rotation={rotation}
+          cameraPosition={cameraPosition}
+          size={{ height: "228px" }}
+          background={{ alpha: 0 }}
+          zoom={false}
+        />
+      </div>
     )
   }
 
