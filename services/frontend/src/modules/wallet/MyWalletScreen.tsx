@@ -59,7 +59,7 @@ class MyWalletScreen extends React.Component<Props, ReactState> {
         <h2>My Wallet</h2>
         <p>Your current balance is {myWalletBalance}.</p>
         <p className="has-text-info">
-          We are working to have a nice economic flow for in-app purchases, never ever being a PAY-TO-WIN scheme. Please stay tuned in our Telegram to watch the news!
+          We are working to have a nice economic flow for in-app purchases, never ever being a PAY-TO-WIN scheme. Please stay tuned in our Discord to watch the news!
         </p>
       </PageContainer>
     )

@@ -1,12 +1,17 @@
 import * as React from "react"
 import {
-  withRouter, RouteComponentProps
+  withRouter, RouteComponentProps, Link
 } from "react-router-dom"
 import { connect } from "react-redux"
 import { State, doLogout, requestScatterIdentity } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 
 import eosIcon from "../../assets/images/layout/eos-coin-icon.png"
+import navBattleIcon from "../../assets/images/layout/nav-battle-icon.png"
+import navMarketIcon from "../../assets/images/layout/nav-market-icon.png"
+import navInfoIcon from "../../assets/images/layout/nav-info-icon.png"
+import navMonsterIcon from "../../assets/images/layout/nav-monster-icon.png"
+import navRankIcon from "../../assets/images/layout/nav-rank-icon.png"
 
 interface Props extends RouteComponentProps<Props> {
   scatter: any,
@@ -30,6 +35,7 @@ class MobileHeader extends React.Component<Props, ReactState> {
     const eosAccount = getEosAccount(identity)
 
     return (
+      <React.Fragment>
       <nav className="navbar-mobile">
         <div className="navbar-brand">
           <img alt="MonsterEOS" src="/images/ui/logo-small.png" />
@@ -54,6 +60,32 @@ class MobileHeader extends React.Component<Props, ReactState> {
         </div>
         } 
       </nav>
+      { eosAccount && 
+      <div className="mobile-controls">
+        <hr/>
+        <div className="mobile-controls-buttons">
+          <Link to="/my-monsters">
+            <img src={navMonsterIcon} />
+          </Link>
+          <div className="vertical-separator" />
+          <Link to="/market">
+            <img src={navMarketIcon} />
+          </Link>
+          <div className="vertical-separator" />
+          <Link to="/arenas">
+            <img src={navBattleIcon} />
+          </Link>
+          <div className="vertical-separator" />
+          <Link to="/rank">
+            <img src={navRankIcon} />
+          </Link>
+          <div className="vertical-separator" />
+          <Link to="/about">
+            <img src={navInfoIcon} />
+          </Link>
+        </div>
+      </div>}
+      </React.Fragment>
     )
   }
 

@@ -160,6 +160,46 @@ progress:before {
   }
 }
 
+.vertical-separator {
+  width: 1px;
+  border-width: 0 1px 0 0;
+  border-right: 1px solid #dbdbdb;
+  border-image:
+  linear-gradient(to bottom, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0)) 1 100%;
+}
+
+.mobile-controls {
+  position: fixed;
+  z-index: 25;
+  background-color: $my-dark-blue;
+  width: 100%;
+  bottom: 0;
+  height: 65px;
+
+  hr {
+    margin: 0 0 8px;
+  }
+
+  .mobile-controls-wrapper {
+    padding: 5px 9px;
+  }
+  
+  .mobile-controls-buttons {
+    display: flex;
+    justify-content: space-around;
+    height: 40px;
+
+    img {
+      height: 35px;
+    }
+
+    .vertical-separator {
+      height: 40px;
+    }
+  }
+
+}
+
 /* mobile */
 @media screen and (max-width: 768px) {
   .navbar {

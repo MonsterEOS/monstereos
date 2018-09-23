@@ -54,10 +54,12 @@ h1, h2, h3, h4, h5 {
   background-image: map-get($gradients, warm);
 }
 
-body {
+html, body {
   font-family: 'Oswald', sans-serif;
   background-color: $my-dark-blue;
   color: #eee;
+  margin: 0;
+  padding: 0;
 }
 
 .logo-small-img {
@@ -109,7 +111,7 @@ a {
 }
 
 .footer {
-  padding-bottom: 3rem;
+  padding-bottom: 90px;
   background-color: #000;
 }
 
@@ -208,6 +210,10 @@ h1.title.extra {
     border-image:
     linear-gradient(to bottom, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0)) 1 100%;
   }
+}
+
+.section.page {
+  min-height: 500px;
 }
 
 .home-monster {

@@ -88,12 +88,13 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
           notMobile
           title="My Monsters"
           menu={[subHeader, newMonsterButton]} />
-        {aliveMonsters &&
+        {aliveMonsters && aliveMonsters.length ?
           <MonstersList
-            monsters={aliveMonsters}
-            update={refetchMonsters} />}
+            monsters={aliveMonsters.slice(0,6)}
+            update={refetchMonsters} /> : 
+            <p>Looks like you don't have any alive monster.</p>}
 
-        {deadMonsters &&
+        {deadMonsters && deadMonsters.length &&
           <React.Fragment>
             <h3>My Dead Monsters</h3>
             <MonstersList

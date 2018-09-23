@@ -1,7 +1,7 @@
 import * as React from "react"
 
 const PageContainer = (props: any) => (
-  <section className="section">
+  <section className="section page">
     <div className="container">
       <div className="content">
         {props.children}
