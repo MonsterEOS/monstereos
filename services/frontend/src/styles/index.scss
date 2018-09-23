@@ -51,6 +51,7 @@ h1, h2, h3, h4, h5 {
 body {
   font-family: 'Oswald', sans-serif;
   background-color: #122055;
+  color: #eee;
 }
 
 .logo-small-img {
@@ -66,13 +67,13 @@ body {
 .navbar-burger {
   color: #00fecb;
   margin-top: 12px; }
+
 .logo {
   margin: 12px; }
+
 .section {
   background-color: rgb(18,32,85);
   padding: 1rem; }
-.footer {
-  padding-bottom: 3rem; }
 
 .content table {
   border-collapse: initial;
@@ -100,6 +101,7 @@ a {
 }
 
 .footer {
+  padding-bottom: 3rem;
   background-color: #000;
 }
 

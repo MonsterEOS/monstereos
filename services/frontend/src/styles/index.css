@@ -750,7 +750,8 @@ h1, h2, h3, h4, h5 {
 
 body {
   font-family: 'Oswald', sans-serif;
-  background-color: #122055; }
+  background-color: #122055;
+  color: #eee; }
 
 .logo-small-img {
   max-width: 65%; }
@@ -774,9 +775,6 @@ body {
   background-color: #122055;
   padding: 1rem; }
 
-.footer {
-  padding-bottom: 3rem; }
-
 .content table {
   border-collapse: initial;
   background: linear-gradient(45deg, #071439 0%, #842076 100%);
@@ -796,6 +794,7 @@ a {
     color: #f2e48a; }
 
 .footer {
+  padding-bottom: 3rem;
   background-color: #000; }
 
 hr {
