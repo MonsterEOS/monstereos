@@ -5,7 +5,7 @@
 import profileConfig from "./monsterTypeConfiguration"
 
 export default (type: number) => {
-    const t = true ? 27 : type
+    const t = true ? 105 : type
     switch (t) {
         case 0:
         case 1:
