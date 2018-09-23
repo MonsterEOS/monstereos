@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Montserrat:700|Oswald|Freckle+Face");
+@import url("https://fonts.googleapis.com/css?family=Montserrat:700|Oswald:400,700|Freckle+Face");
 @import url("https://cdn.jsdelivr.net/npm/fork-awesome@1.1.0/css/fork-awesome.min.css");
 .logo {
   font-family: "Freckle Face", cursive;
@@ -727,6 +727,31 @@ progress:before {
   100% {
     box-shadow: 0 5px 5px rgba(255, 255, 255, 0.7) inset, 0 -5px 5px rgba(255, 255, 255, 0.7) inset; } }
 
+h1, h2, h3, h4, h5 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  background-image: linear-gradient(to bottom, #8affe7 0%, #1ce1c9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  text-transform: uppercase;
+  color: #8affe7; }
+
+.content h1 {
+  font-size: 1.75em; }
+
+.content h2 {
+  font-size: 1.45em; }
+
+.content h3 {
+  font-size: 1.15em;
+  margin: 15px 0 20px;
+  background-image: linear-gradient(to bottom, #F2CD48 0%, #FD803F 100%); }
+
+body {
+  font-family: 'Oswald', sans-serif;
+  background-color: #122055; }
+
 .logo-small-img {
   max-width: 65%; }
 
@@ -757,16 +782,24 @@ progress:before {
   border-radius: 5px;
   box-shadow: 0px 0px 20px 1px #00ffea; }
 
-.content h1 {
-  font-family: 'Montserrat', sans-serif;
-  color: #8affe7;
-  text-transform: uppercase;
-  font-size: 1.75em;
-  font-weight: 700;
-  background-image: linear-gradient(to bottom, #8affe7 0%, #1ce1c9 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  position: relative; }
+.content table {
+  background: linear-gradient(45deg, #071439 0%, #842076 100%);
+  color: #f2e48a;
+  border-radius: 5px;
+  box-shadow: 0px 0px 20px 1px #f2e48a; }
+  .content table td, .content table th {
+    color: #f2e48a !important;
+    border: 1px solid #f2e48a;
+    border-width: 0 0 1px; }
+
+a {
+  color: #f2e48a; }
+  a:hover {
+    text-decoration: underline;
+    color: #f2e48a; }
+
+.footer {
+  background-color: #000; }
 
 hr {
   border: 0;
@@ -792,14 +825,6 @@ h1.title.extra {
   background-image: linear-gradient(to bottom, #F2CD48 0%, #FD803F 100%);
   margin: -12px 0 0;
   font-size: 3em; }
-
-.content h2 {
-  color: #00ffea;
-  font-size: 1.25em; }
-
-.content h3 {
-  color: #00ffea;
-  font-size: 1em; }
 
 .button {
   color: #00ffea; }

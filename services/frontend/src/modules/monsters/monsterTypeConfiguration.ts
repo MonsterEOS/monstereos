@@ -111,7 +111,7 @@ export default (model: string) => {
         case "serpent":
             return {
                 model,
-                position: { y: -20, x: 0 },
+                position: { y: -20, x: -10 },
                 rotation: { y: 0.4 },
                 cameraPosition: { z: -120 }
             }

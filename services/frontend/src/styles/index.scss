@@ -1,5 +1,5 @@
 // @import url('https://fonts.googleapis.com/css?family=Gloria+Hallelujah');
-@import url('https://fonts.googleapis.com/css?family=Montserrat:700|Oswald|Freckle+Face');
+@import url('https://fonts.googleapis.com/css?family=Montserrat:700|Oswald:400,700|Freckle+Face');
 
 // @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 @import url('https://cdn.jsdelivr.net/npm/fork-awesome@1.1.0/css/fork-awesome.min.css');
@@ -22,6 +22,36 @@ $logo-font: 'Freckle Face', cursive;
 @import "./_buttons.scss";
 @import "./_layout.scss";
 @import "./_progress-bars.scss";
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  background-image: map-get($gradients, iceblue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position:relative;
+  text-transform: uppercase;
+  color: rgb(138, 255, 231);
+}
+
+.content h1 {
+  font-size: 1.75em; 
+}
+
+.content h2 {
+  font-size: 1.45em;
+}
+
+.content h3 {
+  font-size: 1.15em;
+  margin: 15px 0 20px;
+  background-image: map-get($gradients, warm);
+}
+
+body {
+  font-family: 'Oswald', sans-serif;
+  background-color: #122055;
+}
 
 .logo-small-img {
   max-width: 65%;
@@ -48,16 +78,32 @@ $logo-font: 'Freckle Face', cursive;
   border-radius: 5px;
   box-shadow: 0px 0px 20px 1px #00ffea;
 }
-.content h1 {
-  font-family: 'Montserrat', sans-serif;
-  color: rgb(138, 255, 231);
-  text-transform: uppercase;
-  font-size: 1.75em; 
-  font-weight: 700;
-  background-image: map-get($gradients, iceblue);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  position:relative;
+
+.content table {
+  background: linear-gradient(45deg, #071439 0%, rgb(132,32,118) 100%);
+  color: rgb(242,228,138);
+  border-radius: 5px;
+  box-shadow: 0px 0px 20px 1px rgb(242,228,138);
+  
+  td, th {
+    color: rgb(242,228,138)!important;
+    border: 1px solid rgb(242,228,138);
+    border-width: 0 0 1px;
+  }
+  
+}
+
+a {
+  color: rgb(242,228,138);
+
+  &:hover {
+    text-decoration: underline;
+    color: rgb(242,228,138);
+  }
+}
+
+.footer {
+  background-color: #000;
 }
 
 hr {
@@ -87,16 +133,6 @@ h1.title.extra {
   margin: -12px 0 0;
   font-size: 3em;
 }
-
-.content h2 {
-  color: #00ffea;
-  font-size: 1.25em; 
-}
-
-.content h3 {
-  color: #00ffea;
-  font-size: 1em; 
-} 
 
 .button {
   color: #00ffea;
