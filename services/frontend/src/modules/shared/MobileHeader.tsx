@@ -25,7 +25,7 @@ class MobileHeader extends React.Component<Props, ReactState> {
 
   public render() {
 
-    const { identity, myWalletBalance, history, dispatchRequestScatterIdentity } = this.props
+    const { identity, myWalletBalance, history } = this.props
 
     const eosAccount = getEosAccount(identity)
 
@@ -48,13 +48,21 @@ class MobileHeader extends React.Component<Props, ReactState> {
         </div>
         : 
         <div className="navbar-signin-button">
-          <a className="button" onClick={dispatchRequestScatterIdentity}>
+          <a className="button" onClick={this.doSignIn}>
           SIGN IN
           </a>
         </div>
         } 
       </nav>
     )
+  }
+
+  private doSignIn = async () => {
+    const { history, dispatchRequestScatterIdentity } = this.props
+    const res = await dispatchRequestScatterIdentity()
+    if (res) {
+      history.push("/my-monsters")
+    }
   }
 }
 

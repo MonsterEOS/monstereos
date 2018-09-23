@@ -142,8 +142,9 @@ export const doLoadScatter = (scatter: any) => {
 
 export const doLoadIdentity = (identity: any) => async (dispatch: any) => {
   dispatch(actionLoadEosIdentity(identity))
-  dispatch(doLoadMyMonsters())
-  dispatch(doLoadMyWallet())
+  await dispatch(doLoadMyMonsters())
+  await dispatch(doLoadMyWallet())
+  return true
 }
 
 export const doLoadMyMonsters = () => async (
@@ -188,6 +189,7 @@ export const requestScatterIdentity = () => async (dispatch: any, getState: any)
   .then((identity: any) => {
     console.info("identity is ", identity)
     dispatch(doLoadIdentity(identity))
+    return true
   }).catch((error: any) => {
     if (error && error.message) {
       dispatch(pushNotification(error.message, NOTIFICATION_ERROR))
