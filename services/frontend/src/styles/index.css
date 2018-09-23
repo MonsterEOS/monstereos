@@ -581,6 +581,15 @@ td, th {
 .has-margin-top {
   margin-top: 16px; }
 
+.has-margin-right {
+  margin-right: 16px; }
+
+.has-margin-bottom {
+  margin-left: 16px; }
+
+.has-margin-left {
+  margin-left: 16px; }
+
 /* toast */
 .toast {
   position: fixed;
@@ -925,6 +934,17 @@ h1.title.extra {
   .button.is-danger:active {
     border-top-color: #f71000;
     background: #f71000; }
+
+.button.is-success {
+  border-top: 1px solid #92cf02;
+  background: #92cf02;
+  background: linear-gradient(to bottom, #b7f285, #92cf02); }
+  .button.is-success:hover {
+    border-top-color: #92cf02;
+    background: #92cf02; }
+  .button.is-success:active {
+    border-top-color: #92cf02;
+    background: #92cf02; }
 
 .card {
   background: linear-gradient(45deg, #071439 0%, #046c78 100%);

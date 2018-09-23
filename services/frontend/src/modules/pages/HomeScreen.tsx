@@ -17,7 +17,7 @@ const HomeScreen = (props: any) => {
   return (<PageContainer>
     <div>
       <Monster3DProfile
-          typeId={105}
+          typeId={"105"}
           path={monsterModelSrc(monster3dModel.model)}
           action={ActionType.IDLE}
           {...monster3dModel}

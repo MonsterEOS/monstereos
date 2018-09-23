@@ -188,6 +188,22 @@ h1.title.extra {
   }
 }
 
+.button.is-success {
+  border-top: 1px solid rgb(146,207,2);
+  background: rgb(146,207,2);
+  background: linear-gradient(to bottom, rgb(183,242,133), rgb(146,207,2));
+
+  &:hover {
+    border-top-color: rgb(146,207,2);
+    background: rgb(146,207,2);
+  }
+
+  &:active {
+    border-top-color: rgb(146,207,2);
+    background: rgb(146,207,2);
+  }
+}
+
 .card {
   background: linear-gradient(45deg, #071439 0%,#046c78 100%);
   border-radius: 5px;

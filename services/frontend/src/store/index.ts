@@ -156,7 +156,7 @@ export const doLoadMyMonsters = () => async (
   if (identity) {
     const account = getEosAccount(identity)
     const accountMonsters = await loadMonstersByOwner(account, globalConfig)
-    dispatch(actionLoadMyMonsters(accountMonsters))
+    return dispatch(actionLoadMyMonsters(accountMonsters))
   }
 }
 
