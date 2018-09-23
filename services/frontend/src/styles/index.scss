@@ -209,3 +209,9 @@ h1.title.extra {
     linear-gradient(to bottom, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0)) 1 100%;
   }
 }
+
+.home-monster {
+  text-align: center;
+  font-family: $logo-font;
+  font-size: 40px;
+}

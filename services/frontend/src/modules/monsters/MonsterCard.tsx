@@ -94,7 +94,7 @@ class MonsterCard extends React.Component<Props, {}> {
     return (
       <div style={{position: "absolute", marginLeft: -25, width: 160}}>
         <Monster3DProfile
-          typeId={monster3dModel.model}
+          typeId={monster.type}
           path={monsterModelSrc(monster3dModel.model)}
           action={getCurrentAction(monster, ActionType)}
           {...monster3dModel}
