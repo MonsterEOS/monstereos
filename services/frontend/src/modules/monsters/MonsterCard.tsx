@@ -5,9 +5,8 @@ import {
   // monsterImageSrc,
   monsterModelSrc,
   getCurrentAction,
-  getType3d
 } from "./monsters"
-import getConfig from "./monsterTypeConfiguration"
+import get3dModel from "../monsters/monster3DMatrix"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
@@ -25,7 +24,8 @@ interface Props {
   selected?: boolean,
   hideLink?: boolean,
   hideActions?: boolean,
-  customActions?: MonsterAction[]
+  customActions?: MonsterAction[],
+  halfSize?: boolean,
 }
 
 export interface MonsterAction {
@@ -37,20 +37,28 @@ class MonsterCard extends React.Component<Props, {}> {
 
   public render() {
 
-    const { monster, eosAccount, selected } = this.props
+    const { monster, eosAccount, selected, halfSize } = this.props
 
     const hasControl = eosAccount === monster.owner
 
     const selectedClass = selected ? "monster-selected" : ""
 
+    const columnSize = halfSize ? "is-half" : "is-one-third"
+
     return (
-      <div className="column monster-column">
-        <div className={`card ${selectedClass}`}>
+      <div className={`column ${columnSize}`}>
+        <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
-            {this.renderHeader()}
+            <div className="columns is-mobile">
+              <div className="column">
+                {this.renderMonster()}
+              </div>
+              <div className="column is-three-fifths">
+                {this.renderHeader()}
+                {!monster.deathAt && this.renderStats()}
+              </div>
+            </div>
           </div>
-          {this.renderMonster()}
-          {!monster.deathAt && this.renderStats()}
           {hasControl && this.renderFooter()}
         </div>
       </div>
@@ -84,22 +92,20 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const { monster } = this.props
 
-    const type3d = getType3d(monster.type)
-
-    const { position, rotation, cameraPosition } = getConfig(type3d)
+    const monster3dModel = get3dModel(monster.type)
 
     return (
-      <Monster3DProfile
-        typeId={type3d}
-        path={monsterModelSrc(type3d)}
-        action={getCurrentAction(monster, ActionType)}
-        position={position}
-        rotation={rotation}
-        cameraPosition={cameraPosition}
-        size={{ height: "228px" }}
-        background={{ alpha: 0 }}
-        zoom={false}
-      />
+      <div style={{position: "absolute", marginLeft: -25, width: 160}}>
+        <Monster3DProfile
+          typeId={monster.type.toString()}
+          path={monsterModelSrc(monster3dModel.model)}
+          action={getCurrentAction(monster, ActionType)}
+          {...monster3dModel}
+          size={{ height: "228px" }}
+          background={{ alpha: 0 }}
+          zoom={false}
+        />
+      </div>
     )
   }
 
@@ -115,7 +121,8 @@ class MonsterCard extends React.Component<Props, {}> {
     // const createdAtIso = createdAt.toLocaleString()
 
     const deathAt = moment(monster.deathAt)
-    const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
+    const deathAtDate = deathAt.format("MMMM Do YYYY")
+    const deathAtTime = deathAt.format("h:mm:ss a")
     const deathAtIso = deathAt.toLocaleString()
 
     const aliveDuration = (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
@@ -123,18 +130,25 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const headerContent =
       <React.Fragment>
-        <span className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
-          {monster.name}
-          <small className="is-pulled-right">#{monster.id}</small>
-        </span>
-        <br />
-        {monster.deathAt ?
-          <React.Fragment>
-            <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
-            <br />
-            <span className="is-6 has-text-danger"><time dateTime={deathAtIso}>DEAD IN {deathAtText}</time></span>
-          </React.Fragment>
-          : <span className="has-text-success">Is alive for {aliveDurationText}</span>
+        <div className={`monster-card-title ${monster.deathAt ? "dead" : ""}`}>
+          <div>
+            <div className="monster-name">{monster.name}</div>
+            <div className="monster-status">
+            {monster.deathAt ?
+              <p>
+                Stayed alive for {aliveDurationText}
+              </p>
+              : <p>Is alive for {aliveDurationText}</p>
+            }
+            </div>
+          </div>
+          <div className="monster-id">#{monster.id}</div>
+        </div>
+        { monster.deathAt > 0 &&
+        <div>
+          <p>Death Date:<br/> {deathAtDate}</p>
+          <p>Time of Death:<br/> <time dateTime={deathAtIso}>{deathAtTime}</time></p>
+        </div>
         }
       </React.Fragment>
 
@@ -157,17 +171,26 @@ class MonsterCard extends React.Component<Props, {}> {
 
     return (
       <div className="monster-card-stats">
-        <p className="is-large has-margin-top">
+        <div className="progress-bar red monster-hp-card">
+          <span style={{width: `${monster.health}%`}}>HP</span>
+        </div>
+        <p>Food</p>
+        <div className="progress-bar blue">
+          <span style={{width: `${monster.hunger}%`}} />
+        </div>
+        <p>Energy</p>
+        <div className="progress-bar green">
+          <span style={{width: `${monster.energy}%`}} />
+        </div>
+        {/* <p className="hp-card is-large has-margin-top">
           <progress className="progress is-danger" max="100" value={monster.health} data-label="HP" />
         </p>
-        <div className="columns is-multiline is-mobile">
-          <div className="column is-half">
-            <progress className="progress is-primary" max="100" value={monster.hunger} data-label="Food" />
-          </div>
-          <div className="column is-half">
-            <progress className="progress is-success" max="100" value={monster.energy} data-label="Energy" />
-          </div>
-        </div>
+        <p>
+          <progress className="food-card progress is-primary" max="100" value={monster.hunger} data-label="Food" />
+        </p>
+        <p>
+          <progress className="energy-card progress is-success" max="100" value={monster.energy} data-label="Energy" />
+        </p> */}
       </div>
     )
   }

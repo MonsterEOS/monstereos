@@ -57,6 +57,18 @@ td, th {
   margin-top: 16px;
 }
 
+.has-margin-right {
+  margin-right: 16px;
+}
+
+.has-margin-bottom {
+  margin-left: 16px;
+}
+
+.has-margin-left {
+  margin-left: 16px;
+}
+
 /* toast */
 .toast {
   position: fixed;
@@ -113,6 +125,131 @@ progress:before {
   top: -2px;
   right: 8px;
   bottom: 1px;
+}
+
+.navbar-mobile {
+  width: 100%;
+  margin: 0px;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .navbar-brand {
+    width: 200px;
+
+    img {
+      width: 200px;
+      height: 45px;
+    }
+  }
+
+  .navbar-signin-button {
+    margin-right: 10px;
+  }
+
+  .navbar-profile-button {
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+
+    .navbar-profile-coin {
+      width: 45px;
+      height: 60px;
+
+      img {
+        position: absolute;
+        top: -2px;
+        right: -6px;
+        width: 60px;
+      }
+    }
+
+    .navbar-profile-data {
+      flex: 2;
+      height: 60px;
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+
+      .navbar-profile-account {
+        margin-top: 5px;
+        font-family: 'Montserrat', sans-serif;
+        color: $my-blue;
+        letter-spacing: -1px;
+      }
+
+      .navbar-profile-amount {
+        margin-top: -5px;
+        text-shadow: 2px 2px 5px black;
+      }
+    }
+  }
+}
+
+.vertical-separator {
+  width: 1px;
+  border-width: 0 1px 0 0;
+  border-right: 1px solid #dbdbdb;
+  border-image:
+  linear-gradient(to bottom, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0)) 1 100%;
+}
+
+.mobile-controls {
+  position: fixed;
+  z-index: 25;
+  background-color: $my-dark-blue;
+  width: 100%;
+  bottom: 0;
+  height: 55px;
+
+  hr {
+    margin: 0 0 8px;
+  }
+
+}
+
+.mobile-controls-wrapper {
+  padding: 5px 9px;
+}
+
+.navbar-controls-top {
+  flex: 2;
+  margin: 0 20px;
+  max-width: 770px;
+}
+  
+.mobile-controls-buttons {
+  display: flex;
+  justify-content: space-around;
+  height: 40px;
+
+  img {
+    height: 35px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  span {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    color: $my-blue;
+    text-transform: uppercase;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .vertical-separator {
+    height: 40px;
+  }
 }
 
 /* mobile */

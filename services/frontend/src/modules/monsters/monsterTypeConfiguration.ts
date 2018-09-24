@@ -1,97 +1,169 @@
 /**
  * ideal configuration for every monster 3D model.
  */
-export default (type: number) => {
-    switch (type) {
-        case 0:
+export default (model: string) => {
+    switch (model) {
+        case "baal":
             return {
-                position: { y: -50 },
-                rotation: { y: Math.PI },
-                cameraPosition: { z: -30 }
-            }
-        case 1:
-            return {
-                position: { y: -20 },
-                rotation: {},
-                cameraPosition: { z: -120 }
-            }
-        case 2:
-            return {
-                position: { y: -30, x: 20 },
-                rotation: { y: Math.PI },
-                cameraPosition: { z: -150 }
-            }
-        case 3:
-            return {
-                position: { y: 0 },
-                rotation: { y: Math.PI },
-                cameraPosition: { z: -340 }
-            }
-        case 4:
-            return {
-                position: { y: -110 },
-                rotation: { y: Math.PI * 1.1, x: 0.2 },
-                cameraPosition: { z: -800 }
-            }
-        case 5:
-            return {
-                position: { y: 0, x: 20 },
-                rotation: { y: Math.PI },
-                cameraPosition: { z: -150 }
-            }
-        case 6:
-            return {
-                position: { y: 0, x: 0 },
-                rotation: { y: Math.PI * 0.8 },
-                cameraPosition: { z: -80 }
-            }
-        case 7:
-            return {
-                position: { y: 10, x: 0 },
-                rotation: { y: Math.PI },
-                cameraPosition: { z: -200 }
-            }
-        case 8:
-            return {
-                position: { y: 0, x: 0 },
-                rotation: { y: Math.PI },
-                cameraPosition: { z: -165 }
-            }
-        case 9:
-            return {
-                position: { y: -30 },
-                rotation: { y: Math.PI },
-                cameraPosition: { z: -40 }
-            }
-        case 10:
-            return {
+                model,
                 position: { y: 0, x: 0 },
                 rotation: { y: 0 },
-                cameraPosition: { z: -75 }
-            }
-        case 11:
-            return {
-                position: { y: 0 },
-                rotation: { y: Math.PI * 0.9 },
                 cameraPosition: { z: -100 }
             }
-        case 12:
+        case "bear":
             return {
-                position: { y: -70, x: 0 },
-                rotation: { y: Math.PI },
-                cameraPosition: { z: -70 }
-            }
-        case 13:
-            return {
+                model,
                 position: { y: -10, x: 0 },
-                rotation: { y: Math.PI * 1.1 },
+                rotation: { y: 0.7 },
                 cameraPosition: { z: -250 }
             }
-        default:
+        case "butterfly":
             return {
+                model,
+                position: { y: -70, x: 0 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -70 }
+            }
+        case "cactus":
+            return {
+                model,
+                position: { y: 0 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -100 }
+            }
+        case "devil":
+            return {
+                model,
+                position: { y: -20 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -120 }
+            }
+        case "dwarf":
+            return {
+                model,
                 position: { y: 0, x: 0 },
-                rotation: { y: Math.PI },
+                rotation: { y: 0 },
+                cameraPosition: { z: -40 }
+            }
+        case "frog":
+            return {
+                model,
+                position: { y: 0, x: 0 },
+                rotation: { x: 0.5 },
+                cameraPosition: { z: 0 }
+            }
+        case "ghost":
+            return {
+                model,
+                position: { y: -30 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -40 }
+            }
+        case "minion":
+            return {
+                model,
+                position: { y: 0, x: 0 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -60 }
+            }
+        case "metal-guitar":
+            return {
+                model,
+                position: { y: 0, x: 0 },
+                rotation: { y: 1 },
+                cameraPosition: { z: -165 }
+            }
+        case "ness":
+            return {
+                model,
+                position: { y: 0 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -170 }
+            }
+        case "ogre":
+            return {
+                model,
+                position: { y: -30, x: -10 },
+                rotation: { y: 0 },
                 cameraPosition: { z: -150 }
+            }
+        case "rock-worm":
+            return {
+                model,
+                position: { y: -110, x: 10 },
+                rotation: { y: 0.7, x: 0.2 },
+                cameraPosition: { z: -350 }
+            }
+        case "rocky":
+            return {
+                model,
+                position: { y: 0, x: 20 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -150 }
+            }
+        case "scorpion":
+            return {
+                model,
+                position: { y: 30, x: -10 },
+                rotation: { y: 0.5, x: 0.5 },
+                cameraPosition: { z: -180 }
+            }
+        case "serpent":
+            return {
+                model,
+                position: { y: -20, x: -10 },
+                rotation: { y: 0.4 },
+                cameraPosition: { z: -120 }
+            }
+        case "spider":
+            return {
+                model,
+                position: { y: 0, x: -10 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -80 }
+            }
+        case "the-thing":
+            return {
+                model,
+                position: { y: 0, x: 0 },
+                rotation: { y: 0.4 },
+                cameraPosition: { z: -30 }
+            }
+        case "tree":
+            return {
+                model,
+                position: { y: 10, x: 0 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -200 }
+            }
+        case "troll":
+            return {
+                model,
+                position: { y: 10, x: 0 },
+                rotation: { y: 0.5 },
+                cameraPosition: { z: -300 }
+            }
+        case "tucan":
+            return {
+                model,
+                position: { y: -50 },
+                rotation: { y: 1, x: 0.4 },
+                cameraPosition: { z: -100 }
+            }
+        case "worm":
+            return {
+                model,
+                position: { y: 40, x: 0 },
+                rotation: { y: 0, x: 0.5 },
+                cameraPosition: { z: -80 }
+            }
+        default:
+            console.info("no model... getting default config")
+            return {
+                model,
+                position: { y: 0, x: 0 },
+                rotation: { y: 0 },
+                cameraPosition: { z: -40 }
             }
     }
 }

@@ -26,7 +26,7 @@ export const BattleHeader = ({
           }
           { allowConfirmation &&
             <div className="level-item ">
-              <a className="button is-success" onClick={allowConfirmation}>
+              <a className="button" onClick={allowConfirmation}>
                 I'm Ready
               </a>
             </div>

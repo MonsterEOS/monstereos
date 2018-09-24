@@ -12,32 +12,39 @@ interface Props {
 }
 
 interface ReactState {
-  selectedMonsters: number[]
+  selectedMonsters: number[],
+  monstersOffset: number, 
+  monstersLimit: number,
 }
 
 class BattleMonsterPickModal extends React.Component<Props, {}> {
 
-  public state: ReactState = { selectedMonsters: [] }
+  public state: ReactState = { 
+    selectedMonsters: [],
+    monstersOffset: 0, 
+    monstersLimit: 6,
+  }
 
   public render() {
 
     const { closeModal, myMonsters } = this.props
+    const { monstersOffset, monstersLimit } = this.state
 
     const monsters = getAvailableMonstersToBattle(myMonsters)
 
     const footerButtons = [
-      <button
+      <a
         key="submit"
-        className="button is-success"
+        className="button"
         onClick={this.handleSubmit}>
         Submit
-      </button>,
-      <button
+      </a>,
+      <a
         key="cancel"
-        className="button is-light"
+        className="button is-danger"
         onClick={() => closeModal()}>
         Cancel
-      </button>
+      </a>
     ]
 
     return (
@@ -47,11 +54,40 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
         footerButtons={footerButtons}>
         <p className="has-text-info"><small><em>Only Alive, Awake and Fed Monsters with more than 30% Energy can Join a Battle</em></small></p>
         <div className="columns is-multiline">
-          {monsters.map(this.renderMonsterCard)}
+          {monsters.slice(monstersOffset, monstersOffset + monstersLimit)
+            .map(this.renderMonsterCard)}
         </div>
         {monsters.length < 1 && <p className="has-text-danger">Ooops... Looks like you have no Monsters available to battle</p>}
+
+        {this.renderPagination(monstersOffset, monstersLimit, monsters.length)}
       </Modal>
     )
+  }
+
+  private renderPagination = (
+    offset: number, 
+    limit: number, 
+    total: number) => {
+
+    if (offset + limit < total || offset > 0) {
+      return <div className="has-margin-bottom">
+          <div className="is-pulled-right">
+            {offset > 0 && 
+              <a className="button has-margin-right"
+                onClick={() => this.setState({monstersOffset: offset - limit})}>
+                Back
+              </a>}
+            {offset + limit < total && 
+              <a className="button"
+                onClick={() => this.setState({monstersOffset: offset + limit})}>
+                Next</a>
+            }
+          </div>
+          <div style={{clear: "both"}} />
+        </div>
+    } else {
+      return null
+    }
   }
 
   private renderMonsterCard = (monster: MonsterProps) => {
@@ -71,6 +107,7 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
       customActions={customActions}
       monster={monster}
       selected={isSelected}
+      halfSize
       hideActions
       hideLink />
   }

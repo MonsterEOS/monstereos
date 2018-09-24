@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Query } from "react-apollo"
 
-import TitleBar from "../shared/TitleBar"
 import { QUERY_TOP_COLLECTORS } from "./ranking.gql"
 
 interface ReactState {
@@ -23,7 +22,6 @@ class TopCollectorsRank extends React.Component<{}, ReactState> {
     const {loadMore} = this.state
 
     return <div className="rank">
-      <TitleBar title="Top Collectors Players" />
       <Query query={QUERY_TOP_COLLECTORS} variables={variables}>
         {({data, loading, fetchMore}) => {
 

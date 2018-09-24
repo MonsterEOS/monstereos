@@ -2,7 +2,6 @@ import * as React from "react"
 import { Query } from "react-apollo"
 import { Link } from "react-router-dom"
 
-import TitleBar from "../shared/TitleBar"
 import { QUERY_TOP_BATTLE_MONSTERS } from "./ranking.gql"
 import { monsterImageSrc } from "../monsters/monsters"
 
@@ -25,7 +24,6 @@ class TopBattleMonstersRank extends React.Component<{}, ReactState> {
     const {loadMore} = this.state
 
     return <div className="rank">
-      <TitleBar title="Top Battle Monsters" />
       <Query query={QUERY_TOP_BATTLE_MONSTERS} variables={variables}>
         {({data, loading, fetchMore}) => {
 

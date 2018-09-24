@@ -87,10 +87,10 @@ export const calcMonsterStats = (
 }
 
 export const getCurrentAction = (monster: MonsterProps, ActionType: any) => {
-  if (monster.isSleeping) {
-    return ActionType.SLEEPING
-  } else if (monster.deathAt) {
+  if (monster.deathAt) {
     return ActionType.DEAD
+  } else if (monster.isSleeping) {
+    return ActionType.SLEEPING
   }
   return ActionType.IDLE
 }
@@ -108,5 +108,5 @@ export const getType3d = (typeId: number) => {
 export const monsterImageSrc = (typeId: number) =>
   (`/images/monsters/monster-${typeId}.png`)
 
-export const monsterModelSrc = (typeId: number) =>
-  (`/models/monsters/monster-${typeId}.gltf`)
+export const monsterModelSrc = (model: string) =>
+  (`/models/monsters/${model}.gltf`)
