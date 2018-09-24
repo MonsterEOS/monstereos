@@ -199,7 +199,6 @@ class BattleArena extends React.Component<Props, ReactState> {
         enemyMonster={monsterModelSrc(enemyModel)}
         size={{ width: "100%", height: "100%" }}
         background={{ alpha: 1 }}
-        enableGrid
       />
       {this.renderHpBars(monsters)}
       {this.renderHpNotifications(monsters)}
