@@ -42,7 +42,7 @@ interface ReactState {
 
 class BattleScreen extends React.Component<Props, ReactState> {
 
-  private refreshHandler: any = undefined
+  private refreshHandler: any = 0
 
   constructor(props: Props) {
     super(props)
@@ -66,7 +66,10 @@ class BattleScreen extends React.Component<Props, ReactState> {
   }
 
   public componentWillUnmount() {
-    clearTimeout(this.refreshHandler)
+    if (this.refreshHandler) {
+      clearTimeout(this.refreshHandler)
+      this.refreshHandler = 0
+    }
   }
 
   public render() {
@@ -111,10 +114,9 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
     const isOver = arena.phase === BATTLE_PHASE_FINISHED
 
-    const myTurn = arena.commits[0].player === identity
+    // const myTurn = arena.commits[0].player === identity
 
     const battleCountdown = getBattleCountdown(arena, globalConfig)
-    const mobileCountdownText = battleCountdown > 0 ? battleCountdown : "Attack!"
 
     return (
       <PageContainer isShort>
@@ -142,16 +144,11 @@ class BattleScreen extends React.Component<Props, ReactState> {
           selectedElementId={selectedAttackElementId}
           elements={elements}
           winner={winner}
+          battleCountdown={battleCountdown}
           monsterTypes={monsterTypes!} />
         }
         {/* mobile controls */}
         <div className="is-hidden-tablet">
-        {arena.phase === BATTLE_PHASE_GOING &&
-          <div className={`mobile-arena-countdown ${myTurn || battleCountdown < 0 ? "has-text-success" : "has-text-danger"}`}>
-            {battleCountdown > 0 ? (myTurn ? "Your turn " : "Enemy turn ") : ""}
-            {mobileCountdownText}
-          </div>
-        }
         {(!isMyBattle || isOver) &&
           <Link className="mobile-arena-back" to="/arenas">
             Back to Arenas
@@ -180,6 +177,10 @@ class BattleScreen extends React.Component<Props, ReactState> {
     const { match: {params: { host } } } = this.props
     const { isOver, arena } = this.state
 
+    if (!host) {
+      return
+    }
+
     try {
       const newArena = await loadArenaByHost(host)
 
@@ -189,7 +190,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
           const currentArena = arena as Arena
           this.handleArenaNotifications(currentArena, newArena)
         }
-        
+
         this.setState({arena: newArena})
 
       } else if (arena !== null && arena !== undefined && arena.petsStats.length) {
@@ -298,7 +299,7 @@ const mapStateToProps = (state: State) => {
   return {
     globalConfig: state.globalConfig,
     scatter: state.scatter,
-    identity: getEosAccount(state.identity)
+    identity: getEosAccount(state.identity),
   }
 }
 

@@ -289,3 +289,10 @@ void pet::battlefinish(name host, name /* winner */) {
   _update_pet_config(pc);
 
 }
+
+// force removes a pet from petinbattles table
+void pet::battlepfdel( uuid pet_id, string /* reason */ ) {
+  auto itr_pet_battle = petinbattles.find(pet_id);
+  eosio_assert(itr_pet_battle != petinbattles.end(), "Invalid pet battle stat");
+  petinbattles.erase( itr_pet_battle );
+}

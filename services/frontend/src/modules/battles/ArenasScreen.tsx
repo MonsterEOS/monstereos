@@ -33,7 +33,7 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   public state = { arenas: [], showMonstersSelection: false, arenaHost: "" }
 
-  private refreshHandler: any = undefined
+  private refreshHandler: any = 0
 
   public componentDidMount() {
     this.refresh()
@@ -41,7 +41,10 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   }
 
   public componentWillUnmount() {
-    clearTimeout(this.refreshHandler)
+    if (this.refreshHandler) {
+      clearTimeout(this.refreshHandler)
+      this.refreshHandler = 0
+    }
   }
 
   public render() {
@@ -99,25 +102,24 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   }
 
   private refresh = async () => {
-    const { dispatchPushNotification } = this.props
     const { arenas: currentArenas } = this.state
 
     try {
       const arenas = await loadArenas()
 
       // start notifications after initial load
-      if (this.refreshHandler !== undefined) {
+      if (this.refreshHandler) {
         this.notifyNewArenas(currentArenas, arenas)
       }
 
       this.setState({arenas})
 
-      // refresh arenas each 5 seconds
-      this.refreshHandler = setTimeout(this.refresh, 5 * 1000)
     } catch (error) {
       console.error("Fail to load Arenas", error)
-      dispatchPushNotification("Fail to load Arenas")
     }
+
+    // refresh arenas each 5 seconds
+    this.refreshHandler = setTimeout(this.refresh, 5 * 1000)
   }
 
   private notifyNewArenas(currentArenas: Arena[], newArenas: Arena[]) {

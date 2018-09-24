@@ -60,6 +60,7 @@ public:
     // void battleselpet ( name host, name player, uuid pet_id );
     void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
     void battlefinish ( name host, name winner );
+    void battlepfdel  ( uuid pet_id, string reason );
 
     // market interface
     void orderask(uuid pet_id, name new_owner, asset amount, uint32_t until);

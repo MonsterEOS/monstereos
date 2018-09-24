@@ -17,6 +17,41 @@ export interface Arena {
   phase: number
 }
 
+// adjust below vars to have a dummy arena at /arenas/dummy
+export const testDummyArena = (): Arena => {
+
+  const player = "leordeveosio"
+  const petId = 5612
+
+  return {
+    host: "dummy",
+    mode: 1,
+    startedAt: Date.now() - (1000 * 60 * 5),
+    lastMoveAt: Date.now() - (1000 * 25),
+    phase: BATTLE_PHASE_GOING,
+    petsStats: [{
+      pet_id: petId,
+      pet_type: 35,
+      player,
+      hp: 100,
+    }, {
+      pet_id: 1234,
+      pet_type: 99,
+      player: "dummy",
+      hp: 3,
+    }],
+    commits: [{
+      player,
+      commitment: "qwertyuiop",
+      randoms: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+    },{
+      player: "dummy",
+      commitment: "zxcvbnm",
+      randoms: [0, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    }]
+  }
+}
+
 export interface Element {
   id: number
   name: string
