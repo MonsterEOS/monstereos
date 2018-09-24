@@ -87,10 +87,10 @@ export const calcMonsterStats = (
 }
 
 export const getCurrentAction = (monster: MonsterProps, ActionType: any) => {
-  if (monster.isSleeping) {
-    return ActionType.SLEEPING
-  } else if (monster.deathAt) {
+  if (monster.deathAt) {
     return ActionType.DEAD
+  } else if (monster.isSleeping) {
+    return ActionType.SLEEPING
   }
   return ActionType.IDLE
 }
