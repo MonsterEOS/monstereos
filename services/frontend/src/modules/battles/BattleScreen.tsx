@@ -184,12 +184,13 @@ class BattleScreen extends React.Component<Props, ReactState> {
       const newArena = await loadArenaByHost(host)
 
       if (newArena) {
-        this.setState({arena: newArena})
 
         if (arena !== undefined) {
           const currentArena = arena as Arena
           this.handleArenaNotifications(currentArena, newArena)
         }
+        
+        this.setState({arena: newArena})
 
       } else if (arena !== null && arena !== undefined && arena.petsStats.length) {
         const confirmedArena = arena as Arena

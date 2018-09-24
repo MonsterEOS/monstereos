@@ -951,6 +951,17 @@ h1.title.extra {
     border-top-color: #92cf02;
     background: #92cf02; }
 
+.button.is-warning {
+  border-top: 1px solid #ffdc38;
+  background: #ffdc38;
+  background: linear-gradient(to bottom, #eae6bf, #ffdc38); }
+  .button.is-warning:hover {
+    border-top-color: #ffdc38;
+    background: #ffdc38; }
+  .button.is-warning:active {
+    border-top-color: #ffdc38;
+    background: #ffdc38; }
+
 .card, .arena-header > .box {
   background: linear-gradient(45deg, #071439 0%, #046c78 100%);
   border-radius: 5px;

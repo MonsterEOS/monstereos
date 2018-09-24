@@ -208,6 +208,22 @@ h1.title.extra {
   }
 }
 
+.button.is-warning {
+  border-top: 1px solid rgb(255,220,56);
+  background: rgb(255,220,56);
+  background: linear-gradient(to bottom, rgb(234,230,191), rgb(255,220,56));
+
+  &:hover {
+    border-top-color: rgb(255,220,56);
+    background: rgb(255,220,56);
+  }
+
+  &:active {
+    border-top-color: rgb(255,220,56);
+    background: rgb(255,220,56);
+  }
+}
+
 .card, .arena-header>.box {
   background: linear-gradient(45deg, #071439 0%,#046c78 100%);
   border-radius: 5px;
