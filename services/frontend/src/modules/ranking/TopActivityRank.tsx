@@ -3,7 +3,7 @@ import { Query } from "react-apollo"
 import { Link } from "react-router-dom"
 
 import { QUERY_TOP_ACTIVITY } from "./ranking.gql"
-import { monsterImageSrc } from "../monsters/monsters"
+// import { monsterImageSrc } from "../monsters/monsters"
 
 interface ReactState {
   loadMore:boolean
@@ -35,19 +35,19 @@ class TopActivityRank extends React.Component<{}, ReactState> {
 
           const monsters = allVrankingActives ? allVrankingActives.edges : []
 
-          const onLoadMore = () => {            
-            
+          const onLoadMore = () => {
+
             fetchMore({
               variables: {
                 offset: monsters.length
               },
-              updateQuery: (prev, { fetchMoreResult }) => {                
-                if (!fetchMoreResult) { 
+              updateQuery: (prev, { fetchMoreResult }) => {
+                if (!fetchMoreResult) {
                   this.setState({loadMore:false})
-                  return prev 
-                }              
+                  return prev
+                }
                 this.setState({loadMore:fetchMoreResult.allVrankingActives.edges.length === variables.limit })
-                return Object.assign({}, prev, {allVrankingActives : 
+                return Object.assign({}, prev, {allVrankingActives :
                   Object.assign({}, prev.allVrankingActives, {edges:[...prev.allVrankingActives.edges, ...fetchMoreResult.allVrankingActives.edges]})
                   })
             }})
@@ -68,7 +68,7 @@ class TopActivityRank extends React.Component<{}, ReactState> {
               <tr key={index}>
                 <td>{index+1}.</td>
                 <td>
-                  <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" />
+                  {/* <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" /> */}
                   <Link to={`/monster/${node.id}`}>{node.petName} <small>#{node.id}</small></Link>
                 </td>
                 <td>{node.actions}</td>
@@ -83,7 +83,7 @@ class TopActivityRank extends React.Component<{}, ReactState> {
                 onClick={onLoadMore}>
                 Load more
               </a>
-            </footer> 
+            </footer>
           }
         </div>
         }}
