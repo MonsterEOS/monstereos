@@ -315,11 +315,13 @@
       color: #DAA520;
       text-shadow: none;
       background-image: linear-gradient(35deg, #ffdc38 0%, #eae6bf 50%, #ffdc38 100%);
-      color: transparent;
       -webkit-background-clip: text;
-      background-clip: text; }
+      -webkit-text-fill-color: transparent; }
   .monster-card .hp-card {
     height: 40px; }
+  .monster-card .price {
+    font-weight: 700;
+    color: #DAA520; }
 
 .monster-card-stats {
   margin: 0;
@@ -333,7 +335,8 @@
   height: 35px !important; }
 
 .monster-selected {
-  background-color: greenyellow; }
+  background-color: #842076 !important;
+  background: linear-gradient(45deg, #071439 0%, #842076 100%) !important; }
 
 /* mobile */
 @media screen and (max-width: 768px) {
@@ -950,7 +953,8 @@ h1.title.extra {
   background: linear-gradient(45deg, #071439 0%, #046c78 100%);
   border-radius: 5px;
   border: 1px solid #8affe7;
-  box-shadow: 0px 0px 20px 1px #8affe7; }
+  box-shadow: 0px 0px 20px 1px #8affe7;
+  color: #fff; }
 
 .card-footer {
   border-top: none;
@@ -993,6 +997,9 @@ h1.title.extra {
   .modal-card .modal-card-foot {
     display: flex;
     justify-content: space-around; }
+
+.label {
+  color: #fff; }
 
 .home-monster {
   text-align: center;

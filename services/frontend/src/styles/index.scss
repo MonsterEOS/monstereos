@@ -209,6 +209,7 @@ h1.title.extra {
   border-radius: 5px;
   border: 1px solid $my-blue;
   box-shadow: 0px 0px 20px 1px $my-blue;
+  color: #fff;
 }
 
 .card-footer {
@@ -271,8 +272,9 @@ h1.title.extra {
   }
 }
 
-
-
+.label {
+  color: #fff;
+}
 
 .home-monster {
   text-align: center;

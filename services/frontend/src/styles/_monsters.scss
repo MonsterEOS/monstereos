@@ -98,12 +98,19 @@
       color: 	#DAA520;
       text-shadow: none;
 
-      @include text-gradient(map-get($gradients, golden));
+      background-image: map-get($gradients, golden);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
   }
 
   .hp-card {
     height: 40px;
+  }
+
+  .price {
+    font-weight: 700;
+    color: 	#DAA520;
   }
   
 }
@@ -134,7 +141,8 @@
 // }
 
 .monster-selected {
-  background-color: greenyellow;
+  background-color: $my-purple!important;
+  background: linear-gradient(45deg, #071439 0%, $my-purple 100%)!important;
 }
 
 /* mobile */

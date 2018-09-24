@@ -26,18 +26,18 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
     const monsters = getAvailableMonstersToBattle(myMonsters)
 
     const footerButtons = [
-      <button
+      <a
         key="submit"
-        className="button is-success"
+        className="button"
         onClick={this.handleSubmit}>
         Submit
-      </button>,
-      <button
+      </a>,
+      <a
         key="cancel"
-        className="button is-light"
+        className="button is-danger"
         onClick={() => closeModal()}>
         Cancel
-      </button>
+      </a>
     ]
 
     return (

@@ -40,18 +40,18 @@ class NewOrderModal extends React.Component<Props, {}> {
     const { name, monster, amount } = this.state
 
     const footerButtons = [
-      <button
+      <a
         key="submit"
-        className="button is-success"
+        className="button"
         onClick={this.createOrder}>
         Submit
-      </button>,
-      <button
+      </a>,
+      <a
         key="cancel"
-        className="button is-light"
+        className="button is-danger"
         onClick={() => closeModal(false)}>
         Cancel
-      </button>
+      </a>
     ]
 
     const title =  this.props.initialMonster ? "Update Order" : "Create a New Sell Order"
@@ -63,7 +63,7 @@ class NewOrderModal extends React.Component<Props, {}> {
         footerButtons={footerButtons}>
         <div>
           <div className="field">
-            <label className="label is-large">Monster Name</label>
+            <label className="label">Monster Name</label>
             <div className="control has-icons-left">
               <div className="select is-fullwidth">
                 <select 
@@ -82,7 +82,7 @@ class NewOrderModal extends React.Component<Props, {}> {
             </div>
           </div>
           <div className="field">
-            <label className="label is-large">Value in EOS</label>
+            <label className="label">Value in EOS</label>
             <div className="control has-icons-left has-icons-right">
               <input
                 className="input is-large"
@@ -98,7 +98,7 @@ class NewOrderModal extends React.Component<Props, {}> {
             </div>
           </div>
           <div className="field">
-            <label className="label is-large">Propose to New Owner (optional)</label>
+            <label className="label">Propose to New Owner (optional)</label>
             <div className="control has-icons-left has-icons-right">
               <input
                 className="input is-large"
