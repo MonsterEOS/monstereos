@@ -98,6 +98,10 @@ html, body {
     border: 1px solid $my-yellow;
     border-width: 0 0 1px;
   }
+
+  a {
+    color: $my-blue;
+  }
   
 }
 
@@ -280,4 +284,13 @@ h1.title.extra {
   text-align: center;
   font-family: $logo-font;
   font-size: 40px;
+}
+
+.title.rank {
+  text-align: center;
+  font-size: 44px;
+  font-weight: 700;
+  background-image: map-get($gradients, golden);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

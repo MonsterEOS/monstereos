@@ -868,6 +868,8 @@ html, body {
     color: #f2e48a !important;
     border: 1px solid #f2e48a;
     border-width: 0 0 1px; }
+  .content table a {
+    color: #8affe7; }
 
 a {
   color: #f2e48a; }
@@ -1005,3 +1007,11 @@ h1.title.extra {
   text-align: center;
   font-family: "Freckle Face", cursive;
   font-size: 40px; }
+
+.title.rank {
+  text-align: center;
+  font-size: 44px;
+  font-weight: 700;
+  background-image: linear-gradient(35deg, #ffdc38 0%, #eae6bf 50%, #ffdc38 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; }

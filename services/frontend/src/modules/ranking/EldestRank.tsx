@@ -3,7 +3,6 @@ import { Query } from "react-apollo"
 import * as moment from "moment"
 import { Link } from "react-router-dom"
 
-import TitleBar from "../shared/TitleBar"
 import { QUERY_ELDEST_RANK } from "./ranking.gql"
 import { monsterImageSrc } from "../monsters/monsters"
 
@@ -24,7 +23,6 @@ class EldestRank extends React.Component<{}, ReactState> {
     const {loadMore} = this.state
 
     return <div className="rank">
-      <TitleBar title="Eldest Alive Monsters" />
       <Query query={QUERY_ELDEST_RANK} variables={variables}>
         {({data, loading, fetchMore}) => {
 
