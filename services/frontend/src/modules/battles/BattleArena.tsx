@@ -72,24 +72,6 @@ const elementButton = (
     </a>)
 }
 
-const hpBar = (hpValue: number, monsterName: string, isMyMonster: boolean) => {
-  const hpClass = hpValue > 65 ? "is-success" :
-    hpValue > 30 ? "is-warning" : "is-danger"
-
-  return (
-    <progress
-      key={monsterName}
-      className={`progress ${hpClass} ` +
-        `${isMyMonster ? "my-monster-hp" : "enemy-monster-hp"}`}
-      value={hpValue}
-      data-label={monsterName}
-      max={100}
-    >
-      {hpValue}%
-    </progress>
-  )
-}
-
 const winnerBanner = (winner: string, isWinner?: boolean) => {
   const status = isWinner === undefined ?
     ["has-text-info", `${winner} WON!`] :
@@ -198,7 +180,7 @@ class BattleArena extends React.Component<Props, ReactState> {
       return <span className="loading-message">Loading...</span>
     }
 
-    const monsters: any = this.getFightingMonsters(petsStats, identity)
+    const monsters: FightingMonsters = this.getFightingMonsters(petsStats, identity)
 
     if (!(monsters.myMonster && monsters.enemyMonster)) {
       return <span className="loading-message">Loading...</span>
@@ -206,9 +188,6 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     const { model: myModel } = get3dModel(monsters.myMonster.pet_type)
     const { model: enemyModel } = get3dModel(monsters.enemyMonster.pet_type)
-
-    // const myMonsterType3D = getType3d(monsters.myMonster.pet_type)
-    // const enemyMonsterType3D = getType3d(monsters.enemyMonster.pet_type)
 
     const myTurn = isBattleGoing &&
       (arena.commits[0].player === identity ||
@@ -220,7 +199,7 @@ class BattleArena extends React.Component<Props, ReactState> {
         enemyMonster={monsterModelSrc(enemyModel)}
         size={{ width: "100%", height: "100%" }}
         background={{ alpha: 1 }}
-        zoom
+        enableGrid
       />
       {this.renderHpBars(monsters)}
       {this.renderHpNotifications(monsters)}
@@ -246,17 +225,35 @@ class BattleArena extends React.Component<Props, ReactState> {
     }, {} as FightingMonsters)
   }
 
-  private renderHpBars = (monsters: any) => {
+  private renderHpBars = (monsters: FightingMonsters) => {
     const { identity } = this.props
     return Object.keys(monsters).map(
       monster => {
         const { hp, player } = monsters[monster]
-        return hpBar(hp, player, player === identity)
+        return this.hpBar(hp, player, player === identity)
       }
     )
   }
 
-  private renderHpNotifications = (monsters: any) => {
+  private hpBar(hpValue: number, monsterName: string, isMyMonster: boolean) {
+    const hpClass = hpValue > 65 ? "is-success" :
+      hpValue > 30 ? "is-warning" : "is-danger"
+
+    return (
+      <progress
+        key={monsterName}
+        className={`progress ${hpClass} ` +
+          `${isMyMonster ? "my-monster-hp" : "enemy-monster-hp"}`}
+        value={hpValue}
+        data-label={monsterName}
+        max={100}
+      >
+        {hpValue}%
+    </progress>
+    )
+  }
+
+  private renderHpNotifications = (monsters: FightingMonsters) => {
     const { identity } = this.props
     return Object.keys(monsters).map(
       monster => {
