@@ -49,17 +49,41 @@ class MyWalletScreen extends React.Component<Props, ReactState> {
 
     return (
       <PageContainer>
-        <p className="has-text-centered">
-          <a className="button is-danger" 
+        <div className="columns">
+          <div className="column">
+            <h2>My Wallet</h2>
+            <p>Your current in-app balance is {myWalletBalance}.</p>
+            <p className="has-text-info">
+              We are working to have a nice economic flow for in-app purchases, never ever being a PAY-TO-WIN scheme. Please stay tuned in our <a href="https://discord.gg/gmrDtHF" target="_blank"><i className="fa fa-discord" /> Discord</a> to watch the news! Or...
+            </p>
+
+            <h3>MonsterEOS Tees</h3>
+
+            <p className="has-text-centered">If you really want to support us, buy our beautiful shirt and use it! Part of the funds go to our project, plus you will be helping us advertise just by wearing it! We also plan to put up a photos board of players wearing their MonsterEOS shirts. Are you going to miss out on that?</p>
+          </div>
+
+          <div className="column">
+            <p className="has-text-centered">
+              <a href="https://largeseafaringmammal.com/products/monstereos-x-lsm" target="_blank">
+                <img src="/images/monster-eos-shirts.png" height="360" alt="MonsterEOS T-Shirts" />
+              </a>
+            </p>
+
+            <p className="has-text-centered">
+              <a style={{minHeight: "5em"}} target="_blank" href="https://largeseafaringmammal.com/products/monstereos-x-lsm" className="button is-large is-success">
+              I want to Support the<br/>
+              Project! Get my<br/>
+              MonsterEOS T-Shirt!
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <p className="has-text-centered has-margin-top">
+          <a className="button is-danger has-margin-top" 
             onClick={() => dispatchDoLogout() && history.push("/")}>
             LOGOUT
           </a>
-        </p>
-
-        <h2>My Wallet</h2>
-        <p>Your current balance is {myWalletBalance}.</p>
-        <p className="has-text-info">
-          We are working to have a nice economic flow for in-app purchases, never ever being a PAY-TO-WIN scheme. Please stay tuned in our Discord to watch the news!
         </p>
       </PageContainer>
     )
