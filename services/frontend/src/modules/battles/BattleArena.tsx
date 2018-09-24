@@ -204,7 +204,8 @@ class BattleArena extends React.Component<Props, ReactState> {
       {this.renderHpBars(monsters)}
       {this.renderHpNotifications(monsters)}
       <div className="battle-buttons-container">
-        {myTurn && this.attackButtons(monsters.myMonster)}
+        {myTurn ? this.attackButtons(monsters.myMonster) :
+        isBattleGoing ? <span>Waiting for Opponent Turn</span> : null}
         {myTurn && (selectedElementId !== undefined &&
           selectedElementId >= 0) && this.confirmAttackButton()}
       </div>
@@ -227,29 +228,37 @@ class BattleArena extends React.Component<Props, ReactState> {
 
   private renderHpBars = (monsters: FightingMonsters) => {
     const { identity } = this.props
-    return Object.keys(monsters).map(
-      monster => {
+    
+    const hps = Object.keys(monsters).map(
+      (monster, index) => {
         const { hp, player } = monsters[monster]
-        return this.hpBar(hp, player, player === identity)
+        return this.hpBar(hp, player, player === identity, index+1)
       }
     )
+
+    return <div className="arena top-bar">{hps}</div>
   }
 
-  private hpBar(hpValue: number, monsterName: string, isMyMonster: boolean) {
-    const hpClass = hpValue > 65 ? "is-success" :
-      hpValue > 30 ? "is-warning" : "is-danger"
+  private hpBar(hpValue: number, monsterName: string, isMyMonster: boolean, index: number) {
+    // const hpClass = hpValue > 65 ? "is-success" :
+    //   hpValue > 30 ? "is-warning" : "is-danger"
 
-    return (
-      <progress
-        key={monsterName}
-        className={`progress ${hpClass} ` +
-          `${isMyMonster ? "my-monster-hp" : "enemy-monster-hp"}`}
-        value={hpValue}
-        data-label={monsterName}
-        max={100}
-      >
-        {hpValue}%
-    </progress>
+    return ( 
+      <div className={`progress-bar red monster-hp-card hp-bar-${index}`}>
+        <span style={{width: `${hpValue}%`}} />
+        <p>{monsterName}</p>
+      </div>
+
+      // <progress
+      //   key={monsterName}
+      //   className={`progress ${hpClass} ` +
+      //     `${isMyMonster ? "my-monster-hp" : "enemy-monster-hp"}`}
+      //   value={hpValue}
+      //   data-label={monsterName}
+      //   max={100}
+      // >
+      //   {hpValue}%
+      // </progress>
     )
   }
 

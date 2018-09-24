@@ -117,7 +117,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
     const mobileCountdownText = battleCountdown > 0 ? battleCountdown : "Attack!"
 
     return (
-      <PageContainer>
+      <PageContainer isShort>
         <BattleHeader
           battleText={getBattleText(arena)}
           host={arena.host}
