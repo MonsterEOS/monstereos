@@ -682,16 +682,35 @@ progress:before {
   height: 55px; }
   .mobile-controls hr {
     margin: 0 0 8px; }
-  .mobile-controls .mobile-controls-wrapper {
-    padding: 5px 9px; }
-  .mobile-controls .mobile-controls-buttons {
-    display: flex;
-    justify-content: space-around;
+
+.mobile-controls-wrapper {
+  padding: 5px 9px; }
+
+.navbar-controls-top {
+  flex: 2;
+  margin: 0 20px;
+  max-width: 770px; }
+
+.mobile-controls-buttons {
+  display: flex;
+  justify-content: space-around;
+  height: 40px; }
+  .mobile-controls-buttons img {
+    height: 35px;
+    vertical-align: middle;
+    margin-right: 6px; }
+  .mobile-controls-buttons a:hover {
+    text-decoration: none; }
+  .mobile-controls-buttons span {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    color: #8affe7;
+    text-transform: uppercase;
+    text-decoration: none; }
+    .mobile-controls-buttons span:hover {
+      text-decoration: none; }
+  .mobile-controls-buttons .vertical-separator {
     height: 40px; }
-    .mobile-controls .mobile-controls-buttons img {
-      height: 35px; }
-    .mobile-controls .mobile-controls-buttons .vertical-separator {
-      height: 40px; }
 
 /* mobile */
 @media screen and (max-width: 768px) {

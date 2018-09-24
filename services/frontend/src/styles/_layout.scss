@@ -192,24 +192,48 @@ progress:before {
     margin: 0 0 8px;
   }
 
-  .mobile-controls-wrapper {
-    padding: 5px 9px;
-  }
+}
+
+.mobile-controls-wrapper {
+  padding: 5px 9px;
+}
+
+.navbar-controls-top {
+  flex: 2;
+  margin: 0 20px;
+  max-width: 770px;
+}
   
-  .mobile-controls-buttons {
-    display: flex;
-    justify-content: space-around;
-    height: 40px;
+.mobile-controls-buttons {
+  display: flex;
+  justify-content: space-around;
+  height: 40px;
 
-    img {
-      height: 35px;
-    }
+  img {
+    height: 35px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
 
-    .vertical-separator {
-      height: 40px;
+  a:hover {
+    text-decoration: none;
+  }
+
+  span {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    color: $my-blue;
+    text-transform: uppercase;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
     }
   }
 
+  .vertical-separator {
+    height: 40px;
+  }
 }
 
 /* mobile */
