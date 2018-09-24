@@ -146,7 +146,13 @@ class BattleArena extends React.Component<Props, ReactState> {
 
   public render() {
 
-    const { arena, winner, identity } = this.props
+    const {
+      arena,
+      winner,
+      identity
+    } = this.props
+
+    console.info(isWatcher)
 
     const isWinner = isWatcher(arena, identity) ? undefined : winner === identity
 
@@ -225,7 +231,7 @@ class BattleArena extends React.Component<Props, ReactState> {
         background={{ alpha: 1 }}
       />
       {this.renderHpBars(monsters)}
-      <div className="mobile-arena-countdown">{battleCountdown}</div>
+      <div className={`mobile-arena-countdown ${!battleCountdown || battleCountdown <= 0 ? "expired" : ""}`}>{battleCountdown && battleCountdown > 0 ? battleCountdown : "00"}</div>
       {this.renderHpNotifications(monsters)}
       <div className="battle-buttons-container">
         {myTurn ? this.attackButtons(monsters.myMonster) :

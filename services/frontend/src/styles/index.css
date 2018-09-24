@@ -440,7 +440,8 @@
     font-size: 92px;
     margin: auto;
     margin-top: -100px;
-    text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black; }
+    text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+    text-align: center; }
   .battle-arena .enemy-monster {
     cursor: pointer; }
     .battle-arena .enemy-monster:hover, .battle-arena .enemy-monster.active {
@@ -558,6 +559,9 @@
   padding: 8px;
   width: 70px;
   text-align: center; }
+
+.mobile-arena-countdown.expired {
+  background-color: red; }
 
 /* mobile arena */
 @media screen and (max-width: 768px) {
