@@ -59,7 +59,9 @@ class MyWalletScreen extends React.Component<Props, ReactState> {
 
             <h3>MonsterEOS Tees</h3>
 
-            <p className="has-text-centered">If you really want to support us, buy our beautiful shirt and use it! Part of the funds go to our project, plus you will be helping us advertise just by wearing it! We also plan to put up a photos board of players wearing their MonsterEOS shirts. Are you going to miss out on that?</p>
+            <p className="has-text-centered">If you really want to support us, buy our beautiful shirt and use it! Part of the funds go to our project, plus you will be helping us advertise just by wearing it! We also plan to put up a photos board of players wearing their MonsterEOS shirts.</p>
+            
+            <p className="has-text-centered"><strong>Are you going to miss out on that?</strong></p>
           </div>
 
           <div className="column">
