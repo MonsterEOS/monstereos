@@ -284,10 +284,6 @@
 .home-monster {
   max-height: 300px !important; }
 
-.monster-column {
-  min-width: 310px;
-  max-width: 310px; }
-
 .monster-rank-icon {
   max-height: 80px;
   vertical-align: middle; }
@@ -337,11 +333,6 @@
 .monster-selected {
   background-color: #842076 !important;
   background: linear-gradient(45deg, #071439 0%, #842076 100%) !important; }
-
-/* mobile */
-@media screen and (max-width: 768px) {
-  .monster-column {
-    max-width: 400px; } }
 
 .monster-picks small {
   margin-left: 15px;

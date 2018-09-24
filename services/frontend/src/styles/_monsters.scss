@@ -56,11 +56,6 @@
   max-height: 300px !important;
 }
 
-.monster-column {
-  min-width: 310px;
-  max-width: 310px;
-}
-
 .monster-rank-icon {
   max-height: 80px;
   vertical-align: middle;
@@ -143,18 +138,4 @@
 .monster-selected {
   background-color: $my-purple!important;
   background: linear-gradient(45deg, #071439 0%, $my-purple 100%)!important;
-}
-
-/* mobile */
-@media screen and (max-width: 768px) {
-
-  .monster-column {
-    max-width: 400px;
-  }
-
-  // .monster-image {
-  //   // height: 150px !important;
-  //   min-height: 150px !important;
-  //   max-height: 150px !important;
-  // }
 }

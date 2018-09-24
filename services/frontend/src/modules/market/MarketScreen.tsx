@@ -34,7 +34,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
     showNewOrderModal: false,
     showNewBidModal: false,
     ordersOffset: 0, 
-    ordersLimit: 5,
+    ordersLimit: 6,
     orders: [],
   }
 

@@ -107,6 +107,7 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
       customActions={customActions}
       monster={monster}
       selected={isSelected}
+      halfSize
       hideActions
       hideLink />
   }

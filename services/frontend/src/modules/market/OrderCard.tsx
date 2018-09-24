@@ -70,7 +70,7 @@ class OrderCard extends React.Component<Props, ReactState> {
     }
 
     return (
-      <div className="column monster-column">
+      <div className="column is-one-third">
         <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
             <div className="columns is-mobile">

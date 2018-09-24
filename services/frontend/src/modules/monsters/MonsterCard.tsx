@@ -24,7 +24,8 @@ interface Props {
   selected?: boolean,
   hideLink?: boolean,
   hideActions?: boolean,
-  customActions?: MonsterAction[]
+  customActions?: MonsterAction[],
+  halfSize?: boolean,
 }
 
 export interface MonsterAction {
@@ -36,14 +37,16 @@ class MonsterCard extends React.Component<Props, {}> {
 
   public render() {
 
-    const { monster, eosAccount, selected } = this.props
+    const { monster, eosAccount, selected, halfSize } = this.props
 
     const hasControl = eosAccount === monster.owner
 
     const selectedClass = selected ? "monster-selected" : ""
 
+    const columnSize = halfSize ? "is-half" : "is-one-third"
+
     return (
-      <div className="column monster-column">
+      <div className={`column ${columnSize}`}>
         <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
             <div className="columns is-mobile">
