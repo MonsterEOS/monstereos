@@ -294,3 +294,12 @@ h1.title.extra {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.arena-header {
+  .title {
+    background-image: map-get($gradients, warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+  }
+}

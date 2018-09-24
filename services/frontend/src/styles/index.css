@@ -1015,3 +1015,9 @@ h1.title.extra {
   background-image: linear-gradient(35deg, #ffdc38 0%, #eae6bf 50%, #ffdc38 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent; }
+
+.arena-header .title {
+  background-image: linear-gradient(to bottom, #F2CD48 0%, #FD803F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center; }
