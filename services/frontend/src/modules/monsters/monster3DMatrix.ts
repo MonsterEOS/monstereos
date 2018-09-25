@@ -197,9 +197,8 @@ export const monsterDecors = {
 }
 
 export default (type: number, isDead = false) => {
-  const t = true ? 9999 : type
   let config: any
-  switch (t) {
+  switch (type) {
     case 0:
     case 1:
     case 2:
@@ -208,34 +207,93 @@ export default (type: number, isDead = false) => {
       }
       break
     case 3:
+      config = {
+        ...profileConfig("wolf"),
+        decor: monsterDecors.undead
+      }
+      break
     case 4:
+      config = {
+        ...profileConfig("wolf"),
+        decor: monsterDecors.iceblue
+      }
+      break
     case 5:
+      config = {
+        ...profileConfig("wolf"),
+        decor: monsterDecors.brown
+      }
+      break
     case 39:
+      config = {
+        ...profileConfig("wolf"),
+        decor: monsterDecors.neutral
+      }
+      break
     case 40:
+      config = {
+        ...profileConfig("wolf"),
+        decor: monsterDecors.fire
+      }
+      break
     case 41:
       config = {
-        ...profileConfig("wolf")
+        ...profileConfig("wolf"),
+        decor: monsterDecors.metal
       }
       break
     case 6:
+      config = {
+        ...profileConfig("serpent"),
+        decor: monsterDecors.green
+      }
+      break
     case 7:
+      config = {
+        ...profileConfig("serpent"),
+        decor: monsterDecors.earth
+      }
+      break
     case 8:
       config = {
-        ...profileConfig("serpent")
+        ...profileConfig("serpent"),
+        decor: monsterDecors.neutral
       }
       break
     case 9:
+      config = {
+        ...profileConfig("beetle"),
+        decor: monsterDecors.ice,
+      }
+      break
     case 10:
+      config = {
+        ...profileConfig("beetle"),
+        decor: monsterDecors.neutral,
+      }
+      break
     case 11:
       config = {
-        ...profileConfig("beetle")
+        ...profileConfig("beetle"),
+        decor: monsterDecors.light,
       }
       break
     case 12:
+      config = {
+        ...profileConfig("worm"),
+        decor: monsterDecors.fire,
+      }
+      break
     case 13:
+      config = {
+        ...profileConfig("worm"),
+        decor: monsterDecors.neutral,
+      }
+      break
     case 14:
       config = {
-        ...profileConfig("worm")
+        ...profileConfig("worm"),
+        decor: monsterDecors.metal,
       }
       break
     case 15:
@@ -257,10 +315,21 @@ export default (type: number, isDead = false) => {
       }
       break
     case 18:
+      config = {
+        ...profileConfig("butterfly"),
+        decor: monsterDecors.light
+      }
+      break
     case 19:
+      config = {
+        ...profileConfig("butterfly"),
+        decor: monsterDecors.neutral
+      }
+      break
     case 20:
       config = {
-        ...profileConfig("butterfly")
+        ...profileConfig("butterfly"),
+        decor: monsterDecors.metal
       }
       break
     case 21:
@@ -282,10 +351,21 @@ export default (type: number, isDead = false) => {
       }
       break
     case 24:
+      config = {
+        ...profileConfig("bad-chicken"),
+        decor: monsterDecors.ice
+      }
+      break
     case 25:
+      config = {
+        ...profileConfig("bad-chicken"),
+        decor: monsterDecors.neutral
+      }
+      break
     case 26:
       config = {
-        ...profileConfig("frog")
+        ...profileConfig("bad-chicken"),
+        decor: monsterDecors.metal
       }
       break
     case 27:
@@ -309,44 +389,55 @@ export default (type: number, isDead = false) => {
     case 30:
       config = {
         ...profileConfig("dwarf"),
-        decor: monsterDecors.wood
+        decor: monsterDecors.green
       }
       break
     case 31:
       config = {
         ...profileConfig("dwarf"),
-        decor: monsterDecors.red
+        decor: monsterDecors.purple
       }
       break
     case 32:
       config = {
         ...profileConfig("dwarf"),
-        decor: monsterDecors.neutral
+        decor: monsterDecors.poison
       }
       break
     case 36:
       config = {
         ...profileConfig("dwarf"),
-        decor: monsterDecors.green
+        decor: monsterDecors.wood
       }
       break
     case 37:
       config = {
         ...profileConfig("dwarf"),
-        decor: monsterDecors.purple
+        decor: monsterDecors.red
       }
       break
     case 38:
       config = {
         ...profileConfig("dwarf"),
-        decor: monsterDecors.poison
+        decor: monsterDecors.neutral
       }
       break
     case 33:
+      config = {
+        ...profileConfig("bad-chicken"),
+        decor: monsterDecors.fire
+      }
+      break
     case 34:
+      config = {
+        ...profileConfig("bad-chicken"),
+        decor: monsterDecors.water
+      }
+      break
     case 35:
       config = {
-        ...profileConfig("bad-chicken")
+        ...profileConfig("bad-chicken"),
+        decor: monsterDecors.purple
       }
       break
     case 42:
@@ -374,7 +465,7 @@ export default (type: number, isDead = false) => {
     case 49:
     case 50:
       config = {
-        ...profileConfig("penguin")
+        ...profileConfig("bad-chicken") // penguin
       }
       break
     case 51:
@@ -432,17 +523,39 @@ export default (type: number, isDead = false) => {
       }
       break
     case 57:
+      config = {
+        ...profileConfig("ness"),
+        decor: monsterDecors.earth,
+      }
+      break
     case 58:
+      config = {
+        ...profileConfig("ness"),
+        decor: monsterDecors.red,
+      }
+      break
     case 59:
       config = {
-        ...profileConfig("ness")
+        ...profileConfig("ness"),
+        decor: monsterDecors.purple,
       }
       break
     case 60:
+      config = {
+        ...profileConfig("tucan"),
+        decor: monsterDecors.undead,
+      }
+      break
     case 61:
+      config = {
+        ...profileConfig("tucan"),
+        decor: monsterDecors.fire,
+      }
+      break
     case 62:
       config = {
-        ...profileConfig("tucan")
+        ...profileConfig("tucan"),
+        decor: monsterDecors.purple,
       }
       break
     // case 63:
@@ -489,38 +602,93 @@ export default (type: number, isDead = false) => {
       }
       break
     case 69:
+      config = {
+        ...profileConfig("metal-guitar"),
+        decor: monsterDecors.undead,
+      }
+      break
     case 70:
+      config = {
+        ...profileConfig("metal-guitar"),
+        decor: monsterDecors.light,
+      }
+      break
     case 71:
       config = {
-        ...profileConfig("metal-guitar")
+        ...profileConfig("metal-guitar"),
+        decor: monsterDecors.neutral,
       }
       break
     case 72:
+      config = {
+        ...profileConfig("rock-worm"),
+        decor: monsterDecors.neutral
+      }
+      break
     case 73:
+      config = {
+        ...profileConfig("rock-worm"),
+        decor: monsterDecors.fire
+      }
+      break
     case 74:
       config = {
-        ...profileConfig("rock-worm")
+        ...profileConfig("rock-worm"),
+        decor: monsterDecors.undead
       }
       break
     case 75:
+      config = {
+        ...profileConfig("bad-chicken"), // spider
+        decor: monsterDecors.water,
+      }
+      break
     case 76:
+      config = {
+        ...profileConfig("bad-chicken"), // spider
+        decor: monsterDecors.fire,
+      }
+      break
     case 77:
       config = {
-        ...profileConfig("spider")
+        ...profileConfig("bad-chicken"), // spider
+        decor: monsterDecors.neutral,
       }
       break
     case 78:
+      config = {
+        ...profileConfig("bad-chicken"), // scorpion
+        decor: monsterDecors.fire,
+      }
+      break
     case 79:
+      config = {
+        ...profileConfig("bad-chicken"), // scorpion
+        decor: monsterDecors.water,
+      }
+      break
     case 80:
       config = {
-        ...profileConfig("scorpion")
+        ...profileConfig("bad-chicken"), // scorpion
+        decor: monsterDecors.undead,
       }
       break
     case 81:
+      config = {
+        ...profileConfig("the-thing"),
+        decor: monsterDecors.metal
+      }
+      break
     case 82:
+      config = {
+        ...profileConfig("the-thing"),
+        decor: monsterDecors.water
+      }
+      break
     case 83:
       config = {
-        ...profileConfig("the-thing")
+        ...profileConfig("the-thing"),
+        decor: monsterDecors.poison
       }
       break
     case 84:
@@ -578,10 +746,21 @@ export default (type: number, isDead = false) => {
       }
       break
     case 96:
+      config = {
+        ...profileConfig("cactus"),
+        decor: monsterDecors.fire
+      }
+      break
     case 97:
+      config = {
+        ...profileConfig("cactus"),
+        decor: monsterDecors.neutral
+      }
+      break
     case 98:
       config = {
-        ...profileConfig("cactus")
+        ...profileConfig("cactus"),
+        decor: monsterDecors.undead
       }
       break
     case 105:
@@ -589,18 +768,21 @@ export default (type: number, isDead = false) => {
     case 107:
     case 108:
       config = {
-        ...profileConfig("devil")
+        ...profileConfig("devil"),
+        decor: monsterDecors.neutral
       }
       break
     default: config = {
-      ...profileConfig("toad"),
-      decor: monsterDecors.fire
+      ...profileConfig("bad-chicken"),
+      decor: monsterDecors.neutral,
     }
   }
 
-  if (isDead) {
-    return { ...config, decor: monsterDecors.dead }
-  } else if (!config.decor) {
+  if (isDead && config.decor) {
+    config.decor.shader.saturation = 0.1
+  }
+
+  if (!config.decor) {
     return { ...config, decor: monsterDecors.neutral }
   } else {
     return config
