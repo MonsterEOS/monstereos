@@ -13,7 +13,7 @@ Many crypto-world games are based on a gambling scheme. These have a place in th
 
 We love the EOS Community and we know that we can build a better world together!
 
-## Connect to us!
+## Connect with us!
 
 Discord: https://discord.gg/gmrDtHF
 

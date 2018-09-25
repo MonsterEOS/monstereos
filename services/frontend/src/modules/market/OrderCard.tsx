@@ -163,7 +163,7 @@ class OrderCard extends React.Component<Props, ReactState> {
             <p>
               Stayed alive for {aliveDurationText}
             </p>
-            : <p>Is alive for {aliveDurationText}</p>
+            : <p>Has been alive for {aliveDurationText}</p>
           }
           </div>
         </div>

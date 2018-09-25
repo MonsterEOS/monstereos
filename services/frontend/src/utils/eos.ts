@@ -349,7 +349,7 @@ export const createBattle = async (
 ) => {
 
   const eosAccount = getEosAccount(scatter.identity)
-  await checkBattleResources(eosAccount)
+  await checkBattleResources(eosAccount).catch(trxError)
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
@@ -371,7 +371,7 @@ export const joinBattle = async(
 ) => {
 
   const eosAccount = getEosAccount(scatter.identity)
-  await checkBattleResources(eosAccount)
+  await checkBattleResources(eosAccount).catch(trxError)
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
