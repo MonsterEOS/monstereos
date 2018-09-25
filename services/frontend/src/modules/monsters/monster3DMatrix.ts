@@ -779,7 +779,7 @@ export default (type: number, isDead = false) => {
   }
 
   if (isDead && config.decor) {
-    config.decor.shader.saturation = 0.1
+    config.decor = monsterDecors.dead
   }
 
   if (!config.decor) {

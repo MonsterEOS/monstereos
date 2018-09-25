@@ -101,7 +101,9 @@ class OrderCard extends React.Component<Props, ReactState> {
     const { order } = this.props
     const monster = order.monster
 
-    const monster3dModel = get3dModel(monster.type, !!monster.deathAt)
+    const monster3dModel = get3dModel(monster.type, monster.deathAt > 0)
+
+    console.info(monster)
 
     return (
       <div style={{position: "absolute", marginLeft: -25, width: 160}}>
