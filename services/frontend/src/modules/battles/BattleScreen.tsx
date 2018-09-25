@@ -66,7 +66,9 @@ class BattleScreen extends React.Component<Props, ReactState> {
   }
 
   public componentWillUnmount() {
+    console.info("unmounting battle-screen")
     if (this.refreshHandler) {
+      console.info("erasing blattle-screen refresh handler")
       clearTimeout(this.refreshHandler)
       this.refreshHandler = 0
     }
@@ -173,7 +175,6 @@ class BattleScreen extends React.Component<Props, ReactState> {
   }
 
   private refresh = async () => {
-    const { dispatchPushNotification } = this.props
     const { match: {params: { host } } } = this.props
     const { isOver, arena } = this.state
 
@@ -214,12 +215,13 @@ class BattleScreen extends React.Component<Props, ReactState> {
       }
 
       // TODO: implement websockets
-      if (!isOver) {
-        this.refreshHandler = setTimeout(this.refresh, 1000)
-      }
     } catch (error) {
       console.error("Fail to load Arena", error)
       // dispatchPushNotification("Fail to load Arena")
+    }
+
+    if (!isOver) {
+      this.refreshHandler = setTimeout(this.refresh, 1000)
     }
   }
 

@@ -41,7 +41,9 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   }
 
   public componentWillUnmount() {
+    console.info("unmounting arena")
     if (this.refreshHandler) {
+      console.info("erasing arena refresh handler")
       clearTimeout(this.refreshHandler)
       this.refreshHandler = 0
     }
@@ -163,8 +165,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
     const { scatter, dispatchPushNotification, history, identity } = this.props
     createBattle(scatter, 1, pets)
       .then(() => {
-        setTimeout(() => history.push(`/arenas/${identity}`), 500)
         dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
+        history.push(`/arenas/${identity}`)
       })
       .catch((err: any) => {
         dispatchPushNotification(`Fail to Create Battle ${err.eosError}`, NOTIFICATION_ERROR)
@@ -175,8 +177,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
     const { scatter, dispatchPushNotification, history } = this.props
     joinBattle(scatter, host, pets)
       .then(() => {
-        setTimeout(() => history.push(`/arenas/${host}`), 500)
         dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
+        history.push(`/arenas/${host}`)
       })
       .catch((err: any) => {
         dispatchPushNotification(`Fail to Join Battle ${err.eosError}`, NOTIFICATION_ERROR)
