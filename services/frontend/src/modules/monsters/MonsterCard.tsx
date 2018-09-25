@@ -236,7 +236,7 @@ class MonsterCard extends React.Component<Props, {}> {
   }
 
   private requestSleep = async () => {
-    this.petAction("bedpet", "bed")
+    this.petAction("bedpet", "put to bed")
   }
 
   private requestDestroy = async () => {
