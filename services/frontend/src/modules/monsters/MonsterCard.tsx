@@ -92,7 +92,7 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const { monster } = this.props
 
-    const monster3dModel = get3dModel(monster.type)
+    const monster3dModel = get3dModel(monster.type, !!monster.deathAt)
 
     return (
       <div style={{position: "absolute", marginLeft: -25, width: 160}}>

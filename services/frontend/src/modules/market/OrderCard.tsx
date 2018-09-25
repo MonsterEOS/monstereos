@@ -1,8 +1,8 @@
 import * as React from "react"
 import * as moment from "moment"
 import { OrderProps, amountOfAsset, amountOfAssetPlusFees } from "./market"
-import { 
-  // monsterImageSrc, 
+import {
+  // monsterImageSrc,
   monsterModelSrc,
   getCurrentAction,
 } from "../monsters/monsters"
@@ -101,17 +101,15 @@ class OrderCard extends React.Component<Props, ReactState> {
     const { order } = this.props
     const monster = order.monster
 
-    const { model, position, rotation, cameraPosition } = get3dModel(monster.type)
+    const monster3dModel = get3dModel(monster.type)
 
     return (
       <div style={{position: "absolute", marginLeft: -25, width: 160}}>
         <Monster3DProfile
-          typeId={model}
-          path={monsterModelSrc(model)}
+          typeId={monster3dModel.model}
+          path={monsterModelSrc(monster3dModel.model)}
           action={getCurrentAction(monster, ActionType)}
-          position={position}
-          rotation={rotation}
-          cameraPosition={cameraPosition}
+          {...monster3dModel}
           size={{ height: "228px" }}
           background={{ alpha: 0 }}
           zoom={false}
@@ -241,10 +239,10 @@ class OrderCard extends React.Component<Props, ReactState> {
     const amount = amountOfAsset(order.value)
     const fees = (amount * globalConfig.market_fee / 10000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-    const priceTxt = amount >= 1000000 ? 
-      amount.toLocaleString() : 
+    const priceTxt = amount >= 1000000 ?
+      amount.toLocaleString() :
       amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    
+
     return (
       <div className="card-content">
         <span className="is-6">
