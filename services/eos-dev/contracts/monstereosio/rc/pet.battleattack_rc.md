@@ -1,17 +1,16 @@
 ---
-title: Sleep Monster
-summary: Takes a Monster to Bed
+title: Battle Attack
+summary: Submit Attack turn of the Battle
 icon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74
 ---
 
-## Monster Sleep Terms & Conditions
+## Battle Arena Attack Terms & Conditions
 
-I, the owner of the pet {{pet_id}}, am putting this monster of
-id {{pet_id}} to sleep in order to rest and recover its energy.
+I, {{player}}, agree to submit an attack in {{host}} arena,
+using my pet of id {{pet_id}}, attacking the enemy pet of id
+{{pet_enemy_id}} using the element {{element}}.
 
-I understand that I cannot wake it again in the next 4 hours.
-
-I understand that monsters actions are not reversible after the
+I understand that monsters transfers are not reversible after the
 {{$transaction.delay_sec}} seconds or other delay as configured
 by my own permissions.
 

@@ -116,6 +116,7 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
     } catch (error) {
       console.error("Fail to load Arenas", error)
+      // dispatchPushNotification("Fail to load Arenas")
     }
 
     // refresh arenas each 5 seconds

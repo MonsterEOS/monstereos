@@ -71,7 +71,8 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private helpButton(showText: boolean) {
     return showText ?
-      (<Link className="navbar-item" to="/faq">
+      (<Link onClick={() => this.setState({activeMenu: false})}
+        className="navbar-item" to="/faq">
         <i className="fa fa-question-circle has-text-info" />
         Help
       </Link>) :
@@ -84,7 +85,8 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private homeButton() {
     return (
-      <Link className="navbar-item" to="/">
+      <Link onClick={() => this.setState({activeMenu: false})}
+        className="navbar-item" to="/">
         Home
       </Link>
     )
@@ -92,7 +94,8 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private myMonstersButton() {
     return (
-      <Link className="navbar-item" to="/my-monsters">
+      <Link onClick={() => this.setState({activeMenu: false})}
+        className="navbar-item" to="/my-monsters">
         <i className="fa fa-paw" />
         My Monsters
       </Link>
@@ -106,7 +109,8 @@ class TopMenu extends React.Component<Props, ReactState> {
       <div className="navbar-item">
         <div className="field is-grouped">
           <p className="control">
-            <Link className="button is-primary" to="/my-wallet">
+            <Link onClick={() => this.setState({activeMenu: false})}
+              className="button is-primary" to="/my-wallet">
               <span className="icon"><i className="fa fa-suitcase" /></span>
               <span>{myWalletBalance}</span>
             </Link>
@@ -118,7 +122,8 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private marketButton() {
     return (
-      <Link className="navbar-item" to="/market">
+      <Link onClick={() => this.setState({activeMenu: false})}
+        className="navbar-item" to="/market">
         <i className="fa fa-money" />
         Market
       </Link>
@@ -127,7 +132,8 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private rankButton() {
     return (
-      <Link className="navbar-item" to="/rank">
+      <Link onClick={() => this.setState({activeMenu: false})}
+        className="navbar-item" to="/rank">
         <i className="fa fa-trophy" />
         Rank
       </Link>
@@ -136,7 +142,8 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private arenasButton() {
     return (
-      <Link className="navbar-item" to="/arenas">
+      <Link onClick={() => this.setState({activeMenu: false})}
+        className="navbar-item" to="/arenas">
         <i className="fa fa-legal" />
         Arenas
       </Link>
@@ -156,7 +163,8 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private aboutButton() {
     return (
-      <Link className="navbar-item" to="/about">
+      <Link onClick={() => this.setState({activeMenu: false})}
+        className="navbar-item" to="/about">
         About
       </Link>
     )
