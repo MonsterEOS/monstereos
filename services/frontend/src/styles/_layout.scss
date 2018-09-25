@@ -25,8 +25,8 @@ form {
   }
 }
 
-.title, 
-.card-header-title, 
+.title,
+.card-header-title,
 .navbar-item,
 .content li {
   color: rgb(240, 240, 240);
@@ -37,7 +37,7 @@ form {
   color:  rgb(240, 240, 240);
 }
 
-.level-item span, 
+.level-item span,
 .tabs a,
 .content p,
 .content strong,
@@ -45,7 +45,7 @@ td, th {
   color: #dadada !important;
 }
 
-.level-item span, 
+.level-item span,
 .tabs a,
 .content p,
 .content strong,
@@ -216,7 +216,7 @@ progress:before {
   margin: 0 20px;
   max-width: 770px;
 }
-  
+
 .mobile-controls-buttons {
   display: flex;
   justify-content: space-around;
@@ -288,3 +288,101 @@ progress:before {
     font-size: 1em;
   }
 }
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  background-image: map-get($gradients, iceblue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position:relative;
+  text-transform: uppercase;
+  color: $my-blue;
+}
+
+.content h1 {
+  font-size: 1.75em;
+}
+
+.content h2 {
+  font-size: 1.45em;
+}
+
+.content h3 {
+  font-size: 1.15em;
+  margin: 15px 0 20px;
+  background-image: map-get($gradients, warm);
+}
+
+html, body {
+  font-family: 'Oswald', sans-serif;
+  background-color: $my-dark-blue;
+  color: #eee;
+  margin: 0;
+  padding: 0;
+}
+
+.logo-small-img {
+  max-width: 65%;
+}
+
+.navbar {
+  background-color: $my-dark-blue;
+  min-height: 60px; }
+
+.navbar .navbar-menu {
+  box-shadow: none;
+  border-bottom: 1px solid #eee; }
+
+.navbar-burger {
+  color: $my-blue;
+  margin-top: 12px; }
+
+.logo {
+  margin: 12px; }
+
+.section {
+  background-color: $my-dark-blue;
+  padding: 1rem; }
+
+.content table {
+  border-collapse: initial;
+  background: linear-gradient(45deg, #071439 0%, $my-purple 100%);
+  color: $my-yellow;
+  border-radius: 5px;
+  border: 1px solid $my-yellow;
+  box-shadow: 0px 0px 20px 1px $my-yellow;
+
+  td, th {
+    color: $my-yellow!important;
+    border: 1px solid $my-yellow;
+    border-width: 0 0 1px;
+  }
+
+  a {
+    color: $my-blue;
+  }
+
+}
+
+a {
+  color: $my-yellow;
+
+  &:hover {
+    color: $my-yellow;
+  }
+}
+
+.footer {
+  padding-bottom: 90px;
+  background-color: #000;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  margin: 8px 0 18px;
+  background-color: transparent;
+  background-image: linear-gradient(to right, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0));
+}
+

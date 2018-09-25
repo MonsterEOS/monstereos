@@ -7441,7 +7441,7 @@ react-markdown@^3.6.0:
 
 "react-monstereos-profile@https://github.com/VertexStudio/monster-profile-react-component":
   version "0.2.1"
-  resolved "https://github.com/VertexStudio/monster-profile-react-component#52b56136cda7effbc99ebcb466d5271fc5db8442"
+  resolved "https://github.com/VertexStudio/monster-profile-react-component#a0471ca2e0f55de8102939d8d3721c18940ee384"
   dependencies:
     react-jss "^8.6.1"
 
