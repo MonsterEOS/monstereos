@@ -57,6 +57,18 @@ void pet::battleleave(name host, name player) {
 
   eosio_assert(battle.player_exists(player), "player not in this battle");
 
+  // remove pets from battle
+  for (st_pet_stat ps : battle.pets_stats) {
+    if (ps.player != player) {
+      continue;
+    }
+
+    auto itr_pet_battle = petinbattles.find(ps.pet_id);
+    if (itr_pet_battle != petinbattles.end()) {
+      petinbattles.erase( itr_pet_battle );
+    }
+  }
+
   if (player == host) {
     tb_battles.erase( itr_battle );
 
@@ -69,8 +81,11 @@ void pet::battleleave(name host, name player) {
     battle.remove_player(player);
     tb_battles.modify(itr_battle, 0, [&](auto& r) {
       r.commits = battle.commits;
+      r.pets_stats = battle.pets_stats;
     });
   }
+
+
 
 }
 
@@ -288,4 +303,11 @@ void pet::battlefinish(name host, name /* winner */) {
   pc.battle_busy_arenas--;
   _update_pet_config(pc);
 
+}
+
+// force removes a pet from petinbattles table
+void pet::battlepfdel( uuid pet_id, string /* reason */ ) {
+  auto itr_pet_battle = petinbattles.find(pet_id);
+  eosio_assert(itr_pet_battle != petinbattles.end(), "Invalid pet battle stat");
+  petinbattles.erase( itr_pet_battle );
 }

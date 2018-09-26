@@ -63,7 +63,10 @@ void pet::createpet(name owner,
         pet.last_bed_at = pet.created_at;
         pet.last_awake_at = pet.created_at + pc.creation_awake;
 
-        pet.type = (pet.created_at + pet.id + owner) % pc.last_pet_type_id;
+        // we are considering only 105 monsters, the type 105 is
+        // monstereos devilish icon
+        pet.type = (pet.created_at + pet.id + owner) 
+            % (pc.last_pet_type_id - 3); 
 
         r = pet;
     });

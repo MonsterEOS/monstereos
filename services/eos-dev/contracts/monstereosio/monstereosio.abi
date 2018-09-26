@@ -404,6 +404,17 @@
         }
       ]
     },{
+      "name": "battlepfdel",
+      "base": "",
+      "fields": [{
+          "name": "pet_id",
+          "type": "uuid"
+        },{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
       "name": "orderask",
       "base": "",
       "fields": [{
@@ -608,7 +619,7 @@
   "actions": [{
       "name": "createpet",
       "type": "createpet",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Create Monster\nsummary: Give birth to a Monster\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Monster Creation Terms & Conditions\n\nI, {{owner}}, authorize the creation of a random monster,\nnamed as {{pet_name}}. I will love it and take care the best as I can.\n\nI understand that I cannot create another monster in the next\n60 (sixty) minute.\n\nI understand that monsters actions are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "updatepet",
       "type": "updatepet",
@@ -616,19 +627,19 @@
     },{
       "name": "feedpet",
       "type": "feedpet",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Feed Monster\nsummary: Feeds a Monster to keep him alive\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Monster Feed Terms & Conditions\n\nI, the owner of the pet {{pet_id}}, am feeding this monster of\nid {{pet_id}} in order to satisfy its needs and keep him alive for\nthe next 72 hours.\n\nI understand that I cannot feed it again in the next 3 hours.\n\nI understand that monsters actions are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "bedpet",
       "type": "bedpet",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Sleep Monster\nsummary: Takes a Monster to Bed\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Monster Sleep Terms & Conditions\n\nI, the owner of the pet {{pet_id}}, am putting this monster of\nid {{pet_id}} to sleep in order to rest and recover its energy.\n\nI understand that I cannot wake it again in the next 4 hours.\n\nI understand that monsters actions are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "awakepet",
       "type": "awakepet",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Wake Monster\nsummary: Wakes up a Monster in order to refill its energy\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n## Wake Terms & Conditions\nI, the owner of the pet {{pet_id}}, am waking this monster of\nid {{pet_id}} to be make him awake and active and respond to\nmy interactions.\nI understand that I cannot put it to sleep again in the\nnext 8 hours.\nI understand that monsters actions are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval."
     },{
       "name": "destroypet",
       "type": "destroypet",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Destroy Monster\nsummary: Delete and destroy a Monster forever\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Destroy Terms & Conditions\n\nI, the owner of the pet {{pet_id}}, am destroying this monster\nbecause I no longer have interest in taking care of it.\n\nI understand that this action cannot be undone, the monster will\nbe cruelty destroyed and no longer be accessible or recreated by\nanyone.\n\nI understand that monsters actions are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n\n"
     },{
       "name": "techrevive",
       "type": "techrevive",
@@ -640,35 +651,39 @@
     },{
       "name": "battlecreate",
       "type": "battlecreate",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Battle Create\nsummary: Creates a Monster Battle Arena\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Creation Terms & Conditions\n\nI, {{host}}, agree to host a battle arena in order to\nfight other players pets in a {{mode}}v{{mode}} mode.\n\nI also commit to submit my secret hash with my monsters\nselection and I agree to reveal it whenever my enemy player\njoin my arena, being ready to wait for his reveal and start\nthe fun battle.\n\nI understand that this arena is just a fun game mode that\nwill never hurt or kill my monster pet.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "battlejoin",
       "type": "battlejoin",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Battle Join\nsummary: Join in a Monster Battle Arena\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Join Terms & Conditions\n\nI, {{player}}, agree to join in {{host}} arena in order to\nfight my enemy with my monsters.\n\nI also commit to submit my secret hash with my monsters\nselection and I agree to reveal it as soon as it is possible,\nbeing ready to wait for my oponent reveal and start the fun battle.\n\nI understand that this arena is just a fun game mode that\nwill never hurt or kill my monster pet.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "battleleave",
       "type": "battleleave",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Battle Leave\nsummary: Leaves a Monster Battle Arena\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Leave Terms & Conditions\n\nI, {{player}}, agree to leave {{host}}'s arena\nbecause I no longer have interest in this battle.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "battlestart",
       "type": "battlestart",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Battle Start\nsummary: Reveal my Monster's Picks in order to Start the Battle\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Start Terms & Conditions\n\nI, {{player}}, agree to reveal and start my battle in\n{{host}}'s arena.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "battleattack",
       "type": "battleattack",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Battle Attack\nsummary: Submit Attack turn of the Battle\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Attack Terms & Conditions\n\nI, {{player}}, agree to submit an attack in {{host}} arena,\nusing my pet of id {{pet_id}}, attacking the enemy pet of id\n{{pet_enemy_id}} using the element {{element}}.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "battlefinish",
       "type": "battlefinish",
       "ricardian_contract": ""
     },{
+      "name": "battlepfdel",
+      "type": "battlepfdel",
+      "ricardian_contract": ""
+    },{
       "name": "orderask",
       "type": "orderask",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Ask Order\nsummary: Creates or Updates a Monster Sell Order\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Monster Sell Order Terms & Conditions\n\nI, the owner of the pet {{pet_id}}, am opening or updating\na sell order for the pet {{pet_id}}, willing to transfer the\nownership of it by the price of {{amount}}.\n\nThe new owner, {{new_owner}} will have total ownership of this monster,\nas soon as MonsterEOS receives the {{amount}} transfer, takes\ntheir market service fees and transfer the remaining amount to me.\n\nAfter that, this monster will go back to me in the next {{until}}\ndays - 0 days means that it's a permanent order and it will never go\nback to me, the old owner.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "removeask",
       "type": "removeask",
-      "ricardian_contract": ""
+      "ricardian_contract": "---\ntitle: Remove Order\nsummary: Removes a Monster Sell Order\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Monster Order Removal Terms & Conditions\n\nI, {{owner}}, the owner of the pet {{pet_id}}, am removing entirely\na sell order, willing to cancel the transfer of the ownership\nof it.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "claimpet",
       "type": "claimpet",

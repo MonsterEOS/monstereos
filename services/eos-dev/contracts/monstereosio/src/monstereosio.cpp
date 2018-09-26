@@ -38,6 +38,7 @@ EOSIO_ABI_EX(pet,
   (battlestart)
   (battleattack)
   (battlefinish)
+  (battlepfdel)
 
   // market
   (signup)
