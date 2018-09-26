@@ -34,6 +34,7 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   public state = { arenas: [], showMonstersSelection: false, arenaHost: "" }
 
   private refreshHandler: any = 0
+  private isMyMounted: boolean = true
 
   public componentDidMount() {
     this.refresh()
@@ -42,6 +43,7 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   public componentWillUnmount() {
     console.info("unmounting arena")
+    this.isMyMounted = false
     if (this.refreshHandler) {
       console.info("erasing arena refresh handler")
       clearTimeout(this.refreshHandler)
@@ -109,6 +111,10 @@ class ArenasScreen extends React.Component<Props, ReactState> {
     try {
       const arenas = await loadArenas()
 
+      if (!this.isMyMounted) {
+        return
+      }
+      
       // start notifications after initial load
       if (this.refreshHandler) {
         this.notifyNewArenas(currentArenas, arenas)

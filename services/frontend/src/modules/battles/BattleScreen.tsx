@@ -43,6 +43,7 @@ interface ReactState {
 class BattleScreen extends React.Component<Props, ReactState> {
 
   private refreshHandler: any = 0
+  private isMyMounted: boolean = true
 
   constructor(props: Props) {
     super(props)
@@ -67,6 +68,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
   public componentWillUnmount() {
     console.info("unmounting battle-screen")
+    this.isMyMounted = false
     if (this.refreshHandler) {
       console.info("erasing blattle-screen refresh handler")
       clearTimeout(this.refreshHandler)
@@ -184,6 +186,10 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
     try {
       const newArena = await loadArenaByHost(host)
+
+      if (!this.isMyMounted) {
+        return
+      }
 
       if (newArena) {
 
