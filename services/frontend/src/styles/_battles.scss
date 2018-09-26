@@ -108,21 +108,27 @@ $battle_arena_height: 600px;
       font-family: $logo-font;
       font-size: 30px;
       position: absolute;
+      left: 55%;
+      top: 55%;
       text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
       animation: 2s ease-out 0s 1 slideInFromBottom;
     }
+
+    .monster-hp-notification.enemy-monster-hp-notification {
+      top: 10%;
+    }
   }
 
-  .my-monster-hp-notification {
-    bottom: 100px;
-    left: 150px;
-  }
+  // .my-monster-hp-notification {
+  //   bottom: 100px;
+  //   left: 150px;
+  // }
 
-  .enemy-monster-hp-notification {
-    top: 0px;
-    right: 150px;
-    display: block;
-  }
+  // .enemy-monster-hp-notification {
+  //   top: 0px;
+  //   right: 150px;
+  //   display: block;
+  // }
 
   .battle-winner-banner {
     position: absolute;

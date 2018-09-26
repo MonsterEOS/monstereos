@@ -294,6 +294,22 @@ class BattleArena extends React.Component<Props, ReactState> {
 
   private hpNotification = (petId: number, isMyMonster: boolean) => {
     const { hpLog } = this.state
+    const { arena } = this.props
+
+    if (arena.host === "dummy" && hpLog.length < 3) {
+      const hpLogsCount = hpLog.filter(
+        (item) => (item.petId === petId &&
+          (Date.now() - item.time) < 5000)
+      ).length
+      
+      if (hpLogsCount < 1) {
+        hpLog.push({
+          petId,
+          hpDiff: Math.floor(Math.random() * 51) * -1,
+          time: Date.now()
+        })
+      }
+    }
 
     const notifications = hpLog
       .filter(
