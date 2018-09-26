@@ -40,11 +40,10 @@ class MobileHeader extends React.Component<Props, ReactState> {
         <div className="navbar-brand">
           <img alt="MonsterEOS" src="/images/ui/logo-small.png" />
         </div>
+        <div className="navbar-controls-top is-hidden-touch">{this.renderMenuButtons(eosAccount)}</div>
         { eosAccount ?
-        <React.Fragment>
-          <div className="navbar-controls-top is-hidden-touch">{this.renderMenuButtons()}</div>
-          <div 
-          className="navbar-profile-button" 
+          <div
+          className="navbar-profile-button"
           onClick={() => history.push(`/my-wallet`)}>
             <div className="navbar-profile-data">
               <div className="navbar-profile-account">{eosAccount || "loading..."}</div>
@@ -54,30 +53,28 @@ class MobileHeader extends React.Component<Props, ReactState> {
               <img src={eosIcon} />
             </div>
           </div>
-        </React.Fragment>
-        : 
+        :
         <div className="navbar-signin-button">
           <a className="button" onClick={this.doSignIn}>
           SIGN IN
           </a>
         </div>
-        } 
+        }
       </nav>
-      { eosAccount && 
       <div className="mobile-controls is-hidden-desktop">
         <hr/>
-        {this.renderMenuButtons()}
-      </div>}
+        {this.renderMenuButtons(eosAccount)}
+      </div>
       </React.Fragment>
     )
   }
 
-  private renderMenuButtons = () => {
+  private renderMenuButtons = (eosAccount : string) => {
     return <div className="mobile-controls-buttons">
-      <Link to="/my-monsters">
+      { eosAccount && <Link to="/my-monsters">
         <img src={navMonsterIcon} />
         <span className="is-hidden-mobile">My Monsters</span>
-      </Link>
+      </Link> }
       <div className="vertical-separator" />
       <Link to="/market">
         <img src={navMarketIcon} />

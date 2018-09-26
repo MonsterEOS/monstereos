@@ -4,7 +4,7 @@ import {
   SignatureProvider as e2SignatureProvider,
   Api as e2Api
 } from "eosjs2"
-import { parseBattlesFromChain, parseConfigFromChain, Arena } from "../modules/battles/battles"
+import { parseBattlesFromChain, parseConfigFromChain, Arena, testDummyArena } from "../modules/battles/battles"
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
@@ -170,6 +170,10 @@ export const loadMonstersContract = () => {
 }
 
 export const loadArenaByHost = (host: string): Promise<Arena> => {
+  if (host === "dummy") {
+    return Promise.resolve(testDummyArena())
+  }
+
   return e2DefaultRpc.get_table_rows({
     json: true,
     code: MONSTERS_ACCOUNT,
@@ -179,7 +183,7 @@ export const loadArenaByHost = (host: string): Promise<Arena> => {
     limit: 1
   }).then((res: any) => {
     const battles = res.rows.map(parseBattlesFromChain)
-    return battles.length ? battles[0] : null
+    return battles.length && battles[0].host === host ? battles[0] : null
   })
 }
 
@@ -345,7 +349,7 @@ export const createBattle = async (
 ) => {
 
   const eosAccount = getEosAccount(scatter.identity)
-  await checkBattleResources(eosAccount)
+  await checkBattleResources(eosAccount).catch(trxError)
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
@@ -367,7 +371,7 @@ export const joinBattle = async(
 ) => {
 
   const eosAccount = getEosAccount(scatter.identity)
-  await checkBattleResources(eosAccount)
+  await checkBattleResources(eosAccount).catch(trxError)
 
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)

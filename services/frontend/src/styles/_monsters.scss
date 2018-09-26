@@ -80,11 +80,11 @@
     align-items: center;
     width: 100%;
     margin-bottom: 12px;
-  
+
     .monster-status {
       font-size: 14px;
     }
-  
+
     .monster-id {
       // background: -webkit-linear-gradient(yellow, white, yellow);
       // -webkit-background-clip: text;
@@ -93,7 +93,7 @@
       color: 	#DAA520;
       text-shadow: none;
 
-      background-image: map-get($gradients, golden);
+      background-image: map-get($gradients, warm);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -107,7 +107,7 @@
     font-weight: 700;
     color: 	#DAA520;
   }
-  
+
 }
 
 
@@ -126,14 +126,11 @@
   height: 35px!important;
 }
 
-// .monster-header-link .title {
-//   // color: $blue;
-
-//   // &:hover {
-//   //   color: #000;
-//   // }
-
-// }
+.monster-header-link {
+  &:hover {
+    text-decoration: none;
+  }
+}
 
 .monster-selected {
   background-color: $my-purple!important;

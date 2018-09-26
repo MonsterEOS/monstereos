@@ -15,15 +15,17 @@ Many crypto-world games are based on a gambling scheme. These have a place in th
 
 We love the EOS Community and we know that we can build a better world together!
 
-## Connect to us!
+## Connect with us!
+
+Discord: https://discord.gg/gmrDtHF
+
+Twitter: https://twitter.com/MonsterEos
+
+Medium: https://medium.com/monstereos
 
 GitHub: https://github.com/MonsterEOS
 
 Telegram: https://t.me/joinchat/Hel9rgyuHrEwzsjG2SlUNQ
-
-Medium: https://medium.com/@monstereos
-
-Twitter: https://twitter.com/MonsterEos
 
 
 ## Official Collaborators & Shareholders

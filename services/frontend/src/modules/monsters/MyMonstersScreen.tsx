@@ -64,12 +64,12 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
   private renderMonsters() {
 
     const { myMonsters, dispatchDoLoadMyMonsters } = this.props
-    const { 
-      showNewMonsterModal, 
-      isLoading, 
-      aliveOffset, 
+    const {
+      showNewMonsterModal,
+      isLoading,
+      aliveOffset,
       aliveLimit,
-      deadOffset, 
+      deadOffset,
       deadLimit,
     } = this.state
 
@@ -108,9 +108,9 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
         {aliveMonsters && aliveMonsters.length ?
           <MonstersList
             monsters={aliveMonsters.slice(aliveOffset, aliveOffset + aliveLimit)}
-            update={refetchMonsters} /> : 
+            update={refetchMonsters} /> :
             isLoading ? <p>Loading Monsters...</p> :
-            <p>Looks like you don't have any alive monster.</p>}
+            <p>You currently have no living monsters.</p>}
 
         {this.renderPagination(aliveOffset, aliveLimit, aliveMonsters.length, "alive")}
 
@@ -132,8 +132,8 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
   }
 
   private renderPagination = (
-    offset: number, 
-    limit: number, 
+    offset: number,
+    limit: number,
     total: number,
     type: string) => {
 
@@ -150,12 +150,12 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
 
       return <div className="has-margin-bottom">
           <div className="is-pulled-right">
-            {offset > 0 && 
+            {offset > 0 &&
               <a className="button has-margin-right"
                 onClick={() => this.setState(backObj)}>
                 Back
               </a>}
-            {offset + limit < total && 
+            {offset + limit < total &&
               <a className="button"
                 onClick={() => this.setState(nextObj)}>
                 Next</a>
@@ -175,11 +175,11 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     console.info("fetching monsters")
     await dispatchDoLoadMyMonsters()
     console.info("monsters fetched")
-    
+
     this.setState({isLoading: false})
 
     // refresh monsters each minute
-    this.refreshHandler = setTimeout(this.refresh, 60 * 1000) 
+    this.refreshHandler = setTimeout(this.refresh, 60 * 1000)
   }
 }
 

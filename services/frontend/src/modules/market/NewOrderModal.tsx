@@ -41,16 +41,16 @@ class NewOrderModal extends React.Component<Props, {}> {
 
     const footerButtons = [
       <a
-        key="submit"
-        className="button"
-        onClick={this.createOrder}>
-        Submit
-      </a>,
-      <a
         key="cancel"
         className="button is-danger"
         onClick={() => closeModal(false)}>
         Cancel
+      </a>,
+      <a
+        key="submit"
+        className="button"
+        onClick={this.createOrder}>
+        Submit
       </a>
     ]
 
@@ -66,15 +66,15 @@ class NewOrderModal extends React.Component<Props, {}> {
             <label className="label">Monster Name</label>
             <div className="control has-icons-left">
               <div className="select is-fullwidth">
-                <select 
-                  className="is-large" 
+                <select
+                  className="is-large"
                   onChange={this.handleChangeMonster}
                   value={monster ? monster.id : ""}>
                   <option value="">Please select the Monster you want to Sell</option>
-                  {monsters.map((opt) => 
-                    <option 
+                  {monsters.map((opt) =>
+                    <option
                       key={opt.id}
-                      value={opt.id}>{opt.name} (#{opt.id})</option> 
+                      value={opt.id}>{opt.name} (#{opt.id})</option>
                   )}
                 </select>
               </div>
@@ -160,7 +160,7 @@ class NewOrderModal extends React.Component<Props, {}> {
       })
   }
 }
-  
+
 
 const mapStateToProps = (state: State) => {
   return {

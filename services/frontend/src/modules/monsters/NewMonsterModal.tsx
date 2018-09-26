@@ -26,16 +26,16 @@ class NewMonsterModal extends React.Component<Props, {}> {
 
     const footerButtons = [
       <a
-        key="submit"
-        className="button"
-        onClick={this.createPet}>
-        Submit
-      </a>,
-      <a
         key="cancel"
         className="button is-danger"
         onClick={() => closeModal(false)}>
         Cancel
+      </a>,
+      <a
+        key="submit"
+        className="button"
+        onClick={this.createPet}>
+        Submit
       </a>
     ]
 

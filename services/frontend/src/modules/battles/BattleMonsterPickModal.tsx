@@ -13,15 +13,15 @@ interface Props {
 
 interface ReactState {
   selectedMonsters: number[],
-  monstersOffset: number, 
+  monstersOffset: number,
   monstersLimit: number,
 }
 
 class BattleMonsterPickModal extends React.Component<Props, {}> {
 
-  public state: ReactState = { 
+  public state: ReactState = {
     selectedMonsters: [],
-    monstersOffset: 0, 
+    monstersOffset: 0,
     monstersLimit: 6,
   }
 
@@ -34,16 +34,16 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
 
     const footerButtons = [
       <a
-        key="submit"
-        className="button"
-        onClick={this.handleSubmit}>
-        Submit
-      </a>,
-      <a
         key="cancel"
         className="button is-danger"
         onClick={() => closeModal()}>
         Cancel
+      </a>,
+      <a
+        key="submit"
+        className="button"
+        onClick={this.handleSubmit}>
+        Submit
       </a>
     ]
 
@@ -65,19 +65,19 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
   }
 
   private renderPagination = (
-    offset: number, 
-    limit: number, 
+    offset: number,
+    limit: number,
     total: number) => {
 
     if (offset + limit < total || offset > 0) {
       return <div className="has-margin-bottom">
           <div className="is-pulled-right">
-            {offset > 0 && 
+            {offset > 0 &&
               <a className="button has-margin-right"
                 onClick={() => this.setState({monstersOffset: offset - limit})}>
                 Back
               </a>}
-            {offset + limit < total && 
+            {offset + limit < total &&
               <a className="button"
                 onClick={() => this.setState({monstersOffset: offset + limit})}>
                 Next</a>
