@@ -31,6 +31,13 @@ export default (model: string) => {
                 rotation: { y: 0 },
                 cameraPosition: { z: -100 }
             }
+        case "cerberus":
+            return {
+                model,
+                position: { y: 0 },
+                rotation: { y: 0.3, x: -0.2 },
+                cameraPosition: { z: -110 }
+            }
         case "devil":
             return {
                 model,
