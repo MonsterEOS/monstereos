@@ -56,47 +56,83 @@
   max-height: 300px !important;
 }
 
-.monster-column {
-  min-width: 310px;
-  max-width: 310px;
-}
-
 .monster-rank-icon {
   max-height: 80px;
   vertical-align: middle;
 }
 
-.monster-card-header {
-  font-size: 0.8rem;
-}
+.monster-card {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  text-shadow: 2px 2px 5px black;
 
-.monster-card-stats {
-  margin: 0 14px 14px;
-}
-
-.monster-header-link .title {
-  color: $blue;
-
-  &:hover {
-    color: #000;
+  .card-content {
+    padding: 0.5rem;
   }
 
+  .monster-card-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 24px;
+    color: #fff6bd;
+    text-shadow: 2px 2px 5px black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 12px;
+
+    .monster-status {
+      font-size: 14px;
+    }
+
+    .monster-id {
+      // background: -webkit-linear-gradient(yellow, white, yellow);
+      // -webkit-background-clip: text;
+      // -webkit-text-fill-color: transparent;
+      font-size: 22px;
+      color: 	#DAA520;
+      text-shadow: none;
+
+      background-image: map-get($gradients, warm);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  .hp-card {
+    height: 40px;
+  }
+
+  .price {
+    font-weight: 700;
+    color: 	#DAA520;
+  }
+
+}
+
+
+.monster-card-stats {
+  margin: 0;
+  padding: 0;
+  font-family: 'Oswald', sans-serif;
+  text-shadow: 2px 2px 5px black;
+
+  p {
+    margin-bottom: 2px!important;
+  }
+}
+
+.monster-hp-card {
+  height: 35px!important;
+}
+
+.monster-header-link {
+  &:hover {
+    text-decoration: none;
+  }
 }
 
 .monster-selected {
-  background-color: greenyellow;
-}
-
-/* mobile */
-@media screen and (max-width: 768px) {
-
-  .monster-column {
-    max-width: 400px;
-  }
-
-  // .monster-image {
-  //   // height: 150px !important;
-  //   min-height: 150px !important;
-  //   max-height: 150px !important;
-  // }
+  background-color: $my-purple!important;
+  background: linear-gradient(45deg, #071439 0%, $my-purple 100%)!important;
 }

@@ -33,7 +33,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   public state = { arenas: [], showMonstersSelection: false, arenaHost: "" }
 
-  private refreshHandler: any = undefined
+  private refreshHandler: any = 0
+  private isMyMounted: boolean = true
 
   public componentDidMount() {
     this.refresh()
@@ -41,7 +42,13 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   }
 
   public componentWillUnmount() {
-    clearTimeout(this.refreshHandler)
+    console.info("unmounting arena")
+    this.isMyMounted = false
+    if (this.refreshHandler) {
+      console.info("erasing arena refresh handler")
+      clearTimeout(this.refreshHandler)
+      this.refreshHandler = 0
+    }
   }
 
   public render() {
@@ -78,7 +85,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
       <PageContainer>
         <TitleBar
           notMobile
-          title="Welcome to the Arena!"
+          intro="WELCOME TO THE"
+          title="ARENA"
           menu={[arenasCounter, battleButton]} />
         {arenas.map((arena: Arena, index: number) =>
           <BattleCard
@@ -98,25 +106,29 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   }
 
   private refresh = async () => {
-    const { dispatchPushNotification } = this.props
     const { arenas: currentArenas } = this.state
 
     try {
       const arenas = await loadArenas()
 
+      if (!this.isMyMounted) {
+        return
+      }
+      
       // start notifications after initial load
-      if (this.refreshHandler !== undefined) {
+      if (this.refreshHandler) {
         this.notifyNewArenas(currentArenas, arenas)
       }
 
       this.setState({arenas})
 
-      // refresh arenas each 5 seconds
-      this.refreshHandler = setTimeout(this.refresh, 5 * 1000)
     } catch (error) {
       console.error("Fail to load Arenas", error)
       // dispatchPushNotification("Fail to load Arenas")
     }
+
+    // refresh arenas each 5 seconds
+    this.refreshHandler = setTimeout(this.refresh, 5 * 1000)
   }
 
   private notifyNewArenas(currentArenas: Arena[], newArenas: Arena[]) {
@@ -159,8 +171,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
     const { scatter, dispatchPushNotification, history, identity } = this.props
     createBattle(scatter, 1, pets)
       .then(() => {
-        setTimeout(() => history.push(`/arenas/${identity}`), 500)
         dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
+        history.push(`/arenas/${identity}`)
       })
       .catch((err: any) => {
         dispatchPushNotification(`Fail to Create Battle ${err.eosError}`, NOTIFICATION_ERROR)
@@ -171,8 +183,8 @@ class ArenasScreen extends React.Component<Props, ReactState> {
     const { scatter, dispatchPushNotification, history } = this.props
     joinBattle(scatter, host, pets)
       .then(() => {
-        setTimeout(() => history.push(`/arenas/${host}`), 500)
         dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
+        history.push(`/arenas/${host}`)
       })
       .catch((err: any) => {
         dispatchPushNotification(`Fail to Join Battle ${err.eosError}`, NOTIFICATION_ERROR)

@@ -86,5 +86,27 @@ export const calcMonsterStats = (
   return monster
 }
 
+export const getCurrentAction = (monster: MonsterProps, ActionType: any) => {
+  if (monster.deathAt) {
+    return ActionType.DEAD
+  } else if (monster.isSleeping) {
+    return ActionType.SLEEPING
+  }
+  return ActionType.IDLE
+}
+
+/**
+ * temporal getter while we have few 3D models
+ * @param typeId id of the monster
+ */
+export const getType3d = (typeId: number) => {
+  const availableTypes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
+  return typeId % availableTypes.length
+}
+  
+
 export const monsterImageSrc = (typeId: number) =>
   (`/images/monsters/monster-${typeId}.png`)
+
+export const monsterModelSrc = (model: string) =>
+  (`/models/monsters/${model}.gltf`)

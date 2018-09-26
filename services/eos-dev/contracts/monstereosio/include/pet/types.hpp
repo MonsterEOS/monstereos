@@ -164,6 +164,11 @@ namespace types {
       commits.erase(std::remove_if(commits.begin(), commits.end(),
         [&](auto& commit) { return commit.player == player; }),
         commits.end());
+
+      // remove player pets
+      pets_stats.erase(std::remove_if(pets_stats.begin(), pets_stats.end(),
+        [&](auto& pet) { return pet.player == player; }),
+        pets_stats.end());
     }
 
     void add_player(name const& player, checksum256 const& commitment) {

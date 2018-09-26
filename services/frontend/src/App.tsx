@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Switch, Route } from "react-router-dom"
 
-import TopMenu from "./modules/shared/TopMenu"
+import MobileHeader from "./modules/shared/MobileHeader"
 import HomeScreen from "./modules/pages/HomeScreen"
 import RankScreen from "./modules/ranking/RankScreen"
 import AboutScreen from "./modules/pages/AboutScreen"
@@ -24,7 +24,7 @@ class App extends React.Component<{}, {}> {
     return (
       <Switch >
         <React.Fragment>
-          <TopMenu />
+          <MobileHeader />
           <Toaster />
           <Route path="/" exact component={HomeScreen} />
           <Route path="/arenas" exact component={ArenasScreen} />

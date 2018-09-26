@@ -404,6 +404,17 @@
         }
       ]
     },{
+      "name": "battlepfdel",
+      "base": "",
+      "fields": [{
+          "name": "pet_id",
+          "type": "uuid"
+        },{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
       "name": "orderask",
       "base": "",
       "fields": [{
@@ -660,6 +671,10 @@
     },{
       "name": "battlefinish",
       "type": "battlefinish",
+      "ricardian_contract": ""
+    },{
+      "name": "battlepfdel",
+      "type": "battlepfdel",
       "ricardian_contract": ""
     },{
       "name": "orderask",

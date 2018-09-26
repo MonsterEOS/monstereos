@@ -67,6 +67,7 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
         return (
           <PageContainer>
             <TitleBar
+              notMobile
               title="Monster Details"
               menu={[subHeader]} />
 

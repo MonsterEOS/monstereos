@@ -1,12 +1,18 @@
 import * as React from "react"
 import * as moment from "moment"
 import { OrderProps, amountOfAsset, amountOfAssetPlusFees } from "./market"
-import { monsterImageSrc } from "../monsters/monsters"
+import {
+  // monsterImageSrc,
+  monsterModelSrc,
+  getCurrentAction,
+} from "../monsters/monsters"
+import get3dModel from "../monsters/monster3DMatrix"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
 import { trxClaimPetMarket, trxRemoveOrderMarket, MONSTERS_ACCOUNT, trxTokenTransfer } from "../../utils/eos"
 import { Link } from "react-router-dom"
+import { Monster3DProfile, ActionType } from "react-monstereos-profile"
 
 import NewOrderModal  from "./NewOrderModal"
 
@@ -64,13 +70,19 @@ class OrderCard extends React.Component<Props, ReactState> {
     }
 
     return (
-      <div className="column monster-column">
-        <div className={`card ${selectedClass}`}>
+      <div className="column is-one-third">
+        <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
-            {this.renderHeader()}
+            <div className="columns is-mobile">
+              <div className="column">
+                {this.renderMonster()}
+              </div>
+              <div className="column is-three-fifths">
+                {this.renderHeader()}
+                {this.renderOrderData()}
+              </div>
+            </div>
           </div>
-          {this.renderImage()}
-          {this.renderOrderData()}
           {this.renderFooter()}
         </div>
         {showNewOrderModal &&
@@ -84,28 +96,46 @@ class OrderCard extends React.Component<Props, ReactState> {
     )
   }
 
-  private renderImage() {
+  private renderMonster() {
 
     const { order } = this.props
     const monster = order.monster
 
-    const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
-    const monsterImage = monsterImageSrc(monster.type)
+    const monster3dModel = get3dModel(monster.type, monster.deathAt > 0)
 
-    const sleepingClass = monster.isSleeping ? "sleeping" : ""
-    const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
+    console.info(monster)
 
     return (
-      <div className="card-image">
-        <figure className={figureClass}>
-          <img
-            alt={monster.name}
-            className={sleepingClass}
-            src={monsterImage} />
-          {sleepingAnimation}
-        </figure>
+      <div style={{position: "absolute", marginLeft: -25, width: 160}}>
+        <Monster3DProfile
+          typeId={monster3dModel.model}
+          path={monsterModelSrc(monster3dModel.model)}
+          action={getCurrentAction(monster, ActionType)}
+          {...monster3dModel}
+          size={{ height: "228px" }}
+          background={{ alpha: 0 }}
+          zoom={false}
+        />
       </div>
     )
+
+    // const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
+    // const monsterImage = monsterImageSrc(monster.type)
+
+    // const sleepingClass = monster.isSleeping ? "sleeping" : ""
+    // const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
+
+    // return (
+    //   <div className="card-image">
+    //     <figure className={figureClass}>
+    //       <img
+    //         alt={monster.name}
+    //         className={sleepingClass}
+    //         src={monsterImage} />
+    //       {sleepingAnimation}
+    //     </figure>
+    //   </div>
+    // )
   }
 
   private renderHeader() {
@@ -117,30 +147,29 @@ class OrderCard extends React.Component<Props, ReactState> {
     // const createdAtText = createdAt.format("MMMM, D YYYY @ h:mm a")
     // const createdAtIso = createdAt.toLocaleString()
 
-    const deathAt = moment(monster.deathAt)
-    const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
-    const deathAtIso = deathAt.toLocaleString()
+    // const deathAt = moment(monster.deathAt)
+    // const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
+    // const deathAtIso = deathAt.toLocaleString()
 
     const aliveDuration = (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
     const aliveDurationText = moment.duration(aliveDuration).humanize()
 
     const headerContent =
-      <React.Fragment>
-        <span className={`title is-4 ${monster.owner !== order.user || monster.name.length === 0 ? "has-text-danger" : ""}`}>
-          {monster.name.length > 0 ? monster.name: "deleted monster"}
-          <small className="is-pulled-right">#{monster.id}</small>
-        </span>
+      <div className={`monster-card-title ${monster.deathAt ? "dead" : ""}`}>
+        <div>
+          <div className="monster-name">{monster.name}</div>
+          <div className="monster-status">
+          {monster.deathAt ?
+            <p>
+              Stayed alive for {aliveDurationText}
+            </p>
+            : <p>Has been alive for {aliveDurationText}</p>
+          }
+          </div>
+        </div>
+        <div className="monster-id">#{monster.id}</div>
         <br/>
-        { monster.deathAt ?
-        <React.Fragment>
-          <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
-          <br/>
-          <span className="is-6 has-text-danger"><time dateTime={deathAtIso}>DEAD IN {deathAtText}</time></span>
-        </React.Fragment>
-        : <span className="has-text-success">Is alive for {aliveDurationText}</span>
-        }
-        <br/>
-      </React.Fragment>
+      </div>
 
     return (
       <div className="monster-card-header">
@@ -211,7 +240,11 @@ class OrderCard extends React.Component<Props, ReactState> {
 
     const amount = amountOfAsset(order.value)
     const fees = (amount * globalConfig.market_fee / 10000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    
+
+    const priceTxt = amount >= 1000000 ?
+      amount.toLocaleString() :
+      amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
     return (
       <div className="card-content">
         <span className="is-6">
@@ -230,9 +263,10 @@ class OrderCard extends React.Component<Props, ReactState> {
           <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
         </div>}
         { amount > 0 &&
-        <div className="is-6">
-          <strong>Price: {amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EOS</strong><br/>
-          <strong>Order Fees: {fees} EOS</strong>
+        <div className="is-6 price">
+          <hr />
+          Price: {priceTxt} EOS<br/>
+          Fees: {fees} EOS
         </div>
         }
       </div>

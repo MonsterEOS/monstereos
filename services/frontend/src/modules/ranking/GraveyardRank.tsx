@@ -3,9 +3,8 @@ import { Query } from "react-apollo"
 import * as moment from "moment"
 import { Link } from "react-router-dom"
 
-import TitleBar from "../shared/TitleBar"
 import { QUERY_GRAVEYARD } from "./ranking.gql"
-import { monsterImageSrc } from "../monsters/monsters"
+// import { monsterImageSrc } from "../monsters/monsters"
 
 interface ReactState {
   loadMore: boolean
@@ -24,9 +23,8 @@ class GraveyardRank extends React.Component<{}, ReactState> {
     }
 
     const {loadMore} = this.state
-    
+
     return <div className="rank">
-      <TitleBar title="Graveyard" />
       <Query query={QUERY_GRAVEYARD} variables={variables}>
         {({data, loading, fetchMore}) => {
 
@@ -38,19 +36,19 @@ class GraveyardRank extends React.Component<{}, ReactState> {
 
           const monsters = data.allVrankingGraveyards ? data.allVrankingGraveyards.edges : []
 
-          const onLoadMore = () => {            
-            
+          const onLoadMore = () => {
+
             fetchMore({
               variables: {
                 offset: monsters.length
               },
-              updateQuery: (prev, { fetchMoreResult }) => {                
-                if (!fetchMoreResult) { 
+              updateQuery: (prev, { fetchMoreResult }) => {
+                if (!fetchMoreResult) {
                   this.setState({loadMore:false})
-                  return prev 
-                }              
+                  return prev
+                }
                 this.setState({loadMore:fetchMoreResult.allVrankingGraveyards.edges.length === variables.limit })
-                return Object.assign({}, prev, {allVrankingGraveyards : 
+                return Object.assign({}, prev, {allVrankingGraveyards :
                   Object.assign({}, prev.allVrankingGraveyards, {edges:[...prev.allVrankingGraveyards.edges, ...fetchMoreResult.allVrankingGraveyards.edges]})
                   })
             }})
@@ -63,7 +61,7 @@ class GraveyardRank extends React.Component<{}, ReactState> {
                 <th>#</th>
                 <th>Monster</th>
                 <th className="is-hidden-mobile">Owner</th>
-                <th>Birth</th>
+                <th className="is-hidden-mobile">Birth</th>
                 <th>Death</th>
               </tr>
             </thead>
@@ -72,11 +70,11 @@ class GraveyardRank extends React.Component<{}, ReactState> {
               <tr key={index}>
                 <td>{index+1}.</td>
                 <td>
-                  <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" />
+                  {/* <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" /> */}
                   <Link to={`/monster/${node.id}`}>{node.petName} <small>#{node.id}</small></Link>
                 </td>
                 <td className="is-hidden-mobile">{node.owner}</td>
-                <td>{moment(node.createdAt).format("MMMM, D YYYY @ h:mm a")}</td>
+                <td className="is-hidden-mobile">{moment(node.createdAt).format("MMMM, D YYYY @ h:mm a")}</td>
                 <td>{moment(node.deathAt).format("MMMM, D YYYY @ h:mm a")}</td>
               </tr>
             ))}
@@ -88,7 +86,7 @@ class GraveyardRank extends React.Component<{}, ReactState> {
                 onClick={onLoadMore}>
                 Load more
               </a>
-            </footer> 
+            </footer>
           }
         </div>
         }}

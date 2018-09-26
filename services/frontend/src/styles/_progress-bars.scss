@@ -1,0 +1,100 @@
+
+.progress-bar {
+  background-color: #1a1a1a;
+  height: 20px;
+  padding: 0px;
+  width: 100%;
+  margin: 2px 0 4px;         
+  border-radius: 10px;
+  box-shadow: 1px 5px #000 inset, 2px 2px 10px #333;
+  position: relative;
+}
+
+.progress-bar span {
+  display: inline-block;
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
+  transition: width .4s ease-in-out;
+  padding: 4px;
+  font-size: 18px;
+  color: #fff;
+  text-shadow: 2px 2px 5px black;
+}
+
+.progress-bar p {
+  position: absolute;
+  top: 0;
+  margin: 0;
+  padding: 5px 8px;
+  width: 100%;
+  color: #fff;
+  text-shadow: 2px 2px 5px black;
+  font-size: 18px;
+}
+
+.blue span {
+  background-color: #34c2e3;   
+}
+
+.red span {
+    background-color: rgb(239,61,35);
+    background-image: linear-gradient(to bottom, rgb(239,61,35), #fd9215);  
+}
+
+.orange span {
+    background-color: #fecf23;
+    background-image: linear-gradient(to bottom, #fecf23, #fd9215);  
+}   
+
+.green span {
+    background-color: #a5df41;
+    background-image: linear-gradient(to bottom, #a5df41, #4ca916);  
+}
+
+.stripes span {
+  background-size: 30px 30px;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%,
+    transparent 75%, transparent);            
+  
+  animation: animate-stripes 3s linear infinite;             
+}
+
+@keyframes animate-stripes {
+  0% {background-position: 0 0;} 100% {background-position: 60px 0;}
+}
+
+.shine span {
+  position: relative;
+}
+
+.shine span::after {
+  content: '';
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #fff;
+  border-radius: 3px;
+  animation: animate-shine 2s ease-out infinite;             
+}
+
+@keyframes animate-shine {
+  0% {opacity: 0; width: 0;}
+  50% {opacity: .5;}
+  100% {opacity: 0; width: 95%;}
+}
+
+.glow span {
+  box-shadow: 0 5px 5px rgba(255, 255, 255, .7) inset, 0 -5px 5px rgba(255, 255, 255, .7) inset;    
+  animation: animate-glow 1s ease-out infinite;          
+}
+
+@keyframes animate-glow {
+0% { box-shadow: 0 5px 5px rgba(255, 255, 255, .7) inset, 0 -5px 5px rgba(255, 255, 255, .7) inset;} 
+50% { box-shadow: 0 5px 5px rgba(255, 255, 255, .3) inset, 0 -5px 5px rgba(255, 255, 255, .3) inset;} 
+100% { box-shadow: 0 5px 5px rgba(255, 255, 255, .7) inset, 0 -5px 5px rgba(255, 255, 255, .7) inset;}
+}

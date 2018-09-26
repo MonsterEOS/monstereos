@@ -3,9 +3,8 @@ import { Query } from "react-apollo"
 import * as moment from "moment"
 import { Link } from "react-router-dom"
 
-import TitleBar from "../shared/TitleBar"
 import { QUERY_ELDEST_RANK } from "./ranking.gql"
-import { monsterImageSrc } from "../monsters/monsters"
+// import { monsterImageSrc } from "../monsters/monsters"
 
 interface ReactState {
   loadMore:boolean
@@ -24,7 +23,6 @@ class EldestRank extends React.Component<{}, ReactState> {
     const {loadMore} = this.state
 
     return <div className="rank">
-      <TitleBar title="Eldest Alive Monsters" />
       <Query query={QUERY_ELDEST_RANK} variables={variables}>
         {({data, loading, fetchMore}) => {
 
@@ -38,19 +36,19 @@ class EldestRank extends React.Component<{}, ReactState> {
 
           const monsters = allPets ? allPets.edges : []
 
-          const onLoadMore = () => {            
-            
+          const onLoadMore = () => {
+
             fetchMore({
               variables: {
                 offset: allPets.edges.length
               },
-              updateQuery: (prev, { fetchMoreResult }) => {                
-                if (!fetchMoreResult) { 
+              updateQuery: (prev, { fetchMoreResult }) => {
+                if (!fetchMoreResult) {
                   this.setState({loadMore:false})
-                  return prev 
-                }              
+                  return prev
+                }
                 this.setState({loadMore:fetchMoreResult.allPets.edges.length === variables.limit })
-                return Object.assign({}, prev, {allPets : 
+                return Object.assign({}, prev, {allPets :
                   Object.assign({}, prev.allPets, {edges:[...prev.allPets.edges, ...fetchMoreResult.allPets.edges]})
                   })
             }})
@@ -71,7 +69,7 @@ class EldestRank extends React.Component<{}, ReactState> {
               <tr key={index}>
                 <td>{index+1}.</td>
                 <td>
-                  <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" />
+                  {/* <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" /> */}
                   <Link to={`/monster/${node.id}`}>{node.petName} <small>#{node.id}</small></Link>
                 </td>
                 <td className="is-hidden-mobile">{node.owner}</td>
@@ -86,7 +84,7 @@ class EldestRank extends React.Component<{}, ReactState> {
                 onClick={onLoadMore}>
                 Load more
               </a>
-            </footer> 
+            </footer>
           }
         </div>
         }}

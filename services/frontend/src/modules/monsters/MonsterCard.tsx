@@ -1,11 +1,18 @@
 import * as React from "react"
 import * as moment from "moment"
-import { MonsterProps, monsterImageSrc } from "./monsters"
+import {
+  MonsterProps,
+  // monsterImageSrc,
+  monsterModelSrc,
+  getCurrentAction,
+} from "./monsters"
+import get3dModel from "../monsters/monster3DMatrix"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
 import { trxPet } from "../../utils/eos"
 import { Link } from "react-router-dom"
+import { Monster3DProfile, ActionType } from "react-monstereos-profile"
 
 interface Props {
   monster: MonsterProps,
@@ -17,7 +24,8 @@ interface Props {
   selected?: boolean,
   hideLink?: boolean,
   hideActions?: boolean,
-  customActions?: MonsterAction[]
+  customActions?: MonsterAction[],
+  halfSize?: boolean,
 }
 
 export interface MonsterAction {
@@ -29,48 +37,80 @@ class MonsterCard extends React.Component<Props, {}> {
 
   public render() {
 
-    const { monster, eosAccount, selected } = this.props
+    const { monster, eosAccount, selected, halfSize } = this.props
 
     const hasControl = eosAccount === monster.owner
 
     const selectedClass = selected ? "monster-selected" : ""
 
+    const columnSize = halfSize ? "is-half" : "is-one-third"
+
     return (
-      <div className="column monster-column">
-        <div className={`card ${selectedClass}`}>
+      <div className={`column ${columnSize}`}>
+        <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
-            {this.renderHeader()}
+            <div className="columns is-mobile">
+              <div className="column">
+                {this.renderMonster()}
+              </div>
+              <div className="column is-three-fifths">
+                {this.renderHeader()}
+                {!monster.deathAt && this.renderStats()}
+              </div>
+            </div>
           </div>
-          {this.renderImage()}
-          {!monster.deathAt && this.renderStats()}
           {hasControl && this.renderFooter()}
         </div>
       </div>
     )
   }
 
-  private renderImage() {
+  // private renderImage() {
+
+  //   const { monster } = this.props
+
+  //   const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
+  //   const monsterImage = monsterImageSrc(monster.type)
+
+  //   const sleepingClass = monster.isSleeping ? "sleeping" : ""
+  //   const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
+
+  //   return (
+  //     <div className="card-image">
+  //       <figure className={figureClass}>
+  //         <img
+  //           alt={monster.name}
+  //           className={sleepingClass}
+  //           src={monsterImage} />
+  //         {sleepingAnimation}
+  //       </figure>
+  //     </div>
+  //   )
+  // }
+
+  private render3DProfile() {
 
     const { monster } = this.props
 
-    const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
-    const monsterImage = monsterImageSrc(monster.type)
-
-    const sleepingClass = monster.isSleeping ? "sleeping" : ""
-    const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
+    const monster3dModel = get3dModel(monster.type, !!monster.deathAt)
 
     return (
-      <div className="card-image">
-        <figure className={figureClass}>
-          <img
-            alt={monster.name}
-            className={sleepingClass}
-            src={monsterImage} />
-          {sleepingAnimation}
-        </figure>
+      <div style={{position: "absolute", marginLeft: -25, width: 160}}>
+        <Monster3DProfile
+          typeId={monster.type.toString()}
+          path={monsterModelSrc(monster3dModel.model)}
+          action={getCurrentAction(monster, ActionType)}
+          {...monster3dModel}
+          size={{ height: "228px" }}
+          background={{ alpha: 0 }}
+          zoom={false}
+        />
       </div>
     )
   }
+
+  private renderMonster = () =>
+    this.render3DProfile()
 
   private renderHeader() {
 
@@ -81,7 +121,8 @@ class MonsterCard extends React.Component<Props, {}> {
     // const createdAtIso = createdAt.toLocaleString()
 
     const deathAt = moment(monster.deathAt)
-    const deathAtText = deathAt.format("MMMM, D YYYY @ h:mm a")
+    const deathAtDate = deathAt.format("MMMM Do YYYY")
+    const deathAtTime = deathAt.format("h:mm:ss a")
     const deathAtIso = deathAt.toLocaleString()
 
     const aliveDuration = (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
@@ -89,28 +130,35 @@ class MonsterCard extends React.Component<Props, {}> {
 
     const headerContent =
       <React.Fragment>
-        <span className={`title is-4 ${monster.deathAt ? "has-text-danger" : ""}`}>
-          {monster.name}
-          <small className="is-pulled-right">#{monster.id}</small>
-        </span>
-        <br/>
-        { monster.deathAt ?
-        <React.Fragment>
-          <span className="is-6 has-text-danger">Stayed alive for {aliveDurationText}</span>
-          <br/>
-          <span className="is-6 has-text-danger"><time dateTime={deathAtIso}>DEAD IN {deathAtText}</time></span>
-        </React.Fragment>
-        : <span className="has-text-success">Is alive for {aliveDurationText}</span>
+        <div className={`monster-card-title ${monster.deathAt ? "dead" : ""}`}>
+          <div>
+            <div className="monster-name">{monster.name}</div>
+            <div className="monster-status">
+            {monster.deathAt ?
+              <p>
+                Stayed alive for {aliveDurationText}
+              </p>
+              : <p>Has been alive for {aliveDurationText}</p>
+            }
+            </div>
+          </div>
+          <div className="monster-id">#{monster.id}</div>
+        </div>
+        { monster.deathAt > 0 &&
+        <div>
+          <p>Death Date:<br/> {deathAtDate}</p>
+          <p>Time of Death:<br/> <time dateTime={deathAtIso}>{deathAtTime}</time></p>
+        </div>
         }
       </React.Fragment>
 
     return (
       <div className="monster-card-header">
-        { !hideLink ?
+        {!hideLink ?
           <Link to={`/monster/${monster.id}`} className="monster-header-link">
             {headerContent}
           </Link>
-        :
+          :
           headerContent
         }
       </div>
@@ -123,17 +171,26 @@ class MonsterCard extends React.Component<Props, {}> {
 
     return (
       <div className="monster-card-stats">
-        <p className="is-large has-margin-top">
+        <div className="progress-bar red monster-hp-card">
+          <span style={{width: `${monster.health}%`}}>HP</span>
+        </div>
+        <p>Food</p>
+        <div className="progress-bar blue">
+          <span style={{width: `${monster.hunger}%`}} />
+        </div>
+        <p>Energy</p>
+        <div className="progress-bar green">
+          <span style={{width: `${monster.energy}%`}} />
+        </div>
+        {/* <p className="hp-card is-large has-margin-top">
           <progress className="progress is-danger" max="100" value={monster.health} data-label="HP" />
         </p>
-        <div className="columns is-multiline is-mobile">
-          <div className="column is-half">
-            <progress className="progress is-primary" max="100" value={monster.hunger} data-label="Food" />
-          </div>
-          <div className="column is-half">
-            <progress className="progress is-success" max="100" value={monster.energy} data-label="Energy" />
-          </div>
-        </div>
+        <p>
+          <progress className="food-card progress is-primary" max="100" value={monster.hunger} data-label="Food" />
+        </p>
+        <p>
+          <progress className="energy-card progress is-success" max="100" value={monster.energy} data-label="Energy" />
+        </p> */}
       </div>
     )
   }
@@ -145,12 +202,12 @@ class MonsterCard extends React.Component<Props, {}> {
     let actions: MonsterAction[] = []
 
     if (!hideActions && monster.deathAt) {
-      actions.push({action: this.requestDestroy, label: "Delete Monster"})
+      actions.push({ action: this.requestDestroy, label: "Delete Monster" })
     } else if (!hideActions && monster.isSleeping) {
-      actions.push({action: this.requestAwake, label: "Wake up!"})
+      actions.push({ action: this.requestAwake, label: "Wake up!" })
     } else if (!hideActions) {
-      actions.push({action: this.requestFeed, label: "Feed"})
-      actions.push({action: this.requestSleep, label: "Bed Time!"})
+      actions.push({ action: this.requestFeed, label: "Feed" })
+      actions.push({ action: this.requestSleep, label: "Bed Time!" })
     }
 
     if (customActions) {
@@ -179,7 +236,7 @@ class MonsterCard extends React.Component<Props, {}> {
   }
 
   private requestSleep = async () => {
-    this.petAction("bedpet", "bed")
+    this.petAction("bedpet", "put to bed")
   }
 
   private requestDestroy = async () => {

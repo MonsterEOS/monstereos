@@ -12,7 +12,7 @@ const Modal = (props: ModalProps) => (
     <div className="modal-background" />
     <div className="modal-card">
       <header className="modal-card-head">
-        <span className="modal-card-title">{props.title}</span>
+        <div className="modal-card-title">{props.title}</div>
         <button className="delete" onClick={props.close} aria-label="close" />
       </header>
       <section className="modal-card-body">
