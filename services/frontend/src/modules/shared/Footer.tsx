@@ -42,8 +42,8 @@ const Footer = (props: any) => (
         <p>
           Powered by
           <a href="https://cypherglass.com" target="_blank">
-            <img src="https://pbs.twimg.com/profile_images/990946608090157061/oy9s85If_400x400.jpg"
-            style={{maxWidth: 45, verticalAlign: "middle", marginLeft: 4, borderRadius: "50%"}}
+            <img src="https://www.cypherglass.com/img/logo_horizontal.svg"
+            style={{maxWidth: 150, verticalAlign: "middle", marginLeft: 4}}
             alt="Cypherglass" />
           </a>
         </p>

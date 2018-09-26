@@ -227,6 +227,8 @@ class BattleArena extends React.Component<Props, ReactState> {
       <Arena3D
         myMonster={monsterModelSrc(myModel)}
         enemyMonster={monsterModelSrc(enemyModel)}
+        myMonsterDecor={get3dModel(monsters.myMonster.pet_type).decor}
+        enemyMonsterDecor={get3dModel(monsters.enemyMonster.pet_type).decor}
         size={{ width: "100%", height: "100%" }}
         background={{ alpha: 1 }}
       />
