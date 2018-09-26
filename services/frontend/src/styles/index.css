@@ -939,19 +939,32 @@ html, body {
   background-color: #122055;
   padding: 1rem; }
 
-.content table {
-  border-collapse: initial;
+.content table, .arena.card, .content.arena-header > .box {
   background: linear-gradient(45deg, #071439 0%, #842076 100%);
   color: #f2e48a;
   border-radius: 5px;
   border: 1px solid #f2e48a;
   box-shadow: 0px 0px 20px 1px #f2e48a; }
+
+.content table {
+  border-collapse: initial; }
   .content table td, .content table th {
     color: #f2e48a !important;
     border: 1px solid #f2e48a;
     border-width: 0 0 1px; }
   .content table a {
     color: #8affe7; }
+
+.rank table {
+  background: linear-gradient(45deg, #282828 0%, #5a5a5a 100%);
+  color: #eee;
+  border-radius: 5px;
+  border: 1px solid #eee;
+  box-shadow: 0px 0px 20px 1px #eee; }
+  .rank table td, .rank table th {
+    color: #eee !important;
+    border: 1px solid #eee;
+    border-width: 0 0 1px; }
 
 a {
   color: #f2e48a; }
