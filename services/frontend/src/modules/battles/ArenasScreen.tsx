@@ -6,7 +6,7 @@ import { Link } from "react-router-dom"
 import PageContainer from "../shared/PageContainer"
 import TitleBar from "../shared/TitleBar"
 import { Arena, getCurrentBattle, getAvailableMonstersToBattle } from "./battles"
-import { loadArenas, createBattle, joinBattle } from "../../utils/eos"
+import { loadArenas, quickBattle } from "../../utils/eos"
 import BattleCard from "./BattleCard"
 import { getEosAccount } from "../../utils/scatter"
 import { MonsterProps } from "../monsters/monsters"
@@ -72,9 +72,9 @@ class ArenasScreen extends React.Component<Props, ReactState> {
         Reconnect to Battle
       </Link> :
       identity ?
-      <a className="button is-success"
+      <a className="button is-danger is-large"
         onClick={() => this.setState({showMonstersSelection: true, arenaHost: ""})}>
-        Create a Battle
+        Quick Battle
       </a> :
       null
 
@@ -107,6 +107,7 @@ class ArenasScreen extends React.Component<Props, ReactState> {
 
   private refresh = async () => {
     const { arenas: currentArenas } = this.state
+    const { identity, history } = this.props
 
     try {
       const arenas = await loadArenas()
@@ -114,7 +115,13 @@ class ArenasScreen extends React.Component<Props, ReactState> {
       if (!this.isMyMounted) {
         return
       }
-      
+
+      // AutoRedirect to my Battle
+      const myBattle = getCurrentBattle(arenas, identity)
+      if (myBattle) {
+        history.push(`/arenas/${myBattle.host}`)
+      }
+
       // start notifications after initial load
       if (this.refreshHandler) {
         this.notifyNewArenas(currentArenas, arenas)
@@ -149,17 +156,17 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   private confirmSelection = async (pets: number[]) => {
     console.info("selected pets >>> ", pets)
 
-    const { arenaHost } = this.state
+    // const { arenaHost } = this.state
     const { dispatchPushNotification } = this.props
 
     if (pets && pets.length) {
 
       if (pets.length > 1) { // TODO: current 1v1 mode only
         return dispatchPushNotification("You can only select 1 monster", NOTIFICATION_ERROR)
-      } else if (arenaHost) {
-        this.doJoinBattle(arenaHost, pets)
+      // } else if (arenaHost) {
+      //   this.doJoinBattle(arenaHost, pets)
       } else {
-        this.doCreateBattle(pets)
+        this.doQuickBattle(pets)
       }
 
     } else {
@@ -167,29 +174,30 @@ class ArenasScreen extends React.Component<Props, ReactState> {
     }
   }
 
-  private doCreateBattle = async (pets: number[]) => {
+  private doQuickBattle = async (pets: number[]) => {
     const { scatter, dispatchPushNotification, history, identity } = this.props
-    createBattle(scatter, 1, pets)
+    quickBattle(scatter, 1, pets)
       .then(() => {
-        dispatchPushNotification("Joining Created Battle...", NOTIFICATION_SUCCESS)
+        dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
         history.push(`/arenas/${identity}`)
+        this.refresh()
       })
       .catch((err: any) => {
-        dispatchPushNotification(`Fail to Create Battle ${err.eosError}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(`Fail to Battle ${err.eosError}`, NOTIFICATION_ERROR)
       })
   }
 
-  private doJoinBattle = async (host: string, pets: number[]) => {
-    const { scatter, dispatchPushNotification, history } = this.props
-    joinBattle(scatter, host, pets)
-      .then(() => {
-        dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
-        history.push(`/arenas/${host}`)
-      })
-      .catch((err: any) => {
-        dispatchPushNotification(`Fail to Join Battle ${err.eosError}`, NOTIFICATION_ERROR)
-      })
-  }
+  // private doJoinBattle = async (host: string, pets: number[]) => {
+  //   const { scatter, dispatchPushNotification, history } = this.props
+  //   joinBattle(scatter, host, pets)
+  //     .then(() => {
+  //       dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
+  //       history.push(`/arenas/${host}`)
+  //     })
+  //     .catch((err: any) => {
+  //       dispatchPushNotification(`Fail to Join Battle ${err.eosError}`, NOTIFICATION_ERROR)
+  //     })
+  // }
 }
 
 const ArenasCounter = ({availableArenas, maxArenas}: any) => (

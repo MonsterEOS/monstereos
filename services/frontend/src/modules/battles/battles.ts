@@ -91,9 +91,12 @@ export const parseBattlesFromChain = (data: any): Arena => {
   if (battle.commits.length === requiredPlayers) {
     battle.phase = BATTLE_PHASE_STARTING
 
-    const revealedCommitments = getReadyPlayers(battle)
+    // const revealedCommitments = getReadyPlayers(battle)
+    // if (revealedCommitments.length === requiredPlayers) {
+    //   battle.phase = BATTLE_PHASE_GOING
+    // }
 
-    if (revealedCommitments.length === requiredPlayers) {
+    if (battle.startedAt > 0) {
       battle.phase = BATTLE_PHASE_GOING
     }
   }
@@ -104,7 +107,7 @@ export const parseBattlesFromChain = (data: any): Arena => {
 export const getBattleText = (arena: Arena) => {
   switch (arena.phase) {
     case BATTLE_PHASE_JOINING:
-      return "Joining phase: Waiting for players to join"
+      return "Waiting for Opponents... Please don't leave this page because your monster might be SLAUGHTERED by the next player!"
     case BATTLE_PHASE_FINISHED:
       return "The battle is over"
     case BATTLE_PHASE_GOING:

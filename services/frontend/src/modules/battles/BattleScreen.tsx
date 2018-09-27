@@ -4,11 +4,11 @@ import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION
 import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText, Element, getBattleCountdown } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, battleCountdownText, Element, getBattleCountdown } from "./battles"
 import {
   loadArenaByHost,
-  leaveBattle,
-  startBattle,
+  // leaveBattle,
+  // startBattle,
   loadElements as apiLoadElements,
   loadPetTypes,
   attackBattle,
@@ -102,19 +102,19 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
     const isMyBattle = !!currentBattle
 
-    const allowLeaveBattle = isMyBattle &&
-      (arena.phase === BATTLE_PHASE_STARTING ||
-      arena.phase === BATTLE_PHASE_JOINING) ?
-      () => this.doLeaveBattle(arena.host) :
-      null
+    // const allowLeaveBattle = isMyBattle &&
+    //   (arena.phase === BATTLE_PHASE_STARTING ||
+    //   arena.phase === BATTLE_PHASE_JOINING) ?
+    //   () => this.doLeaveBattle(arena.host) :
+    //   null
+
+    // const isConfirmed = isPlayerReady(arena, identity)
+    // const allowConfirmation = isMyBattle && !isConfirmed &&
+    //   arena.phase === BATTLE_PHASE_STARTING ?
+    //   () => this.doStartBattle(arena.host) :
+    //   null
 
     const countdownText = battleCountdownText(arena, globalConfig)
-
-    const isConfirmed = isPlayerReady(arena, identity)
-    const allowConfirmation = isMyBattle && !isConfirmed &&
-      arena.phase === BATTLE_PHASE_STARTING ?
-      () => this.doStartBattle(arena.host) :
-      null
 
     const isOver = arena.phase === BATTLE_PHASE_FINISHED
 
@@ -130,8 +130,8 @@ class BattleScreen extends React.Component<Props, ReactState> {
           isMyBattle={isMyBattle}
           isOver={isOver}
           countdownText={countdownText}
-          allowConfirmation={allowConfirmation}
-          allowLeaveBattle={allowLeaveBattle} />
+          allowConfirmation={false} // allowConfirmation
+          allowLeaveBattle={false} /> {/* allowLeaveBattle />*/}
         {arena.phase === BATTLE_PHASE_STARTING &&
         <BattleConfirmation
           commits={arena.commits} />
@@ -267,30 +267,30 @@ class BattleScreen extends React.Component<Props, ReactState> {
       })
   }
 
-  private doLeaveBattle = async (host: string) => {
-    const { scatter, dispatchPushNotification, history } = this.props
-    leaveBattle(scatter, host)
-      .then(() => {
-        setTimeout(() => history.push("/arenas"), 500)
-        dispatchPushNotification("Leaving Battle Successfully...", NOTIFICATION_SUCCESS)
-      })
-      .catch((err: any) => {
-        dispatchPushNotification(`Fail to Leave Battle ${err.eosError}`, NOTIFICATION_ERROR)
-      })
-  }
+  // private doLeaveBattle = async (host: string) => {
+  //   const { scatter, dispatchPushNotification, history } = this.props
+  //   leaveBattle(scatter, host)
+  //     .then(() => {
+  //       setTimeout(() => history.push("/arenas"), 500)
+  //       dispatchPushNotification("Leaving Battle Successfully...", NOTIFICATION_SUCCESS)
+  //     })
+  //     .catch((err: any) => {
+  //       dispatchPushNotification(`Fail to Leave Battle ${err.eosError}`, NOTIFICATION_ERROR)
+  //     })
+  // }
 
-  private doStartBattle = async (host: string) => {
-    const { scatter, dispatchPushNotification } = this.props
-    startBattle(scatter, host)
-      .then(() => {
-        setTimeout(this.refresh, 500)
-        dispatchPushNotification("Ready to Battle!", NOTIFICATION_SUCCESS)
-      })
-      .catch((err: any) => {
-        setTimeout(this.refresh, 500)
-        dispatchPushNotification(`Fail to confirm Battle ${err.eosError}`, NOTIFICATION_ERROR)
-      })
-  }
+  // private doStartBattle = async (host: string) => {
+  //   const { scatter, dispatchPushNotification } = this.props
+  //   startBattle(scatter, host)
+  //     .then(() => {
+  //       setTimeout(this.refresh, 500)
+  //       dispatchPushNotification("Ready to Battle!", NOTIFICATION_SUCCESS)
+  //     })
+  //     .catch((err: any) => {
+  //       setTimeout(this.refresh, 500)
+  //       dispatchPushNotification(`Fail to confirm Battle ${err.eosError}`, NOTIFICATION_ERROR)
+  //     })
+  // }
 
   private loadElements = async () => {
     const elements = await apiLoadElements()

@@ -147,6 +147,7 @@ using namespace utils;
 void pet::quickbattle(battle_mode mode, name player, st_pick picks) {
   require_auth(player);
   eosio_assert(mode == V1 || mode == V2 || mode == V3, "invalid battle mode");
+  eosio_assert(picks.pets.size() == mode, "pets selection is not valid");
 
   auto itr_player_battle = plsinbattles.find(player);
   eosio_assert(itr_player_battle == plsinbattles.end(), "player is already in another battle");
@@ -329,7 +330,6 @@ void pet::battleattack(name         host,
     print(" and the winner is >>> ", winner);
     SEND_INLINE_ACTION( *this, battlefinish, {_self,N(active)}, {host, winner} );
   }
-
 }
 
 void pet::battlefinish(name host, name /* winner */) {
