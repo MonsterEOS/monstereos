@@ -60,7 +60,7 @@ using namespace utils;
 
 //   // remove pets from battle
 //   for (st_pet_stat ps : battle.pets_stats) {
-//     if (ps.player != player) {
+//     if (ps.player != player && ps.player != host) { // if it's a host it needs to delete all pets
 //       continue;
 //     }
 

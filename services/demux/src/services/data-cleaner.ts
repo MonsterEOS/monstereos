@@ -21,7 +21,7 @@ const PENDING_TYPE_PET = -1
 const DESTROYED_TYPE_PET = -2
 const EMPTY_TIMESTAMP = "1970-01-01 00:00:00"
 const MONSTERS_ACCOUNT = "monstereosio"
-const IDLE_FEED_DEATH_MILLIS = 20 * 60 * 60000 // TODO: fixed 20 hours?
+const IDLE_FEED_DEATH_MILLIS = 72 * 60 * 60000 // TODO: get this amount dynamically
 
 const isChainSync = async (db: any) => {
 

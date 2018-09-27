@@ -1,4 +1,5 @@
 import { BlockInfo } from "demux"
+import moment from "moment"
 
 const createPet = async (db: any, payload: any, blockInfo: BlockInfo) => {
 
@@ -147,6 +148,48 @@ const battlecreate = async (db: any, payload: any, blockInfo: BlockInfo) => {
 
 }
 
+const quickbattle = async (db: any, payload: any, blockInfo: BlockInfo) => {
+
+  console.info("\n\n==== Quick Battle ====")
+  console.info("\n\nUpdater Payload >>> \n", payload)
+  console.info("\n\nUpdater Block Info >>> \n", blockInfo)
+
+  const lastBattle = await getLastBattle(db)
+  const startedBattleMinTime = new Date(2018, 0, 1).getTime()
+
+  // if last battle is already started, creates a new one
+  if (moment(lastBattle.started_at).valueOf() > startedBattleMinTime) {
+
+    const data = {
+      host: payload.authorization[0].actor,
+      mode: payload.data.mode,
+      created_block: blockInfo.blockNumber,
+      created_trx: payload.transactionId,
+      created_at: blockInfo.timestamp,
+      created_eosacc: payload.authorization[0].actor,
+    }
+
+    console.info("DB Data to Insert >>> ", data)
+
+    const res = await db.battles.insert(data)
+
+    console.info("DB State Result >>> ", res)
+
+    await battleJoin(db, res.id, payload.data.picks.pets, payload.authorization[0].actor, blockInfo, true)
+
+  } else { // join in the current battle
+    await battleJoin(db, lastBattle, payload.data.picks.pets, payload.authorization[0].actor, blockInfo, false)
+  }
+}
+
+const getLastBattle = async (db: any) => {
+  return await db.battles.findOne(null, {
+    order: [
+      { field: "id", direction: "desc" },
+    ],
+  })
+}
+
 const getLastBattleByHost = async (db: any, host: string) => {
   return await db.battles.findOne({
     host,
@@ -163,32 +206,39 @@ const battlestart = async (db: any, payload: any, blockInfo: BlockInfo) => {
   console.info("\n\nUpdater Payload >>> \n", payload)
   console.info("\n\nUpdater Block Info >>> \n", blockInfo)
 
-  const battle = await getLastBattleByHost(db, payload.data.host)
-
-  const existentPicks = await db.battle_picks.findOne({
-    battle_id: battle.id,
-  })
-
   if (payload.data.picks) {
-    const picks = payload.data.picks.pets.map((petId: number) =>
-      db.battle_picks.save({
-        battle_id: battle.id,
-        pet_id: petId,
-        picker: payload.authorization[0].actor,
-      }))
+    const battle = await getLastBattleByHost(db, payload.data.host)
 
-    await Promise.all(picks)
+    // check current existent picks
+    const existentPicks = await db.battle_picks.findOne({
+      battle_id: battle.id,
+    })
 
-    // if it's second pick set battle started time
-    if (existentPicks) {
-      await db.battles.update({ id: battle.id }, { started_at: blockInfo.timestamp })
-    }
-
-    console.info("DB Battle Processed Successfully")
-  } else {
+    battleJoin(db, battle, payload.data.picks.pets, payload.authorization[0].actor, blockInfo, !existentPicks)
+  } else { // ignoring old battles
     console.info("Ignoring old battle pick")
   }
 
+}
+
+const battleJoin = async(db: any, battleId: any, pickPets: any, picker: any, blockInfo: BlockInfo, firstPick: boolean) => {
+
+  // insert new picks
+  const picks = pickPets.map((petId: number) =>
+    db.battle_picks.save({
+      battle_id: battleId,
+      pet_id: petId,
+      picker,
+    }))
+
+  await Promise.all(picks)
+
+  // if it's second pick set the battle started time
+  if (!firstPick) {
+    await db.battles.update({ id: battleId }, { started_at: blockInfo.timestamp })
+  }
+
+  console.info("DB Battle Joining Processed Successfully")
 }
 
 const battleattack = async (db: any, payload: any, blockInfo: BlockInfo) => {
@@ -266,6 +316,10 @@ const updaters = [
   {
     actionType: "monstereosio::destroypet",
     updater: destroypet,
+  },
+  {
+    actionType: "monstereosio::quickbattle",
+    updater: quickbattle,
   },
   {
     actionType: "monstereosio::battlecreate",
