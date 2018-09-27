@@ -175,11 +175,11 @@ class ArenasScreen extends React.Component<Props, ReactState> {
   }
 
   private doQuickBattle = async (pets: number[]) => {
-    const { scatter, dispatchPushNotification, history, identity } = this.props
+    const { scatter, dispatchPushNotification } = this.props
     quickBattle(scatter, 1, pets)
       .then(() => {
         dispatchPushNotification("Joining Battle...", NOTIFICATION_SUCCESS)
-        history.push(`/arenas/${identity}`)
+        // history.push(`/arenas/${identity}`)
         this.refresh()
       })
       .catch((err: any) => {

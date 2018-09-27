@@ -188,6 +188,7 @@ void pet::quickbattle(battle_mode mode, name player, st_pick picks) {
       r.commits = battle.commits;
       r.pets_stats = battle.pets_stats;
       r.started_at = now();
+      r.last_move_at = now();
     });
   }
 
@@ -211,7 +212,7 @@ void pet::_battle_add_pets(st_battle &battle,
     require_auth(pet.owner);
     eosio_assert(_is_alive(pet, pc), "dead pets don't battle");
     eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
-    eosio_assert(pet.has_energy(1), "pet has no energy for a battle");
+    eosio_assert(pet.has_energy(30), "pet has no energy for a battle");
 
     auto itr_pet_battle = petinbattles.find(pet_id);
     eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");
