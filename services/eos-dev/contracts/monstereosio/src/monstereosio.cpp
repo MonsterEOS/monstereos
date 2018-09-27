@@ -32,10 +32,11 @@ EOSIO_ABI_EX(pet,
   (transferpet)
 
   // battles
-  (battlecreate)
-  (battlejoin)
-  (battleleave)
-  (battlestart)
+  // (battlecreate)
+  // (battlejoin)
+  // (battleleave)
+  // (battlestart)
+  (quickbattle)
   (battleattack)
   (battlefinish)
   (battlepfdel)

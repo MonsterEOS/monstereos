@@ -65,7 +65,7 @@ void pet::createpet(name owner,
 
         // we are considering only 105 monsters, the type 105 is
         // monstereos devilish icon
-        pet.type = (pet.created_at + pet.id + owner) 
+        pet.type = (pet.created_at + pet.id + owner + _random(100)) 
             % (pc.last_pet_type_id - 3); 
 
         r = pet;
@@ -80,6 +80,8 @@ void pet::destroypet(uuid pet_id) {
 
     pets.erase( pet );
 
+    // primer roller
+    _random(10);
 }
 
 void pet::transferpet(uuid pet_id, name new_owner) {
@@ -96,6 +98,9 @@ void pet::transferpet(uuid pet_id, name new_owner) {
     pets.modify(itr_pet, 0, [&](auto &r) {
         r.owner = new_owner;
     });
+
+    // primer roller
+    _random(10);
 }
 
 void pet::feedpet(uuid pet_id) {
@@ -115,6 +120,9 @@ void pet::feedpet(uuid pet_id) {
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
         r.last_fed_at = now();
     });
+
+    // primer roller
+    _random(10);
 }
 
 void pet::bedpet(uuid pet_id) {
@@ -136,6 +144,9 @@ void pet::bedpet(uuid pet_id) {
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
         r.last_bed_at = now();
     });
+
+    // primer roller
+    _random(10);
 }
 
 void pet::awakepet(uuid pet_id) {
@@ -157,6 +168,9 @@ void pet::awakepet(uuid pet_id) {
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
         r.last_awake_at = now();
     });
+
+    // primer roller
+    _random(10);
 }
 
 void pet::signup(name user) {
@@ -172,6 +186,9 @@ void pet::signup(name user) {
     accounts.emplace(user, [&](auto& r){
         r.balance = new_balance;
     });
+
+    // primer roller
+    _random(10);
 }
 
 void pet::transfer(uint64_t sender, uint64_t receiver) {
@@ -214,6 +231,8 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
         }
     }
 
+    // primer roller
+    _random(10);
 }
 
 uint32_t pet::_calc_hunger_hp(const uint8_t &max_hunger_points, const uint32_t &hunger_to_zero,
@@ -244,4 +263,21 @@ bool pet::_is_alive(st_pets &pet, const st_pet_config2 &pc) {
     int32_t hp = pc.max_health - effect_hp_hunger;
 
     return hp > 0;
+}
+
+int pet::_random(const int num) {
+  
+  auto itr_seed = seed.begin();
+  
+  if (itr_seed == seed.end()) {
+    itr_seed = seed.emplace( _self, [&]( auto& r ) { });
+  }
+
+  auto new_seed = (itr_seed->last + now()) % 65537;
+
+  seed.modify( itr_seed, _self, [&]( auto& s ) {
+    s.last = new_seed;
+  });
+
+  return new_seed % num;
 }

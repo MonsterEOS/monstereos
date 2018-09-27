@@ -383,26 +383,125 @@ BOOST_AUTO_TEST_SUITE(monstereosio)
 BOOST_AUTO_TEST_CASE(battles) try {
   monstereosio_tester        t{"battles"};
   monstereosio_tester::table pets{"monstereosio"_n, "monstereosio"_n, "pets"_n, "st_pets"};
+  monstereosio_tester::table petinbattles{"monstereosio"_n, "monstereosio"_n, "petinbattles"_n, "st_pet_inbatt"};
+  monstereosio_tester::table plsinbattles{"monstereosio"_n, "monstereosio"_n, "plsinbattles"_n, "st_pls_inbatt"};
   monstereosio_tester::table battles{"monstereosio"_n, "monstereosio"_n, "battles"_n, "st_battle"};
 
   t.create_account("john"_n);
   t.create_account("mary"_n);
+  t.create_account("peter"_n);
+  t.create_account("jenny"_n);
+  t.create_account("rocket"_n);
+  t.produce_blocks();
 
   t.heading("createpet: success pet creations");
   t.push_trx("monstereosio", "createpet", "john",
     R"({"pet_name": "pikachu", "owner": "john"})");
   t.push_trx("monstereosio", "createpet", "mary",
-  R"({"pet_name": "bulbasaur", "owner": "john"})");
+  R"({"pet_name": "bulbasaur", "owner": "mary"})");
+  t.push_trx("monstereosio", "createpet", "peter",
+  R"({"pet_name": "squirtle", "owner": "peter"})");
+  t.push_trx("monstereosio", "createpet", "jenny",
+  R"({"pet_name": "charmander", "owner": "jenny"})");
+  t.push_trx("monstereosio", "createpet", "rocket",
+  R"({"pet_name": "meowl", "owner": "rocket"})");
+  t.push_trx("monstereosio", "createpet", "john",
+    R"({"pet_name": "shady", "owner": "john"})");
   t.diff_table(pets);
   t.produce_blocks();
 
-  t.heading("create and join battle");
-  t.push_trx("monstereosio", "battlecreate", "john",
-    R"({"host": "john", "mode": 1, "secret": "12313131"})");
-  t.push_trx("monstereosio", "battlejoin", "mary",
-  R"({"host": "john", "player": "mary", "secret": "john"})");
+  t.heading("quick battle");
+
+  // john joins the battle
+  t.push_trx("monstereosio", "quickbattle", "john",
+    R"({"player": "john", "mode": 1, "picks": { "pets": [1], "randoms": [1,2,3,4,5]}})");
   t.diff_table(pets);
+  t.diff_table(petinbattles);
+  t.diff_table(plsinbattles);
+  t.diff_table(battles);
   t.produce_blocks();
+
+  // mary joins the battle
+  t.push_trx("monstereosio", "quickbattle", "mary",
+    R"({"player": "mary", "mode": 1, "picks": { "pets": [2], "randoms": [5,4,3,2,1]}})");
+  t.diff_table(pets);
+  t.diff_table(petinbattles);
+  t.diff_table(plsinbattles);
+  t.diff_table(battles);
+  t.produce_blocks();
+
+  // peter should join in a different battle
+  t.push_trx("monstereosio", "quickbattle", "peter",
+    R"({"player": "peter", "mode": 1, "picks": { "pets": [3], "randoms": [5,4,3,2,1]}})");
+  t.diff_table(pets);
+  t.diff_table(petinbattles);
+  t.diff_table(plsinbattles);
+  t.diff_table(battles);
+  t.produce_blocks();
+  
+  // john tries to sneak in two battles at the same time
+  t.push_trx("monstereosio", "quickbattle", "john",
+    R"({"player": "john", "mode": 1, "picks": { "pets": [6], "randoms": [1,2,3,4,5]}})");
+  t.diff_table(pets);
+  t.diff_table(petinbattles);
+  t.diff_table(plsinbattles);
+  t.diff_table(battles);
+  t.produce_blocks();
+
+  // jenny should join in peter battle
+  t.push_trx("monstereosio", "quickbattle", "jenny",
+    R"({"player": "jenny", "mode": 1, "picks": { "pets": [4], "randoms": [1,2,3,2,1]}})");
+  t.diff_table(pets);
+  t.diff_table(petinbattles);
+  t.diff_table(plsinbattles);
+  t.diff_table(battles);
+  t.produce_blocks();
+
+  // battles goes on
+  for (int i=0; i<6; i++) {
+    t.push_trx("monstereosio", "battleattack", "john",
+    R"({"host": "john", "player": "john", "pet_id": 1, "pet_enemy_id": 2, "element": 0})");
+    t.diff_table(pets);
+    t.diff_table(petinbattles);
+    t.diff_table(plsinbattles);
+    t.diff_table(battles);
+    t.produce_blocks();
+
+    // john always try to cheat
+    t.push_trx("monstereosio", "battleattack", "john",
+    R"({"host": "john", "player": "john", "pet_id": 1, "pet_enemy_id": 2, "element": 0})");
+    t.diff_table(pets);
+    t.diff_table(petinbattles);
+    t.diff_table(plsinbattles);
+    t.diff_table(battles);
+    t.produce_blocks();
+    
+    t.push_trx("monstereosio", "battleattack", "mary",
+      R"({"host": "john", "player": "mary", "pet_id": 2, "pet_enemy_id": 1, "element": 0})");
+    t.diff_table(pets);
+    t.diff_table(petinbattles);
+    t.diff_table(plsinbattles);
+    t.diff_table(battles);
+    t.produce_blocks();    
+  }
+
+  // now john tries to attack in another battle
+  t.push_trx("monstereosio", "battleattack", "john",
+  R"({"host": "peter", "player": "john", "pet_id": 1, "pet_enemy_id": 2, "element": 0})");
+  t.diff_table(pets);
+  t.diff_table(petinbattles);
+  t.diff_table(plsinbattles);
+  t.diff_table(battles);
+  t.produce_blocks();
+  
+  // // team rocket tries to manipulate battles
+  // t.push_trx("monstereosio", "battleattack", "rocket",
+  //   R"({"player": "rocket", "mode": 1, "picks": { "pets": [4], "randoms": [1,2,3,2,1]}})");
+  // t.diff_table(pets);
+  // t.diff_table(petinbattles);
+  // t.diff_table(plsinbattles);
+  // t.diff_table(battles);
+  // t.produce_blocks();
 
   // pet id: 1
   // randoms: 200, 199, 89, 69, 10, 248, 69, 159, 108, 138, 197, 99, 233, 72, 139, 144, 182, 115, 158, 192, 181, 217, 197, 97, 24, 99, 254, 203, 93, 165, 124, 130
