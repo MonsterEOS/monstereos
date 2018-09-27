@@ -3,9 +3,7 @@ import { MonsterType, Arena, MonsterArenaStats, Element, isWatcher, BATTLE_PHASE
 import { State, pushNotification } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 import { connect } from "react-redux"
-import {
-  monsterModelSrc,
-} from "../monsters/monsters"
+import { monsterModelSrc } from "../monsters/monsters"
 import get3dModel from "../monsters/monster3DMatrix"
 import Arena3D from "monster-battle-react-component"
 
@@ -19,12 +17,6 @@ import elementPoison from "../../assets/images/elements/poison.svg"
 import elementUndead from "../../assets/images/elements/undead.svg"
 import elementWater from "../../assets/images/elements/water.svg"
 import elementWood from "../../assets/images/elements/wood.svg"
-
-// const AVAILABLE_ARENA_ARTS = 18
-
-// const getArenaBackground = (startedAt: number) => {
-//   return `arena-${startedAt % AVAILABLE_ARENA_ARTS}`
-// }
 
 const getElementData = (elementId: number) => {
 
@@ -87,11 +79,11 @@ const elementButton = (
   const elementClass = `attack-button ${element.name} ${isSelected ? "active" : ""}`
 
   return <a key={elementId}
-      className={elementClass}
-      onClick={onClick}>
-      <img src={element.img} />
-      <span className="is-hidden-mobile">{element.name}</span>
-    </a>
+    className={elementClass}
+    onClick={onClick}>
+    <img src={element.img} />
+    <span className="is-hidden-mobile">{element.name}</span>
+  </a>
 }
 
 const winnerBanner = (winner: string, isWinner?: boolean) => {
@@ -143,6 +135,7 @@ class BattleArena extends React.Component<Props, ReactState> {
     hpLog: [] as HpLog[],
     enemyIsSet: false
   }
+  private arenaRef: any = React.createRef()
 
   public render() {
 
@@ -151,8 +144,6 @@ class BattleArena extends React.Component<Props, ReactState> {
       winner,
       identity
     } = this.props
-
-    console.info(isWatcher)
 
     const isWinner = isWatcher(arena, identity) ? undefined : winner === identity
 
@@ -225,6 +216,7 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     return <div className="arena-monster">
       <Arena3D
+        ref={this.arenaRef}
         myMonster={monsterModelSrc(myModel)}
         enemyMonster={monsterModelSrc(enemyModel)}
         myMonsterDecor={get3dModel(monsters.myMonster.pet_type).decor}
@@ -237,9 +229,9 @@ class BattleArena extends React.Component<Props, ReactState> {
       {this.renderHpNotifications(monsters)}
       <div className="battle-buttons-container">
         {myTurn ? this.attackButtons(monsters.myMonster) :
-        isBattleGoing ? <span>Waiting for Opponent Turn</span> : null}
+          isBattleGoing ? <span>Waiting for Opponent Turn</span> : null}
       </div>
-      {myTurn && this.confirmAttackButton(selectedElementId)}
+      {myTurn && this.confirmAttackButton(selectedElementId, myTurn)}
     </div>
   }
 
@@ -263,7 +255,7 @@ class BattleArena extends React.Component<Props, ReactState> {
     const hps = Object.keys(monsters).map(
       (monster, index) => {
         const { hp, player } = monsters[monster]
-        return this.hpBar(hp, player, player === identity, index+1)
+        return this.hpBar(hp, player, player === identity, index + 1)
       }
     )
 
@@ -274,8 +266,10 @@ class BattleArena extends React.Component<Props, ReactState> {
     const hpColor = hpValue > 50 ? "green" : "red"
 
     return (
-      <div className={`progress-bar ${hpColor} monster-hp-card hp-bar-${index}`}>
-        <span style={{width: `${hpValue}%`}} />
+      <div
+        key={index}
+        className={`progress-bar ${hpColor} monster-hp-card hp-bar-${index}`}>
+        <span style={{ width: `${hpValue}%` }} />
         <p>{monsterName}</p>
       </div>
     )
@@ -303,7 +297,7 @@ class BattleArena extends React.Component<Props, ReactState> {
         (item) => (item.petId === petId &&
           (Date.now() - item.time) < 5000)
       ).length
-      
+
       if (hpLogsCount < 1) {
         hpLog.push({
           petId,
@@ -331,13 +325,19 @@ class BattleArena extends React.Component<Props, ReactState> {
     return notifications.length ? notifications : null
   }
 
-  private confirmAttackButton = (selectedElementId: number | undefined) => {
+  private onAttack = (isMyTurn: boolean) => {
+    this.arenaRef.current
+      .changeAnimationState(isMyTurn)
+      .then(() => this.props.submitAttack())
+  }
+
+  private confirmAttackButton = (selectedElementId: number | undefined, isMyTurn: boolean) => {
 
     if (selectedElementId !== undefined && selectedElementId >= 0) {
       const { name } = getElementData(selectedElementId)
       return <a
         className="confirm-attack-button"
-        onClick={this.props.submitAttack}>
+        onClick={this.onAttack.bind(null, isMyTurn)}>
         <span>{name}</span> Attack
       </a>
     } else {
@@ -357,9 +357,9 @@ class BattleArena extends React.Component<Props, ReactState> {
 
     return <React.Fragment>
       {elements.map((element) => {
-          const doAttack = () => attackSelection(pet.pet_id, element)
-          return elementButton(element, doAttack, element === selectedElementId)
-        })}
+        const doAttack = () => attackSelection(pet.pet_id, element)
+        return elementButton(element, doAttack, element === selectedElementId)
+      })}
     </React.Fragment>
   }
 }
