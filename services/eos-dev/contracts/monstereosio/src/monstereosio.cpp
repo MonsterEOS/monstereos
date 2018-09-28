@@ -34,9 +34,9 @@ EOSIO_ABI_EX(pet,
   // battles
   // (battlecreate)
   // (battlejoin)
-  // (battleleave)
   // (battlestart)
   (quickbattle)
+  (battleleave)
   (battleattack)
   (battlefinish)
   (battlepfdel)

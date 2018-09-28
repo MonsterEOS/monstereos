@@ -386,20 +386,20 @@ const checkBattleResources = async (eosAccount: string) => {
 //   }).catch(trxError)
 // }
 
-// export const leaveBattle = async(
-//   scatter: any,
-//   host: string
-// ) => {
-//   const eosAccount = getEosAccount(scatter.identity)
-//   const eosAuthorization = getEosAuthorization(scatter.identity)
-//   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
+export const leaveBattle = async(
+  scatter: any,
+  host: string
+) => {
+  const eosAccount = getEosAccount(scatter.identity)
+  const eosAuthorization = getEosAuthorization(scatter.identity)
+  const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
-//   return contract.battleleave(host, eosAccount, eosAuthorization.permission)
-//   .then((res: any) => {
-//     destroyHashInfo()
-//     return res
-//   }).catch(trxError)
-// }
+  return contract.battleleave(host, eosAccount, eosAuthorization.permission)
+  .then((res: any) => {
+    // destroyHashInfo()
+    return res
+  }).catch(trxError)
+}
 
 // export const startBattle = async(
 //   scatter: any,

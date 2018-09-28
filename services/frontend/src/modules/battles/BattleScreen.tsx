@@ -4,10 +4,10 @@ import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION
 import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, battleCountdownText, Element, getBattleCountdown } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, battleCountdownText, Element, getBattleCountdown, BATTLE_PHASE_JOINING } from "./battles"
 import {
   loadArenaByHost,
-  // leaveBattle,
+  leaveBattle,
   // startBattle,
   loadElements as apiLoadElements,
   loadPetTypes,
@@ -102,11 +102,11 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
     const isMyBattle = !!currentBattle
 
-    // const allowLeaveBattle = isMyBattle &&
-    //   (arena.phase === BATTLE_PHASE_STARTING ||
-    //   arena.phase === BATTLE_PHASE_JOINING) ?
-    //   () => this.doLeaveBattle(arena.host) :
-    //   null
+    const allowLeaveBattle = isMyBattle &&
+      (arena.phase === BATTLE_PHASE_STARTING ||
+      arena.phase === BATTLE_PHASE_JOINING) ?
+      () => this.doLeaveBattle(arena.host) :
+      null
 
     // const isConfirmed = isPlayerReady(arena, identity)
     // const allowConfirmation = isMyBattle && !isConfirmed &&
@@ -131,7 +131,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
           isOver={isOver}
           countdownText={countdownText}
           allowConfirmation={false} // allowConfirmation
-          allowLeaveBattle={false} /> {/* allowLeaveBattle />*/}
+          allowLeaveBattle={allowLeaveBattle} />
         {arena.phase === BATTLE_PHASE_STARTING &&
         <BattleConfirmation
           commits={arena.commits} />
@@ -267,17 +267,17 @@ class BattleScreen extends React.Component<Props, ReactState> {
       })
   }
 
-  // private doLeaveBattle = async (host: string) => {
-  //   const { scatter, dispatchPushNotification, history } = this.props
-  //   leaveBattle(scatter, host)
-  //     .then(() => {
-  //       setTimeout(() => history.push("/arenas"), 500)
-  //       dispatchPushNotification("Leaving Battle Successfully...", NOTIFICATION_SUCCESS)
-  //     })
-  //     .catch((err: any) => {
-  //       dispatchPushNotification(`Fail to Leave Battle ${err.eosError}`, NOTIFICATION_ERROR)
-  //     })
-  // }
+  private doLeaveBattle = async (host: string) => {
+    const { scatter, dispatchPushNotification, history } = this.props
+    leaveBattle(scatter, host)
+      .then(() => {
+        setTimeout(() => history.push("/arenas"), 500)
+        dispatchPushNotification("Leaving Battle Successfully...", NOTIFICATION_SUCCESS)
+      })
+      .catch((err: any) => {
+        dispatchPushNotification(`Fail to Leave Battle ${err.eosError}`, NOTIFICATION_ERROR)
+      })
+  }
 
   // private doStartBattle = async (host: string) => {
   //   const { scatter, dispatchPushNotification } = this.props

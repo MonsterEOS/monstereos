@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(battles) try {
   t.diff_table(plsinbattles);
   t.diff_table(battles);
   t.produce_blocks();
-  
+
   // john tries to sneak in two battles at the same time
   t.push_trx("monstereosio", "quickbattle", "john",
     R"({"player": "john", "mode": 1, "picks": { "pets": [6], "randoms": [1,2,3,4,5]}})");
@@ -475,14 +475,14 @@ BOOST_AUTO_TEST_CASE(battles) try {
     t.diff_table(plsinbattles);
     t.diff_table(battles);
     t.produce_blocks();
-    
+
     t.push_trx("monstereosio", "battleattack", "mary",
       R"({"host": "john", "player": "mary", "pet_id": 2, "pet_enemy_id": 1, "element": 0})");
     t.diff_table(pets);
     t.diff_table(petinbattles);
     t.diff_table(plsinbattles);
     t.diff_table(battles);
-    t.produce_blocks();    
+    t.produce_blocks();
   }
 
   // now john tries to attack in another battle
@@ -493,7 +493,24 @@ BOOST_AUTO_TEST_CASE(battles) try {
   t.diff_table(plsinbattles);
   t.diff_table(battles);
   t.produce_blocks();
-  
+
+  // now john creates another battle and leave it because he is bored
+  t.push_trx("monstereosio", "quickbattle", "john",
+    R"({"player": "john", "mode": 1, "picks": { "pets": [1], "randoms": [1,2,3,4,5]}})");
+  t.diff_table(pets);
+  t.diff_table(petinbattles);
+  t.diff_table(plsinbattles);
+  t.diff_table(battles);
+  t.produce_blocks(10);
+
+  t.push_trx("monstereosio", "battleleave", "john",
+    R"({"player": "john", "host": "john"})");
+  t.diff_table(pets);
+  t.diff_table(petinbattles);
+  t.diff_table(plsinbattles);
+  t.diff_table(battles);
+  t.produce_blocks();
+
   // // team rocket tries to manipulate battles
   // t.push_trx("monstereosio", "battleattack", "rocket",
   //   R"({"player": "rocket", "mode": 1, "picks": { "pets": [4], "randoms": [1,2,3,2,1]}})");
