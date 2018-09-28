@@ -183,7 +183,7 @@ const quickbattle = async (db: any, payload: any, blockInfo: BlockInfo) => {
 }
 
 const getLastBattle = async (db: any) => {
-  return await db.battles.findOne(null, {
+  return await db.battles.findOne({}, {
     order: [
       { field: "id", direction: "desc" },
     ],
