@@ -59,9 +59,9 @@ public:
     // battle interface
     // void battlecreate ( name host, battle_mode mode, checksum256 secret );
     // void battlejoin   ( name host, name player, checksum256 secret );
-    // void battleleave  ( name host, name player );
     // void battlestart  ( name host, name player, st_pick picks );
     // void battleselpet ( name host, name player, uuid pet_id );
+    void battleleave  ( name host, name player );
     void quickbattle  ( battle_mode mode, name player, st_pick picks );
     void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
     void battlefinish ( name host, name winner );

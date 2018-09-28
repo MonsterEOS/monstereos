@@ -342,6 +342,17 @@
         }
       ]
     },{
+      "name": "battleleave",
+      "base": "",
+      "fields": [{
+          "name": "host",
+          "type": "name"
+        },{
+          "name": "player",
+          "type": "name"
+        }
+      ]
+    },{
       "name": "battleattack",
       "base": "",
       "fields": [{
@@ -620,6 +631,10 @@
     },{
       "name": "quickbattle",
       "type": "quickbattle",
+      "ricardian_contract": ""
+    },{
+      "name": "battleleave",
+      "type": "battleleave",
       "ricardian_contract": ""
     },{
       "name": "battleattack",

@@ -53,7 +53,7 @@ export const getEosAuthorization = (identity: any) => {
 
 export const getContract = (scatter: any, network: any, contract: string) => {
   // return scatter.eos(network, eos, { chainId: CHAIN_ID }).contract(contract)
-  return scatter.eos(network, eos).contract(contract)
+  return scatter.eos(network, eos, {}).contract(contract)
 }
 
 export const SCATTER_EXTENSION_LINK = "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"

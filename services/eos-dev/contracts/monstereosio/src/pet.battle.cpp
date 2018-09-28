@@ -45,48 +45,6 @@ using namespace utils;
 
 // }
 
-// void pet::battleleave(name host, name player) {
-
-//   require_auth(player);
-
-//   _tb_battle tb_battles(_self, _self);
-//   auto itr_battle = tb_battles.find(host);
-//   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
-//   st_battle battle = *itr_battle;
-
-//   eosio_assert(battle.started_at == 0, "battle already started");
-
-//   eosio_assert(battle.player_exists(player), "player not in this battle");
-
-//   // remove pets from battle
-//   for (st_pet_stat ps : battle.pets_stats) {
-//     if (ps.player != player && ps.player != host) { // if it's a host it needs to delete all pets
-//       continue;
-//     }
-
-//     auto itr_pet_battle = petinbattles.find(ps.pet_id);
-//     if (itr_pet_battle != petinbattles.end()) {
-//       petinbattles.erase( itr_pet_battle );
-//     }
-//   }
-
-//   if (player == host) {
-//     tb_battles.erase( itr_battle );
-
-//     // decrease busy arenas counter
-//     auto pc = _get_pet_config();
-//     pc.battle_busy_arenas--;
-//     _update_pet_config(pc);
-
-//   } else {
-//     battle.remove_player(player);
-//     tb_battles.modify(itr_battle, 0, [&](auto& r) {
-//       r.commits = battle.commits;
-//       r.pets_stats = battle.pets_stats;
-//     });
-//   }
-// }
-
 // void pet::battlestart(name host, name player, st_pick picks) {
 
 //   require_auth(player);
@@ -222,6 +180,54 @@ void pet::_battle_add_pets(st_battle &battle,
 
     battle.add_pet(pet_id, pet.type, player);
   }
+}
+
+void pet::battleleave(name host, name player) {
+
+  require_auth(player);
+
+  _tb_battle tb_battles(_self, _self);
+  auto itr_battle = tb_battles.find(host);
+  eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
+  st_battle battle = *itr_battle;
+
+  eosio_assert(battle.started_at == 0, "battle already started");
+
+  eosio_assert(battle.player_exists(player), "player not in this battle");
+
+  // remove pets from battle
+  for (st_pet_stat ps : battle.pets_stats) {
+    auto itr_pet_battle = petinbattles.find(ps.pet_id);
+    if (itr_pet_battle != petinbattles.end()) {
+      petinbattles.erase( itr_pet_battle );
+    }
+  }
+
+  auto itr_player_battle = plsinbattles.find(player);
+  if (itr_player_battle != plsinbattles.end()) {
+    plsinbattles.erase( itr_player_battle );
+  }
+  
+  if (player == host) {
+    tb_battles.erase( itr_battle );
+
+    // decrease busy arenas counter
+    auto pc = _get_pet_config();
+    pc.battle_busy_arenas--;
+    _update_pet_config(pc);
+
+  } else {
+    battle.remove_player(player);
+    tb_battles.modify(itr_battle, 0, [&](auto& r) {
+      r.commits = battle.commits;
+      r.pets_stats = battle.pets_stats;
+    });
+  }
+  
+  // decrease busy arenas counter
+  auto pc = _get_pet_config();
+  pc.battle_busy_arenas--;
+  _update_pet_config(pc);
 }
 
 void pet::battleattack(name         host,
