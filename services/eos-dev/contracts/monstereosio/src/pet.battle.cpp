@@ -207,7 +207,7 @@ void pet::battleleave(name host, name player) {
   if (itr_player_battle != plsinbattles.end()) {
     plsinbattles.erase( itr_player_battle );
   }
-  
+
   if (player == host) {
     tb_battles.erase( itr_battle );
 
@@ -215,7 +215,6 @@ void pet::battleleave(name host, name player) {
     auto pc = _get_pet_config();
     pc.battle_busy_arenas--;
     _update_pet_config(pc);
-
   } else {
     battle.remove_player(player);
     tb_battles.modify(itr_battle, 0, [&](auto& r) {
@@ -223,11 +222,6 @@ void pet::battleleave(name host, name player) {
       r.pets_stats = battle.pets_stats;
     });
   }
-  
-  // decrease busy arenas counter
-  auto pc = _get_pet_config();
-  pc.battle_busy_arenas--;
-  _update_pet_config(pc);
 }
 
 void pet::battleattack(name         host,
