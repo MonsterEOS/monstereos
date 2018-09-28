@@ -128,6 +128,15 @@ namespace types {
   };
   typedef multi_index<N(accounts), st_account> _tb_accounts;
 
+  // @abi table accounts2 i64
+  struct st_account2 {
+      name                      owner;
+      flat_map<symbol, int64_t> balances;
+
+      uint64_t primary_key() const { return owner; }
+  };
+  typedef multi_index<N(accounts2), st_account2> _tb_accounts2;
+
   // @abi table elements i64
   struct st_elements {
       uint64_t id;
