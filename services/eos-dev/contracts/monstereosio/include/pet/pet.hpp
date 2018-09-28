@@ -35,6 +35,8 @@ public:
     pets(_self,_self),
     orders(_self,_self),
     petinbattles(_self,_self),
+    plsinbattles(_self,_self),
+    seed(_self, _self),
     pet_config2(_self,_self)
     {}
 
@@ -43,6 +45,8 @@ public:
     _tb_pet pets;
     _tb_orders orders;
     _tb_pet_in_battle petinbattles;
+    _tb_player_in_battle plsinbattles;
+    _tb_seed seed;
 
     // pet interactions
     void createpet    ( name owner, string pet_name );
@@ -53,11 +57,12 @@ public:
     void transferpet  ( uuid pet_id, name new_owner);
 
     // battle interface
-    void battlecreate ( name host, battle_mode mode, checksum256 secret );
-    void battlejoin   ( name host, name player, checksum256 secret );
-    void battleleave  ( name host, name player );
-    void battlestart  ( name host, name player, st_pick picks );
+    // void battlecreate ( name host, battle_mode mode, checksum256 secret );
+    // void battlejoin   ( name host, name player, checksum256 secret );
+    // void battlestart  ( name host, name player, st_pick picks );
     // void battleselpet ( name host, name player, uuid pet_id );
+    void battleleave  ( name host, name player );
+    void quickbattle  ( battle_mode mode, name player, st_pick picks );
     void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
     void battlefinish ( name host, name winner );
     void battlepfdel  ( uuid pet_id, string reason );
@@ -129,6 +134,9 @@ public:
     uuid _next_id();
     uint64_t _next_element_id();
     uint64_t _next_pet_type_id();
+
+    // generate pseudo random seeds
+    int _random(const int num);
 
     // internal pet calcs
     bool _is_alive(st_pets &pet, const st_pet_config2 &pc);

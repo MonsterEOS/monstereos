@@ -1,47 +1,185 @@
 using namespace types;
 using namespace utils;
 
-void pet::battlecreate(name host, battle_mode mode, checksum256 secret) {
-  require_auth(host);
+/*
+// void pet::battlecreate(name host, battle_mode mode, checksum256 secret) {
+//   require_auth(host);
+
+//   _tb_battle tb_battles(_self, _self);
+//   auto itr_battle = tb_battles.find(host);
+
+//   eosio_assert(itr_battle == tb_battles.end(), "you already host a battle!");
+//   eosio_assert(mode == V1 || mode == V2 || mode == V3, "invalid battle mode");
+
+//   // check and increase busy arenas counter
+//   auto pc = _get_pet_config();
+//   pc.battle_busy_arenas++;
+//   eosio_assert(pc.battle_busy_arenas <= pc.battle_max_arenas, "all arenas are busy");
+
+//   tb_battles.emplace(_self, [&](auto& r) {
+//     r.host = host;
+//     r.mode = mode;
+//   });
+//   _update_pet_config(pc);
+
+//   SEND_INLINE_ACTION( *this, battlejoin, {host,N(active)}, {host, host, secret} );
+// }
+
+// void pet::battlejoin(name host, name player, checksum256 secret) {
+
+//   require_auth(player);
+
+//   _tb_battle tb_battles(_self, _self);
+//   auto itr_battle = tb_battles.find(host);
+//   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
+//   st_battle battle = *itr_battle;
+
+//   eosio_assert(!battle.player_exists(player), "player is already in this battle");
+//   eosio_assert(battle.commits.size() < 2, "battle is already full of players");
+
+//   battle.add_player(player, secret);
+
+//   tb_battles.modify(itr_battle, _self, [&](auto& r) {
+//     r.commits = battle.commits;
+//   });
+
+// }
+
+// void pet::battlestart(name host, name player, st_pick picks) {
+
+//   require_auth(player);
+
+//   _tb_battle tb_battles(_self, _self);
+//   auto itr_battle = tb_battles.find(host);
+//   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
+//   st_battle battle = *itr_battle;
+
+//   eosio_assert(battle.started_at == 0, "battle already started");
+//   eosio_assert(battle.commits.size() == 2, "battle has not enough players");
+
+//   // validates and summarize reveals
+//   auto pc = _get_pet_config();
+//   bool valid_reveal = false;
+//   vector<st_commit> reveals{};
+//   for(auto& commit : battle.commits) {
+//     if (commit.player == player) {
+//       eosio_assert(commit.randoms.size() == 0, "commit was already revealed");
+
+//       checksum256 source = get_hash(pack(picks));
+
+//       eosio_assert(source == commit.commitment, "tampering your pick is not cool");
+//       commit.randoms = picks.randoms;
+//       reveals.emplace_back(commit);
+
+//       _battle_add_pets(battle, player, picks.pets, pc);
+
+//       valid_reveal = true;
+//     } else if (commit.randoms.size() > 0) {
+//       reveals.emplace_back(commit);
+//     }
+//   }
+//   eosio_assert(valid_reveal, "invalid reveal");
+
+//   // everybody commited, randomize all turns by random commits
+//   if (reveals.size() == battle.commits.size()) {
+//     std::sort (reveals.begin(), reveals.end(),
+//       [](const st_commit &a, const st_commit &b) -> bool {
+//         checksum256 result;
+//         sha256( (char *)&a, sizeof(b)*2, &result);
+//         return result.hash[1] < result.hash[0];
+//       });
+//     battle.started_at = now();
+//     battle.last_move_at = now();
+//     battle.commits = reveals;
+//   }
+
+//   tb_battles.modify(itr_battle, 0, [&](auto& r) {
+//     r.pets_stats = battle.pets_stats;
+//     r.started_at = battle.started_at;
+//     r.last_move_at = battle.last_move_at;
+//     r.commits = battle.commits;
+//   });
+// }
+*/
+
+void pet::quickbattle(battle_mode mode, name player, st_pick picks) {
+  require_auth(player);
+  eosio_assert(mode == V1 || mode == V2 || mode == V3, "invalid battle mode");
+  eosio_assert(picks.pets.size() == mode, "pets selection is not valid");
+
+  auto itr_player_battle = plsinbattles.find(player);
+  eosio_assert(itr_player_battle == plsinbattles.end(), "player is already in another battle");
 
   _tb_battle tb_battles(_self, _self);
-  auto itr_battle = tb_battles.find(host);
+  auto idx_battle = tb_battles.template get_index<N(start)>();
+  auto itr_battle = idx_battle.lower_bound( 0 );
 
-  eosio_assert(itr_battle == tb_battles.end(), "you already host a battle!");
-  eosio_assert(mode == V1 || mode == V2 || mode == V3, "invalid battle mode");
-
-  // check and increase busy arenas counter
   auto pc = _get_pet_config();
-  pc.battle_busy_arenas++;
-  eosio_assert(pc.battle_busy_arenas <= pc.battle_max_arenas, "all arenas are busy");
 
-  tb_battles.emplace(_self, [&](auto& r) {
-    r.host = host;
-    r.mode = mode;
+  // primer roller
+  _random(10);
+
+  // no battle or only started battles, starting one
+  if (itr_battle == idx_battle.end() || itr_battle->started_at > 0) {
+    // check and increase busy arenas counter
+    pc.battle_busy_arenas++;
+    eosio_assert(pc.battle_busy_arenas <= pc.battle_max_arenas, "all arenas are busy");
+
+    st_battle battle{};
+    battle.add_quick_player(player);
+    _battle_add_pets(battle, player, picks.pets, pc);
+
+    tb_battles.emplace(_self, [&](auto& r) {
+      r.host = player;
+      r.mode = mode;
+      r.commits = battle.commits;
+      r.pets_stats = battle.pets_stats;
+    });
+
+    _update_pet_config(pc);
+  } else {
+    st_battle battle = *itr_battle;
+    battle.add_quick_player(player);
+    _battle_add_pets(battle, player, picks.pets, pc);
+
+    idx_battle.modify(itr_battle, 0, [&](auto& r) {
+      r.commits = battle.commits;
+      r.pets_stats = battle.pets_stats;
+      r.started_at = now();
+      r.last_move_at = now();
+    });
+  }
+
+  plsinbattles.emplace(_self, [&](auto& r) {
+    r.player = player;
   });
-  _update_pet_config(pc);
-
-  SEND_INLINE_ACTION( *this, battlejoin, {host,N(active)}, {host, host, secret} );
 }
 
-void pet::battlejoin(name host, name player, checksum256 secret) {
+void pet::_battle_add_pets(st_battle &battle,
+                           name player,
+                           vector<uint64_t> pet_ids,
+                           const st_pet_config2 &pc) {
 
-  require_auth(player);
+  for (auto& pet_id : pet_ids) {
 
-  _tb_battle tb_battles(_self, _self);
-  auto itr_battle = tb_battles.find(host);
-  eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
-  st_battle battle = *itr_battle;
+    auto itr_pet = pets.find(pet_id);
+    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    st_pets pet = *itr_pet;
 
-  eosio_assert(!battle.player_exists(player), "player is already in this battle");
-  eosio_assert(battle.commits.size() < 2, "battle is already full of players");
+    // only owners can use their pets in battle
+    require_auth(pet.owner);
+    eosio_assert(_is_alive(pet, pc), "dead pets don't battle");
+    eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
+    eosio_assert(pet.has_energy(30), "pet has no energy for a battle");
 
-  battle.add_player(player, secret);
+    auto itr_pet_battle = petinbattles.find(pet_id);
+    eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");
+    petinbattles.emplace(_self, [&](auto& r) {
+      r.pet_id = pet_id;
+    });
 
-  tb_battles.modify(itr_battle, _self, [&](auto& r) {
-    r.commits = battle.commits;
-  });
-
+    battle.add_pet(pet_id, pet.type, player);
+  }
 }
 
 void pet::battleleave(name host, name player) {
@@ -59,14 +197,15 @@ void pet::battleleave(name host, name player) {
 
   // remove pets from battle
   for (st_pet_stat ps : battle.pets_stats) {
-    if (ps.player != player) {
-      continue;
-    }
-
     auto itr_pet_battle = petinbattles.find(ps.pet_id);
     if (itr_pet_battle != petinbattles.end()) {
       petinbattles.erase( itr_pet_battle );
     }
+  }
+
+  auto itr_player_battle = plsinbattles.find(player);
+  if (itr_player_battle != plsinbattles.end()) {
+    plsinbattles.erase( itr_player_battle );
   }
 
   if (player == host) {
@@ -76,99 +215,12 @@ void pet::battleleave(name host, name player) {
     auto pc = _get_pet_config();
     pc.battle_busy_arenas--;
     _update_pet_config(pc);
-
   } else {
     battle.remove_player(player);
     tb_battles.modify(itr_battle, 0, [&](auto& r) {
       r.commits = battle.commits;
       r.pets_stats = battle.pets_stats;
     });
-  }
-
-
-
-}
-
-void pet::battlestart(name host, name player, st_pick picks) {
-
-  require_auth(player);
-
-  _tb_battle tb_battles(_self, _self);
-  auto itr_battle = tb_battles.find(host);
-  eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
-  st_battle battle = *itr_battle;
-
-  eosio_assert(battle.started_at == 0, "battle already started");
-  eosio_assert(battle.commits.size() == 2, "battle has not enough players");
-
-  // validates and summarize reveals
-  auto pc = _get_pet_config();
-  bool valid_reveal = false;
-  vector<st_commit> reveals{};
-  for(auto& commit : battle.commits) {
-    if (commit.player == player) {
-      eosio_assert(commit.randoms.size() == 0, "commit was already revealed");
-
-      checksum256 source = get_hash(pack(picks));
-
-      eosio_assert(source == commit.commitment, "tampering your pick is not cool");
-      commit.randoms = picks.randoms;
-      reveals.emplace_back(commit);
-
-      _battle_add_pets(battle, player, picks.pets, pc);
-
-      valid_reveal = true;
-    } else if (commit.randoms.size() > 0) {
-      reveals.emplace_back(commit);
-    }
-  }
-  eosio_assert(valid_reveal, "invalid reveal");
-
-  // everybody commited, randomize all turns by random commits
-  if (reveals.size() == battle.commits.size()) {
-    std::sort (reveals.begin(), reveals.end(),
-      [](const st_commit &a, const st_commit &b) -> bool {
-        checksum256 result;
-        sha256( (char *)&a, sizeof(b)*2, &result);
-        return result.hash[1] < result.hash[0];
-      });
-    battle.started_at = now();
-    battle.last_move_at = now();
-    battle.commits = reveals;
-  }
-
-  tb_battles.modify(itr_battle, 0, [&](auto& r) {
-    r.pets_stats = battle.pets_stats;
-    r.started_at = battle.started_at;
-    r.last_move_at = battle.last_move_at;
-    r.commits = battle.commits;
-  });
-}
-
-void pet::_battle_add_pets(st_battle &battle,
-                           name player,
-                           vector<uint64_t> pet_ids,
-                           const st_pet_config2 &pc) {
-
-  for (auto& pet_id : pet_ids) {
-
-    auto itr_pet = pets.find(pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
-    st_pets pet = *itr_pet;
-
-    // only owners can make fight with pets
-    require_auth(pet.owner);
-    eosio_assert(_is_alive(pet, pc), "dead pets don't battle");
-    eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
-    eosio_assert(pet.has_energy(1), "pet has no energy for a battle");
-
-    auto itr_pet_battle = petinbattles.find(pet_id);
-    eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");
-    petinbattles.emplace(_self, [&](auto& r) {
-      r.pet_id = pet_id;
-    });
-
-    battle.add_pet(pet_id, pet.type, player);
   }
 }
 
@@ -227,10 +279,11 @@ void pet::battleattack(name         host,
   }
 
   // random factor to attack
-  checksum256 result;
-  sha256( (char *)&battle.commits[0], sizeof(battle.commits[1])*2, &result);
-  uint8_t factor = (result.hash[1] + result.hash[0] + now()) %
-    (pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
+  // checksum256 result;
+  // sha256( (char *)&battle.commits[0], sizeof(battle.commits[1])*2, &result);
+  // uint8_t factor = (result.hash[1] + result.hash[0] + now()) %
+  //   (pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
+  uint8_t factor = _random(pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
 
   // damage based on element ratio and factor
   uint8_t damage = factor * ratio / 10;
@@ -278,7 +331,6 @@ void pet::battleattack(name         host,
     print(" and the winner is >>> ", winner);
     SEND_INLINE_ACTION( *this, battlefinish, {_self,N(active)}, {host, winner} );
   }
-
 }
 
 void pet::battlefinish(name host, name /* winner */) {
@@ -289,11 +341,20 @@ void pet::battlefinish(name host, name /* winner */) {
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
 
-  // update pets stats and remove from battle
-  for (st_pet_stat ps : battle.pets_stats) {
+  // removes pets from in battle status table
+  for (st_pet_stat &ps : battle.pets_stats) {
     auto itr_pet_battle = petinbattles.find(ps.pet_id);
-    eosio_assert(itr_pet_battle != petinbattles.end(), "E404|Invalid pet battle stat");
-    petinbattles.erase( itr_pet_battle );
+    if (itr_pet_battle != petinbattles.end()) {
+      petinbattles.erase( itr_pet_battle );
+    }
+  }
+
+  // removes players from in battle status table
+  for (st_commit &cmm : battle.commits) {
+    auto itr_player_battle = plsinbattles.find(cmm.player);
+    if (itr_player_battle != plsinbattles.end()) {
+      plsinbattles.erase( itr_player_battle );
+    }
   }
 
   tb_battles.erase( itr_battle );
@@ -302,6 +363,9 @@ void pet::battlefinish(name host, name /* winner */) {
   auto pc = _get_pet_config();
   pc.battle_busy_arenas--;
   _update_pet_config(pc);
+
+  // primer roller
+  _random(10);
 
 }
 

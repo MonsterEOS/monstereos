@@ -61,9 +61,9 @@ const BattleCard = ({arena, myBattle, joinBattle, availableToBattle}: Props) => 
           to={`/arenas/${arena.host}`}>
           {myBattle ? "Reconnect to Battle" : "Watch"}
         </Link>
-        { arena.commits.length < 2 && availableToBattle &&
+        {/* { arena.commits.length < 2 && availableToBattle &&
           <a className="card-footer-item" onClick={joinBattle}>Join Battle</a>
-        }
+        } */}
       </footer>
     </div>
 )

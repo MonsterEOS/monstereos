@@ -61,6 +61,14 @@
         }
       ]
     },{
+      "name": "st_pls_inbatt",
+      "base": "",
+      "fields": [{
+          "name": "player",
+          "type": "name"
+        }
+      ]
+    },{
       "name": "st_account",
       "base": "",
       "fields": [{
@@ -236,6 +244,17 @@
         }
       ]
     },{
+      "name": "st_pick",
+      "base": "",
+      "fields": [{
+          "name": "pets",
+          "type": "uint64[]"
+        },{
+          "name": "randoms",
+          "type": "uint8[]"
+        }
+      ]
+    },{
       "name": "createpet",
       "base": "",
       "fields": [{
@@ -309,31 +328,17 @@
         }
       ]
     },{
-      "name": "battlecreate",
+      "name": "quickbattle",
       "base": "",
       "fields": [{
-          "name": "host",
-          "type": "name"
-        },{
           "name": "mode",
           "type": "battle_mode"
-        },{
-          "name": "secret",
-          "type": "checksum256"
-        }
-      ]
-    },{
-      "name": "battlejoin",
-      "base": "",
-      "fields": [{
-          "name": "host",
-          "type": "name"
         },{
           "name": "player",
           "type": "name"
         },{
-          "name": "secret",
-          "type": "checksum256"
+          "name": "picks",
+          "type": "st_pick"
         }
       ]
     },{
@@ -345,31 +350,6 @@
         },{
           "name": "player",
           "type": "name"
-        }
-      ]
-    },{
-      "name": "st_pick",
-      "base": "",
-      "fields": [{
-          "name": "pets",
-          "type": "uint64[]"
-        },{
-          "name": "randoms",
-          "type": "uint8[]"
-        }
-      ]
-    },{
-      "name": "battlestart",
-      "base": "",
-      "fields": [{
-          "name": "host",
-          "type": "name"
-        },{
-          "name": "player",
-          "type": "name"
-        },{
-          "name": "picks",
-          "type": "st_pick"
         }
       ]
     },{
@@ -649,21 +629,13 @@
       "type": "transferpet",
       "ricardian_contract": ""
     },{
-      "name": "battlecreate",
-      "type": "battlecreate",
-      "ricardian_contract": "---\ntitle: Battle Create\nsummary: Creates a Monster Battle Arena\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Creation Terms & Conditions\n\nI, {{host}}, agree to host a battle arena in order to\nfight other players pets in a {{mode}}v{{mode}} mode.\n\nI also commit to submit my secret hash with my monsters\nselection and I agree to reveal it whenever my enemy player\njoin my arena, being ready to wait for his reveal and start\nthe fun battle.\n\nI understand that this arena is just a fun game mode that\nwill never hurt or kill my monster pet.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
-    },{
-      "name": "battlejoin",
-      "type": "battlejoin",
-      "ricardian_contract": "---\ntitle: Battle Join\nsummary: Join in a Monster Battle Arena\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Join Terms & Conditions\n\nI, {{player}}, agree to join in {{host}} arena in order to\nfight my enemy with my monsters.\n\nI also commit to submit my secret hash with my monsters\nselection and I agree to reveal it as soon as it is possible,\nbeing ready to wait for my oponent reveal and start the fun battle.\n\nI understand that this arena is just a fun game mode that\nwill never hurt or kill my monster pet.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
+      "name": "quickbattle",
+      "type": "quickbattle",
+      "ricardian_contract": ""
     },{
       "name": "battleleave",
       "type": "battleleave",
-      "ricardian_contract": "---\ntitle: Battle Leave\nsummary: Leaves a Monster Battle Arena\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Leave Terms & Conditions\n\nI, {{player}}, agree to leave {{host}}'s arena\nbecause I no longer have interest in this battle.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
-    },{
-      "name": "battlestart",
-      "type": "battlestart",
-      "ricardian_contract": "---\ntitle: Battle Start\nsummary: Reveal my Monster's Picks in order to Start the Battle\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Start Terms & Conditions\n\nI, {{player}}, agree to reveal and start my battle in\n{{host}}'s arena.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
+      "ricardian_contract": ""
     },{
       "name": "battleattack",
       "type": "battleattack",
@@ -774,6 +746,16 @@
         "uuid"
       ],
       "type": "st_pet_inbatt"
+    },{
+      "name": "plsinbattles",
+      "index_type": "i64",
+      "key_names": [
+        "player"
+      ],
+      "key_types": [
+        "name"
+      ],
+      "type": "st_pls_inbatt"
     },{
       "name": "accounts",
       "index_type": "i64",

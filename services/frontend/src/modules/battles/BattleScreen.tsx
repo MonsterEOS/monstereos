@@ -4,11 +4,11 @@ import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION
 import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText, Element, getBattleCountdown } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, battleCountdownText, Element, getBattleCountdown, BATTLE_PHASE_JOINING } from "./battles"
 import {
   loadArenaByHost,
   leaveBattle,
-  startBattle,
+  // startBattle,
   loadElements as apiLoadElements,
   loadPetTypes,
   attackBattle,
@@ -108,13 +108,13 @@ class BattleScreen extends React.Component<Props, ReactState> {
       () => this.doLeaveBattle(arena.host) :
       null
 
-    const countdownText = battleCountdownText(arena, globalConfig)
+    // const isConfirmed = isPlayerReady(arena, identity)
+    // const allowConfirmation = isMyBattle && !isConfirmed &&
+    //   arena.phase === BATTLE_PHASE_STARTING ?
+    //   () => this.doStartBattle(arena.host) :
+    //   null
 
-    const isConfirmed = isPlayerReady(arena, identity)
-    const allowConfirmation = isMyBattle && !isConfirmed &&
-      arena.phase === BATTLE_PHASE_STARTING ?
-      () => this.doStartBattle(arena.host) :
-      null
+    const countdownText = battleCountdownText(arena, globalConfig)
 
     const isOver = arena.phase === BATTLE_PHASE_FINISHED
 
@@ -130,7 +130,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
           isMyBattle={isMyBattle}
           isOver={isOver}
           countdownText={countdownText}
-          allowConfirmation={allowConfirmation}
+          allowConfirmation={false} // allowConfirmation
           allowLeaveBattle={allowLeaveBattle} />
         {arena.phase === BATTLE_PHASE_STARTING &&
         <BattleConfirmation
@@ -279,18 +279,18 @@ class BattleScreen extends React.Component<Props, ReactState> {
       })
   }
 
-  private doStartBattle = async (host: string) => {
-    const { scatter, dispatchPushNotification } = this.props
-    startBattle(scatter, host)
-      .then(() => {
-        setTimeout(this.refresh, 500)
-        dispatchPushNotification("Ready to Battle!", NOTIFICATION_SUCCESS)
-      })
-      .catch((err: any) => {
-        setTimeout(this.refresh, 500)
-        dispatchPushNotification(`Fail to confirm Battle ${err.eosError}`, NOTIFICATION_ERROR)
-      })
-  }
+  // private doStartBattle = async (host: string) => {
+  //   const { scatter, dispatchPushNotification } = this.props
+  //   startBattle(scatter, host)
+  //     .then(() => {
+  //       setTimeout(this.refresh, 500)
+  //       dispatchPushNotification("Ready to Battle!", NOTIFICATION_SUCCESS)
+  //     })
+  //     .catch((err: any) => {
+  //       setTimeout(this.refresh, 500)
+  //       dispatchPushNotification(`Fail to confirm Battle ${err.eosError}`, NOTIFICATION_ERROR)
+  //     })
+  // }
 
   private loadElements = async () => {
     const elements = await apiLoadElements()
