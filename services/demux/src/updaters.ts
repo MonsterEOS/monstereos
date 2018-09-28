@@ -178,7 +178,7 @@ const quickbattle = async (db: any, payload: any, blockInfo: BlockInfo) => {
     await battleJoin(db, res.id, payload.data.picks.pets, payload.authorization[0].actor, blockInfo, true)
 
   } else { // join in the current battle
-    await battleJoin(db, lastBattle, payload.data.picks.pets, payload.authorization[0].actor, blockInfo, false)
+    await battleJoin(db, lastBattle.id, payload.data.picks.pets, payload.authorization[0].actor, blockInfo, false)
   }
 }
 
@@ -214,14 +214,21 @@ const battlestart = async (db: any, payload: any, blockInfo: BlockInfo) => {
       battle_id: battle.id,
     })
 
-    battleJoin(db, battle, payload.data.picks.pets, payload.authorization[0].actor, blockInfo, !existentPicks)
+    battleJoin(db, battle.id, payload.data.picks.pets, payload.authorization[0].actor, blockInfo, !existentPicks)
   } else { // ignoring old battles
     console.info("Ignoring old battle pick")
   }
 
 }
 
-const battleJoin = async(db: any, battleId: any, pickPets: any, picker: any, blockInfo: BlockInfo, firstPick: boolean) => {
+const battleJoin = async (
+  db: any,
+  battleId: any,
+  pickPets: any,
+  picker: any,
+  blockInfo: BlockInfo,
+  firstPick: boolean,
+) => {
 
   // insert new picks
   const picks = pickPets.map((petId: number) =>

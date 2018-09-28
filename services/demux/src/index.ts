@@ -11,8 +11,8 @@ console.info("==== Starting demux ====")
 
 const INITIAL_BLOCK = Number(process.env.CHAIN_INIT_BLOCK || 100)
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:5901"
-const MONGO_DB = process.env.MONGO_DB || "EOSMN"
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017"
+const MONGO_DB = process.env.MONGO_DB || "EOSFN"
 
 console.info("Initial Block to sync >>>> ", INITIAL_BLOCK)
 
@@ -20,7 +20,7 @@ const dbConfig = {
   user: process.env.DB_USER || "user",
   password: process.env.DB_PASSWORD || "pass",
   host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 5932,
+  port: Number(process.env.DB_PORT) || 5432,
   database: process.env.DB_NAME || "monstereosio",
   schema: process.env.DB_SCHEMA || "pets",
 }
