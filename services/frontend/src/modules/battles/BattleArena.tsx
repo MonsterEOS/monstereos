@@ -214,6 +214,8 @@ class BattleArena extends React.Component<Props, ReactState> {
       (arena.commits[0].player === identity ||
         Date.now() - arena.lastMoveAt > 60000)
 
+    const isSpectator: boolean = !(petsStats.filter(pet => pet.player === identity).length > 0)
+
     return <div className="arena-monster">
       <Arena3D
         ref={this.arenaRef}
@@ -228,10 +230,10 @@ class BattleArena extends React.Component<Props, ReactState> {
       <div className={`mobile-arena-countdown ${!battleCountdown || battleCountdown <= 0 ? "expired" : ""}`}>{battleCountdown && battleCountdown > 0 ? battleCountdown : "00"}</div>
       {this.renderHpNotifications(monsters)}
       <div className="battle-buttons-container">
-        {myTurn ? this.attackButtons(monsters.myMonster) :
+        {!isSpectator && myTurn ? this.attackButtons(monsters.myMonster) :
           isBattleGoing ? <span>Waiting for Opponent Turn</span> : null}
       </div>
-      {myTurn && this.confirmAttackButton(selectedElementId, myTurn)}
+      {!isSpectator && myTurn && this.confirmAttackButton(selectedElementId, myTurn)}
     </div>
   }
 
@@ -239,6 +241,16 @@ class BattleArena extends React.Component<Props, ReactState> {
     petsStats: MonsterArenaStats[],
     identity: string
   ): FightingMonsters => {
+
+    const isSpectator: boolean = !(petsStats.filter(pet => pet.player === identity).length > 0)
+
+    if (isSpectator) {
+      return {
+        myMonster: petsStats[0],
+        enemyMonster: petsStats[1]
+      }
+    }
+
     return petsStats.reduce((fightingMonsters, current) => {
       fightingMonsters[
         current.player === identity
@@ -250,19 +262,17 @@ class BattleArena extends React.Component<Props, ReactState> {
   }
 
   private renderHpBars = (monsters: FightingMonsters) => {
-    const { identity } = this.props
-
     const hps = Object.keys(monsters).map(
       (monster, index) => {
         const { hp, player } = monsters[monster]
-        return this.hpBar(hp, player, player === identity, index + 1)
+        return this.hpBar(hp, player, index + 1)
       }
     )
 
     return <div className="arena top-bar">{hps}</div>
   }
 
-  private hpBar(hpValue: number, monsterName: string, isMyMonster: boolean, index: number) {
+  private hpBar(hpValue: number, monsterName: string, index: number) {
     const hpColor = hpValue > 50 ? "green" : "red"
 
     return (
