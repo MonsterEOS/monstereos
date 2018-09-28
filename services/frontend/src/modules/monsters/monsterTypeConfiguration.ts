@@ -165,7 +165,7 @@ export default (model: string) => {
                 cameraPosition: { z: -80 }
             }
         default:
-            console.info("no model... getting default config")
+            // console.info("no model... getting default config", model)
             return {
                 model,
                 position: { y: 0, x: 0 },
