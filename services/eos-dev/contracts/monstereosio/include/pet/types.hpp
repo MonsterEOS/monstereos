@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/container/flat_map.hpp>
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <math.h>
@@ -9,6 +10,7 @@
 using std::vector;
 using std::map;
 using std::string;
+using boost::container::flat_map;
 
 using namespace eosio;
 
@@ -130,8 +132,10 @@ namespace types {
 
   // @abi table accounts2 i64
   struct st_account2 {
-      name                      owner;
-      flat_map<symbol, int64_t> balances;
+      name                            owner;
+      flat_map<symbol, int64_t>       assets;
+      flat_map<uint8_t, uint32_t>     actions;
+      flat_map<uint8_t, vector<uuid>> house; // future
 
       uint64_t primary_key() const { return owner; }
   };

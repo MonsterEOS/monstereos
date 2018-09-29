@@ -37,6 +37,7 @@ public:
     petinbattles(_self,_self),
     plsinbattles(_self,_self),
     seed(_self, _self),
+    accounts2(_self, _self),
     pet_config2(_self,_self)
     {}
 
@@ -47,6 +48,7 @@ public:
     _tb_pet_in_battle petinbattles;
     _tb_player_in_battle plsinbattles;
     _tb_seed seed;
+    _tb_accounts2 accounts2;
 
     // pet interactions
     void createpet    ( name owner, string pet_name );
@@ -55,6 +57,9 @@ public:
     void awakepet     ( uuid pet_id );
     void destroypet   ( uuid pet_id );
     void transferpet  ( uuid pet_id, name new_owner);
+
+    // items
+    void openchest    ( name owner );
 
     // battle interface
     // void battlecreate ( name host, battle_mode mode, checksum256 secret );

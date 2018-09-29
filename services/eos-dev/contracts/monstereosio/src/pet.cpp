@@ -3,6 +3,7 @@
 #include "pet.admin.cpp"
 #include "pet.battle.cpp"
 #include "pet.market.cpp"
+#include "pet.items.cpp"
 
 using namespace utils;
 using namespace types;
@@ -176,16 +177,29 @@ void pet::awakepet(uuid pet_id) {
 void pet::signup(name user) {
 
     require_auth(user);
-    asset new_balance = asset{0,S(4,EOS)};
+    
+    auto itr_account = accounts2.find(user);
+    eosio_assert(itr_account == accounts2.end(), "you have signed up already");
 
-    // check user is already signed up
+    // check user was an early donator :)
     _tb_accounts accounts(_self, user);
+    asset new_balance = asset{0,S(4,EOS)};
     auto itr_balance = accounts.find(new_balance.symbol.name());
-    eosio_assert(itr_balance == accounts.end(), "you have signed up already");
-
-    accounts.emplace(user, [&](auto& r){
-        r.balance = new_balance;
-    });
+    
+    // migrates from old account table
+    if (itr_balance != accounts.end()) {
+        accounts2.emplace(user, [&](auto& r){
+            r.balance = itr_balance->balance;
+            r.owner = user;
+        });
+        accounts.erase(itr_balance);
+        // donator_reward(user); TODO: implement here
+    } else {
+        accounts2.emplace(user, [&](auto& r){
+            r.assets.emplace(new_balance.symbol, new_balance.amount);
+            r.owner = user;
+        });
+    }
 
     // primer roller
     _random(10);
