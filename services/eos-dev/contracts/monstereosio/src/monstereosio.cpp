@@ -49,6 +49,10 @@ EOSIO_ABI_EX(pet,
   (bidpet)
   (removebid)
 
+  // rewards
+  (openchest)
+  (reward)
+
   // admins and config setup
   (addelemttype)
   (changeelemtt)

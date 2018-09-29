@@ -187,19 +187,20 @@ void pet::signup(name user) {
     auto itr_balance = accounts.find(new_balance.symbol.name());
     
     // migrates from old account table
-    if (itr_balance != accounts.end()) {
+    // if (itr_balance != accounts.end()) {
+    //     accounts2.emplace(user, [&](auto& r){
+    //         r.balance = itr_balance->balance;
+    //         r.owner = user;
+    //     });
+    //     accounts.erase(itr_balance);
+    //     // donator_reward(user); TODO: implement here
+    // } else {
         accounts2.emplace(user, [&](auto& r){
-            r.balance = itr_balance->balance;
+            // r.assets.emplace(new_balance.symbol, new_balance.amount);
+            r.initialize_assets();
             r.owner = user;
         });
-        accounts.erase(itr_balance);
-        // donator_reward(user); TODO: implement here
-    } else {
-        accounts2.emplace(user, [&](auto& r){
-            r.assets.emplace(new_balance.symbol, new_balance.amount);
-            r.owner = user;
-        });
-    }
+    // }
 
     // primer roller
     _random(10);

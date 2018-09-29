@@ -23,6 +23,26 @@ namespace types {
   constexpr uint32_t HOUR = 3600;
   constexpr uint32_t MINUTE = 60;
 
+  const symbol_type CANDY = S(0,CANDY);
+  const symbol_type ENERGY_DRINK = S(0,ENGYD);
+  const symbol_type SMALL_HP_POTION = S(0,SHPPT);
+  const symbol_type MEDIUM_HP_POTION = S(0,MHPPT);
+  const symbol_type LARGE_HP_POTION = S(0,LHPPT);
+  const symbol_type TOTAL_HP_POTION = S(0,THPPT);
+  const symbol_type INCREASED_ATTACK_ELIXIR = S(0,IATEL);
+  const symbol_type SUPER_ATTACK_ELIXIR = S(0,SATEL);
+  const symbol_type INCREASED_DEFENSE_ELIXIR = S(0,IDFEL);
+  const symbol_type SUPER_DEFENSE_ELIXIR = S(0,SDFEL);
+  const symbol_type INCREASED_HP_ELIXIR = S(0,IHPEL);
+  const symbol_type SUPER_HP_ELIXIR = S(0,SHPEL);
+  const symbol_type BRONZE_XP_SCROLL = S(0,BRXSC);
+  const symbol_type SILVER_XP_SCROLL = S(0,SVXSC);
+  const symbol_type GOLD_XP_SCROLL = S(0,GLXSC);
+  const symbol_type SUPER_BRONZE_XP_SCROLL = S(0,SBXSC);
+  const symbol_type SUPER_SILVER_XP_SCROLL = S(0,SSXSC);
+  const symbol_type SUPER_GOLD_XP_SCROLL = S(0,SGXSC);
+  const symbol_type REVIVE_TOME = S(0,REVIV);
+
   // battle modes
   constexpr battle_mode V1 = 1;
   constexpr battle_mode V2 = 2;
@@ -133,11 +153,41 @@ namespace types {
   // @abi table accounts2 i64
   struct st_account2 {
       name                            owner;
-      flat_map<symbol, int64_t>       assets;
+      flat_map<symbol_type, int64_t>  assets;
       flat_map<uint8_t, uint32_t>     actions;
       flat_map<uint8_t, vector<uuid>> house; // future
 
       uint64_t primary_key() const { return owner; }
+
+      void initialize_assets() {
+        assets = {
+          { CANDY, 0 },
+          { ENERGY_DRINK, 0 },
+          { SMALL_HP_POTION, 0 },
+          { MEDIUM_HP_POTION, 0 },
+          { LARGE_HP_POTION, 0 },
+          { TOTAL_HP_POTION, 0 },
+          { INCREASED_ATTACK_ELIXIR, 0 },
+          { SUPER_ATTACK_ELIXIR, 0 },
+          { INCREASED_DEFENSE_ELIXIR, 0 },
+          { SUPER_DEFENSE_ELIXIR, 0 },
+          { INCREASED_HP_ELIXIR, 0 },
+          { SUPER_HP_ELIXIR, 0 },
+          { BRONZE_XP_SCROLL, 0 },
+          { SILVER_XP_SCROLL, 0 },
+          { GOLD_XP_SCROLL, 0 },
+          { SUPER_BRONZE_XP_SCROLL, 0 },
+          { SUPER_SILVER_XP_SCROLL, 0 },
+          { SUPER_GOLD_XP_SCROLL, 0 },
+          { REVIVE_TOME, 0 }
+        };
+      }
+
+      void add_asset(symbol_type symbol, int64_t amount) {
+        auto balance = assets.at(symbol);
+        balance = balance + amount;
+        assets.emplace(symbol, balance);
+      }
   };
   typedef multi_index<N(accounts2), st_account2> _tb_accounts2;
 

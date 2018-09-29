@@ -59,7 +59,8 @@ public:
     void transferpet  ( uuid pet_id, name new_owner);
 
     // items
-    void openchest    ( name owner );
+    void openchest    ( name player );
+    void reward       ( name owner, uint8_t modifier, string reason );
 
     // battle interface
     // void battlecreate ( name host, battle_mode mode, checksum256 secret );
