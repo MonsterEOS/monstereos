@@ -42,16 +42,11 @@ EOSIO_ABI_EX(pet,
   (battlepfdel)
 
   // market
-  (signup)
   (orderask)
   (removeask)
   (claimpet)
   (bidpet)
   (removebid)
-
-  // rewards
-  (openchest)
-  (reward)
 
   // admins and config setup
   (addelemttype)
@@ -67,6 +62,13 @@ EOSIO_ABI_EX(pet,
   (changemktfee)
   (changecreawk)
   (changehungtz)
+
+  // rewards
+  (signup)
+  (openchest)
+  (chestreward)
+  (issueitem)
+  (issueitems)
 
   // EXTERNAL ACTIONS - VALIDATE ABOVE:  deposits
   (transfer)

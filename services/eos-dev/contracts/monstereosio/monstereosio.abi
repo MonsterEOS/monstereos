@@ -651,7 +651,7 @@
         }
       ]
     },{
-      "name": "reward",
+      "name": "chestreward",
       "base": "",
       "fields": [{
           "name": "player",
@@ -659,6 +659,34 @@
         },{
           "name": "modifier",
           "type": "uint8"
+        },{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
+      "name": "issueitem",
+      "base": "",
+      "fields": [{
+          "name": "player",
+          "type": "name"
+        },{
+          "name": "item",
+          "type": "asset"
+        },{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
+      "name": "issueitems",
+      "base": "",
+      "fields": [{
+          "name": "player",
+          "type": "name"
+        },{
+          "name": "items",
+          "type": "asset[]"
         },{
           "name": "reason",
           "type": "string"
@@ -806,8 +834,16 @@
       "type": "openchest",
       "ricardian_contract": ""
     },{
-      "name": "reward",
-      "type": "reward",
+      "name": "chestreward",
+      "type": "chestreward",
+      "ricardian_contract": ""
+    },{
+      "name": "issueitem",
+      "type": "issueitem",
+      "ricardian_contract": ""
+    },{
+      "name": "issueitems",
+      "type": "issueitems",
       "ricardian_contract": ""
     },{
       "name": "transfer",

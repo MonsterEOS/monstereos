@@ -571,16 +571,28 @@ BOOST_AUTO_TEST_CASE(singuprewards) try {
   BOOST_TEST_MESSAGE( "John Account RAM Size: " << acc_row.value.size() );
   t.produce_blocks(5);
 
-  t.push_trx("monstereosio", "reward", "monstereosio",
-    R"({"player": "john", "modifier": 1, "reason": "just a test"})");
+  t.push_trx("monstereosio", "openchest", "john",
+    R"({"player": "john"})");
   t.diff_table(accounts2);
-  t.produce_blocks(5);
+  t.produce_blocks(10);
+  t.diff_table(accounts2);
 
   acc_row = t.get_table_row("monstereosio"_n, "monstereosio"_n, "accounts2"_n, "john"_n);
   BOOST_TEST_MESSAGE( "John Account RAM Size: " << acc_row.value.size() );
   t.produce_blocks(5);
 
-  t.push_trx("monstereosio", "reward", "monstereosio",
+  t.push_trx("monstereosio", "openchest", "john",
+    R"({"player": "john"})");
+  t.diff_table(accounts2);
+  t.produce_blocks(10);
+  t.diff_table(accounts2);
+
+  acc_row = t.get_table_row("monstereosio"_n, "monstereosio"_n, "accounts2"_n, "john"_n);
+  BOOST_TEST_MESSAGE( "John Account RAM Size: " << acc_row.value.size() );
+  t.produce_blocks(5);
+
+  t.heading("super gift test!");
+  t.push_trx("monstereosio", "chestreward", "monstereosio",
     R"({"player": "john", "modifier": 20, "reason": "just a test"})");
   t.diff_table(accounts2);
   t.produce_blocks(5);

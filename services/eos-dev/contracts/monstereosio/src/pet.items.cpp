@@ -8,27 +8,80 @@ bool _roll_and_test(const int &now, int &primer, int per_ten_thounsad) {
 
 void pet::openchest(name player) {
 
-  require_auth(_self);
+  require_auth(player);
 
   auto itr_account = accounts2.find(player);
   eosio_assert(itr_account != accounts2.end(), "account is not signed up");
+
+  // add daily chest
+  st_account2 account = *itr_account;
+  bool is_daily_chest = (now() - account.actions[OPEN_DAILY_CHEST]) >= (24 * HOUR);
+  if (is_daily_chest) {
+    SEND_INLINE_ACTION( *this, issueitem, {_self,N(active)}, {player, asset{1, CHEST}, "dailychest"} );
+
+    // updates last received dailychest
+    accounts2.modify(itr_account, 0, [&](auto &r) {
+      r.actions[OPEN_DAILY_CHEST] = now();
+    });
+  } else {
+    eosio_assert(account.assets[CHEST] >= 1, "player has no chest to open");
+  }
 
   // schedule reward in next 3 secs
   transaction trx{};
   trx.actions.emplace_back(
       permission_level{_self, N(active)},
-      _self, N(reward),
+      _self, N(chestreward),
       std::make_tuple(player, 1, "openchest")
   );
   trx.delay_sec = 1 + _random(3);
   trx.send(1, _self);
 }
 
-void pet::reward(name player, uint8_t modifier, string /* reason */) {
+void pet::issueitem( name player, asset item, string reason) {
+  require_auth(_self);
+
+  auto itr_account = accounts2.find(player);
+  eosio_assert(itr_account != accounts2.end(), "account is not signed up");
+
+  eosio_assert(item.is_valid(), "Invalid item issue");
+  eosio_assert(item.amount > 0, "Quantity must be positive");
+
+  accounts2.modify(itr_account, 0, [&](auto &r) {
+    r.add_asset(item.symbol, item.amount);
+  });
+}
+
+void pet::issueitems( name player, vector<asset> items, string /* reason */ ) {
+  require_auth(_self);
+
+  auto itr_account = accounts2.find(player);
+  eosio_assert(itr_account != accounts2.end(), "account is not signed up");
+
+  accounts2.modify(itr_account, 0, [&](auto &r) {
+    for (auto item : items) {
+      eosio_assert(item.is_valid(), "Invalid item issue");
+      eosio_assert(item.amount > 0, "Quantity must be positive");
+      r.add_asset(item.symbol, item.amount);
+    }
+  });
+}
+
+void pet::chestreward(name player, uint8_t modifier, string reason) {
   require_auth(_self);
   
   auto itr_account = accounts2.find(player);
   eosio_assert(itr_account != accounts2.end(), "account is not signed up");
+
+  // check chest balance
+  st_account2 account = *itr_account;
+  auto player_chests = account.assets[CHEST];
+  eosio_assert(player_chests >= 1, "player has no chest to open");
+
+  // reduce chest balance
+  accounts2.modify(itr_account, 0, [&](auto &r) {
+    r.assets[CHEST] = player_chests - 1;
+  });
 
   int base = _random(65537);
   int primer = base;
@@ -56,28 +109,26 @@ void pet::reward(name player, uint8_t modifier, string /* reason */) {
   bool revive_tome = _roll_and_test(timestamp, primer, 1 * modifier);
 
   // increment items balance
-  st_account2 account = *itr_account;
-  account.add_asset(CANDY, candies);
-  if (energy_drink) account.add_asset(ENERGY_DRINK, 1);
-  if (small_hp_potion) account.add_asset(SMALL_HP_POTION, 1);
-  if (medium_hp_potion) account.add_asset(MEDIUM_HP_POTION, 1);
-  if (large_hp_potion) account.add_asset(LARGE_HP_POTION, 1);
-  if (total_hp_potion) account.add_asset(TOTAL_HP_POTION, 1);
-  if (attack_elixir) account.add_asset(INCREASED_ATTACK_ELIXIR, 1);
-  if (super_attack_elixir) account.add_asset(SUPER_ATTACK_ELIXIR, 1);
-  if (defense_elixir) account.add_asset(INCREASED_DEFENSE_ELIXIR, 1);
-  if (super_defense_elixir) account.add_asset(SUPER_DEFENSE_ELIXIR, 1);
-  if (ihp_elixir) account.add_asset(INCREASED_HP_ELIXIR, 1);
-  if (super_ihp_elixir) account.add_asset(SUPER_HP_ELIXIR, 1);
-  if (xp_bronze_scroll) account.add_asset(BRONZE_XP_SCROLL, 1);
-  if (xp_silver_scroll) account.add_asset(SILVER_XP_SCROLL, 1);
-  if (xp_gold_scroll) account.add_asset(GOLD_XP_SCROLL, 1);
-  if (sxp_bronze_scroll) account.add_asset(BRONZE_XP_SCROLL, 1);
-  if (sxp_silver_scroll) account.add_asset(SILVER_XP_SCROLL, 1);
-  if (sxp_gold_scroll) account.add_asset(GOLD_XP_SCROLL, 1);
-  if (revive_tome) account.add_asset(REVIVE_TOME, 1);
-
-  accounts2.modify(itr_account, 0, [&](auto &r) {
-    r.assets = account.assets;
-  });
+  vector<asset> items{};
+  items.emplace_back(asset{candies, CANDY});
+  if (energy_drink) items.emplace_back(asset{1, ENERGY_DRINK});
+  if (small_hp_potion) items.emplace_back(asset{1, SMALL_HP_POTION});
+  if (medium_hp_potion) items.emplace_back(asset{1, MEDIUM_HP_POTION});
+  if (large_hp_potion) items.emplace_back(asset{1, LARGE_HP_POTION});
+  if (total_hp_potion) items.emplace_back(asset{1, TOTAL_HP_POTION});
+  if (attack_elixir) items.emplace_back(asset{1, INCREASED_ATTACK_ELIXIR});
+  if (super_attack_elixir) items.emplace_back(asset{1, SUPER_ATTACK_ELIXIR});
+  if (defense_elixir) items.emplace_back(asset{1, INCREASED_DEFENSE_ELIXIR});
+  if (super_defense_elixir) items.emplace_back(asset{1, SUPER_DEFENSE_ELIXIR});
+  if (ihp_elixir) items.emplace_back(asset{1, INCREASED_HP_ELIXIR});
+  if (super_ihp_elixir) items.emplace_back(asset{1, SUPER_HP_ELIXIR});
+  if (xp_bronze_scroll) items.emplace_back(asset{1, BRONZE_XP_SCROLL});
+  if (xp_silver_scroll) items.emplace_back(asset{1, SILVER_XP_SCROLL});
+  if (xp_gold_scroll) items.emplace_back(asset{1, GOLD_XP_SCROLL});
+  if (sxp_bronze_scroll) items.emplace_back(asset{1, BRONZE_XP_SCROLL});
+  if (sxp_silver_scroll) items.emplace_back(asset{1, SILVER_XP_SCROLL});
+  if (sxp_gold_scroll) items.emplace_back(asset{1, GOLD_XP_SCROLL});
+  if (revive_tome) items.emplace_back(asset{1, REVIVE_TOME});
+  
+  SEND_INLINE_ACTION( *this, issueitems, {_self,N(active)}, {player, items, reason} );
 }

@@ -58,10 +58,6 @@ public:
     void destroypet   ( uuid pet_id );
     void transferpet  ( uuid pet_id, name new_owner);
 
-    // items
-    void openchest    ( name player );
-    void reward       ( name owner, uint8_t modifier, string reason );
-
     // battle interface
     // void battlecreate ( name host, battle_mode mode, checksum256 secret );
     // void battlejoin   ( name host, name player, checksum256 secret );
@@ -98,6 +94,12 @@ public:
     // token deposits
     void signup       ( name user );
     void transfer     ( uint64_t sender, uint64_t receiver );
+
+    // items
+    void openchest    ( name player );
+    void issueitem    ( name player, asset item, string reason );
+    void issueitems   ( name player, vector<asset> items, string reason );
+    void chestreward  ( name owner, uint8_t modifier, string reason );
 
     private:
 

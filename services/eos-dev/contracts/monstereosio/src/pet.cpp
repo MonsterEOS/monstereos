@@ -197,6 +197,7 @@ void pet::signup(name user) {
     // } else {
         accounts2.emplace(user, [&](auto& r){
             // r.assets.emplace(new_balance.symbol, new_balance.amount);
+            r.initialize_actions();
             r.initialize_assets();
             r.owner = user;
         });

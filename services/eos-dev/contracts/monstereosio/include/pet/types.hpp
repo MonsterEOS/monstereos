@@ -23,6 +23,7 @@ namespace types {
   constexpr uint32_t HOUR = 3600;
   constexpr uint32_t MINUTE = 60;
 
+  // consumable items types
   const symbol_type CHEST = S(0,CHEST);
   const symbol_type CANDY = S(0,CANDY);
   const symbol_type ENERGY_DRINK = S(0,ENGYD);
@@ -43,6 +44,9 @@ namespace types {
   const symbol_type SUPER_SILVER_XP_SCROLL = S(0,SSXSC);
   const symbol_type SUPER_GOLD_XP_SCROLL = S(0,SGXSC);
   const symbol_type REVIVE_TOME = S(0,REVIV);
+
+  // players actions
+  constexpr uint8_t OPEN_DAILY_CHEST = 1; 
 
   // battle modes
   constexpr battle_mode V1 = 1;
@@ -159,6 +163,12 @@ namespace types {
       flat_map<uint8_t, vector<uuid>> house; // future
 
       uint64_t primary_key() const { return owner; }
+
+      void initialize_actions() {
+        actions = {
+          { OPEN_DAILY_CHEST, 0 }
+        };
+      }
 
       void initialize_assets() {
         assets = {
