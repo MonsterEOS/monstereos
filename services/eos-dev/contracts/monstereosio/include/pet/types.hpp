@@ -23,6 +23,7 @@ namespace types {
   constexpr uint32_t HOUR = 3600;
   constexpr uint32_t MINUTE = 60;
 
+  const symbol_type CHEST = S(0,CHEST);
   const symbol_type CANDY = S(0,CANDY);
   const symbol_type ENERGY_DRINK = S(0,ENGYD);
   const symbol_type SMALL_HP_POTION = S(0,SHPPT);
@@ -184,9 +185,9 @@ namespace types {
       }
 
       void add_asset(symbol_type symbol, int64_t amount) {
-        auto balance = assets.at(symbol);
+        auto balance = assets[symbol];
         balance = balance + amount;
-        assets.emplace(symbol, balance);
+        assets[symbol] = balance;
       }
   };
   typedef multi_index<N(accounts2), st_account2> _tb_accounts2;
