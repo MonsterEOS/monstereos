@@ -132,3 +132,34 @@ void pet::chestreward(name player, uint8_t modifier, string reason) {
   
   SEND_INLINE_ACTION( *this, issueitems, {_self,N(active)}, {player, items, reason} );
 }
+
+void pet::petconsume(uuid pet_id, symbol_type item) {
+
+    auto itr_pet = pets.find(pet_id);
+    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    st_pets pet = *itr_pet;
+
+    require_auth(pet.owner);
+
+    auto pc = _get_pet_config();
+
+    eosio_assert(_is_alive(pet, pc) || item == REVIVE_TOME, "deads don't consume anything");
+    eosio_assert(!pet.is_sleeping(), "pet is sleeping");
+
+    // check the item balance
+    auto itr_account = accounts2.find(pet.owner);
+    eosio_assert(itr_account != accounts2.end(), "pet owner is not signed up");
+
+    st_account2 account = *itr_account;
+    auto balance = account.assets[item];
+    eosio_assert(balance >= 1, "player has no " + item + "to feed");
+    accounts2.modify(itr_account, 0, [&](auto &r) {
+        r.assets[item] = balance - 1;
+    });
+
+    // primer roller
+    _random(10);
+
+    // execute consumption action here
+    
+}

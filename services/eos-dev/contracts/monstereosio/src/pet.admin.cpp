@@ -126,7 +126,7 @@ void pet::techrevive(uuid pet_id, string memo) {
   st_pets pet = *itr_pet;
 
   pets.modify(itr_pet, 0, [&](auto& r) {
-    r.death_at      = 0;
+    // r.death_at      = 0;
     r.last_fed_at   = now();
     r.last_bed_at   = r.last_fed_at;
     r.last_awake_at = r.last_fed_at + 1;

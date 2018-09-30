@@ -97,6 +97,7 @@ public:
 
     // items
     void openchest    ( name player );
+    void petconsume   ( uuid pet_id, symbol_type item );
     void issueitem    ( name player, asset item, string reason );
     void issueitems   ( name player, vector<asset> items, string reason );
     void chestreward  ( name owner, uint8_t modifier, string reason );

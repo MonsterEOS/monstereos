@@ -59,7 +59,7 @@ void pet::createpet(name owner,
         pet.owner = owner;
         pet.created_at = now();
         pet.last_fed_at = pet.created_at;
-        pet.last_play_at = pet.created_at;
+        pet.experience = 0;
         pet.last_shower_at = pet.created_at;
         pet.last_bed_at = pet.created_at;
         pet.last_awake_at = pet.created_at + pc.creation_awake;
@@ -110,6 +110,8 @@ void pet::feedpet(uuid pet_id) {
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
     st_pets pet = *itr_pet;
 
+    require_auth(pet.owner);
+
     auto pc = _get_pet_config();
 
     eosio_assert(_is_alive(pet, pc), "dead don't eat");
@@ -117,6 +119,16 @@ void pet::feedpet(uuid pet_id) {
 
     bool can_eat = (now() - pet.last_fed_at) > pc.min_hunger_interval;
     eosio_assert(can_eat, "not hungry");
+
+    // check and consume candy
+    auto itr_account = accounts2.find(pet.owner);
+    eosio_assert(itr_account != accounts2.end(), "pet owner is not signed up");
+    st_account2 account = *itr_account;
+    auto player_candies = account.assets[CANDY];
+    eosio_assert(player_candies >= 1, "player has no candy to feed");
+    accounts2.modify(itr_account, 0, [&](auto &r) {
+        r.assets[CANDY] = player_candies - 1;
+    });
 
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
         r.last_fed_at = now();

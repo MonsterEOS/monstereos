@@ -33,8 +33,17 @@
           "name": "created_at",
           "type": "uint32"
         },{
-          "name": "death_at",
-          "type": "uint32"
+          "name": "energy_drinks",
+          "type": "uint8"
+        },{
+          "name": "field2",
+          "type": "uint8"
+        },{
+          "name": "field3",
+          "type": "uint8"
+        },{
+          "name": "field4",
+          "type": "uint8"
         },{
           "name": "last_fed_at",
           "type": "uint32"
@@ -45,7 +54,7 @@
           "name": "last_awake_at",
           "type": "uint32"
         },{
-          "name": "last_play_at",
+          "name": "experience",
           "type": "uint32"
         },{
           "name": "last_shower_at",

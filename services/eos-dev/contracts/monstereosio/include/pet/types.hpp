@@ -97,11 +97,14 @@ namespace types {
       string name;
       uint8_t type;
       uint32_t created_at;
-      uint32_t death_at = 0;
+      uint8_t  energy_drinks = 0;
+      uint8_t  fielda = 0;
+      uint8_t  fieldb = 0;
+      uint8_t  fieldc = 0;
       uint32_t last_fed_at;
       uint32_t last_bed_at;
       uint32_t last_awake_at = 0;
-      uint32_t last_play_at;
+      uint32_t experience = 0;
       uint32_t last_shower_at;
 
       uint64_t primary_key() const { return id; }
