@@ -201,6 +201,26 @@ public:
     return rows;
   }
 
+  auto get_table_row(name account, name scope, name table, uint64_t pk) {
+    row table_row;
+    const auto&      db = control->db();
+    const auto*      tbl =
+        db.find<table_id_object, by_code_scope_table>(boost::make_tuple(account, scope, table));
+    
+    if (!tbl) {
+      return table_row;
+    }
+
+    auto& idx = db.get_index<key_value_index, by_scope_primary>();
+    auto it = idx.find(std::make_tuple(tbl->id, pk));
+
+    if (it != idx.end()) {
+      return row{it->primary_key, bytes{it->value.begin(), it->value.end()}};
+    } else {
+      return table_row;
+    }
+  }
+
   void diff_table(name account, name scope, name table, const std::string& type,
                   std::vector<row>& existing) {
     outfile << "table: " << account << " " << scope << " " << table << "\n";
@@ -547,14 +567,26 @@ BOOST_AUTO_TEST_CASE(singuprewards) try {
   t.diff_table(accounts2);
   t.produce_blocks(5);
 
+  auto acc_row = t.get_table_row("monstereosio"_n, "monstereosio"_n, "accounts2"_n, "john"_n);
+  BOOST_TEST_MESSAGE( "John Account RAM Size: " << acc_row.value.size() );
+  t.produce_blocks(5);
+
   t.push_trx("monstereosio", "reward", "monstereosio",
     R"({"player": "john", "modifier": 1, "reason": "just a test"})");
   t.diff_table(accounts2);
   t.produce_blocks(5);
 
+  acc_row = t.get_table_row("monstereosio"_n, "monstereosio"_n, "accounts2"_n, "john"_n);
+  BOOST_TEST_MESSAGE( "John Account RAM Size: " << acc_row.value.size() );
+  t.produce_blocks(5);
+
   t.push_trx("monstereosio", "reward", "monstereosio",
     R"({"player": "john", "modifier": 20, "reason": "just a test"})");
   t.diff_table(accounts2);
+  t.produce_blocks(5);
+
+  acc_row = t.get_table_row("monstereosio"_n, "monstereosio"_n, "accounts2"_n, "john"_n);
+  BOOST_TEST_MESSAGE( "John Account RAM Size: " << acc_row.value.size() );
   t.produce_blocks(5);
 
   // t.push_trx("monstereosio", "createpet", "mary",

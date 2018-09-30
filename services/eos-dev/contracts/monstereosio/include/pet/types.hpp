@@ -162,6 +162,7 @@ namespace types {
 
       void initialize_assets() {
         assets = {
+          { CHEST, 0 },
           { CANDY, 0 },
           { ENERGY_DRINK, 0 },
           { SMALL_HP_POTION, 0 },
