@@ -60,7 +60,6 @@ void pet::createpet(name owner,
         pet.created_at = now();
         pet.last_fed_at = pet.created_at;
         pet.experience = 0;
-        pet.last_shower_at = pet.created_at;
         pet.last_bed_at = pet.created_at;
         pet.last_awake_at = pet.created_at + pc.creation_awake;
 
@@ -180,6 +179,8 @@ void pet::awakepet(uuid pet_id) {
 
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
         r.last_awake_at = now();
+        r.energy_drinks = 0;
+        r.energy_used = 0;
     });
 
     // primer roller

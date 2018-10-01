@@ -170,7 +170,12 @@ void pet::_battle_add_pets(st_battle &battle,
     require_auth(pet.owner);
     eosio_assert(_is_alive(pet, pc), "dead pets don't battle");
     eosio_assert(!pet.is_sleeping(), "sleeping pets don't battle");
-    eosio_assert(pet.has_energy(30), "pet has no energy for a battle");
+    eosio_assert(pet.has_energy(BATTLE_REQ_ENERGY), "pet has no energy for a battle");
+
+    // consume energy
+    pets.modify(itr_pet, 0, [&](auto& r) {
+      r.energy_used = r.energy_used + BATTLE_REQ_ENERGY;
+    });
 
     auto itr_pet_battle = petinbattles.find(pet_id);
     eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");
@@ -201,6 +206,12 @@ void pet::battleleave(name host, name player) {
     if (itr_pet_battle != petinbattles.end()) {
       petinbattles.erase( itr_pet_battle );
     }
+
+    // undo used energy
+    auto itr_pet = pets.find(ps.pet_id);
+    pets.modify(itr_pet, 0, [&](auto& r) {
+      r.energy_used = r.energy_used - BATTLE_REQ_ENERGY;
+    });
   }
 
   auto itr_player_battle = plsinbattles.find(player);
@@ -333,7 +344,7 @@ void pet::battleattack(name         host,
   }
 }
 
-void pet::battlefinish(name host, name /* winner */) {
+void pet::battlefinish(name host, name winner) {
   require_auth(_self);
 
   _tb_battle tb_battles(_self, _self);
@@ -346,6 +357,19 @@ void pet::battlefinish(name host, name /* winner */) {
     auto itr_pet_battle = petinbattles.find(ps.pet_id);
     if (itr_pet_battle != petinbattles.end()) {
       petinbattles.erase( itr_pet_battle );
+    }
+
+    // add experience points
+    auto itr_pet = pets.find(ps.pet_id);
+    if (itr_pet != pets.end()) {
+      pets.modify(itr_pet, 0, [&](auto& r) {
+        
+        // adjust legacy pets
+        if (r.experience > 1500000000) 
+          r.experience = 0;
+        
+        r.experience = r.experience + (winner == r.owner ? XP_WON : XP_LOST);
+      });
     }
   }
 

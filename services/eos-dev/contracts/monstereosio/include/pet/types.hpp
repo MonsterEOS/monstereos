@@ -47,11 +47,20 @@ namespace types {
 
   // players actions
   constexpr uint8_t OPEN_DAILY_CHEST = 1; 
+  
+  // caps
+  constexpr uint8_t MAX_DAILY_ENERGY_DRINKS = 10;
+  constexpr uint8_t BATTLE_REQ_ENERGY = 8;
+  constexpr uint8_t MAX_ENERGY_POINTS = 100;
 
   // battle modes
   constexpr battle_mode V1 = 1;
   constexpr battle_mode V2 = 2;
   constexpr battle_mode V3 = 3;
+
+  // battle xp points
+  constexpr uint16_t XP_WON = 799;
+  constexpr uint16_t XP_LOST = 449;
 
   // market order types
   typedef uint8_t order_type;
@@ -98,14 +107,17 @@ namespace types {
       uint8_t type;
       uint32_t created_at;
       uint8_t  energy_drinks = 0;
-      uint8_t  fielda = 0;
-      uint8_t  fieldb = 0;
-      uint8_t  fieldc = 0;
+      uint8_t  skill1 = 0;
+      uint8_t  skill2 = 0;
+      uint8_t  skill3 = 0;
       uint32_t last_fed_at;
       uint32_t last_bed_at;
       uint32_t last_awake_at = 0;
       uint32_t experience = 0;
-      uint32_t last_shower_at;
+      uint8_t  energy_used = 0;
+      uint8_t  field_a = 0;
+      uint8_t  field_b = 0;
+      uint8_t  field_c = 0;
 
       uint64_t primary_key() const { return id; }
 
@@ -117,9 +129,9 @@ namespace types {
 
       bool has_energy(const uint8_t min_energy) const {
           uint32_t awake_seconds = now() - last_awake_at;
-          uint32_t energy_bar = 100 - ((100 * awake_seconds) / DAY);
+          uint32_t energy_bar = MAX_ENERGY_POINTS - ((MAX_ENERGY_POINTS * awake_seconds) / DAY) - energy_used;
 
-          return energy_bar > min_energy;
+          return energy_bar >= min_energy;
       }
   };
 

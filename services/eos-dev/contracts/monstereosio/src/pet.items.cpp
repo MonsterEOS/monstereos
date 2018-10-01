@@ -152,14 +152,23 @@ void pet::petconsume(uuid pet_id, symbol_type item) {
 
     st_account2 account = *itr_account;
     auto balance = account.assets[item];
-    eosio_assert(balance >= 1, "player has no " + item + "to feed");
+    eosio_assert(balance >= 1, "player does not have the item to consume");
     accounts2.modify(itr_account, 0, [&](auto &r) {
         r.assets[item] = balance - 1;
     });
 
+    // execute consumption action here
+    if (item == ENERGY_DRINK) {
+      eosio_assert(pet.energy_drinks < MAX_DAILY_ENERGY_DRINKS, "you can only consume 10 energy drinks per day");
+      pets.modify(itr_pet, 0, [&](auto &r) {
+        r.energy_drinks = r.energy_drinks + 1;
+        r.energy_used = 0;
+      });
+    } else {
+      eosio_assert(false, "item not implemented");
+    }
+
     // primer roller
     _random(10);
-
-    // execute consumption action here
     
 }

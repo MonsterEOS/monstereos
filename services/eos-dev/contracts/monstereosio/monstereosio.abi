@@ -36,13 +36,13 @@
           "name": "energy_drinks",
           "type": "uint8"
         },{
-          "name": "field2",
+          "name": "skill1",
           "type": "uint8"
         },{
-          "name": "field3",
+          "name": "skill2",
           "type": "uint8"
         },{
-          "name": "field4",
+          "name": "skill3",
           "type": "uint8"
         },{
           "name": "last_fed_at",
@@ -57,8 +57,17 @@
           "name": "experience",
           "type": "uint32"
         },{
-          "name": "last_shower_at",
-          "type": "uint32"
+          "name": "energy_used",
+          "type": "uint8"
+        },{
+          "name": "field_a",
+          "type": "uint8"
+        },{
+          "name": "field_b",
+          "type": "uint8"
+        },{
+          "name": "field_c",
+          "type": "uint8"
         }
       ]
     },{
@@ -702,6 +711,17 @@
         }
       ]
     },{
+      "name": "petconsume",
+      "base": "",
+      "fields": [{
+          "name": "pet_id",
+          "type": "uuid"
+        },{
+          "name": "item",
+          "type": "symbol"
+        }
+      ]
+    },{
       "name": "transfer",
       "base": "",
       "fields": [{
@@ -853,6 +873,10 @@
     },{
       "name": "issueitems",
       "type": "issueitems",
+      "ricardian_contract": ""
+    },{
+      "name": "petconsume",
+      "type": "petconsume",
       "ricardian_contract": ""
     },{
       "name": "transfer",
