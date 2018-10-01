@@ -133,6 +133,11 @@ namespace types {
 
           return energy_bar >= min_energy;
       }
+
+      uint8_t get_level() const {
+          auto level = floor(sqrt(0.01 * experience));
+          return level = 0 ? 1 : level;
+      }
   };
 
   typedef multi_index<N(pets), st_pets,

@@ -722,6 +722,17 @@
         }
       ]
     },{
+      "name": "claimskill",
+      "base": "",
+      "fields": [{
+          "name": "pet_id",
+          "type": "uuid"
+        },{
+          "name": "skill",
+          "type": "uint8"
+        }
+      ]
+    },{
       "name": "transfer",
       "base": "",
       "fields": [{
@@ -877,6 +888,10 @@
     },{
       "name": "petconsume",
       "type": "petconsume",
+      "ricardian_contract": ""
+    },{
+      "name": "claimskill",
+      "type": "claimskill",
       "ricardian_contract": ""
     },{
       "name": "transfer",

@@ -40,6 +40,7 @@ EOSIO_ABI_EX(pet,
   (battleattack)
   (battlefinish)
   (battlepfdel)
+  (claimskill)
 
   // market
   (orderask)

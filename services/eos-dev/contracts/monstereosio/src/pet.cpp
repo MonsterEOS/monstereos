@@ -4,6 +4,7 @@
 #include "pet.battle.cpp"
 #include "pet.market.cpp"
 #include "pet.items.cpp"
+#include <boost/lexical_cast.hpp>
 
 using namespace utils;
 using namespace types;
@@ -74,11 +75,15 @@ void pet::createpet(name owner,
 
 void pet::destroypet(uuid pet_id) {
 
-    const auto& pet = pets.get(pet_id, "E404|Invalid pet, destroying action is unrecoverable");
+    const auto& pet = pets.get(pet_id, "Invalid pet, destroying action is unrecoverable");
 
     require_auth(pet.owner);
 
-    pets.erase( pet );
+    uint8_t level = pet.get_level();
+    string msg = "pet level is 231"; // + boost::lexical_cast<string, uint8_t>(level);
+    print(msg);
+
+    // pets.erase( pet );
 
     // primer roller
     _random(10);
@@ -106,7 +111,7 @@ void pet::transferpet(uuid pet_id, name new_owner) {
 void pet::feedpet(uuid pet_id) {
 
     auto itr_pet = pets.find(pet_id);
-    eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
+    eosio_assert(itr_pet != pets.end(), "Invalid pet");
     st_pets pet = *itr_pet;
 
     require_auth(pet.owner);
@@ -181,6 +186,36 @@ void pet::awakepet(uuid pet_id) {
         r.last_awake_at = now();
         r.energy_drinks = 0;
         r.energy_used = 0;
+    });
+
+    // primer roller
+    _random(10);
+}
+
+void pet::claimskill(uuid pet_id, uint8_t skill) {
+    auto itr_pet = pets.find(pet_id);
+    eosio_assert(itr_pet != pets.end(), "Invalid pet");
+    st_pets pet = *itr_pet;
+
+    // only owners can claim skill
+    require_auth(pet.owner);
+
+    uint8_t level = pet.get_level();
+    
+    bool novice_skill = skill < 10 && level >= 10 && pet.skill1 == 0;
+    bool medium_skill = skill >= 10 && skill < 20 && level >= 50 && pet.skill2 == 0;
+    bool advanced_skill = skill >= 20 && level >= 90 && pet.skill3 == 0; 
+
+    eosio_assert(novice_skill || medium_skill || advanced_skill, "no available skill to set");
+
+    pets.modify(itr_pet, pet.owner, [&](auto &r) {
+        if (novice_skill) {
+            r.skill1 = skill;
+        } else if (medium_skill) {
+            r.skill2 = skill;
+        } else if (advanced_skill) {
+            r.skill3 = skill;
+        }
     });
 
     // primer roller
