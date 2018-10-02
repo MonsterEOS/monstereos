@@ -8,11 +8,18 @@ export interface MonsterAction {
   transaction: string,
 }
 
+export interface MonsterElement {
+  id: number,
+  name: string,
+  ratios: number[]
+}
+
 export interface MonsterProps {
   id: number,
   name: string,
   owner: string,
   type: number,
+  elements: MonsterElement[],
   createdAt: number,
   deathAt: number,
   hunger: number,
@@ -31,6 +38,7 @@ export const parseMonstersFromChain = (pet: any, config: GlobalConfig): MonsterP
     name: pet.name,
     owner: pet.owner,
     type: pet.type,
+    elements: [],
     deathAt: 0,
     createdAt: pet.created_at * 1000,
     lastFeedAt: pet.last_fed_at * 1000,
