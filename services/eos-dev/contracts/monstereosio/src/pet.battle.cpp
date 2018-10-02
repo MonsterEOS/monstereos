@@ -270,15 +270,7 @@ void pet::battleattack(name         host,
 
   eosio_assert(valid_pet, "invalid attack");
 
-  const auto& attack_pet_types = pettypes.get(pet_type, "invalid pet type");
-  bool valid_element = false;
-  for (const auto& pet_element : attack_pet_types.elements) {
-    if (pet_element == element_id) {
-      valid_element = true;
-      break;
-    }
-  }
-  eosio_assert(valid_element, "invalid attack element");
+  eosio_assert(_is_element_valid(pet_type, element_id), "invalid attack element");
 
   // cross ratio elements to enemy pet elements
   uint8_t ratio{5}; // default ratio

@@ -192,7 +192,7 @@ void pet::awakepet(uuid pet_id) {
     _random(10);
 }
 
-void pet::claimskill(uuid pet_id, uint8_t skill) {
+void pet::claimskill(uuid pet_id, skill_type skill) {
     auto itr_pet = pets.find(pet_id);
     eosio_assert(itr_pet != pets.end(), "Invalid pet");
     st_pets pet = *itr_pet;
@@ -202,11 +202,63 @@ void pet::claimskill(uuid pet_id, uint8_t skill) {
 
     uint8_t level = pet.get_level();
     
-    bool novice_skill = skill < 10 && level >= 10 && pet.skill1 == 0;
-    bool medium_skill = skill >= 10 && skill < 20 && level >= 50 && pet.skill2 == 0;
-    bool advanced_skill = skill >= 20 && level >= 90 && pet.skill3 == 0; 
+    bool novice_skill = skill >= 10 && skill < 20 && level >= 10 && pet.skill1 == 0;
+    bool medium_skill = skill >= 20 && skill < 30 && level >= 50 && pet.skill2 == 0;
+    bool advanced_skill = skill >= 30 && skill < 40 && level >= 90 && pet.skill3 == 0; 
 
     eosio_assert(novice_skill || medium_skill || advanced_skill, "no available skill to set");
+
+    element_type element = ELEMENT_NEUTRAL;
+
+    switch (skill) {
+        case SKILL_WOOD_BASIC:
+        case SKILL_WOOD_MEDIUM:
+        case SKILL_WOOD_ADVANCED:
+            element = ELEMENT_WOOD;
+            break;
+        case SKILL_EARTH_BASIC:
+        case SKILL_EARTH_MEDIUM:
+        case SKILL_EARTH_ADVANCED:
+            element = ELEMENT_EARTH;
+            break;
+        case SKILL_WATER_BASIC:
+        case SKILL_WATER_MEDIUM:
+        case SKILL_WATER_ADVANCED:
+            element = ELEMENT_WATER;
+            break;
+        case SKILL_FIRE_BASIC:
+        case SKILL_FIRE_MEDIUM:
+        case SKILL_FIRE_ADVANCED:
+            element = ELEMENT_FIRE;
+            break;
+        case SKILL_METAL_BASIC:
+        case SKILL_METAL_MEDIUM:
+        case SKILL_METAL_ADVANCED:
+            element = ELEMENT_METAL;
+            break;
+        case SKILL_ANIMAL_BASIC:
+        case SKILL_ANIMAL_MEDIUM:
+        case SKILL_ANIMAL_ADVANCED:
+            element = ELEMENT_ANIMAL;
+            break;
+        case SKILL_POISON_BASIC:
+        case SKILL_POISON_MEDIUM:
+        case SKILL_POISON_ADVANCED:
+            element = ELEMENT_POISON;
+            break;
+        case SKILL_UNDEAD_BASIC:
+        case SKILL_UNDEAD_MEDIUM:
+        case SKILL_UNDEAD_ADVANCED:
+            element = ELEMENT_UNDEAD;
+            break;
+        case SKILL_LIGHTNING_BASIC:
+        case SKILL_LIGHTNING_MEDIUM:
+        case SKILL_LIGHTNING_ADVANCED:
+            element = ELEMENT_LIGHTNING;
+            break;
+    } 
+
+    eosio_assert(_is_element_valid(pet.type, element), "invalid element skill");
 
     pets.modify(itr_pet, pet.owner, [&](auto &r) {
         if (novice_skill) {
@@ -297,6 +349,17 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
 
     // primer roller
     _random(10);
+}
+
+bool pet::_is_element_valid(const uint8_t &pet_type, const element_type &element_id) {
+  const auto& attack_pet_types = pettypes.get(pet_type, "invalid pet type");
+  for (const auto& pet_element : attack_pet_types.elements) {
+    if (pet_element == element_id) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 uint32_t pet::_calc_hunger_hp(const uint8_t &max_hunger_points, const uint32_t &hunger_to_zero,

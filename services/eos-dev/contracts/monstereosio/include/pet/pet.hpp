@@ -149,6 +149,7 @@ public:
     int _random(const int num);
 
     // internal pet calcs
+    bool _is_element_valid(const uint8_t &pet_type, const element_type &element_id);
     bool _is_alive(st_pets &pet, const st_pet_config2 &pc);
     uint32_t _calc_hunger_hp(const uint8_t &max_hunger_points,
                              const uint32_t &hunger_to_zero,

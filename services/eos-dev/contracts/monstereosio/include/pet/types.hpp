@@ -62,6 +62,51 @@ namespace types {
   constexpr uint16_t XP_WON = 799;
   constexpr uint16_t XP_LOST = 449;
 
+  // element types
+  constexpr element_type ELEMENT_NEUTRAL = 0;
+  constexpr element_type ELEMENT_WOOD = 1;
+  constexpr element_type ELEMENT_EARTH = 2;
+  constexpr element_type ELEMENT_WATER = 3;
+  constexpr element_type ELEMENT_FIRE = 4;
+  constexpr element_type ELEMENT_METAL = 5;
+  constexpr element_type ELEMENT_ANIMAL = 6;
+  constexpr element_type ELEMENT_POISON = 7;
+  constexpr element_type ELEMENT_UNDEAD = 8;
+  constexpr element_type ELEMENT_LIGHTNING = 9;
+
+  // battle skills
+  typedef uint8_t skill_type;
+  constexpr skill_type SKILL_NEUTRAL_BASIC = 10;
+  constexpr skill_type SKILL_NEUTRAL_MEDIUM = 20;
+  constexpr skill_type SKILL_NEUTRAL_ADVANCED = 30;
+  constexpr skill_type SKILL_WOOD_BASIC = 11;
+  constexpr skill_type SKILL_WOOD_MEDIUM = 21;
+  constexpr skill_type SKILL_WOOD_ADVANCED = 31;
+  constexpr skill_type SKILL_EARTH_BASIC = 12;
+  constexpr skill_type SKILL_EARTH_MEDIUM = 22;
+  constexpr skill_type SKILL_EARTH_ADVANCED = 32;
+  constexpr skill_type SKILL_WATER_BASIC = 13;
+  constexpr skill_type SKILL_WATER_MEDIUM = 23;
+  constexpr skill_type SKILL_WATER_ADVANCED = 33;
+  constexpr skill_type SKILL_FIRE_BASIC = 14;
+  constexpr skill_type SKILL_FIRE_MEDIUM = 24;
+  constexpr skill_type SKILL_FIRE_ADVANCED = 34;
+  constexpr skill_type SKILL_METAL_BASIC = 15;
+  constexpr skill_type SKILL_METAL_MEDIUM = 25;
+  constexpr skill_type SKILL_METAL_ADVANCED = 35;
+  constexpr skill_type SKILL_ANIMAL_BASIC = 16;
+  constexpr skill_type SKILL_ANIMAL_MEDIUM = 26;
+  constexpr skill_type SKILL_ANIMAL_ADVANCED = 36;
+  constexpr skill_type SKILL_POISON_BASIC = 17;
+  constexpr skill_type SKILL_POISON_MEDIUM = 27;
+  constexpr skill_type SKILL_POISON_ADVANCED = 37;
+  constexpr skill_type SKILL_UNDEAD_BASIC = 18;
+  constexpr skill_type SKILL_UNDEAD_MEDIUM = 28;
+  constexpr skill_type SKILL_UNDEAD_ADVANCED = 38;
+  constexpr skill_type SKILL_LIGHTNING_BASIC = 19;
+  constexpr skill_type SKILL_LIGHTNING_MEDIUM = 29;
+  constexpr skill_type SKILL_LIGHTNING_ADVANCED = 39;
+
   // market order types
   typedef uint8_t order_type;
   order_type ORDER_TYPE_ASK = 1;
