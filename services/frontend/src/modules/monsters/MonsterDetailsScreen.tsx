@@ -93,7 +93,8 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     let monster = await loadMonsterById(id, globalConfig)
     const petTypes = await loadPetTypes()
     const elements = await loadElements()
-    const monsterElements = petTypes[monster.type].elements.map((e: any) => elements[e])
+    // remove first element as it appears on every monster
+    const monsterElements = petTypes[monster.type].elements.slice(1).map((e: any) => elements[e])
 
     monster = {...monster, elements: monsterElements}
 
