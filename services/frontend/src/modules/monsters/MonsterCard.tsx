@@ -190,16 +190,6 @@ class MonsterCard extends React.Component<Props, {}> {
             </div>
           ))}
         </div>
-
-        {/* <p className="hp-card is-large has-margin-top">
-            <progress className="progress is-danger" max="100" value={monster.health} data-label="HP" />
-            </p>
-            <p>
-            <progress className="food-card progress is-primary" max="100" value={monster.hunger} data-label="Food" />
-            </p>
-            <p>
-            <progress className="energy-card progress is-success" max="100" value={monster.energy} data-label="Energy" />
-            </p> */}
       </div>
     )
   }
