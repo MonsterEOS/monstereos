@@ -493,7 +493,7 @@
   color: #e8a982; }
 
 .attack-button.earth {
-  color: green; }
+  color: #D2691E; }
 
 .attack-button.fire {
   color: red; }
@@ -514,7 +514,7 @@
   color: turquoise; }
 
 .attack-button.wood {
-  color: #D2691E; }
+  color: green; }
 
 .pending-attack-button, .confirm-attack-button {
   color: #fff;

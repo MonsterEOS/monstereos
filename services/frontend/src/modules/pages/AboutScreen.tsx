@@ -37,6 +37,8 @@ Alex Rozgo | Head of Gaming Engineering | [GitHub](http://github.com/rozgo) / [T
 Vertex Studio | Arts & Gaming Studio | [Official Website](https://vertexstudio.github.io)
 Cypherglass | Sponsor of Infrastructure and EOS Resources | [Official Website](https://cypherglass.com) / [Twitter](https://twitter.com/cypherglassbp) / [Youtube](https://www.youtube.com/channel/UCnXofUeO5w1dO9JGWWDdqPQ) / [Steemit](https://steemit.com/@cypherglass)
 Friedger Muffke | Developer | [GitHub](http://github.com/friedger) / [Twitter](https://twitter.com/fmdroid) / [Steemit](https://steemit.com/@friedger)
+Marcelo Mendes | Developer | [GitHub](http://github.com/marcelormendes) / [Twitter](https://twitter.com/itsmemarcelorm)
+Julien Lucca | Developer | [GitHub](http://github.com/lucca65) / [Twitter](https://twitter.com/JulienLucca)
 John Williamson | Developer | [GitHub](http://github.com/velua) / [Twitter](https://twitter.com/velua) / [Steemit](https://steemit.com/@johnwilliamson)
 Jenny Calpu | PR & Marketing | [Twitter](https://twitter.com/topkpop) / [Steemit](https://steemit.com/@topkpop)
 Daniel Wagner | Gaming Curator | [Medium](https://medium.com/@tikuzero)

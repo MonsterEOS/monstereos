@@ -9,10 +9,14 @@ import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 // import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
 import { parseOrderFromChain} from "../modules/market/market"
+import {Network, networks} from "../modules/wallet/networks"
+
 // chain info constants
-const CHAIN_PROTOCOL = process.env.REACT_APP_CHAIN_PROTOCOL || "http"
-const CHAIN_HOST = process.env.REACT_APP_CHAIN_HOST || "localhost"
-const CHAIN_PORT = process.env.REACT_APP_CHAIN_PORT || "8830"
+const networkId = localStorage.getItem("myNetwork")
+const myNetwork = networkId ? networks.find( net => networkId === net.id) : {} as Network
+const CHAIN_PROTOCOL = myNetwork!.protocol || process.env.REACT_APP_CHAIN_PROTOCOL || "http"
+const CHAIN_HOST = myNetwork!.host || process.env.REACT_APP_CHAIN_HOST || "localhost"
+const CHAIN_PORT = myNetwork!.port || process.env.REACT_APP_CHAIN_PORT || "8830"
 const CHAIN_URL = `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
 const HISTORY_CHAIN_URL = process.env.REACT_APP_HISTORY_URL || `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
 export const CHAIN_ID = process.env.REACT_APP_CHAIN_ID || "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
@@ -306,7 +310,7 @@ export const loadElements = async () => {
         r.name = "Undead"
         break
       case 9:
-        r.name = "Light"
+        r.name = "Lightning"
         break
     }
 

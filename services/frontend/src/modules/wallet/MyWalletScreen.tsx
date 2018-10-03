@@ -4,6 +4,7 @@ import { State, doLoadMyWallet, doLogout } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 
 import PageContainer from "../shared/PageContainer"
+import NetworkModal from "./NetworkModal"
 
 interface Props {
   eosAccount: string,
@@ -16,9 +17,15 @@ interface Props {
 
 interface ReactState {
   showNewMonsterModal: boolean
+  showSetNetworkModal: boolean
 }
 
 class MyWalletScreen extends React.Component<Props, ReactState> {
+
+  public state = {
+    showNewMonsterModal: false,
+    showSetNetworkModal: false,
+  }
 
   private refreshHandler: any = undefined
 
@@ -46,6 +53,12 @@ class MyWalletScreen extends React.Component<Props, ReactState> {
   private renderWallet() {
 
     const { myWalletBalance, dispatchDoLogout, history } = this.props
+
+    const { showSetNetworkModal } = this.state
+
+    const setNetworkClosure = () => {
+      this.setState({showSetNetworkModal: false})
+    }
 
     return (
       <PageContainer>
@@ -82,11 +95,21 @@ class MyWalletScreen extends React.Component<Props, ReactState> {
         </div>
 
         <p className="has-text-centered has-margin-top">
+          <a className="button has-margin-top"
+             onClick={() => this.setState({showSetNetworkModal: true})}>
+            SET NETWORK
+          </a>
+        </p>
+        <p className="has-text-centered has-margin-top">
           <a className="button is-danger has-margin-top" 
             onClick={() => dispatchDoLogout() && history.push("/")}>
             LOGOUT
           </a>
         </p>
+        {showSetNetworkModal &&
+        <NetworkModal
+            closeModal={setNetworkClosure}
+        />}
       </PageContainer>
     )
   }

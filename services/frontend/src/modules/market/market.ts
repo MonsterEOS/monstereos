@@ -19,6 +19,7 @@ const deletedMonster = (petId: number, owner: string): MonsterProps => {
     name: "",
     owner,
     type: -1,
+    elements: [],
     deathAt: 0,
     createdAt: 0,
     lastFeedAt: 0,

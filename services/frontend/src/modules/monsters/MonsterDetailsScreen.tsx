@@ -9,7 +9,7 @@ import TitleBar from "../shared/TitleBar"
 
 import { GET_MONSTER, petsGqlToMonsters } from "./monsters.gql"
 import MonsterHistory from "./MonsterHistory"
-import { loadMonsterById } from "../../utils/eos"
+import { loadMonsterById, loadPetTypes, loadElements } from "../../utils/eos"
 import { MonsterProps } from "./monsters"
 
 interface Props {
@@ -90,7 +90,14 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
 
   private refresh = async () => {
     const { match: {params: { id } }, globalConfig } = this.props
-    const monster = await loadMonsterById(id, globalConfig)
+    let monster = await loadMonsterById(id, globalConfig)
+    const petTypes = await loadPetTypes()
+    const elements = await loadElements()
+    // remove first element as it appears on every monster
+    const monsterElements = petTypes[monster.type].elements.slice(1).map((e: any) => elements[e])
+
+    monster = {...monster, elements: monsterElements}
+
     this.setState({monster})
   }
 }

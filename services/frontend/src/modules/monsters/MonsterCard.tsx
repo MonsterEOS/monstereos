@@ -5,6 +5,7 @@ import {
   // monsterImageSrc,
   monsterModelSrc,
   getCurrentAction,
+  MonsterElement,
 } from "./monsters"
 import get3dModel from "../monsters/monster3DMatrix"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
@@ -182,15 +183,14 @@ class MonsterCard extends React.Component<Props, {}> {
         <div className="progress-bar green">
           <span style={{width: `${monster.energy}%`}} />
         </div>
-        {/* <p className="hp-card is-large has-margin-top">
-          <progress className="progress is-danger" max="100" value={monster.health} data-label="HP" />
-        </p>
-        <p>
-          <progress className="food-card progress is-primary" max="100" value={monster.hunger} data-label="Food" />
-        </p>
-        <p>
-          <progress className="energy-card progress is-success" max="100" value={monster.energy} data-label="Energy" />
-        </p> */}
+
+        <div className="level is-mobile has-margin-top">
+          {monster.elements.map((e: MonsterElement) => (
+            <div key={e.id} className="level-item">
+              <img className="image is-32x32" alt={e.name} src={`/images/elements/${e.name.toLowerCase()}.svg`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
