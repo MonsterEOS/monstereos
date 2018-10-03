@@ -10,9 +10,8 @@ import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
 import { parseOrderFromChain} from "../modules/market/market"
 import {Network, networks} from "../modules/wallet/networks"
+
 // chain info constants
-
-
 const networkId = localStorage.getItem("myNetwork")
 const myNetwork = networkId ? networks.find( net => networkId === net.id) : {} as Network
 const CHAIN_PROTOCOL = myNetwork!.protocol || process.env.REACT_APP_CHAIN_PROTOCOL || "http"

@@ -158,9 +158,4 @@ export const networks: Network[] = [
     port: 443,
     ping: DEFAULT_PING
   },
-
-
 ]
-
-
-

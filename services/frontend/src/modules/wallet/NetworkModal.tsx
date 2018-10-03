@@ -1,12 +1,11 @@
 import * as React from "react"
-import {setNetwork, State} from "../../store"
+import {State} from "../../store"
 import {connect} from "react-redux"
 import Modal from "../shared/Modal"
 import {Network, networks} from "./networks"
 
 interface Props {
   closeModal: (doUpdate: boolean) => void,
-  dispatchSetNetwork: any,
   networkId: string
 }
 
@@ -115,8 +114,6 @@ class NetworkModal extends React.Component<Props, ReactState> {
   private setNetwork = () => {
     localStorage.setItem("myNetwork", this.state.id)
     location.reload()
-    // const {dispatchSetNetwork} = this.props
-    // dispatchSetNetwork(this.state.id)
   }
 
 }
@@ -128,8 +125,4 @@ const mapStateToProps = (state: State) => {
   }
 }
 
-const mapDispatchToProps = {
-  dispatchSetNetwork: setNetwork
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(NetworkModal)
+export default connect(mapStateToProps)(NetworkModal)

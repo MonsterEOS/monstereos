@@ -105,7 +105,6 @@ const actionLoadMyWallet = (myWalletBalance: string) => tsAction(LOAD_MY_WALLET,
 // network actions
 const actionSetNetwork = (myNetwork: string) => tsAction(SET_NETWORK, myNetwork)
 
-
 // actions definitions
 const actions = {
   actionLoadScatter,
