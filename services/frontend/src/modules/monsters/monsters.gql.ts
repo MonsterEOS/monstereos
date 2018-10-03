@@ -175,6 +175,7 @@ export const petsGqlToMonsters = (allPets: any, globalConfig: GlobalConfig) => {
       id: Number(node.id),
       name: String(node.petName),
       type: Number(node.typeId),
+      elements: [],
       owner: String(node.owner),
       health: 100,
       hunger: 100,
