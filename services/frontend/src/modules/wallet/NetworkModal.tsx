@@ -6,7 +6,8 @@ import {Network, networks} from "./networks"
 
 interface Props {
   closeModal: (doUpdate: boolean) => void,
-  dispatchSetNetwork: any
+  dispatchSetNetwork: any,
+  networkId: string
 }
 
 interface ReactState {
@@ -27,7 +28,7 @@ class NetworkModal extends React.Component<Props, ReactState> {
 
   public render() {
 
-    const {closeModal} = this.props
+    const {closeModal } = this.props
 
     const {networkList, id} = this.state
 
@@ -82,7 +83,7 @@ class NetworkModal extends React.Component<Props, ReactState> {
     const initialTimeStamp = Date.now()
 
     networkList.forEach(network => {
-      fetch(network.url)
+      fetch(network.protocol + "://" +  network.host + ":" + network.port + "/v1/chain/get_info")
         .then(res => {
           network.ping = Date.now() - initialTimeStamp
           this.setNetworkState(networkList)
@@ -94,6 +95,9 @@ class NetworkModal extends React.Component<Props, ReactState> {
 
     })
 
+    if (this.props.networkId){
+      this.setState({id: this.props.networkId})
+    }
 
   }
 
@@ -109,8 +113,10 @@ class NetworkModal extends React.Component<Props, ReactState> {
   }
 
   private setNetwork = () => {
-    const {dispatchSetNetwork} = this.props
-    dispatchSetNetwork(this.state.id)
+    localStorage.setItem("myNetwork", this.state.id)
+    location.reload()
+    // const {dispatchSetNetwork} = this.props
+    // dispatchSetNetwork(this.state.id)
   }
 
 }
@@ -118,7 +124,7 @@ class NetworkModal extends React.Component<Props, ReactState> {
 
 const mapStateToProps = (state: State) => {
   return {
-    scatter: state.scatter,
+    networkId: state.myNetwork,
   }
 }
 
