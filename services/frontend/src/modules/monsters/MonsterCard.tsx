@@ -5,6 +5,7 @@ import {
   // monsterImageSrc,
   monsterModelSrc,
   getCurrentAction,
+  MonsterElement,
 } from "./monsters"
 import get3dModel from "../monsters/monster3DMatrix"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
@@ -184,9 +185,9 @@ class MonsterCard extends React.Component<Props, {}> {
         </div>
 
         <div className="level is-mobile">
-          {monster.elements.map((e: any) => (
+          {monster.elements.map((e: MonsterElement) => (
             <div className="level-item">
-              <img className="image is-32x32" alt={e.name} src={`/images/elements/${e.name}.svg`} />
+              <img className="image is-32x32" alt={e.name} src={`/images/elements/${e.name.toLowerCase()}.svg`} />
             </div>
           ))}
         </div>

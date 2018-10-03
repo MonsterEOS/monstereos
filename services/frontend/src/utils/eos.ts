@@ -310,7 +310,7 @@ export const loadElements = async () => {
         r.name = "Undead"
         break
       case 9:
-        r.name = "Light"
+        r.name = "Lightning"
         break
     }
 
