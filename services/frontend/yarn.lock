@@ -46,6 +46,11 @@
   resolved "https://registry.yarnpkg.com/@types/graphql/-/graphql-0.12.6.tgz#3d619198585fcabe5f4e1adfb5cf5f3388c66c13"
   integrity sha512-wXAVyLfkG1UMkKOdMijVWFky39+OD/41KftzqfX1Oejd0Gm6dOIKjCihSVECg6X7PHjftxXmfOKA/d1H79ZfvQ==
 
+"@types/graphql@^14.0.1":
+  version "14.0.1"
+  resolved "https://registry.yarnpkg.com/@types/graphql/-/graphql-14.0.1.tgz#ff44c20fefdf0cf8c390f64b0dfbbc3c10dbaa87"
+  integrity sha512-JnkzkyIHAjK7+zJLEQieQg5iDwEqoX200BBFa0rfMU7jI9BQWBnM9BZh16gQecCyBjK0S149wZPb0SoTh2o34g==
+
 "@types/history@*", "@types/history@^4.7.0":
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.0.tgz#2fac51050c68f7d6f96c5aafc631132522f4aa3f"
