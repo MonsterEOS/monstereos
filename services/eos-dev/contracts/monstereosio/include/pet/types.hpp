@@ -107,19 +107,43 @@ namespace types {
   constexpr skill_type SKILL_LIGHTNING_MEDIUM = 29;
   constexpr skill_type SKILL_LIGHTNING_ADVANCED = 39;
 
+  // battle effects
+  typedef uint8_t effect_type;
+  constexpr effect_type EFFECT_SKNOV      = 11;
+  constexpr effect_type EFFECT_SKMED      = 12;
+  constexpr effect_type EFFECT_SKADV      = 13;
+  constexpr effect_type EFFECT_PLUSHP     = 21;
+  constexpr effect_type EFFECT_PLUSATK    = 22;
+  constexpr effect_type EFFECT_PLUSDEF    = 23;
+  constexpr effect_type EFFECT_IMMUNE     = 31;
+  constexpr effect_type EFFECT_STUN       = 41;
+  constexpr effect_type EFFECT_HEALOVT    = 51;
+  constexpr effect_type EFFECT_DMGOVT     = 52;
+
   // market order types
   typedef uint8_t order_type;
-  order_type ORDER_TYPE_ASK = 1;
-  order_type ORDER_TYPE_BID = 2;
-  order_type ORDER_TYPE_ASK_RENT = 11;
-  order_type ORDER_TYPE_BID_RENT = 12;
-  order_type ORDER_TYPE_RENTING = 10;
+  constexpr order_type ORDER_TYPE_ASK = 1;
+  constexpr order_type ORDER_TYPE_BID = 2;
+  constexpr order_type ORDER_TYPE_ASK_RENT = 11;
+  constexpr order_type ORDER_TYPE_BID_RENT = 12;
+  constexpr order_type ORDER_TYPE_RENTING = 10;
+
+  struct st_battle_effect {
+    effect_type effect;
+    uint8_t     turns;
+    uint8_t     modifier;
+  };
 
   struct st_pet_stat {
-    uuid    pet_id;
-    uint8_t pet_type;
-    name    player;
-    uint8_t hp;
+    uuid            pet_id;
+    uint8_t         pet_type;
+    name            player;
+    uint8_t         hp;
+    uint8_t         level;
+    skill_type      skill1;
+    skill_type      skill2;
+    skill_type      skill3;
+    vector<st_battle_effect> effects;
   };
 
   struct st_commit {
@@ -131,6 +155,13 @@ namespace types {
   struct st_pick {
     vector<uint64_t> pets;
     vector<uint8_t> randoms;
+  };
+
+  struct st_battle_move {
+    uuid         pet_id;
+    uuid         target;
+    element_type attack_element;
+    skill_type   skill;
   };
 
   struct st_transfer {
