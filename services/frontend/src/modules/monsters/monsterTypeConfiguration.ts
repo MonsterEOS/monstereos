@@ -8,7 +8,7 @@ export default (model: string) => {
                 model,
                 position: { y: 0, x: 0 },
                 rotation: { y: 0 },
-                cameraPosition: { z: -100 }
+                cameraPosition: { z: -320 }
             }
         case "bear":
             return {
@@ -30,6 +30,13 @@ export default (model: string) => {
                 position: { y: 0 },
                 rotation: { y: 0 },
                 cameraPosition: { z: -100 }
+            }
+        case "duck":
+            return {
+                model,
+                position: { y: 0, x: 0 },
+                rotation: { y: 0.35 },
+                cameraPosition: { z: -80 }
             }
         case "cerberus":
             return {
@@ -85,7 +92,7 @@ export default (model: string) => {
                 model,
                 position: { y: 0 },
                 rotation: { y: 0 },
-                cameraPosition: { z: -170 }
+                cameraPosition: { z: -630 }
             }
         case "ogre":
             return {
@@ -98,8 +105,8 @@ export default (model: string) => {
             return {
                 model,
                 position: { y: -110, x: 10 },
-                rotation: { y: 0.7, x: 0.2 },
-                cameraPosition: { z: -350 }
+                rotation: { y: 0.5, x: 0.2 },
+                cameraPosition: { z: -530 }
             }
         case "rocky":
             return {
@@ -118,9 +125,9 @@ export default (model: string) => {
         case "serpent":
             return {
                 model,
-                position: { y: -20, x: -10 },
-                rotation: { y: 0.4 },
-                cameraPosition: { z: -120 }
+                position: { y: -40, x: 0 },
+                rotation: { y: 0.3 },
+                cameraPosition: { z: -280 }
             }
         case "spider":
             return {
@@ -133,8 +140,8 @@ export default (model: string) => {
             return {
                 model,
                 position: { y: 0, x: 0 },
-                rotation: { y: 0.4 },
-                cameraPosition: { z: -30 }
+                rotation: { y: 0 },
+                cameraPosition: { z: -150 }
             }
         case "tree":
             return {
@@ -165,7 +172,6 @@ export default (model: string) => {
                 cameraPosition: { z: -80 }
             }
         default:
-            // console.info("no model... getting default config", model)
             return {
                 model,
                 position: { y: 0, x: 0 },

@@ -184,9 +184,9 @@ class MonsterCard extends React.Component<Props, {}> {
           <span style={{width: `${monster.energy}%`}} />
         </div>
 
-        <div className="level is-mobile">
+        <div className="level is-mobile has-margin-top">
           {monster.elements.map((e: MonsterElement) => (
-            <div className="level-item">
+            <div key={e.id} className="level-item">
               <img className="image is-32x32" alt={e.name} src={`/images/elements/${e.name.toLowerCase()}.svg`} />
             </div>
           ))}
