@@ -30,11 +30,13 @@ class TopBattlePlayersRank extends React.Component<{}, ReactState> {
             </span>
           }
 
-          const monsters = data.allVrankingBattlePlayers ? data.allVrankingBattlePlayers.edges : []
+          const { allVrankingBattlePlayers } = data
+
+          const players = allVrankingBattlePlayers ? data.allVrankingBattlePlayers.edges : []
           const onLoadMore = () => {
             fetchMore({
               variables: {
-                offset: data.allVrankingBattlePlayers.length
+                offset: players.length
               },
               updateQuery: (prev, { fetchMoreResult }) => {
                 if (!fetchMoreResult) { 
@@ -59,7 +61,7 @@ class TopBattlePlayersRank extends React.Component<{}, ReactState> {
               </tr>
             </thead>
             <tbody>
-            {monsters.map(({node}: any, index: number) => (
+            {players.map(({node}: any, index: number) => (
               <tr key={index}>
                 <td>{index+1}.</td>
                 <td>{node.picker}</td>
