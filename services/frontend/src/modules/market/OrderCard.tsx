@@ -27,6 +27,7 @@ interface Props {
   selected?: boolean,
   hideLink?: boolean,
   hideActions?: boolean,
+  hideProfile?: boolean
   customActions?: MonsterAction[]
 }
 
@@ -47,7 +48,7 @@ class OrderCard extends React.Component<Props, ReactState> {
 
   public render() {
 
-    const { order, selected, dispatchDoLoadMyMonsters, requestUpdate } = this.props
+    const { order, selected, dispatchDoLoadMyMonsters, requestUpdate, hideProfile } = this.props
     const monster = order.monster
 
     const { showNewOrderModal } = this.state
@@ -74,10 +75,10 @@ class OrderCard extends React.Component<Props, ReactState> {
         <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
             <div className="columns is-mobile">
-              <div className="column">
+              { !hideProfile && <div className="column">
                 {this.renderMonster()}
-              </div>
-              <div className="column is-three-fifths">
+              </div> }
+              <div className={`column ${hideProfile ? "" : "is-three-fifths"}`}>
                 {this.renderHeader()}
                 {this.renderOrderData()}
               </div>
@@ -140,7 +141,7 @@ class OrderCard extends React.Component<Props, ReactState> {
 
   private renderHeader() {
 
-    const { order, hideLink } = this.props
+    const { order, hideLink, hideProfile } = this.props
     const monster = order.monster
 
     // const createdAt = moment(monster.createdAt)
@@ -154,22 +155,23 @@ class OrderCard extends React.Component<Props, ReactState> {
     const aliveDuration = (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
     const aliveDurationText = moment.duration(aliveDuration).humanize()
 
-    const headerContent =
+    const headerContent = !hideProfile &&
       <div className={`monster-card-title ${monster.deathAt ? "dead" : ""}`}>
         <div>
           <div className="monster-name">{monster.name}</div>
           <div className="monster-status">
-          {monster.deathAt ?
-            <p>
-              Stayed alive for {aliveDurationText}
-            </p>
-            : <p>Has been alive for {aliveDurationText}</p>
-          }
+            {monster.deathAt ?
+              <p>
+                Stayed alive for {aliveDurationText}
+              </p>
+              : <p>Has been alive for {aliveDurationText}</p>
+            }
           </div>
         </div>
         <div className="monster-id">#{monster.id}</div>
         <br/>
       </div>
+
 
     return (
       <div className="monster-card-header">

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+/opt/application/scripts/init_wallet.sh
 
 # monsters creation
 echo "\ncreating few monsters"
