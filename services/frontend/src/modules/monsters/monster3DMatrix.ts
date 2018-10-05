@@ -198,7 +198,7 @@ export const monsterDecors = {
 
 export default (type: number, isDead = false) => {
   let config: any
-  switch (true ? 9999 : type) {
+  switch (type) {
     case 0:
     case 1:
     case 2:
@@ -828,7 +828,7 @@ export default (type: number, isDead = false) => {
       }
       break
     default: config = {
-      ...profileConfig("bat"),
+      ...profileConfig("bad-chicken"),
       decor: monsterDecors.undead,
     }
   }
