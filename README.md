@@ -91,20 +91,21 @@ cd monstereos
 
 We structured everything in microservices and it can be automagically initialized by docker! Don't be afraid of docker, a lot of people hear docker and run away but we already did the hard part (configuration) for you. You will just need to install docker in your computer (a simple installer that you will press next next next finish lol).
 
-After you installed docker just run the following single command:
+After you installed docker just run the following commands:
 
+**Start docker container**
 ```
 docker-compose up -d
-docker-compose run demux yarn _migrate # credentials: user // pass  (for three steps)
-docker restart monstereos_demux_1
+```
 
-docker exec -it monstereos_eosiodev_1 /bin/sh
+**Create postgres database and init chain and monster data**
+```
+./setup.sh
+```
 
-cd /opt/application/scripts
-./0000_init-chain.sh
-./0010_load-elements.sh
-./0020_load-pet-types.sh
-./0030_load-data.sh
+**Restart docker container**
+```
+docker-compose restart
 ```
 
 Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
@@ -113,7 +114,10 @@ Open Kitematic (a nice UI for docker containers management that comes by default
 - fullnode: this is a node that will simulate your mainnet fullnode that will listen for the blockchain and persist data in mongo with mongodb_plugin
 - mongo: this is our chain database, fed by fullnode
 - postgres: this is our database, the chain is the source of truth, and this is just a cache layer to help our application to query nice and fast reports
-- demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3 - we serve data with GraphQL out-of-the-box through postgraphile under port 3030
+- demux: The backend for monstereosio, it consists of the following node services (using pm2):
+  - demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3 
+  - postgraphile: we serve data with GraphQL out-of-the-box through postgraphile under port 3030
+  - data-cleaner: updates data about monsters and battle arenas according to our business rules
 
 ### Frontend App: UI
 
@@ -130,3 +134,10 @@ Feel free to build any other apps and/or dockerize it. We didn't create a docker
 ### EOS Dream Stack
 
 You can build any Dapp using the above structure. Tweak the structure a little bit to satisfy all your needs, i.e.: you can change the postgres for other database as mongo or mysql; you might not need demux and the backend if your app is very basic, allowing the frontend to read directly from the chain; change the frontend to whatever framework you want to use as Vue or Angular, not only this but your frontend can be a mobile native app, why not?
+
+### Notes
+* mongo and postgres data is stored in parent folder of this git repo under `.monstereos`
+* eos data is stored in the docker volume `monstereos_eosiodevapp`
+* to compile the contract you need to use `eosio.cdt` and build it using `make`
+* to change postgres schema run `yarn migrate` from console (outside docker) in folder `services/demux`.
+

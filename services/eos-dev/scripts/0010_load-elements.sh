@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+/opt/application/scripts/init_wallet.sh
 
 ROOT_DIR="/opt/eosio/bin"
 cd $ROOT_DIR
