@@ -315,7 +315,7 @@ class BattleArena extends React.Component<Props, ReactState> {
 
   private onAttack = (isMyTurn: boolean) => {
     this.arenaRef.current
-      .changeAnimationState(isMyTurn)
+      .playAttackAnimation(isMyTurn)
       .then(() => this.props.submitAttack())
   }
 
