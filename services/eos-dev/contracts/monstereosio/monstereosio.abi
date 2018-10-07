@@ -12,6 +12,9 @@
     },{
       "new_type_name": "element_type",
       "type": "uint8"
+    },{
+      "new_type_name": "effect_type",
+      "type": "uint8"
     }
   ],
   "structs": [{
@@ -152,6 +155,93 @@
           "name": "house",
           "type": "acc_house[]"
         },
+      ]
+    },{
+      "name": "st_temp_effect",
+      "base": "",
+      "fields": [
+        {
+          "name": "effect",
+          "type": "effect_type"
+        },
+        {
+          "name": "expires_at",
+          "type": "uint32"
+        }
+      ]
+    },{
+      "name": "st_peteffects",
+      "base": "",
+      "fields": [
+        {
+          "name": "pet_id",
+          "type": "uuid"
+        },{
+          "name": "effects",
+          "type": "st_temp_effect[]"
+        },
+      ]
+    },{
+      "name": "st_equiptypes",
+      "base": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "type",
+          "type": "uint8"
+        },
+        {
+          "name": "attack",
+          "type": "uint16"
+        },
+        {
+          "name": "defense",
+          "type": "uint16"
+        },
+        {
+          "name": "hp",
+          "type": "uint16"
+        }
+      ]
+    },{
+      "name": "st_equipments",
+      "base": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid"
+        },
+        {
+          "name": "owner",
+          "type": "name"
+        },
+        {
+          "name": "type",
+          "type": "uint8"
+        },
+        {
+          "name": "item_id",
+          "type": "uint16"
+        },
+        {
+          "name": "attack",
+          "type": "uint16"
+        },
+        {
+          "name": "defense",
+          "type": "uint16"
+        },
+        {
+          "name": "hp",
+          "type": "uint16"
+        },
+        {
+          "name": "equipped_pet",
+          "type": "uuid"
+        }
       ]
     },{
       "name": "st_elements",
@@ -989,6 +1079,36 @@
         "uuid"
       ],
       "type": "st_orders"
+    },{
+      "name": "peteffects",
+      "index_type": "i64",
+      "key_names": [
+        "pet_id"
+      ],
+      "key_types": [
+        "uuid"
+      ],
+      "type": "st_peteffects"
+    },{
+      "name": "equiptypes",
+      "index_type": "i64",
+      "key_names": [
+        "id"
+      ],
+      "key_types": [
+        "uuid"
+      ],
+      "type": "st_equiptypes"
+    },{
+      "name": "equipments",
+      "index_type": "i64",
+      "key_names": [
+        "id"
+      ],
+      "key_types": [
+        "uuid"
+      ],
+      "type": "st_equipments"
     },{
       "name": "petconfig2",
       "index_type": "i64",

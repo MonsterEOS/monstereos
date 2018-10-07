@@ -107,8 +107,8 @@ namespace types {
   constexpr skill_type SKILL_LIGHTNING_MEDIUM = 29;
   constexpr skill_type SKILL_LIGHTNING_ADVANCED = 39;
 
-  // battle effects
   typedef uint8_t effect_type;
+  // battle effects
   constexpr effect_type EFFECT_SKNOV      = 11;
   constexpr effect_type EFFECT_SKMED      = 12;
   constexpr effect_type EFFECT_SKADV      = 13;
@@ -119,6 +119,20 @@ namespace types {
   constexpr effect_type EFFECT_STUN       = 41;
   constexpr effect_type EFFECT_HEALOVT    = 51;
   constexpr effect_type EFFECT_DMGOVT     = 52;
+
+  // potions/special effects
+  constexpr effect_type EFFECT_IATEL      = 210;
+  constexpr effect_type EFFECT_SATEL      = 211;
+  constexpr effect_type EFFECT_IDFEL      = 220;
+  constexpr effect_type EFFECT_SDFEL      = 221;
+  constexpr effect_type EFFECT_IHPEL      = 230;
+  constexpr effect_type EFFECT_SHPEL      = 231;
+  constexpr effect_type EFFECT_BRXSC      = 240;
+  constexpr effect_type EFFECT_SVXSC      = 241;
+  constexpr effect_type EFFECT_GLXSC      = 242;
+  constexpr effect_type EFFECT_SBXSC      = 243;
+  constexpr effect_type EFFECT_SSXSC      = 244;
+  constexpr effect_type EFFECT_SGXSC      = 245;
 
   // market order types
   typedef uint8_t order_type;
@@ -132,6 +146,11 @@ namespace types {
     effect_type effect;
     uint8_t     turns;
     uint8_t     modifier;
+  };
+  
+  struct st_temp_effect {
+    effect_type effect;
+    uint32_t    expires_at;
   };
 
   struct st_pet_stat {
@@ -413,4 +432,46 @@ namespace types {
   typedef multi_index<N(orders), st_orders,
       indexed_by<N(by_user_and_pet), const_mem_fun<st_orders, uint128_t, &st_orders::get_by_user_and_pet>>
   > _tb_orders;
+
+  // EQUIPMENTS
+
+  // @abi table equiptypes i64
+  struct st_equiptypes {
+    uuid      id;
+    uint8_t   type;
+    uint16_t  attack;
+    uint16_t  defense;
+    uint16_t  hp;
+
+    uint64_t primary_key() const { return id; }
+  };
+  typedef multi_index<N(equiptypes), st_equiptypes> _tb_equiptypes;
+
+  // @abi table equipments i64
+  struct st_equipments {
+    uuid      id;
+    name      owner;
+    uint8_t   type;
+    uint16_t  item_id;
+    uint16_t  attack;
+    uint16_t  defense;
+    uint16_t  hp;
+    uuid      equipped_pet;
+
+    uint64_t primary_key() const { return id; }
+    uint64_t get_by_pet() const { return equipped_pet; }
+  };
+  typedef multi_index<N(equipments), st_equipments,
+    indexed_by<N(bypet), const_mem_fun<st_equipments, uint64_t, &st_equipments::get_by_pet>>
+  > _tb_equipments;
+
+  // special pet effects
+  // @abi table petstates i64
+  struct st_peteffects {
+    uuid pet_id;
+    vector<st_temp_effect> effects;
+
+    uint64_t primary_key() const { return pet_id; }
+  };
+  typedef multi_index<N(peteffects), st_peteffects> _tb_peteffects;
 }
