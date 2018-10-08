@@ -4,11 +4,11 @@ import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION
 import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, isPlayerReady, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, BATTLE_PHASE_JOINING, battleCountdownText, Element, getBattleCountdown } from "./battles"
+import { Arena, getCurrentBattle, getBattleText, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, battleCountdownText, Element, getBattleCountdown, BATTLE_PHASE_JOINING } from "./battles"
 import {
   loadArenaByHost,
   leaveBattle,
-  startBattle,
+  // startBattle,
   loadElements as apiLoadElements,
   loadPetTypes,
   attackBattle,
@@ -42,7 +42,8 @@ interface ReactState {
 
 class BattleScreen extends React.Component<Props, ReactState> {
 
-  private refreshHandler: any = undefined
+  private refreshHandler: any = 0
+  private isMyMounted: boolean = true
 
   constructor(props: Props) {
     super(props)
@@ -66,7 +67,13 @@ class BattleScreen extends React.Component<Props, ReactState> {
   }
 
   public componentWillUnmount() {
-    clearTimeout(this.refreshHandler)
+    console.info("unmounting battle-screen")
+    this.isMyMounted = false
+    if (this.refreshHandler) {
+      console.info("erasing blattle-screen refresh handler")
+      clearTimeout(this.refreshHandler)
+      this.refreshHandler = 0
+    }
   }
 
   public render() {
@@ -101,30 +108,29 @@ class BattleScreen extends React.Component<Props, ReactState> {
       () => this.doLeaveBattle(arena.host) :
       null
 
-    const countdownText = battleCountdownText(arena, globalConfig)
+    // const isConfirmed = isPlayerReady(arena, identity)
+    // const allowConfirmation = isMyBattle && !isConfirmed &&
+    //   arena.phase === BATTLE_PHASE_STARTING ?
+    //   () => this.doStartBattle(arena.host) :
+    //   null
 
-    const isConfirmed = isPlayerReady(arena, identity)
-    const allowConfirmation = isMyBattle && !isConfirmed &&
-      arena.phase === BATTLE_PHASE_STARTING ?
-      () => this.doStartBattle(arena.host) :
-      null
+    const countdownText = battleCountdownText(arena, globalConfig)
 
     const isOver = arena.phase === BATTLE_PHASE_FINISHED
 
-    const myTurn = arena.commits[0].player === identity
+    // const myTurn = arena.commits[0].player === identity
 
     const battleCountdown = getBattleCountdown(arena, globalConfig)
-    const mobileCountdownText = battleCountdown > 0 ? battleCountdown : "Attack!"
 
     return (
-      <PageContainer>
+      <PageContainer isShort>
         <BattleHeader
           battleText={getBattleText(arena)}
           host={arena.host}
           isMyBattle={isMyBattle}
           isOver={isOver}
           countdownText={countdownText}
-          allowConfirmation={allowConfirmation}
+          allowConfirmation={false} // allowConfirmation
           allowLeaveBattle={allowLeaveBattle} />
         {arena.phase === BATTLE_PHASE_STARTING &&
         <BattleConfirmation
@@ -142,16 +148,11 @@ class BattleScreen extends React.Component<Props, ReactState> {
           selectedElementId={selectedAttackElementId}
           elements={elements}
           winner={winner}
+          battleCountdown={battleCountdown}
           monsterTypes={monsterTypes!} />
         }
         {/* mobile controls */}
         <div className="is-hidden-tablet">
-        {arena.phase === BATTLE_PHASE_GOING &&
-          <div className={`mobile-arena-countdown ${myTurn || battleCountdown < 0 ? "has-text-success" : "has-text-danger"}`}>
-            {battleCountdown > 0 ? (myTurn ? "Your turn " : "Enemy turn ") : ""}
-            {mobileCountdownText}
-          </div>
-        }
         {(!isMyBattle || isOver) &&
           <Link className="mobile-arena-back" to="/arenas">
             Back to Arenas
@@ -176,20 +177,28 @@ class BattleScreen extends React.Component<Props, ReactState> {
   }
 
   private refresh = async () => {
-    const { dispatchPushNotification } = this.props
     const { match: {params: { host } } } = this.props
     const { isOver, arena } = this.state
+
+    if (!host) {
+      return
+    }
 
     try {
       const newArena = await loadArenaByHost(host)
 
+      if (!this.isMyMounted) {
+        return
+      }
+
       if (newArena) {
-        this.setState({arena: newArena})
 
         if (arena !== undefined) {
           const currentArena = arena as Arena
           this.handleArenaNotifications(currentArena, newArena)
         }
+
+        this.setState({arena: newArena})
 
       } else if (arena !== null && arena !== undefined && arena.petsStats.length) {
         const confirmedArena = arena as Arena
@@ -212,12 +221,13 @@ class BattleScreen extends React.Component<Props, ReactState> {
       }
 
       // TODO: implement websockets
-      if (!isOver) {
-        this.refreshHandler = setTimeout(this.refresh, 1000)
-      }
     } catch (error) {
       console.error("Fail to load Arena", error)
-      dispatchPushNotification("Fail to load Arena")
+      // dispatchPushNotification("Fail to load Arena")
+    }
+
+    if (!isOver) {
+      this.refreshHandler = setTimeout(this.refresh, 1000)
     }
   }
 
@@ -269,18 +279,18 @@ class BattleScreen extends React.Component<Props, ReactState> {
       })
   }
 
-  private doStartBattle = async (host: string) => {
-    const { scatter, dispatchPushNotification } = this.props
-    startBattle(scatter, host)
-      .then(() => {
-        setTimeout(this.refresh, 500)
-        dispatchPushNotification("Ready to Battle!", NOTIFICATION_SUCCESS)
-      })
-      .catch((err: any) => {
-        setTimeout(this.refresh, 500)
-        dispatchPushNotification(`Fail to confirm Battle ${err.eosError}`, NOTIFICATION_ERROR)
-      })
-  }
+  // private doStartBattle = async (host: string) => {
+  //   const { scatter, dispatchPushNotification } = this.props
+  //   startBattle(scatter, host)
+  //     .then(() => {
+  //       setTimeout(this.refresh, 500)
+  //       dispatchPushNotification("Ready to Battle!", NOTIFICATION_SUCCESS)
+  //     })
+  //     .catch((err: any) => {
+  //       setTimeout(this.refresh, 500)
+  //       dispatchPushNotification(`Fail to confirm Battle ${err.eosError}`, NOTIFICATION_ERROR)
+  //     })
+  // }
 
   private loadElements = async () => {
     const elements = await apiLoadElements()
@@ -297,7 +307,7 @@ const mapStateToProps = (state: State) => {
   return {
     globalConfig: state.globalConfig,
     scatter: state.scatter,
-    identity: getEosAccount(state.identity)
+    identity: getEosAccount(state.identity),
   }
 }
 

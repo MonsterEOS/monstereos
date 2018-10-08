@@ -2,12 +2,18 @@ import * as React from "react"
 import { Query } from "react-apollo"
 import { Link } from "react-router-dom"
 
-import TitleBar from "../shared/TitleBar"
 import { QUERY_TOP_BATTLE_MONSTERS } from "./ranking.gql"
-import { monsterImageSrc } from "../monsters/monsters"
+// import { monsterImageSrc } from "../monsters/monsters"
 
-class TopBattleMonstersRank extends React.Component<{}, {}> {
+interface ReactState{
+  loadMore:boolean
+}
 
+class TopBattleMonstersRank extends React.Component<{}, ReactState> {
+
+  public state = {
+    loadMore : true
+  }
   public render() {
 
     const variables = {
@@ -15,10 +21,11 @@ class TopBattleMonstersRank extends React.Component<{}, {}> {
       offset: 0
     }
 
+    const {loadMore} = this.state
+
     return <div className="rank">
-      <TitleBar title="Top Battle Monsters" />
       <Query query={QUERY_TOP_BATTLE_MONSTERS} variables={variables}>
-        {({data, loading, refetch}) => {
+        {({data, loading, fetchMore}) => {
 
           if (loading || !data || !data.allVrankingBattlePets) {
             return <span>
@@ -29,7 +36,27 @@ class TopBattleMonstersRank extends React.Component<{}, {}> {
           const { allVrankingBattlePets } = data
 
           const monsters = allVrankingBattlePets ? allVrankingBattlePets.edges : []
-          return <table>
+
+          const onLoadMore = () => {
+
+            fetchMore({
+              variables: {
+                offset: monsters.length
+              },
+              updateQuery: (prev, { fetchMoreResult }) => {
+                if (!fetchMoreResult) {
+                  this.setState({loadMore:false})
+                  return prev
+                }
+                this.setState({loadMore:fetchMoreResult.allVrankingBattlePets.edges.length === variables.limit })
+                return Object.assign({}, prev, {allVrankingBattlePets :
+                  Object.assign({}, prev.allVrankingBattlePets, {edges:[...prev.allVrankingBattlePets.edges, ...fetchMoreResult.allVrankingBattlePets.edges]})
+                  })
+            }})
+          }
+
+          return <div>
+            <table>
             <thead>
               <tr>
                 <th>#</th>
@@ -44,7 +71,7 @@ class TopBattleMonstersRank extends React.Component<{}, {}> {
               <tr key={index}>
                 <td>{index+1}.</td>
                 <td>
-                  <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" />
+                  {/* <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" /> */}
                   <Link to={`/monster/${node.petId}`}>{node.petName} <small>#{node.petId}</small></Link>
                 </td>
                 <td>{node.wins}</td>
@@ -54,6 +81,15 @@ class TopBattleMonstersRank extends React.Component<{}, {}> {
             ))}
             </tbody>
           </table>
+          {loadMore &&
+            <footer className="card-footer">
+              <a className="card-footer-item"
+                onClick={onLoadMore}>
+                Load more
+              </a>
+            </footer>
+          }
+        </div>
         }}
       </Query>
     </div>

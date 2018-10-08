@@ -1,0 +1,157 @@
+.button.is-purple {
+  background-color: $purple;
+  color: white;
+}
+
+.button.is-brown {
+  background-color: #D2691E;
+  color: white;
+}
+
+.button {
+  border-top: 1px solid #01e1bf;
+  background: #01e1bf;
+  background: linear-gradient(to bottom, #89eef3, #01e1bf);
+  padding: 13px 26px;
+  border-radius: 4px;
+  box-shadow: rgba(0,0,0,1) 0 1px 0;
+  text-shadow: rgba(0,0,0,.4) 0 1px 0;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  text-decoration: none;
+  vertical-align: middle;
+
+  &:hover {
+    border-top-color: #01e1bf;
+    background: #01e1bf;
+    color: #ffffff;
+    text-decoration: none;
+  }
+
+  &:active {
+    border-top-color: #01e1bf;
+    background: #01e1bf;
+    text-decoration: none;
+  }
+}
+
+.button.is-danger {
+  border-top: 1px solid #f71000;
+  background: #f71000;
+  background: linear-gradient(to bottom, #fbb482, #f71000);
+
+  &:hover {
+    border-top-color: #f71000;
+    background: #f71000;
+  }
+
+  &:active {
+    border-top-color: #f71000;
+    background: #f71000;
+  }
+}
+
+.button.is-success {
+  border-top: 1px solid rgb(146,207,2);
+  background: rgb(146,207,2);
+  background: linear-gradient(to bottom, rgb(183,242,133), rgb(146,207,2));
+
+  &:hover {
+    border-top-color: rgb(146,207,2);
+    background: rgb(146,207,2);
+  }
+
+  &:active {
+    border-top-color: rgb(146,207,2);
+    background: rgb(146,207,2);
+  }
+}
+
+.button.is-warning {
+  border-top: 1px solid rgb(255,220,56);
+  background: rgb(255,220,56);
+  background: linear-gradient(to bottom, rgb(234,230,191), rgb(255,220,56));
+
+  &:hover {
+    border-top-color: rgb(255,220,56);
+    background: rgb(255,220,56);
+  }
+
+  &:active {
+    border-top-color: rgb(255,220,56);
+    background: rgb(255,220,56);
+  }
+}
+
+.card, .arena-header>.box {
+  background: linear-gradient(45deg, #071439 0%,#046c78 100%);
+  border-radius: 5px;
+  border: 1px solid $my-blue;
+  box-shadow: 0px 0px 20px 1px $my-blue;
+  color: #fff;
+}
+
+.card-footer {
+  border-top: none;
+  background: rgba(0, 0, 0, 0.3);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+
+  a {
+    color: #fff;
+  }
+
+  .card-footer-item:not(:last-child) {
+    border-width: 0 1px 0 0;
+    border-image:
+    linear-gradient(to bottom, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0)) 1 100%;
+  }
+}
+
+.section.page {
+  min-height: 500px;
+}
+
+.modal-card {
+  background: linear-gradient(45deg, rgb(10, 15, 45) 0%,rgb(11, 202, 165) 100%);
+  border-radius: 5px;
+  border: 1px solid $my-blue;
+  box-shadow: 0px 0px 20px 1px $my-blue;
+
+  .modal-card-body, .modal-card-head, .modal-card-foot {
+    background-color: transparent;
+    border: 0;
+  }
+
+  .modal-card-head {
+    text-align: center;
+
+    .delete {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+    }
+
+    .modal-card-title {
+      margin-top: 16px;
+      width: 100%;
+      font-family: 'Montserrat', sans-serif;
+      text-transform: uppercase;
+      font-size: 32px;
+      font-weight: 700;
+      background-image: map-get($gradients, golden);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  .modal-card-foot {
+    display: flex;
+    justify-content: space-around;
+  }
+}
+
+.label {
+  color: #fff;
+}

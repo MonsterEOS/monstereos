@@ -21,7 +21,7 @@ const parseTime = (time: number) => {
 }
 
 const BattleCard = ({arena, myBattle, joinBattle, availableToBattle}: Props) => (
-  <div className="card has-margin-top">
+  <div className="arena card has-margin-top">
     <header className="card-header">
       <p className="card-header-title">{arena.host}'s Arena</p>
     </header>
@@ -61,9 +61,9 @@ const BattleCard = ({arena, myBattle, joinBattle, availableToBattle}: Props) => 
           to={`/arenas/${arena.host}`}>
           {myBattle ? "Reconnect to Battle" : "Watch"}
         </Link>
-        { arena.commits.length < 2 && availableToBattle &&
+        {/* { arena.commits.length < 2 && availableToBattle &&
           <a className="card-footer-item" onClick={joinBattle}>Join Battle</a>
-        }
+        } */}
       </footer>
     </div>
 )

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Link } from "react-router-dom"
+// import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
 import EldestRank from "../ranking/EldestRank"
@@ -18,6 +18,7 @@ const RANK_GRAVEYARD = "graveyard"
 
 interface Props {
   match: any,
+  history: any
 }
 
 class RankScreen extends React.Component<Props, {}> {
@@ -29,6 +30,7 @@ class RankScreen extends React.Component<Props, {}> {
   public render() {
     return (
       <PageContainer>
+        <h1 className="title rank">Top Rank</h1>
         {this.renderMenu()}
         {this.renderRankPage()}
       </PageContainer>
@@ -39,32 +41,43 @@ class RankScreen extends React.Component<Props, {}> {
 
     const { match: {params: { type } } } = this.props
 
+    const currentType = type || RANK_ELDEST
+
     return (
-      <div className="rank">
-        <div className="tabs">
-          <ul>
-            <li className={type === RANK_ELDEST || !type ? "is-active" : ""}>
-              <Link to="/rank">Eldest Monsters</Link>
-            </li>
-            <li className={type === RANK_ACTIVITY ? "is-active" : ""}>
-              <Link to="/rank/activity">Top Activity</Link>
-            </li>
-            <li className={type === RANK_COLLECTORS ? "is-active" : ""}>
-              <Link to="/rank/collectors">Top Collectors</Link>
-            </li>
-            <li className={type === RANK_WINNER_MONSTERS ? "is-active" : ""}>
-              <Link to="/rank/battle-monsters">Top Battle Monsters</Link>
-            </li>
-            <li className={type === RANK_WINNER_PLAYERS ? "is-active" : ""}>
-              <Link to="/rank/battle-players">Top Battle Players</Link>
-            </li>
-            <li className={type === RANK_GRAVEYARD ? "is-active" : ""}>
-              <Link to="/rank/graveyard">Graveyard</Link>
-            </li>
-          </ul>
+      <div className="field" onChange={this.handleChangeRank}>
+        <div className="control">
+          <div className="select is-fullwidth">
+            <select value={currentType}>
+              <option value={RANK_ELDEST}>Eldest Monsters</option>
+              <option value={RANK_ACTIVITY}>Top Activity</option>
+              <option value={RANK_COLLECTORS}>Top Collectors</option>
+              <option value={RANK_WINNER_MONSTERS}>Top Battle Monsters</option>
+              <option value={RANK_WINNER_PLAYERS}>Top Battle Players</option>
+              <option value={RANK_GRAVEYARD}>Graveyard</option>
+            </select>
+          </div>
         </div>
       </div>
     )
+  }
+
+  private handleChangeRank = (event: any) => {
+    const { history } = this.props
+
+    switch (event.target.value) {
+      case RANK_ELDEST:
+        return history.push("/rank")
+      case RANK_ACTIVITY:
+        return history.push("/rank/activity")
+      case RANK_COLLECTORS:
+        return history.push("/rank/collectors")
+      case RANK_WINNER_MONSTERS:
+        return history.push("/rank/battle-monsters")
+      case RANK_WINNER_PLAYERS:
+        return history.push("/rank/battle-players")
+      case RANK_GRAVEYARD:
+        return history.push("/rank/graveyard")
+    }
   }
 
   private renderRankPage = () => {

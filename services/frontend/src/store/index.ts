@@ -19,6 +19,7 @@ export interface State {
   readonly notifications: Notification[]
   readonly myMonsters: MonsterProps[]
   readonly myWalletBalance: string
+  readonly myNetwork: string
 }
 
 export interface GlobalConfig {
@@ -85,6 +86,7 @@ const LOAD_GLOBAL_CONFIG = "LOAD_GLOBAL_CONFIG"
 const LOAD_MY_MONSTERS = "LOAD_MY_MONSTERS"
 const LOAD_MY_WALLET = "LOAD_MY_WALLET"
 const DO_LOGOUT = "DO_LOGOUT"
+const SET_NETWORK = "SET_NETWORK"
 
 // auth actions
 const actionLoadScatter = (scatter: object) => tsAction(LOAD_SCATTER, scatter)
@@ -100,6 +102,9 @@ const actionLoadConfig = (config: GlobalConfig) => tsAction(LOAD_GLOBAL_CONFIG, 
 const actionLoadMyMonsters = (monsters: MonsterProps[]) => tsAction(LOAD_MY_MONSTERS, monsters)
 const actionLoadMyWallet = (myWalletBalance: string) => tsAction(LOAD_MY_WALLET, myWalletBalance)
 
+// network actions
+const actionSetNetwork = (myNetwork: string) => tsAction(SET_NETWORK, myNetwork)
+
 // actions definitions
 const actions = {
   actionLoadScatter,
@@ -109,7 +114,8 @@ const actions = {
   actionDeleteNotificaction,
   actionLoadConfig,
   actionLoadMyMonsters,
-  actionLoadMyWallet
+  actionLoadMyWallet,
+  actionSetNetwork
 }
 type Actions = ActionType<typeof actions>
 
@@ -142,8 +148,9 @@ export const doLoadScatter = (scatter: any) => {
 
 export const doLoadIdentity = (identity: any) => async (dispatch: any) => {
   dispatch(actionLoadEosIdentity(identity))
-  dispatch(doLoadMyMonsters())
-  dispatch(doLoadMyWallet())
+  await dispatch(doLoadMyMonsters())
+  await dispatch(doLoadMyWallet())
+  return true
 }
 
 export const doLoadMyMonsters = () => async (
@@ -155,7 +162,7 @@ export const doLoadMyMonsters = () => async (
   if (identity) {
     const account = getEosAccount(identity)
     const accountMonsters = await loadMonstersByOwner(account, globalConfig)
-    dispatch(actionLoadMyMonsters(accountMonsters))
+    return dispatch(actionLoadMyMonsters(accountMonsters))
   }
 }
 
@@ -188,6 +195,7 @@ export const requestScatterIdentity = () => async (dispatch: any, getState: any)
   .then((identity: any) => {
     console.info("identity is ", identity)
     dispatch(doLoadIdentity(identity))
+    return true
   }).catch((error: any) => {
     if (error && error.message) {
       dispatch(pushNotification(error.message, NOTIFICATION_ERROR))
@@ -201,6 +209,11 @@ export const requestScatterIdentity = () => async (dispatch: any, getState: any)
 export const doLogout = () => (dispatch: any, getState: any) => {
   getState().scatter.forgetIdentity()
   return dispatch(actionLogout())
+}
+
+export const setNetwork = (id: string) => {
+    localStorage.setItem("myNetwork", id)
+    return actionSetNetwork(id)
 }
 
 // reducer
@@ -255,6 +268,14 @@ const reducers = combineReducers<State, Actions>({
   myWalletBalance: (state = "0 EOS", action) => {
     switch (action.type) {
       case LOAD_MY_WALLET:
+        return action.payload
+      default:
+        return state
+    }
+  },
+  myNetwork: (state = "cypherglasss", action) => {
+    switch (action.type) {
+      case SET_NETWORK:
         return action.payload
       default:
         return state

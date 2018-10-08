@@ -5,14 +5,14 @@ import fetch from "node-fetch"
 
 const BLOCK_SYNC_TOLERANCE = process.env.BLOCK_SYNC_TOLERANCE || 10
 
-const NODEOS = process.env.CHAIN_HOST || "http://localhost:5988"
+const NODEOS = process.env.CHAIN_HOST || "http://localhost:8830"
 const rpc = new Rpc.JsonRpc(NODEOS, { fetch })
 
 const dbConfig = {
   user: process.env.DB_USER || "user",
   password: process.env.DB_PASSWORD || "pass",
   host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 5932,
+  port: Number(process.env.DB_PORT) || 5432,
   database: process.env.DB_NAME || "monstereosio",
   schema: process.env.DB_SCHEMA || "pets",
 }
@@ -21,7 +21,7 @@ const PENDING_TYPE_PET = -1
 const DESTROYED_TYPE_PET = -2
 const EMPTY_TIMESTAMP = "1970-01-01 00:00:00"
 const MONSTERS_ACCOUNT = "monstereosio"
-const IDLE_FEED_DEATH_MILLIS = 20 * 60 * 60000 // TODO: fixed 20 hours?
+const IDLE_FEED_DEATH_MILLIS = 72 * 60 * 60000 // TODO: get this amount dynamically
 
 const isChainSync = async (db: any) => {
 
@@ -83,7 +83,7 @@ const killMonsters = async (db: any, dbFull: any) => {
 
       const query = `
       SELECT pet_id, MAX(created_at) as last_feed_at FROM "pets"."pet_actions"
-       WHERE pet_id IN (${pendingPetsIds}) AND action = 'feedpet'
+       WHERE pet_id IN (${pendingPetsIds}) AND action = 'feedpet' AND is_invalid = FALSE
        GROUP BY pet_id
       `
 
@@ -100,12 +100,12 @@ const killMonsters = async (db: any, dbFull: any) => {
 
         const isDead = Date.now() - deathTime > 0
 
-        const death_at = isDead ? moment(deathTime).toISOString() : pet.death_at
+        const deathAt = isDead ? moment(deathTime).toISOString() : pet.death_at
 
-        return {id: pet.id, isDead, death_at }
+        return {id: pet.id, isDead, deathAt }
       }).filter((pet: any) => pet.isDead)
 
-      const updatedDeadPets = deadPets.map((pet: any) => (db.pets.save({id: pet.id, death_at: pet.death_at})))
+      const updatedDeadPets = deadPets.map((pet: any) => (db.pets.save({id: pet.id, death_at: pet.deathAt})))
       if (updatedDeadPets.length) {
         console.info("Dead pets: ", deadPets)
         await Promise.all(updatedDeadPets)

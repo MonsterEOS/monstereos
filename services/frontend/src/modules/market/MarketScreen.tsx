@@ -24,6 +24,8 @@ interface Props {
 interface ReactState {
   showNewOrderModal: boolean,
   showNewBidModal: boolean,
+  ordersOffset: number, 
+  ordersLimit: number,
   orders:OrderProps[],
 }
 
@@ -32,6 +34,8 @@ class MarketScreen extends React.Component<Props, ReactState> {
   public state = {
     showNewOrderModal: false,
     showNewBidModal: false,
+    ordersOffset: 0, 
+    ordersLimit: 6,
     orders: [],
   }
 
@@ -48,15 +52,15 @@ class MarketScreen extends React.Component<Props, ReactState> {
   public render() {
 
     const { dispatchDoLoadMyMonsters, eosAccount, globalConfig } = this.props
-    const { showNewOrderModal, orders } = this.state
+    const { showNewOrderModal, orders, ordersOffset, ordersLimit } = this.state
 
     const subHeader =
-      <small className="is-hidden-mobile">
+      <small>
         {orders.length} orders
       </small>
 
     const subHeaderFee =
-      <small className="is-hidden-mobile">
+      <small>
         Market Fees: {globalConfig.market_fee / 100}%
       </small>
 
@@ -70,7 +74,7 @@ class MarketScreen extends React.Component<Props, ReactState> {
 
     const newOrderButton = eosAccount && (
       <a
-        className="button is-success"
+        className="button is-success is-large"
         onClick={() => this.setState({showNewOrderModal: true})}>
         New Order
       </a>
@@ -105,8 +109,9 @@ class MarketScreen extends React.Component<Props, ReactState> {
           notMobile
           menu={[subHeader, subHeaderFee, newOrderButton]} />
           <OrderList
-            orders={orders}
+            orders={orders.slice(ordersOffset, ordersOffset + ordersLimit)}
             update={refetchMonsters} />
+          {this.renderPagination(ordersOffset, ordersLimit, orders.length)}
           {showNewOrderModal &&
           <NewOrderModal
             closeModal={newOrderClosure}
@@ -118,6 +123,32 @@ class MarketScreen extends React.Component<Props, ReactState> {
           />} */}
       </PageContainer>
     )
+  }
+
+  private renderPagination = (
+    offset: number, 
+    limit: number, 
+    total: number) => {
+
+    if (offset + limit < total || offset > 0) {
+      return <div className="has-margin-bottom">
+          <div className="is-pulled-right">
+            {offset > 0 && 
+              <a className="button has-margin-right"
+                onClick={() => this.setState({ordersOffset: offset - limit})}>
+                Back
+              </a>}
+            {offset + limit < total && 
+              <a className="button"
+                onClick={() => this.setState({ordersOffset: offset + limit})}>
+                Next</a>
+            }
+          </div>
+          <div style={{clear: "both"}} />
+        </div>
+    } else {
+      return null
+    }
   }
 
   private refresh = async () => {

@@ -9,13 +9,11 @@ import { updaters } from "./updaters"
 
 console.info("==== Starting demux ====")
 
-const NODEOS = process.env.CHAIN_HOST || "http://localhost:8830"
 const INITIAL_BLOCK = Number(process.env.CHAIN_INIT_BLOCK || 100)
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017"
 const MONGO_DB = process.env.MONGO_DB || "EOSFN"
 
-console.info("Reading from node >>>> ", NODEOS)
 console.info("Initial Block to sync >>>> ", INITIAL_BLOCK)
 
 const dbConfig = {
@@ -72,4 +70,12 @@ const init = async () => {
 
 }
 
+const exit = (e: any) => {
+  console.error("An error has occured. error is: %s and stack trace is: %s", e, e.stack)
+  console.error("Process will restart now.")
+  process.exit(1)
+}
+
+process.on("unhandledRejection", exit)
+process.on("uncaughtException", exit)
 setTimeout(init, 2500)

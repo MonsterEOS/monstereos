@@ -1,11 +1,16 @@
 import * as React from "react"
 import { Query } from "react-apollo"
 
-import TitleBar from "../shared/TitleBar"
 import { QUERY_TOP_BATTLE_PLAYERS } from "./ranking.gql"
 
-class TopBattlePlayersRank extends React.Component<{}, {}> {
+interface ReactState {
+  loadMore:boolean
+}
+class TopBattlePlayersRank extends React.Component<{}, ReactState> {
 
+  public state = {
+    loadMore:true
+  }
   public render() {
 
     const variables = {
@@ -13,10 +18,11 @@ class TopBattlePlayersRank extends React.Component<{}, {}> {
       offset: 0
     }
 
+    const {loadMore} = this.state
+
     return <div className="rank">
-      <TitleBar title="Top Battle Players" />
       <Query query={QUERY_TOP_BATTLE_PLAYERS} variables={variables}>
-        {({data, loading, refetch}) => {
+        {({data, loading, fetchMore}) => {
 
           if (loading || !data || !data.allVrankingBattlePlayers) {
             return <span>
@@ -24,8 +30,28 @@ class TopBattlePlayersRank extends React.Component<{}, {}> {
             </span>
           }
 
-          const monsters = data.allVrankingBattlePlayers ? data.allVrankingBattlePlayers.edges : []
-          return <table>
+          const { allVrankingBattlePlayers } = data
+
+          const players = allVrankingBattlePlayers ? data.allVrankingBattlePlayers.edges : []
+          const onLoadMore = () => {
+            fetchMore({
+              variables: {
+                offset: players.length
+              },
+              updateQuery: (prev, { fetchMoreResult }) => {
+                if (!fetchMoreResult) { 
+                  this.setState({loadMore:false})
+                  return prev 
+                }              
+                this.setState({loadMore:fetchMoreResult.allVrankingBattlePlayers.edges.length === variables.limit })
+                return Object.assign({}, prev, {allVrankingBattlePlayers : 
+                  Object.assign({}, prev.allVrankingBattlePlayers, {edges:[...prev.allVrankingBattlePlayers.edges, ...fetchMoreResult.allVrankingBattlePlayers.edges]})
+                  })
+              }
+            })
+          }
+
+          return <div><table>
             <thead>
               <tr>
                 <th>#</th>
@@ -35,7 +61,7 @@ class TopBattlePlayersRank extends React.Component<{}, {}> {
               </tr>
             </thead>
             <tbody>
-            {monsters.map(({node}: any, index: number) => (
+            {players.map(({node}: any, index: number) => (
               <tr key={index}>
                 <td>{index+1}.</td>
                 <td>{node.picker}</td>
@@ -45,6 +71,15 @@ class TopBattlePlayersRank extends React.Component<{}, {}> {
             ))}
             </tbody>
           </table>
+          {loadMore &&
+            <footer className="card-footer">
+              <a className="card-footer-item"
+                onClick={onLoadMore}>
+                Load more
+              </a>
+            </footer> 
+          }
+        </div>
         }}
       </Query>
     </div>

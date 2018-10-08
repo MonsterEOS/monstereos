@@ -1,0 +1,1 @@
+declare module "monster-battle-react-component"

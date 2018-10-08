@@ -97,6 +97,14 @@ namespace types {
       indexed_by<N(byowner), const_mem_fun<st_pets, uint64_t, &st_pets::get_pets_by_owner>>
   > _tb_pet;
 
+  struct st_seed {
+    uint64_t pk = 1;
+    uint32_t last = 1;
+
+    uint64_t primary_key() const { return pk; }
+  };
+  typedef multi_index<N(seed), st_seed> _tb_seed;
+
   // @abi table petinbattles i64
   struct st_pet_inbatt {
     uuid     pet_id;
@@ -104,6 +112,14 @@ namespace types {
     uint64_t primary_key() const { return pet_id; }
   };
   typedef multi_index<N(petinbattles), st_pet_inbatt> _tb_pet_in_battle;
+
+  // @abi table petinbattles i64
+  struct st_pls_inbatt {
+    name     player;
+
+    auto primary_key() const { return player; }
+  };
+  typedef multi_index<N(plsinbattles), st_pls_inbatt> _tb_player_in_battle;
 
   // @abi table accounts i64
   struct st_account {
@@ -140,6 +156,7 @@ namespace types {
     vector<st_pet_stat> pets_stats{};
 
     auto primary_key() const { return host; }
+    uint64_t by_started_at() const { return started_at; }
 
     bool pet_exists(uuid& new_pet) {
       for (const auto& stat : pets_stats) {
@@ -164,10 +181,20 @@ namespace types {
       commits.erase(std::remove_if(commits.begin(), commits.end(),
         [&](auto& commit) { return commit.player == player; }),
         commits.end());
+
+      // remove player pets
+      pets_stats.erase(std::remove_if(pets_stats.begin(), pets_stats.end(),
+        [&](auto& pet) { return pet.player == player; }),
+        pets_stats.end());
     }
 
     void add_player(name const& player, checksum256 const& commitment) {
       st_commit commit{player, commitment};
+      commits.emplace_back(commit);
+    }
+
+    void add_quick_player(name const& player) {
+      st_commit commit{player};
       commits.emplace_back(commit);
     }
 
@@ -190,7 +217,9 @@ namespace types {
     }
   };
 
-  typedef multi_index<N(battles), st_battle> _tb_battle;
+  typedef multi_index<N(battles), st_battle,
+  indexed_by< N(start), const_mem_fun<st_battle, uint64_t, &st_battle::by_started_at > >
+  > _tb_battle;
 
   // @abi table orders i64
   struct st_orders {

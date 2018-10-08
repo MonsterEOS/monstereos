@@ -4,15 +4,19 @@ import {
   SignatureProvider as e2SignatureProvider,
   Api as e2Api
 } from "eosjs2"
-import { parseBattlesFromChain, parseConfigFromChain, Arena } from "../modules/battles/battles"
+import { parseBattlesFromChain, parseConfigFromChain, Arena, testDummyArena } from "../modules/battles/battles"
 import { initialGlobalConfig, loadConfig, GlobalConfig } from "../store"
-import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
+// import { generateHashInfo, destroyHashInfo, getHashInfo } from "./hashInfo"
 import { parseMonstersFromChain } from "../modules/monsters/monsters"
 import { parseOrderFromChain} from "../modules/market/market"
+import {Network, networks} from "../modules/wallet/networks"
+
 // chain info constants
-const CHAIN_PROTOCOL = process.env.REACT_APP_CHAIN_PROTOCOL || "http"
-const CHAIN_HOST = process.env.REACT_APP_CHAIN_HOST || "localhost"
-const CHAIN_PORT = process.env.REACT_APP_CHAIN_PORT || "8830"
+const networkId = localStorage.getItem("myNetwork")
+const myNetwork = networkId ? networks.find( net => networkId === net.id) : {} as Network
+const CHAIN_PROTOCOL = myNetwork!.protocol || process.env.REACT_APP_CHAIN_PROTOCOL || "http"
+const CHAIN_HOST = myNetwork!.host || process.env.REACT_APP_CHAIN_HOST || "localhost"
+const CHAIN_PORT = myNetwork!.port || process.env.REACT_APP_CHAIN_PORT || "8830"
 const CHAIN_URL = `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
 const HISTORY_CHAIN_URL = process.env.REACT_APP_HISTORY_URL || `${CHAIN_PROTOCOL}://${CHAIN_HOST}:${CHAIN_PORT}`
 export const CHAIN_ID = process.env.REACT_APP_CHAIN_ID || "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
@@ -64,6 +68,8 @@ const trxError = (error: any) => {
     console.info(errorStart, errorEnd, eosError)
   } else if (error.indexOf(`"code":13`) > 0 && error.indexOf(`"get_account"`) > 0) {
     eosError = "Invalid EOS Account"
+  } else if (error.indexOf("ram_usage_exceeded") > 0) {
+    eosError = "Insufficient RAM to Create a Monster"
   } else {
     eosError = "Unknown Error"
   }
@@ -170,6 +176,10 @@ export const loadMonstersContract = () => {
 }
 
 export const loadArenaByHost = (host: string): Promise<Arena> => {
+  if (host === "dummy") {
+    return Promise.resolve(testDummyArena())
+  }
+
   return e2DefaultRpc.get_table_rows({
     json: true,
     code: MONSTERS_ACCOUNT,
@@ -179,7 +189,7 @@ export const loadArenaByHost = (host: string): Promise<Arena> => {
     limit: 1
   }).then((res: any) => {
     const battles = res.rows.map(parseBattlesFromChain)
-    return battles.length ? battles[0] : null
+    return battles.length && battles[0].host === host ? battles[0] : null
   })
 }
 
@@ -300,7 +310,7 @@ export const loadElements = async () => {
         r.name = "Undead"
         break
       case 9:
-        r.name = "Light"
+        r.name = "Lightning"
         break
     }
 
@@ -338,47 +348,47 @@ const checkBattleResources = async (eosAccount: string) => {
   }
 }
 
-export const createBattle = async (
-  scatter: any,
-  mode: number,
-  pets: number[]
-) => {
+// export const createBattle = async (
+//   scatter: any,
+//   mode: number,
+//   pets: number[]
+// ) => {
 
-  const eosAccount = getEosAccount(scatter.identity)
-  await checkBattleResources(eosAccount)
+//   const eosAccount = getEosAccount(scatter.identity)
+//   await checkBattleResources(eosAccount).catch(trxError)
 
-  const eosAuthorization = getEosAuthorization(scatter.identity)
-  const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  const hashInfo = await generateHashInfo(pets)
+//   const eosAuthorization = getEosAuthorization(scatter.identity)
+//   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
+//   const hashInfo = await generateHashInfo(pets)
 
-  console.info(hashInfo)
+//   console.info(hashInfo)
 
-  return contract.battlecreate(eosAccount, mode, hashInfo.secret, eosAuthorization.permission)
-  .catch((err: any) => {
-    destroyHashInfo()
-    throw err
-  }).catch(trxError)
-}
+//   return contract.battlecreate(eosAccount, mode, hashInfo.secret, eosAuthorization.permission)
+//   .catch((err: any) => {
+//     destroyHashInfo()
+//     throw err
+//   }).catch(trxError)
+// }
 
-export const joinBattle = async(
-  scatter: any,
-  host: string,
-  pets: number[]
-) => {
+// export const joinBattle = async(
+//   scatter: any,
+//   host: string,
+//   pets: number[]
+// ) => {
 
-  const eosAccount = getEosAccount(scatter.identity)
-  await checkBattleResources(eosAccount)
+//   const eosAccount = getEosAccount(scatter.identity)
+//   await checkBattleResources(eosAccount).catch(trxError)
 
-  const eosAuthorization = getEosAuthorization(scatter.identity)
-  const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
-  const hashInfo = await generateHashInfo(pets)
+//   const eosAuthorization = getEosAuthorization(scatter.identity)
+//   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
+//   const hashInfo = await generateHashInfo(pets)
 
-  return contract.battlejoin(host, eosAccount, hashInfo.secret, eosAuthorization.permission)
-  .catch((err: any) => {
-    destroyHashInfo()
-    throw err
-  }).catch(trxError)
-}
+//   return contract.battlejoin(host, eosAccount, hashInfo.secret, eosAuthorization.permission)
+//   .catch((err: any) => {
+//     destroyHashInfo()
+//     throw err
+//   }).catch(trxError)
+// }
 
 export const leaveBattle = async(
   scatter: any,
@@ -390,26 +400,44 @@ export const leaveBattle = async(
 
   return contract.battleleave(host, eosAccount, eosAuthorization.permission)
   .then((res: any) => {
-    destroyHashInfo()
+    // destroyHashInfo()
     return res
   }).catch(trxError)
 }
 
-export const startBattle = async(
+// export const startBattle = async(
+//   scatter: any,
+//   host: string
+// ) => {
+//   const eosAccount = getEosAccount(scatter.identity)
+//   const eosAuthorization = getEosAuthorization(scatter.identity)
+//   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
+
+//   const hashInfo = await getHashInfo()
+
+//   console.info("hashInfo data >>>>", hashInfo)
+
+//   return contract.battlestart(host, eosAccount, hashInfo.data, eosAuthorization.permission)
+//   .then((res: any) => {
+//     destroyHashInfo()
+//     return res
+//   }).catch(trxError)
+// }
+
+export const quickBattle = async(
   scatter: any,
-  host: string
+  mode: number,
+  pets: number[]
 ) => {
   const eosAccount = getEosAccount(scatter.identity)
+
+  await checkBattleResources(eosAccount).catch(trxError)
+
   const eosAuthorization = getEosAuthorization(scatter.identity)
   const contract = await getContract(scatter, network, MONSTERS_ACCOUNT)
 
-  const hashInfo = await getHashInfo()
-
-  console.info("hashInfo data >>>>", hashInfo)
-
-  return contract.battlestart(host, eosAccount, hashInfo.data, eosAuthorization.permission)
+  return contract.quickbattle(mode, eosAccount, { pets }, eosAuthorization.permission)
   .then((res: any) => {
-    destroyHashInfo()
     return res
   }).catch(trxError)
 }

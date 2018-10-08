@@ -17,6 +17,41 @@ export interface Arena {
   phase: number
 }
 
+// adjust below vars to have a dummy arena at /arenas/dummy
+export const testDummyArena = (): Arena => {
+
+  const player = "leordeveosio"
+  const petId = 5612
+
+  return {
+    host: "dummy",
+    mode: 1,
+    startedAt: Date.now() - (1000 * 60 * 5),
+    lastMoveAt: Date.now() - (1000 * 25),
+    phase: BATTLE_PHASE_GOING,
+    petsStats: [{
+      pet_id: petId,
+      pet_type: 35,
+      player,
+      hp: 100,
+    }, {
+      pet_id: 1234,
+      pet_type: 99,
+      player: "dummy",
+      hp: 3,
+    }],
+    commits: [{
+      player,
+      commitment: "qwertyuiop",
+      randoms: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+    },{
+      player: "dummy",
+      commitment: "zxcvbnm",
+      randoms: [0, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    }]
+  }
+}
+
 export interface Element {
   id: number
   name: string
@@ -56,9 +91,12 @@ export const parseBattlesFromChain = (data: any): Arena => {
   if (battle.commits.length === requiredPlayers) {
     battle.phase = BATTLE_PHASE_STARTING
 
-    const revealedCommitments = getReadyPlayers(battle)
+    // const revealedCommitments = getReadyPlayers(battle)
+    // if (revealedCommitments.length === requiredPlayers) {
+    //   battle.phase = BATTLE_PHASE_GOING
+    // }
 
-    if (revealedCommitments.length === requiredPlayers) {
+    if (battle.startedAt > 0) {
       battle.phase = BATTLE_PHASE_GOING
     }
   }
@@ -69,7 +107,7 @@ export const parseBattlesFromChain = (data: any): Arena => {
 export const getBattleText = (arena: Arena) => {
   switch (arena.phase) {
     case BATTLE_PHASE_JOINING:
-      return "Joining phase: Waiting for players to join"
+      return "Waiting for Opponents... Please don't leave this page because your monster might be SLAUGHTERED by the next player!"
     case BATTLE_PHASE_FINISHED:
       return "The battle is over"
     case BATTLE_PHASE_GOING:

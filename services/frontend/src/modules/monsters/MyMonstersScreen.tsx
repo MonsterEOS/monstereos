@@ -19,13 +19,23 @@ interface Props {
 }
 
 interface ReactState {
-  showNewMonsterModal: boolean
+  showNewMonsterModal: boolean,
+  isLoading: boolean,
+  aliveOffset: number,
+  aliveLimit: number,
+  deadOffset: number,
+  deadLimit: number,
 }
 
 class MyMonstersScreen extends React.Component<Props, ReactState> {
 
   public state = {
-    showNewMonsterModal: false
+    showNewMonsterModal: false,
+    isLoading: true,
+    aliveOffset: 0,
+    aliveLimit: 6,
+    deadOffset: 0,
+    deadLimit: 6
   }
 
   private refreshHandler: any = undefined
@@ -54,17 +64,24 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
   private renderMonsters() {
 
     const { myMonsters, dispatchDoLoadMyMonsters } = this.props
-    const { showNewMonsterModal } = this.state
+    const {
+      showNewMonsterModal,
+      isLoading,
+      aliveOffset,
+      aliveLimit,
+      deadOffset,
+      deadLimit,
+    } = this.state
 
-    const subHeader = (<small className="is-hidden-mobile">
+    const subHeader = (<small>
       You have {myMonsters.length} monsters
       </small>)
 
     const newMonsterButton = (
       <a
-        className="button is-success"
+        className="button is-success is-large"
         onClick={() => this.setState({showNewMonsterModal: true})}>
-        New Monster
+        NEW MONSTER
       </a>
     )
 
@@ -85,19 +102,25 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     return (
       <PageContainer>
         <TitleBar
+          notMobile
           title="My Monsters"
           menu={[subHeader, newMonsterButton]} />
-        {aliveMonsters &&
+        {aliveMonsters && aliveMonsters.length ?
           <MonstersList
-            monsters={aliveMonsters}
-            update={refetchMonsters} />}
+            monsters={aliveMonsters.slice(aliveOffset, aliveOffset + aliveLimit)}
+            update={refetchMonsters} /> :
+            isLoading ? <p>Loading Monsters...</p> :
+            <p>You currently have no living monsters.</p>}
 
-        {deadMonsters &&
+        {this.renderPagination(aliveOffset, aliveLimit, aliveMonsters.length, "alive")}
+
+        {deadMonsters && deadMonsters.length > 0 &&
           <React.Fragment>
             <h3>My Dead Monsters</h3>
             <MonstersList
-              monsters={deadMonsters}
+              monsters={deadMonsters.slice(deadOffset, deadOffset + deadLimit)}
               update={refetchMonsters} />
+            {this.renderPagination(deadOffset, deadLimit, deadMonsters.length, "dead")}
           </React.Fragment>}
 
         {showNewMonsterModal &&
@@ -108,13 +131,55 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     )
   }
 
+  private renderPagination = (
+    offset: number,
+    limit: number,
+    total: number,
+    type: string) => {
+
+    console.info(type, offset, limit, total)
+
+    if (offset + limit < total || offset > 0) {
+      const prop = type + "Offset"
+
+      const backObj = {}
+      backObj[prop] = offset - limit
+
+      const nextObj = {}
+      nextObj[prop] = offset + limit
+
+      return <div className="has-margin-bottom">
+          <div className="is-pulled-right">
+            {offset > 0 &&
+              <a className="button has-margin-right"
+                onClick={() => this.setState(backObj)}>
+                Back
+              </a>}
+            {offset + limit < total &&
+              <a className="button"
+                onClick={() => this.setState(nextObj)}>
+                Next</a>
+            }
+          </div>
+          <div style={{clear: "both"}} />
+        </div>
+    } else {
+      return null
+    }
+  }
+
   private refresh = async () => {
     const { dispatchDoLoadMyMonsters } = this.props
+    this.setState({isLoading: true})
 
-    dispatchDoLoadMyMonsters()
+    console.info("fetching monsters")
+    await dispatchDoLoadMyMonsters()
+    console.info("monsters fetched")
+
+    this.setState({isLoading: false})
 
     // refresh monsters each minute
-    this.refreshHandler = setTimeout(this.refresh, 60 * 1000) 
+    this.refreshHandler = setTimeout(this.refresh, 60 * 1000)
   }
 }
 
