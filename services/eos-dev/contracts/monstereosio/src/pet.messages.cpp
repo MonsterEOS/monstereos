@@ -1,6 +1,6 @@
 
 void pet::messagefrom(uuid petid, string message) {
-    eosio_assert(message.length() <= 128, "E404|message longer than 128");
+    eosio_assert(message.length() <= 255, "E404|message longer than 255");
     auto pc = _get_pet_config();
     auto pet = pets.get(petid, "E404|Invalid petid");
     require_auth(pet.owner);

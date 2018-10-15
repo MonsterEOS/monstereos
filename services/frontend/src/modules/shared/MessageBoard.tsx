@@ -12,7 +12,7 @@ export interface Message {
 const MessageCard = (props:any) => {    
     return(
     <div key={props.message.id}>
-       A monster says {props.message.message}
+       A monster says <em>{props.message.message}</em>
     </div>
     )
 }
