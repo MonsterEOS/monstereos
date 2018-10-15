@@ -8582,9 +8582,9 @@ react-markdown@^3.6.0:
     unist-util-visit "^1.3.0"
     xtend "^4.0.1"
 
-"react-monstereos-profile@https://github.com/MonsterEOS/monster-profile-react-component":
-  version "0.2.3"
-  resolved "https://github.com/MonsterEOS/monster-profile-react-component#aceb5e396213dc9289ba633705af6c7068b9d9c6"
+"react-monstereos-profile@https://github.com/kevinrev26/monster-profile-react-component":
+  version "0.3.0"
+  resolved "https://github.com/kevinrev26/monster-profile-react-component#d7892100715b024974a8c210a34625218ce584f4"
   dependencies:
     react-jss "^8.6.1"
 

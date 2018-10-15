@@ -2,12 +2,9 @@ import * as React from "react"
 import * as moment from "moment"
 import {
   MonsterProps,
-  // monsterImageSrc,
-  monsterModelSrc,
   getCurrentAction,
   MonsterElement,
 } from "./monsters"
-import get3dModel from "../monsters/monster3DMatrix"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
@@ -66,42 +63,16 @@ class MonsterCard extends React.Component<Props, {}> {
     )
   }
 
-  // private renderImage() {
-
-  //   const { monster } = this.props
-
-  //   const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
-  //   const monsterImage = monsterImageSrc(monster.type)
-
-  //   const sleepingClass = monster.isSleeping ? "sleeping" : ""
-  //   const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
-
-  //   return (
-  //     <div className="card-image">
-  //       <figure className={figureClass}>
-  //         <img
-  //           alt={monster.name}
-  //           className={sleepingClass}
-  //           src={monsterImage} />
-  //         {sleepingAnimation}
-  //       </figure>
-  //     </div>
-  //   )
-  // }
-
   private render3DProfile() {
 
     const { monster } = this.props
 
-    const monster3dModel = get3dModel(monster.type, !!monster.deathAt)
-
     return (
       <div style={{position: "absolute", marginLeft: -25, width: 160}}>
         <Monster3DProfile
-          typeId={monster.type.toString()}
-          path={monsterModelSrc(monster3dModel.model)}
+          typeId={monster.type}
+          isDead={monster.deathAt > 0}
           action={getCurrentAction(monster, ActionType)}
-          {...monster3dModel}
           size={{ height: "228px" }}
           background={{ alpha: 0 }}
           zoom={false}

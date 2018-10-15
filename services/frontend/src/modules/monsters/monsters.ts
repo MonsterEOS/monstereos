@@ -112,9 +112,5 @@ export const getType3d = (typeId: number) => {
   return typeId % availableTypes.length
 }
 
-
-export const monsterImageSrc = (typeId: number) =>
-  (`/images/monsters/monster-${typeId}.png`)
-
 export const monsterModelSrc = (model: string) =>
   (`/models/monsters/${model}.gltf`)
