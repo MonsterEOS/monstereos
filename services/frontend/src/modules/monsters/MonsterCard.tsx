@@ -49,7 +49,7 @@ class MonsterCard extends React.Component<Props, {}> {
           <div className="card-content">
             <div className="columns is-mobile">
               <div className="column">
-                {this.renderMonster()}
+                {this.render3DProfile()}
               </div>
               <div className="column is-three-fifths">
                 {this.renderHeader()}
@@ -80,9 +80,6 @@ class MonsterCard extends React.Component<Props, {}> {
       </div>
     )
   }
-
-  private renderMonster = () =>
-    this.render3DProfile()
 
   private renderHeader() {
 
