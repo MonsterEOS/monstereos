@@ -12,14 +12,14 @@ RUN apk add --no-cache postgresql-client
 RUN pm2 install typescript
 RUN pm2 install ts-node
 
-COPY ./docker /opt/application/docker
-COPY ./services/$SERVICE/package.json /opt/application/node/package.json
+COPY ./install-all-local.sh /opt/application/docker/install-all-local.sh
+COPY ./package.json /opt/application/node/package.json
 
 WORKDIR /opt/application/node
 
 RUN /opt/application/docker/install-all-local.sh
 
-COPY ./services/$SERVICE /opt/application/node
+COPY ./ /opt/application/node
 
 EXPOSE 80
 
