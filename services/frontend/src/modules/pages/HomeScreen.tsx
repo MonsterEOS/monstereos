@@ -52,8 +52,8 @@ class HomeScreen extends React.Component<Props, ReactState> {
         />
     </div>
     <p className="home-monster">{PAGE_WELCOME}</p>
-    <MessageBoard/>
-    <p onClick={doShowMessageSender}>Send a message</p>                      
+    <MessageBoard/><br/>
+    <a className="button" onClick={doShowMessageSender}>Send your own message</a>                      
     {showMessageSender && <MessageSenderModal
       closeModal = {messageSenderClosed} 
     />}

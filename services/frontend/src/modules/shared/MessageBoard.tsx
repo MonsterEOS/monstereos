@@ -1,5 +1,6 @@
 import * as React from "react"
-import { MonsterProps } from "../monsters/monsters"
+import * as moment from "moment"
+import { MonsterProps, monsterImageSrc } from "../monsters/monsters"
 import { Query } from "react-apollo"
 import gql from "graphql-tag"
 
@@ -9,10 +10,16 @@ export interface Message {
 }
 
 
-const MessageCard = (props:any) => {    
+const MessageCard = (props:any) => {      
+    const sinceText = moment.parseZone(props.message.createdAt).fromNow()
+    const url = "https://2d.monstereos.io" + monsterImageSrc(props.message.petByPetId.typeId)
+    const trxLink = "https://bloks.io/transaction/" + props.message.createdTrx
     return(
     <div key={props.message.id}>
-       A monster says <em>{props.message.message}</em>
+       <img src={url} width="48px" height="48px"/><br/>
+       <em>{props.message.message}</em><br/>              
+       {props.message.petByPetId.petName} owned by {props.message.petByPetId.owner}<br/>       
+       sent by {props.message.createdEosacc} <a href={trxLink}>{sinceText}</a>
     </div>
     )
 }
@@ -28,7 +35,15 @@ query LatestMessages($limit: Int!, $offset: Int!) {
     edges {
       node { 
         id       
-        message
+        message 
+        createdAt
+        createdTrx
+        createdEosacc
+        petByPetId {
+            petName
+            typeId
+            owner
+        }
       }
     }
   }
@@ -45,8 +60,10 @@ class MessageBoard extends React.Component<{}, {}> {
 
         return <div className="container">
             <Query query={QUERY_MESSAGES} variables={variables}>
-                {({data, loading, refetch}) => {
-
+                {({error, data, loading, refetch}) => {
+                if (error) {
+                    return (<span>{error.toString()} {JSON.stringify(error)}</span>)
+                }    
                 if (loading || !data || !data.allMessages) {
                     return <span>
                     <i className="fa fa-spin fa-spinner" /> Loading... Our servers are Syncing with the Chain
