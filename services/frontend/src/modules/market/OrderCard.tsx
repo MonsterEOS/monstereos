@@ -1,12 +1,7 @@
 import * as React from "react"
 import * as moment from "moment"
 import { OrderProps, amountOfAsset, amountOfAssetPlusFees } from "./market"
-import {
-  // monsterImageSrc,
-  monsterModelSrc,
-  getCurrentAction,
-} from "../monsters/monsters"
-import get3dModel from "../monsters/monster3DMatrix"
+import { getCurrentAction } from "../monsters/monsters"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
@@ -14,7 +9,7 @@ import { trxClaimPetMarket, trxRemoveOrderMarket, MONSTERS_ACCOUNT, trxTokenTran
 import { Link } from "react-router-dom"
 import { Monster3DProfile, ActionType } from "react-monstereos-profile"
 
-import NewOrderModal  from "./NewOrderModal"
+import NewOrderModal from "./NewOrderModal"
 
 interface Props {
   order: OrderProps,
@@ -37,7 +32,7 @@ export interface MonsterAction {
 }
 
 interface ReactState {
-  showNewOrderModal:boolean
+  showNewOrderModal: boolean
 }
 
 class OrderCard extends React.Component<Props, ReactState> {
@@ -60,7 +55,7 @@ class OrderCard extends React.Component<Props, ReactState> {
     }
 
     const newOrderClosure = (doRefetch: boolean) => {
-      this.setState({showNewOrderModal: false})
+      this.setState({ showNewOrderModal: false })
       if (doRefetch) {
         refetchMonstersAndOrders()
 
@@ -75,9 +70,9 @@ class OrderCard extends React.Component<Props, ReactState> {
         <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
             <div className="columns is-mobile">
-              { !hideProfile && <div className="column">
+              {!hideProfile && <div className="column">
                 {this.renderMonster()}
-              </div> }
+              </div>}
               <div className={`column ${hideProfile ? "" : "is-three-fifths"}`}>
                 {this.renderHeader()}
                 {this.renderOrderData()}
@@ -87,11 +82,11 @@ class OrderCard extends React.Component<Props, ReactState> {
           {this.renderFooter()}
         </div>
         {showNewOrderModal &&
-        <NewOrderModal
-          closeModal={newOrderClosure}
-          initialMonster = {monster}
-          initialName = {order.newOwner}
-          initialAmount = { amountOfAsset(order.value)}/>}
+          <NewOrderModal
+            closeModal={newOrderClosure}
+            initialMonster={monster}
+            initialName={order.newOwner}
+            initialAmount={amountOfAsset(order.value)} />}
       </div>
 
     )
@@ -102,41 +97,18 @@ class OrderCard extends React.Component<Props, ReactState> {
     const { order } = this.props
     const monster = order.monster
 
-    const monster3dModel = get3dModel(monster.type, monster.deathAt > 0)
-
-    console.info(monster)
-
     return (
-      <div style={{position: "absolute", marginLeft: -25, width: 160}}>
+      <div style={{ position: "absolute", marginLeft: -25, width: 160 }}>
         <Monster3DProfile
-          typeId={monster3dModel.model}
-          path={monsterModelSrc(monster3dModel.model)}
+          typeId={monster.type}
+          isDead={monster.deathAt > 0}
           action={getCurrentAction(monster, ActionType)}
-          {...monster3dModel}
           size={{ height: "228px" }}
           background={{ alpha: 0 }}
           zoom={false}
         />
       </div>
     )
-
-    // const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
-    // const monsterImage = monsterImageSrc(monster.type)
-
-    // const sleepingClass = monster.isSleeping ? "sleeping" : ""
-    // const sleepingAnimation = monster.isSleeping && <img src="/images/zzz.gif" className="sleep-gif" />
-
-    // return (
-    //   <div className="card-image">
-    //     <figure className={figureClass}>
-    //       <img
-    //         alt={monster.name}
-    //         className={sleepingClass}
-    //         src={monsterImage} />
-    //       {sleepingAnimation}
-    //     </figure>
-    //   </div>
-    // )
   }
 
   private renderHeader() {
@@ -169,7 +141,7 @@ class OrderCard extends React.Component<Props, ReactState> {
           </div>
         </div>
         <div className="monster-id">#{monster.id}</div>
-        <br/>
+        <br />
       </div>
 
 
@@ -178,12 +150,12 @@ class OrderCard extends React.Component<Props, ReactState> {
         <span>
           Order #{order.id}
         </span>
-        <br/>
-        { !hideLink ?
+        <br />
+        {!hideLink ?
           <Link to={`/monster/${monster.id}`} className="monster-header-link">
             {headerContent}
           </Link>
-        :
+          :
           headerContent
         }
       </div>
@@ -200,9 +172,9 @@ class OrderCard extends React.Component<Props, ReactState> {
 
     if (order.user === eosAccount) {
       if (isReal) {
-        actions.push({action: this.requestUpdateOrder, label: "Update Order"})
+        actions.push({ action: this.requestUpdateOrder, label: "Update Order" })
       }
-      actions.push({action: this.requestDeleteOrder, label: "Delete Order"})
+      actions.push({ action: this.requestDeleteOrder, label: "Delete Order" })
     }
     if (eosAccount && (!order.newOwner || order.newOwner === eosAccount) &&
       order.user !== eosAccount && isReal) {
@@ -261,14 +233,14 @@ class OrderCard extends React.Component<Props, ReactState> {
           </div>
         }
         {order.transferEndsAt > 0 &&
-        <div className="is-6">
-          <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
-        </div>}
-        { amount > 0 &&
-        <div className="is-6 price">
-          <hr />
-          Price: {priceTxt} EOS<br/>
-          Fees: {fees} EOS
+          <div className="is-6">
+            <time dateTime={transferEndsIso}>re-transferable from {transferEndsText}</time>
+          </div>}
+        {amount > 0 &&
+          <div className="is-6 price">
+            <hr />
+            Price: {priceTxt} EOS<br />
+            Fees: {fees} EOS
         </div>
         }
       </div>
@@ -276,15 +248,15 @@ class OrderCard extends React.Component<Props, ReactState> {
   }
 
   private requestUpdateOrder = () => {
-    this.setState({showNewOrderModal:true})
+    this.setState({ showNewOrderModal: true })
   }
 
   private requestDeleteOrder = () => {
-    const { scatter, order, requestUpdate, dispatchPushNotification} = this.props
+    const { scatter, order, requestUpdate, dispatchPushNotification } = this.props
     const monster = order.monster
 
     trxRemoveOrderMarket(scatter, monster.id)
-      .then((res:any) => {
+      .then((res: any) => {
         console.info(`Order for monster #${monster.id} was deleted successfully`, res)
         dispatchPushNotification(`Order for ${monster.name} was deleted successfully`, NOTIFICATION_SUCCESS)
         if (requestUpdate) {
@@ -296,27 +268,27 @@ class OrderCard extends React.Component<Props, ReactState> {
   }
 
   private requestClaimMonster = () => {
-    const { scatter, order, requestUpdate, dispatchPushNotification, globalConfig} = this.props
+    const { scatter, order, requestUpdate, dispatchPushNotification, globalConfig } = this.props
     const monster = order.monster
 
     const amount = amountOfAssetPlusFees(order.value, globalConfig.market_fee)
 
-    if (amount > 0 ) {
+    if (amount > 0) {
       const orderAmount = `${amount.toFixed(4)} EOS`
 
       trxTokenTransfer(scatter, MONSTERS_ACCOUNT, orderAmount, "mtt" + order.id)
-      .then((res:any) => {
-        console.info(`Pet ${monster.id} was claimed successfully`, res)
-        dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)
-        if (requestUpdate) {
-          requestUpdate()
-        }
-      }).catch((err: any) => {
-        dispatchPushNotification(`Fail to claim ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
-      })
+        .then((res: any) => {
+          console.info(`Pet ${monster.id} was claimed successfully`, res)
+          dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)
+          if (requestUpdate) {
+            requestUpdate()
+          }
+        }).catch((err: any) => {
+          dispatchPushNotification(`Fail to claim ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
+        })
     } else {
       trxClaimPetMarket(scatter, monster.id, order.user)
-        .then((res:any) => {
+        .then((res: any) => {
           console.info(`Pet ${monster.id} was claimed successfully`, res)
           dispatchPushNotification(`Pet ${monster.name} was claimed successfully`, NOTIFICATION_SUCCESS)
           if (requestUpdate) {
