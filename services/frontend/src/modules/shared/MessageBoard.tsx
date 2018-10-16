@@ -50,9 +50,14 @@ query LatestMessages($limit: Int!, $offset: Int!) {
 }
 `
 
-class MessageBoard extends React.Component<{}, {}> {
+interface Props {
+    requiresMsgUpdate:boolean
+}
+
+class MessageBoard extends React.Component<Props, {}> {
 
     public render() {
+        const {requiresMsgUpdate} = this.props
         const variables = {
             limit: 3,
             offset: 0
@@ -61,24 +66,30 @@ class MessageBoard extends React.Component<{}, {}> {
         return <div className="container">
             <Query query={QUERY_MESSAGES} variables={variables}>
                 {({error, data, loading, refetch}) => {
-                if (error) {
-                    return (<span>{error.toString()} {JSON.stringify(error)}</span>)
-                }    
-                if (loading || !data || !data.allMessages) {
-                    return <span>
-                    <i className="fa fa-spin fa-spinner" /> Loading... Our servers are Syncing with the Chain
-                    </span>
-                }
-                const messages = data.allMessages.edges                
-                
-                return <div>
-                    {messages.map(({node}:any, index:number) => {                        
-                        return(
-                    <MessageCard 
-                        key = {node.id}                    
-                        message = {node}/>
-                    )})}
-                    </div>
+                    if (requiresMsgUpdate) {
+                        // tslint:disable-next-line:no-console
+                        console.log("refetching")
+                        setTimeout(()=>refetch(variables), 500)
+                    }
+                    if (error) {
+                        return (<span>{error.toString()} {JSON.stringify(error)}</span>)
+                    }    
+                    if (loading || !data || !data.allMessages) {
+                        return <span>
+                        <i className="fa fa-spin fa-spinner" /> Loading... Our servers are Syncing with the Chain
+                        </span>
+                    }
+                    const messages = data.allMessages.edges                
+                    
+                    return <div>
+                        {messages.map(({node}:any, index:number) => {                        
+                            return(
+                        <MessageCard 
+                            key = {node.id}                    
+                            message = {node}                        
+                            />
+                        )})}
+                        </div>
                 }
             }
             </Query>

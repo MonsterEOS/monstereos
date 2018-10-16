@@ -19,19 +19,20 @@ interface Props {
 }
 
 interface ReactState {
-  showMessageSender:boolean
+  showMessageSender:boolean,
+  requiresMsgUpdate:boolean
 }
 
 class HomeScreen extends React.Component<Props, ReactState> {
-  public state = {showMessageSender:false}
+  public state = {showMessageSender:false, requiresMsgUpdate:true}
 
   public render() {
-    const {showMessageSender} = this.state
+    const {showMessageSender, requiresMsgUpdate} = this.state
 
   const monster3dModel = get3dModel(105) // DEVIL
 
-  const messageSenderClosed = () => {
-    this.setState({showMessageSender:false})
+  const messageSenderClosed = (updateRequested:boolean) => {
+    this.setState({showMessageSender:false, requiresMsgUpdate:updateRequested})
   }
 
   const doShowMessageSender = () => {
@@ -52,7 +53,7 @@ class HomeScreen extends React.Component<Props, ReactState> {
         />
     </div>
     <p className="home-monster">{PAGE_WELCOME}</p>
-    <MessageBoard/><br/>
+    <MessageBoard requiresMsgUpdate={requiresMsgUpdate}/><br/>
     <a className="button" onClick={doShowMessageSender}>Send your own message</a>                      
     {showMessageSender && <MessageSenderModal
       closeModal = {messageSenderClosed} 
