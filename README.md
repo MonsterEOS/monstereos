@@ -103,12 +103,14 @@ docker-compose up -d
 ./setup.sh
 ```
 
+Note: the postgres password is `pass`, you can change it in `docker-compose.yml`
+
 **Restart docker container**
 ```
 docker-compose restart
 ```
 
-Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
+Open [Kitematic](https://docs.docker.com/kitematic/userguide/) (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
 
 - eosdev: this is the local single-producer blockchain with basic data (ready for development) and development of the contracts
 - fullnode: this is a node that will simulate your mainnet fullnode that will listen for the blockchain and persist data in mongo with mongodb_plugin
