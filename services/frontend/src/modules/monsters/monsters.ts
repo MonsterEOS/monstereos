@@ -105,3 +105,6 @@ export const getCurrentAction = (monster: MonsterProps, ActionType: any) => {
 
 export const monsterModelSrc = (model: string) =>
   (`/models/monsters/${model}.gltf`)
+
+export const monsterImageSrc = (typeId: number) =>
+  (`https://raw.githubusercontent.com/MonsterEOS/monster-profile-react-component/master/snapshots/images/${typeId}.png`)

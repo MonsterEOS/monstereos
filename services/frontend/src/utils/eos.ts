@@ -35,7 +35,7 @@ export const TOKEN_SYMBOL = "EOS"
 export const MEMO = "MonsterEOS Wallet Deposit"
 
 // battle resources
-export const BATTLE_REQ_CPU = 30 * 1000
+export const BATTLE_REQ_CPU = 6 * 1000
 export const BATTLE_REQ_NET = 2 * 1000
 
 export const network = {

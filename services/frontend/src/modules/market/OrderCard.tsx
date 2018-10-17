@@ -1,13 +1,12 @@
 import * as React from "react"
 import * as moment from "moment"
 import { OrderProps, amountOfAsset, amountOfAssetPlusFees } from "./market"
-import { getCurrentAction } from "../monsters/monsters"
+import { monsterImageSrc } from "../monsters/monsters"
 import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR, doLoadMyMonsters } from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
 import { trxClaimPetMarket, trxRemoveOrderMarket, MONSTERS_ACCOUNT, trxTokenTransfer } from "../../utils/eos"
 import { Link } from "react-router-dom"
-import { Monster3DProfile, ActionType } from "react-monstereos-profile"
 
 import NewOrderModal from "./NewOrderModal"
 
@@ -97,16 +96,14 @@ class OrderCard extends React.Component<Props, ReactState> {
     const { order } = this.props
     const monster = order.monster
 
+    const figureClass = `image monster-image ${monster.deathAt ? "grayscale" : ""}`
+    const monsterImage = monsterImageSrc(monster.type)
+
     return (
-      <div style={{ position: "absolute", marginLeft: -25, width: 160 }}>
-        <Monster3DProfile
-          typeId={monster.type}
-          isDead={monster.deathAt > 0}
-          action={getCurrentAction(monster, ActionType)}
-          size={{ height: "228px" }}
-          background={{ alpha: 0 }}
-          zoom={false}
-        />
+      <div className="card-image">
+        <figure className={figureClass}>
+          <img alt={monster.name} src={monsterImage} />
+        </figure>
       </div>
     )
   }
