@@ -43,3 +43,7 @@ fi
 
 echo "Initializing demux!"
 docker-compose up -d demux
+
+echo "Installing frontend packages"
+cd services/frontend
+yarn install
