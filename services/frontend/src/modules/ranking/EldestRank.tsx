@@ -4,7 +4,7 @@ import * as moment from "moment"
 import { Link } from "react-router-dom"
 
 import { QUERY_ELDEST_RANK } from "./ranking.gql"
-// import { monsterImageSrc } from "../monsters/monsters"
+import { monsterImageSrc } from "../monsters/monsters"
 
 interface ReactState {
   loadMore:boolean
@@ -65,12 +65,14 @@ class EldestRank extends React.Component<{}, ReactState> {
               </tr>
             </thead>
             <tbody>
-            {monsters.map(({node}: any, index: number) => (
+            {monsters.filter(({node}: any) => node.typeId >= 0).map(({node}: any, index: number) => (
               <tr key={index}>
                 <td>{index+1}.</td>
                 <td>
-                  {/* <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" /> */}
-                  <Link to={`/monster/${node.id}`}>{node.petName} <small>#{node.id}</small></Link>
+                  <Link to={`/monster/${node.id}`}>
+                    <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" />
+                    {node.petName} <small>#{node.id}</small>
+                  </Link>
                 </td>
                 <td className="is-hidden-mobile">{node.owner}</td>
                 <td>{moment(node.createdAt).format("MMMM, D YYYY @ h:mm a")}</td>

@@ -87,35 +87,35 @@ git clone https://github.com/MonsterEOS/monstereos
 cd monstereos
 ```
 
+You will need to install node (version 8+), yarn and docker.
+
 ### Chain and Backend
 
 We structured everything in microservices and it can be automagically initialized by docker! Don't be afraid of docker, a lot of people hear docker and run away but we already did the hard part (configuration) for you. You will just need to install docker in your computer (a simple installer that you will press next next next finish lol).
 
 After you installed docker just run the following commands:
 
-**Start docker container**
-```
-docker-compose up -d
-```
-
-**Create postgres database and init chain and monster data**
+**Start docker containers and Create postgres database and init chain and monster data**
 ```
 ./setup.sh
 ```
 
-**Restart docker container**
+Now that you have installed everything you can always start the app with the following command:
+
 ```
-docker-compose restart
+./start.sh
 ```
 
-Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
+Note: the postgres password is `pass`, you can change it in `docker-compose.yml`
+
+Open [Kitematic](https://docs.docker.com/kitematic/userguide/) (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running (or run the command `docker-compose logs -f`):
 
 - eosdev: this is the local single-producer blockchain with basic data (ready for development) and development of the contracts
 - fullnode: this is a node that will simulate your mainnet fullnode that will listen for the blockchain and persist data in mongo with mongodb_plugin
 - mongo: this is our chain database, fed by fullnode
 - postgres: this is our database, the chain is the source of truth, and this is just a cache layer to help our application to query nice and fast reports
 - demux: The backend for monstereosio, it consists of the following node services (using pm2):
-  - demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3 
+  - demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3
   - postgraphile: we serve data with GraphQL out-of-the-box through postgraphile under port 3030
   - data-cleaner: updates data about monsters and battle arenas according to our business rules
 

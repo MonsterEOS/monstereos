@@ -49,7 +49,10 @@
 
 .monster-image {
   // height: 222px; //!important;
-  max-height: 300px !important;
+  // max-height: 300px !important;
+  width: 250px;
+  position: absolute;
+  margin-left: -50px!important;
 }
 
 .home-monster {

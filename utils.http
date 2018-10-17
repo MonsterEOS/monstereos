@@ -3,12 +3,12 @@ curl --request POST \
   --data '{"id":"2252122843632a31cc88e06f4d2d0f88fb6c74394930d697e4e69a85a02e6e29"}'
 
 curl --request POST \
-  --url http://localhost:8830/v1/chain/get_block \
+  --url http://localhost:8888/v1/chain/get_block \
   --data '{"block_num_or_id":"177692"}'
 
 curl --request POST \
-  --url http://localhost:8830/v1/chain/get_table_rows \
+  --url http://localhost:8888/v1/chain/get_table_rows \
   --data '{"scope":"monstereosio","code":"monstereosio","table":"pettypes","json":"true", "limit": 5000}'
 
 curl --request GET \
-  --url http://localhost:8830/v1/chain/get_info
+  --url http://localhost:8888/v1/chain/get_info

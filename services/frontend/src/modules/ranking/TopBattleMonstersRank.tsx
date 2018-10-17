@@ -3,7 +3,7 @@ import { Query } from "react-apollo"
 import { Link } from "react-router-dom"
 
 import { QUERY_TOP_BATTLE_MONSTERS } from "./ranking.gql"
-// import { monsterImageSrc } from "../monsters/monsters"
+import { monsterImageSrc } from "../monsters/monsters"
 
 interface ReactState{
   loadMore:boolean
@@ -67,12 +67,14 @@ class TopBattleMonstersRank extends React.Component<{}, ReactState> {
               </tr>
             </thead>
             <tbody>
-            {monsters.map(({node}: any, index: number) => (
+            {monsters.filter(({node}: any) => node.typeId >= 0).map(({node}: any, index: number) => (
               <tr key={index}>
                 <td>{index+1}.</td>
                 <td>
-                  {/* <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" /> */}
-                  <Link to={`/monster/${node.petId}`}>{node.petName} <small>#{node.petId}</small></Link>
+                  <Link to={`/monster/${node.petId}`}>
+                    <img src={monsterImageSrc(node.typeId)} className="monster-rank-icon" />
+                    {node.petName} <small>#{node.petId}</small>
+                  </Link>
                 </td>
                 <td>{node.wins}</td>
                 <td>{node.losses}</td>

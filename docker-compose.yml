@@ -58,7 +58,7 @@ services:
 
   demux:
     build:
-      context: .
+      context: ./services/demux
       dockerfile: ./Dockerfile
       args:
         SERVICE: "demux"
