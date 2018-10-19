@@ -1,6 +1,4 @@
-# Contributing
-
-## About Us
+# About Us
 
 MonsterEOS was born as an experimental decentralized application in the EOS Blockchain. It is a Tamagotchi style game where you keep your pets alive and happy by feeding them, providing a pleasant environment, and letting them rest. By popular demand and adoption from the EOS community, we have added requested features such as battles and a monster market.
 
@@ -24,6 +22,6 @@ If you want to be a serious periodically contributor and join our [Decentralized
 
 It's a really important TODO item. With the project and members growing more and more we need to implement some hooks for linting and tests check. Let us know if you want to work on that!
 
-### Thank you
+## Thank you
 
 Thanks for going through this document, it means that you are interested in collaborate with the project. Please, don't be shy, hit us on Discord, or Telegram, does not matter if you are learning to code, git first-timer etc. We always need help and after you start open sourcing you will never stop! :D
