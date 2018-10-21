@@ -18,9 +18,9 @@ import MarketScreen from "./modules/market/MarketScreen"
 import MonsterDetailsScreen from "./modules/monsters/MonsterDetailsScreen"
 import Toaster from "./modules/shared/Toaster"
 import MyWalletScreen from "./modules/wallet/MyWalletScreen"
-import { injectIntl, defineMessages } from "react-intl";
-import krLocaleData from "react-intl/locale-data/kr";
-import chLocaleData from "react-intl/locale-data/ch";
+import { injectIntl, defineMessages } from "react-intl"
+import krLocaleData from "react-intl/locale-data/kr"
+import chLocaleData from "react-intl/locale-data/ch"
 
 const messages = defineMessages({
   title: {
