@@ -45,6 +45,6 @@ cleos -u http://eosiodev:8888 set contract monstereosmt ../market
 cleos -u http://eosiodev:8888 push action eosio.token transfer '["monsterusera", "monstereosio", "1.0000 EOS", "MTT3"]' -p monsterusera
 
 # deploy configs
-cleos -u http://localhost:8830 push action monstereosio changemktfee '[100, "Market fee of 1%"]' -p monstereosio
-cleos -u http://localhost:8830 push action monstereosio changecreawk '[1, "Awake immediately after creation"]' -p monstereosio
-cleos -u http://localhost:8830 push action monstereosio changehungtz '[129601, "Three days of hungerness"]' -p monstereosio
+cleos -u http://localhost:8888 push action monstereosio changemktfee '[100, "Market fee of 1%"]' -p monstereosio
+cleos -u http://localhost:8888 push action monstereosio changecreawk '[1, "Awake immediately after creation"]' -p monstereosio
+cleos -u http://localhost:8888 push action monstereosio changehungtz '[129601, "Three days of hungerness"]' -p monstereosio

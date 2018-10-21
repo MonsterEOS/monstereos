@@ -279,7 +279,9 @@
   height: 100%; }
 
 .monster-image {
-  max-height: 300px !important; }
+  width: 250px;
+  position: absolute;
+  margin-left: -50px !important; }
 
 .home-monster {
   max-height: 300px !important; }
@@ -493,7 +495,7 @@
   color: #e8a982; }
 
 .attack-button.earth {
-  color: green; }
+  color: #D2691E; }
 
 .attack-button.fire {
   color: red; }
@@ -514,7 +516,7 @@
   color: turquoise; }
 
 .attack-button.wood {
-  color: #D2691E; }
+  color: green; }
 
 .pending-attack-button, .confirm-attack-button {
   color: #fff;

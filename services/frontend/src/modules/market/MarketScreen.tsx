@@ -23,7 +23,7 @@ interface Props {
 interface ReactState {
   showNewOrderModal: boolean,
   showNewBidModal: boolean,
-  ordersOffset: number, 
+  ordersOffset: number,
   ordersLimit: number,
   orders:OrderProps[],
 }
@@ -33,8 +33,8 @@ class MarketScreen extends React.Component<Props, ReactState> {
   public state = {
     showNewOrderModal: false,
     showNewBidModal: false,
-    ordersOffset: 0, 
-    ordersLimit: 6,
+    ordersOffset: 0,
+    ordersLimit: 30,
     orders: [],
   }
 
@@ -124,19 +124,19 @@ class MarketScreen extends React.Component<Props, ReactState> {
   }
 
   private renderPagination = (
-    offset: number, 
-    limit: number, 
+    offset: number,
+    limit: number,
     total: number) => {
 
     if (offset + limit < total || offset > 0) {
       return <div className="has-margin-bottom">
           <div className="is-pulled-right">
-            {offset > 0 && 
+            {offset > 0 &&
               <a className="button has-margin-right"
                 onClick={() => this.setState({ordersOffset: offset - limit})}>
                 Back
               </a>}
-            {offset + limit < total && 
+            {offset + limit < total &&
               <a className="button"
                 onClick={() => this.setState({ordersOffset: offset + limit})}>
                 Next</a>

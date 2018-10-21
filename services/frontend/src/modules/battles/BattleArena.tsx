@@ -3,69 +3,46 @@ import { MonsterType, Arena, MonsterArenaStats, Element, isWatcher, BATTLE_PHASE
 import { State, pushNotification } from "../../store"
 import { getEosAccount } from "../../utils/scatter"
 import { connect } from "react-redux"
-import { monsterModelSrc } from "../monsters/monsters"
-import get3dModel from "../monsters/monster3DMatrix"
+import { getConfigByType, get3DMonsterModel } from "react-monstereos-profile"
 import Arena3D from "monster-battle-react-component"
-
-import elementAnimal from "../../assets/images/elements/animal.svg"
-import elementEarth from "../../assets/images/elements/earth.svg"
-import elementFire from "../../assets/images/elements/fire.svg"
-import elementLightning from "../../assets/images/elements/lightning.svg"
-import elementMetal from "../../assets/images/elements/metal.svg"
-import elementNeutral from "../../assets/images/elements/neutral.svg"
-import elementPoison from "../../assets/images/elements/poison.svg"
-import elementUndead from "../../assets/images/elements/undead.svg"
-import elementWater from "../../assets/images/elements/water.svg"
-import elementWood from "../../assets/images/elements/wood.svg"
 
 const getElementData = (elementId: number) => {
 
   let name
-  let img
 
   switch (elementId) {
     case 1:
       name = "wood"
-      img = elementWood
       break
     case 2:
       name = "earth"
-      img = elementEarth
       break
     case 3:
       name = "water"
-      img = elementWater
       break
     case 4:
       name = "fire"
-      img = elementFire
       break
     case 5:
       name = "metal"
-      img = elementMetal
       break
     case 6:
       name = "animal"
-      img = elementAnimal
       break
     case 7:
       name = "poison"
-      img = elementPoison
       break
     case 8:
       name = "undead"
-      img = elementUndead
       break
     case 9:
       name = "lightning"
-      img = elementLightning
       break
     default:
       name = "neutral"
-      img = elementNeutral
   }
 
-  return { name, img }
+  return { name, img: `/images/elements/${name}.svg` }
 }
 
 const elementButton = (
@@ -81,7 +58,7 @@ const elementButton = (
   return <a key={elementId}
     className={elementClass}
     onClick={onClick}>
-    <img src={element.img} />
+    <img src={`/images/elements/${element.name}.svg`} />
     <span className="is-hidden-mobile">{element.name}</span>
   </a>
 }
@@ -207,27 +184,29 @@ class BattleArena extends React.Component<Props, ReactState> {
       return <span className="loading-message">Loading...</span>
     }
 
-    const { model: myModel } = get3dModel(monsters.myMonster.pet_type)
-    const { model: enemyModel } = get3dModel(monsters.enemyMonster.pet_type)
-
     const myTurn = isBattleGoing &&
       (arena.commits[0].player === identity ||
         Date.now() - arena.lastMoveAt > 60000)
 
     const isSpectator: boolean = !(petsStats.filter(pet => pet.player === identity).length > 0)
 
+    const myMonsterConfig = getConfigByType(monsters.myMonster.pet_type)
+    const enemyMonsterConfig = getConfigByType(monsters.enemyMonster.pet_type)
+
     return <div className="arena-monster">
       <Arena3D
         ref={this.arenaRef}
-        myMonster={monsterModelSrc(myModel)}
-        enemyMonster={monsterModelSrc(enemyModel)}
-        myMonsterDecor={get3dModel(monsters.myMonster.pet_type).decor}
-        enemyMonsterDecor={get3dModel(monsters.enemyMonster.pet_type).decor}
+        myMonster={get3DMonsterModel(myMonsterConfig.model)}
+        enemyMonster={get3DMonsterModel(enemyMonsterConfig.model)}
+        myMonsterDecor={myMonsterConfig.decor}
+        enemyMonsterDecor={enemyMonsterConfig.decor}
         size={{ width: "100%", height: "100%" }}
         background={{ alpha: 1 }}
       />
       {this.renderHpBars(monsters)}
-      <div className={`mobile-arena-countdown ${!battleCountdown || battleCountdown <= 0 ? "expired" : ""}`}>{battleCountdown && battleCountdown > 0 ? battleCountdown : "00"}</div>
+      <div className={`mobile-arena-countdown ${!battleCountdown || battleCountdown <= 0 ? "expired" : ""}`}>
+        {battleCountdown && battleCountdown > 0 ? battleCountdown : "00"}
+      </div>
       {this.renderHpNotifications(monsters)}
       <div className="battle-buttons-container">
         {!isSpectator && myTurn ? this.attackButtons(monsters.myMonster) :
@@ -337,7 +316,7 @@ class BattleArena extends React.Component<Props, ReactState> {
 
   private onAttack = (isMyTurn: boolean) => {
     this.arenaRef.current
-      .changeAnimationState(isMyTurn)
+      .playAttackAnimation(isMyTurn)
       .then(() => this.props.submitAttack())
   }
 

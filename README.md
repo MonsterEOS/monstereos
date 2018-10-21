@@ -39,6 +39,8 @@ Alex Rozgo | Head of Gaming Engineering | [GitHub](http://github.com/rozgo) / [T
 Vertex Studio | Arts & Gaming Studio | [Official Website](https://vertexstudio.github.io)
 Cypherglass | Sponsor of Infrastructure and EOS Resources | [Official Website](https://cypherglass.com) / [Twitter](https://twitter.com/cypherglassbp) / [Youtube](https://www.youtube.com/channel/UCnXofUeO5w1dO9JGWWDdqPQ) / [Steemit](https://steemit.com/@cypherglass)
 Friedger Muffke | Developer | [GitHub](http://github.com/friedger) / [Twitter](https://twitter.com/fmdroid) / [Steemit](https://steemit.com/@friedger)
+Marcelo Mendes | Developer | [GitHub](http://github.com/marcelormendes) / [Twitter](https://twitter.com/itsmemarcelorm)
+Julien Lucca | Developer | [GitHub](http://github.com/lucca65) / [Twitter](https://twitter.com/JulienLucca)
 John Williamson | Developer | [GitHub](http://github.com/velua) / [Twitter](https://twitter.com/velua) / [Steemit](https://steemit.com/@johnwilliamson)
 Jenny Calpu | PR & Marketing | [Twitter](https://twitter.com/topkpop) / [Steemit](https://steemit.com/@topkpop)
 Daniel Wagner | Gaming Curator | [Medium](https://medium.com/@tikuzero)
@@ -85,33 +87,37 @@ git clone https://github.com/MonsterEOS/monstereos
 cd monstereos
 ```
 
+You will need to install node (version 8+), yarn and docker.
+
 ### Chain and Backend
 
 We structured everything in microservices and it can be automagically initialized by docker! Don't be afraid of docker, a lot of people hear docker and run away but we already did the hard part (configuration) for you. You will just need to install docker in your computer (a simple installer that you will press next next next finish lol).
 
-After you installed docker just run the following single command:
+After you installed docker just run the following commands:
 
+**Start docker containers and Create postgres database and init chain and monster data**
 ```
-docker-compose up -d
-docker-compose run demux yarn _migrate # credentials: user // pass  (for three steps)
-docker restart monstereos_demux_1
-
-docker exec -it monstereos_eosiodev_1 /bin/sh
-
-cd /opt/application/scripts
-./0000_init-chain.sh
-./0010_load-elements.sh
-./0020_load-pet-types.sh
-./0030_load-data.sh
+./setup.sh
 ```
 
-Open Kitematic (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running:
+Now that you have installed everything you can always start the app with the following command:
+
+```
+./start.sh
+```
+
+Note: the postgres password is `pass`, you can change it in `docker-compose.yml`
+
+Open [Kitematic](https://docs.docker.com/kitematic/userguide/) (a nice UI for docker containers management that comes by default on docker installation) and you will see all the containers running (or run the command `docker-compose logs -f`):
 
 - eosdev: this is the local single-producer blockchain with basic data (ready for development) and development of the contracts
 - fullnode: this is a node that will simulate your mainnet fullnode that will listen for the blockchain and persist data in mongo with mongodb_plugin
 - mongo: this is our chain database, fed by fullnode
 - postgres: this is our database, the chain is the source of truth, and this is just a cache layer to help our application to query nice and fast reports
-- demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3 - we serve data with GraphQL out-of-the-box through postgraphile under port 3030
+- demux: The backend for monstereosio, it consists of the following node services (using pm2):
+  - demux: this is the blockchain watcher, demux is a tool from Block.one that allows us to watch the blockchain data through MongoDB, manage state saving records to database and also any side effects as submit emails, notifications, external apis etc <3
+  - postgraphile: we serve data with GraphQL out-of-the-box through postgraphile under port 3030
+  - data-cleaner: updates data about monsters and battle arenas according to our business rules
 
 ### Frontend App: UI
 
@@ -128,3 +134,10 @@ Feel free to build any other apps and/or dockerize it. We didn't create a docker
 ### EOS Dream Stack
 
 You can build any Dapp using the above structure. Tweak the structure a little bit to satisfy all your needs, i.e.: you can change the postgres for other database as mongo or mysql; you might not need demux and the backend if your app is very basic, allowing the frontend to read directly from the chain; change the frontend to whatever framework you want to use as Vue or Angular, not only this but your frontend can be a mobile native app, why not?
+
+### Notes
+* mongo and postgres data is stored in parent folder of this git repo under `.monstereos`
+* eos data is stored in the docker volume `monstereos_eosiodevapp`
+* to compile the contract you need to use `eosio.cdt` and build it using `make`
+* to change postgres schema run `yarn migrate` from console (outside docker) in folder `services/demux`.
+

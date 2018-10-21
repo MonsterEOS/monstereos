@@ -5,7 +5,7 @@ import fetch from "node-fetch"
 
 const BLOCK_SYNC_TOLERANCE = process.env.BLOCK_SYNC_TOLERANCE || 10
 
-const NODEOS = process.env.CHAIN_HOST || "http://localhost:8830"
+const NODEOS = process.env.CHAIN_HOST || "http://localhost:8840"
 const rpc = new Rpc.JsonRpc(NODEOS, { fetch })
 
 const dbConfig = {
