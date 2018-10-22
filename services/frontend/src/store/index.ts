@@ -3,7 +3,7 @@ import { combineReducers, createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
 import {v4 as uuid} from "uuid"
 
-import { network as eosNetwork, loadMonstersByOwner, loadWalletFunds } from "../utils/eos"
+import { network as eosNetwork, loadMonstersByOwner, loadWalletFundsm } from "../utils/eos"
 import { MonsterProps } from "../modules/monsters/monsters"
 import { getEosAccount } from "../utils/scatter"
 import { browserNotify } from "../utils/browserNotifications"
@@ -19,7 +19,8 @@ export interface State {
   readonly notifications: Notification[]
   readonly myMonsters: MonsterProps[]
   readonly myWalletBalance: string
-  readonly myNetwork: string
+  readonly myNetwork: string,
+  readonly myLanguage: string
 }
 
 export interface GlobalConfig {
@@ -87,6 +88,7 @@ const LOAD_MY_MONSTERS = "LOAD_MY_MONSTERS"
 const LOAD_MY_WALLET = "LOAD_MY_WALLET"
 const DO_LOGOUT = "DO_LOGOUT"
 const SET_NETWORK = "SET_NETWORK"
+const SET_LANGUAGE = "SET_LANGUAGE"
 
 // auth actions
 const actionLoadScatter = (scatter: object) => tsAction(LOAD_SCATTER, scatter)
@@ -105,6 +107,9 @@ const actionLoadMyWallet = (myWalletBalance: string) => tsAction(LOAD_MY_WALLET,
 // network actions
 const actionSetNetwork = (myNetwork: string) => tsAction(SET_NETWORK, myNetwork)
 
+const actionSetLanguage = (myLanguage: string) => tsAction(SET_LANGUAGE, myLanguage)
+
+
 // actions definitions
 const actions = {
   actionLoadScatter,
@@ -115,7 +120,8 @@ const actions = {
   actionLoadConfig,
   actionLoadMyMonsters,
   actionLoadMyWallet,
-  actionSetNetwork
+  actionSetNetwork,
+  actionSetLanguage
 }
 type Actions = ActionType<typeof actions>
 
@@ -216,6 +222,11 @@ export const setNetwork = (id: string) => {
     return actionSetNetwork(id)
 }
 
+export const setLanguage = (id: string) => {
+  localStorage.setItem("myLanguage", id)
+  return actionSetLanguage(id)
+}
+
 // reducer
 const reducers = combineReducers<State, Actions>({
   scatter: (state = null, action) => {
@@ -276,6 +287,14 @@ const reducers = combineReducers<State, Actions>({
   myNetwork: (state = "cypherglasss", action) => {
     switch (action.type) {
       case SET_NETWORK:
+        return action.payload
+      default:
+        return state
+    }
+  },
+  myLanguage: (state = "en", action) => {
+    switch (action.type) {
+      case SET_LANGUAGE:
         return action.payload
       default:
         return state

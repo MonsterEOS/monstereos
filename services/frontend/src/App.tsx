@@ -18,36 +18,22 @@ import MarketScreen from "./modules/market/MarketScreen"
 import MonsterDetailsScreen from "./modules/monsters/MonsterDetailsScreen"
 import Toaster from "./modules/shared/Toaster"
 import MyWalletScreen from "./modules/wallet/MyWalletScreen"
-import { injectIntl, defineMessages } from "react-intl"
-import krLocaleData from "react-intl/locale-data/kr"
-import chLocaleData from "react-intl/locale-data/ch"
+import { IntlProvider } from "react-intl"
+import translations from "./i18n/locales"
+import { injectIntl } from "react-intl"
 
-const messages = defineMessages({
-  title: {
-    id: "app.title",
-    defaultMessage: "Welcome to React"
-  },
-  content1: {
-    id: "app.content1",
-    defaultMessage: "To get started, edit"
-  },
-  content2: {
-    id: "app.content2",
-    defaultMessage: "and save to reload."
-  },
-})
+const language = localStorage.getItem("myLanguage") as any
+const messages = translations[language]
 
 class App extends React.Component<{}, {}> {
+
   public render() {
-
-    const {intl:{formatMessage}} = this.props;
-
     return (
-      <Switch >
+      <IntlProvider locale={language} key={language} messages={messages}>
+        <Switch >
         <React.Fragment>
           <MobileHeader />
           <Toaster />
-          <h1 className="App-title">{formatMessage(messages.title)}</h1>
           <Route path="/" exact component={HomeScreen} />
           <Route path="/arenas" exact component={ArenasScreen} />
           <Route path="/arenas/:host" exact component={BattleScreen} />
@@ -62,6 +48,7 @@ class App extends React.Component<{}, {}> {
           <Footer />
         </React.Fragment>
       </Switch>
+      </IntlProvider>
     )
   }
 }
