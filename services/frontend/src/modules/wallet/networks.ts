@@ -1,24 +1,22 @@
-import {setNetwork} from "../../store"
+import { setNetwork } from "../../store"
 
 export interface Network {
-  id: string,
-  name: string,
-  protocol: string,
-  host: string,
-  port: number,
+  id: string
+  name: string
+  protocol: string
+  host: string
+  port: number
   ping: number
 }
 
 const DEFAULT_PING = 9999
 
 export const loadNetwork = (store: any) => {
-
   const networkId = localStorage.getItem("myNetwork")
 
-  if (networkId){
+  if (networkId) {
     store.dispatch(setNetwork(networkId))
   }
-
 }
 
 export const networks: Network[] = [
@@ -28,7 +26,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "api.cypherglass.com",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "eosdacserver",
@@ -36,7 +34,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "eu.eosdac.io",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "eoscafeblock",
@@ -44,7 +42,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "mainnet.eoscalgary.io",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "cryptolions1",
@@ -52,7 +50,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "bp.cryptolions.io",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "zbeosbp11111",
@@ -60,7 +58,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "node1.zbeos.com",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "starteosiobp",
@@ -68,7 +66,7 @@ export const networks: Network[] = [
     protocol: "http",
     host: "api-mainnet.starteos.io",
     port: 80,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "eosriobrazil",
@@ -76,7 +74,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "hapi.eosrio.io",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "eos42freedom",
@@ -84,7 +82,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "nodes.eos42.io",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "eosauthority",
@@ -92,7 +90,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "publicapi-mainnet.eosauthority.com",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "teamgreymass",
@@ -100,7 +98,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "eos.greymass.com",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "atticlabeosb",
@@ -108,7 +106,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "eosbp.atticlab.net",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "eoscanadacom",
@@ -116,7 +114,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "mainnet.eoscanada.com",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "eospaceioeos",
@@ -124,7 +122,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "api.eossweden.se",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "eosswedenorg",
@@ -132,7 +130,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "api.eossweden.se",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   // {
   //   id: "eosnewyorkio",
@@ -148,7 +146,7 @@ export const networks: Network[] = [
     protocol: "https",
     host: "mainnet.genereos.io",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
   {
     id: "scatter",
@@ -156,6 +154,6 @@ export const networks: Network[] = [
     protocol: "https",
     host: "nodes.get-scatter.com",
     port: 443,
-    ping: DEFAULT_PING
+    ping: DEFAULT_PING,
   },
 ]

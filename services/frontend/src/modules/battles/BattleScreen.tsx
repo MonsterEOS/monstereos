@@ -1,10 +1,28 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import { State, pushNotification, GlobalConfig, NOTIFICATION_ERROR, NOTIFICATION_SUCCESS } from "../../store"
+import {
+  State,
+  pushNotification,
+  GlobalConfig,
+  NOTIFICATION_ERROR,
+  NOTIFICATION_SUCCESS,
+} from "../../store"
 import { Link } from "react-router-dom"
 
 import PageContainer from "../shared/PageContainer"
-import { Arena, getCurrentBattle, getBattleText, BATTLE_PHASE_STARTING, MonsterType, BATTLE_PHASE_GOING, BATTLE_PHASE_FINISHED, battleCountdownText, Element, getBattleCountdown, BATTLE_PHASE_JOINING } from "./battles"
+import {
+  Arena,
+  getCurrentBattle,
+  getBattleText,
+  BATTLE_PHASE_STARTING,
+  MonsterType,
+  BATTLE_PHASE_GOING,
+  BATTLE_PHASE_FINISHED,
+  battleCountdownText,
+  Element,
+  getBattleCountdown,
+  BATTLE_PHASE_JOINING,
+} from "./battles"
 import {
   loadArenaByHost,
   leaveBattle,
@@ -12,7 +30,7 @@ import {
   loadElements as apiLoadElements,
   loadPetTypes,
   attackBattle,
-  getWinner
+  getWinner,
 } from "../../utils/eos"
 import { getEosAccount } from "../../utils/scatter"
 import BattleConfirmation from "./BattleConfirmation"
@@ -20,28 +38,27 @@ import BattleHeader from "./BattleHeader"
 import BattleArena from "./BattleArena"
 
 interface Props {
-  globalConfig: GlobalConfig,
-  dispatchPushNotification: any,
-  scatter: any,
-  match: any,
-  history: any,
-  identity: string,
+  globalConfig: GlobalConfig
+  dispatchPushNotification: any
+  scatter: any
+  match: any
+  history: any
+  identity: string
 }
 
 interface ReactState {
-  arena?: Arena,
-  elements: Element[],
-  monsterTypes: MonsterType[],
-  selectedAttackPetId: number,
-  selectedAttackElementId: number,
-  selectedAttackEnemyId: number,
-  winner?: string,
-  turnCountdown: number,
+  arena?: Arena
+  elements: Element[]
+  monsterTypes: MonsterType[]
+  selectedAttackPetId: number
+  selectedAttackElementId: number
+  selectedAttackEnemyId: number
+  winner?: string
+  turnCountdown: number
   isOver: boolean
 }
 
 class BattleScreen extends React.Component<Props, ReactState> {
-
   private refreshHandler: any = 0
   private isMyMounted: boolean = true
 
@@ -56,7 +73,7 @@ class BattleScreen extends React.Component<Props, ReactState> {
       selectedAttackEnemyId: 0,
       turnCountdown: -1,
       winner: undefined,
-      isOver: false
+      isOver: false,
     }
   }
 
@@ -77,7 +94,6 @@ class BattleScreen extends React.Component<Props, ReactState> {
   }
 
   public render() {
-
     const { identity, globalConfig } = this.props
 
     const {
@@ -102,11 +118,12 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
     const isMyBattle = !!currentBattle
 
-    const allowLeaveBattle = isMyBattle &&
+    const allowLeaveBattle =
+      isMyBattle &&
       (arena.phase === BATTLE_PHASE_STARTING ||
-      arena.phase === BATTLE_PHASE_JOINING) ?
-      () => this.doLeaveBattle(arena.host) :
-      null
+        arena.phase === BATTLE_PHASE_JOINING)
+        ? () => this.doLeaveBattle(arena.host)
+        : null
 
     // const isConfirmed = isPlayerReady(arena, identity)
     // const allowConfirmation = isMyBattle && !isConfirmed &&
@@ -131,34 +148,35 @@ class BattleScreen extends React.Component<Props, ReactState> {
           isOver={isOver}
           countdownText={countdownText}
           allowConfirmation={false} // allowConfirmation
-          allowLeaveBattle={allowLeaveBattle} />
-        {arena.phase === BATTLE_PHASE_STARTING &&
-        <BattleConfirmation
-          commits={arena.commits} />
-        }
+          allowLeaveBattle={allowLeaveBattle}
+        />
+        {arena.phase === BATTLE_PHASE_STARTING && (
+          <BattleConfirmation commits={arena.commits} />
+        )}
         {(arena.phase === BATTLE_PHASE_GOING ||
-        arena.phase === BATTLE_PHASE_FINISHED) &&
-        <BattleArena
-          arena={arena}
-          attackSelection={this.attackSelection}
-          enemySelection={this.enemySelection}
-          submitAttack={() => this.submitAttack(arena.host)}
-          selectedEnemyId={selectedAttackEnemyId}
-          selectedPetId={selectedAttackPetId}
-          selectedElementId={selectedAttackElementId}
-          elements={elements}
-          winner={winner}
-          battleCountdown={battleCountdown}
-          monsterTypes={monsterTypes!} />
-        }
+          arena.phase === BATTLE_PHASE_FINISHED) && (
+          <BattleArena
+            arena={arena}
+            attackSelection={this.attackSelection}
+            enemySelection={this.enemySelection}
+            submitAttack={() => this.submitAttack(arena.host)}
+            selectedEnemyId={selectedAttackEnemyId}
+            selectedPetId={selectedAttackPetId}
+            selectedElementId={selectedAttackElementId}
+            elements={elements}
+            winner={winner}
+            battleCountdown={battleCountdown}
+            monsterTypes={monsterTypes!}
+          />
+        )}
         {/* mobile controls */}
         <div className="is-hidden-tablet">
-        {(!isMyBattle || isOver) &&
-          <Link className="mobile-arena-back" to="/arenas">
-            Back to Arenas
-          </Link>}
+          {(!isMyBattle || isOver) && (
+            <Link className="mobile-arena-back" to="/arenas">
+              Back to Arenas
+            </Link>
+          )}
         </div>
-
       </PageContainer>
     )
   }
@@ -177,7 +195,11 @@ class BattleScreen extends React.Component<Props, ReactState> {
   }
 
   private refresh = async () => {
-    const { match: {params: { host } } } = this.props
+    const {
+      match: {
+        params: { host },
+      },
+    } = this.props
     const { isOver, arena } = this.state
 
     if (!host) {
@@ -192,32 +214,32 @@ class BattleScreen extends React.Component<Props, ReactState> {
       }
 
       if (newArena) {
-
         if (arena !== undefined) {
           const currentArena = arena as Arena
           this.handleArenaNotifications(currentArena, newArena)
         }
 
-        this.setState({arena: newArena})
-
-      } else if (arena !== null && arena !== undefined && arena.petsStats.length) {
+        this.setState({ arena: newArena })
+      } else if (
+        arena !== null &&
+        arena !== undefined &&
+        arena.petsStats.length
+      ) {
         const confirmedArena = arena as Arena
         const winner = await getWinner(confirmedArena.host)
 
-        const updatedStats =
-          confirmedArena.petsStats.map((stat) => {
-            return stat.player !== winner ?
-              Object.assign({}, stat, {hp: 0})
-              : stat
-          })
+        const updatedStats = confirmedArena.petsStats.map(stat => {
+          return stat.player !== winner
+            ? Object.assign({}, stat, { hp: 0 })
+            : stat
+        })
 
-        const updatedArena: Arena = Object.assign(
-          {},
-          arena,
-          {phase: BATTLE_PHASE_FINISHED, petsStats: updatedStats}
-        )
+        const updatedArena: Arena = Object.assign({}, arena, {
+          phase: BATTLE_PHASE_FINISHED,
+          petsStats: updatedStats,
+        })
 
-        this.setState({isOver: true, arena: updatedArena, winner})
+        this.setState({ isOver: true, arena: updatedArena, winner })
       }
 
       // TODO: implement websockets
@@ -232,12 +254,13 @@ class BattleScreen extends React.Component<Props, ReactState> {
   }
 
   private handleArenaNotifications = (currentArena: Arena, newArena: Arena) => {
-
     const { dispatchPushNotification } = this.props
 
     // check someone joined in arena
-    newArena.commits.forEach((commit) => {
-      const oldArenaCommit = currentArena.commits.find((oldCommit) => oldCommit.player === commit.player)
+    newArena.commits.forEach(commit => {
+      const oldArenaCommit = currentArena.commits.find(
+        oldCommit => oldCommit.player === commit.player,
+      )
 
       if (!oldArenaCommit) {
         const notification = `${commit.player} has joined the battle. Be Ready!`
@@ -249,7 +272,6 @@ class BattleScreen extends React.Component<Props, ReactState> {
         dispatchPushNotification(notification, NOTIFICATION_SUCCESS, true)
       }
     })
-
   }
 
   private submitAttack = async (host: string) => {
@@ -258,13 +280,21 @@ class BattleScreen extends React.Component<Props, ReactState> {
     const {
       selectedAttackElementId,
       selectedAttackPetId,
-      selectedAttackEnemyId
+      selectedAttackEnemyId,
     } = this.state
 
-    await attackBattle(scatter, host, selectedAttackPetId, selectedAttackEnemyId, selectedAttackElementId)
-      .catch((err: any) => {
-        dispatchPushNotification(`Fail to Submit Attack ${err.eosError}`, NOTIFICATION_ERROR)
-      })
+    await attackBattle(
+      scatter,
+      host,
+      selectedAttackPetId,
+      selectedAttackEnemyId,
+      selectedAttackElementId,
+    ).catch((err: any) => {
+      dispatchPushNotification(
+        `Fail to Submit Attack ${err.eosError}`,
+        NOTIFICATION_ERROR,
+      )
+    })
   }
 
   private doLeaveBattle = async (host: string) => {
@@ -272,10 +302,16 @@ class BattleScreen extends React.Component<Props, ReactState> {
     leaveBattle(scatter, host)
       .then(() => {
         setTimeout(() => history.push("/arenas"), 500)
-        dispatchPushNotification("Leaving Battle Successfully...", NOTIFICATION_SUCCESS)
+        dispatchPushNotification(
+          "Leaving Battle Successfully...",
+          NOTIFICATION_SUCCESS,
+        )
       })
       .catch((err: any) => {
-        dispatchPushNotification(`Fail to Leave Battle ${err.eosError}`, NOTIFICATION_ERROR)
+        dispatchPushNotification(
+          `Fail to Leave Battle ${err.eosError}`,
+          NOTIFICATION_ERROR,
+        )
       })
   }
 
@@ -294,12 +330,12 @@ class BattleScreen extends React.Component<Props, ReactState> {
 
   private loadElements = async () => {
     const elements = await apiLoadElements()
-    this.setState({elements})
+    this.setState({ elements })
   }
 
   private loadMonsterTypes = async () => {
     const monsterTypes = await loadPetTypes()
-    this.setState({monsterTypes})
+    this.setState({ monsterTypes })
   }
 }
 
@@ -312,7 +348,10 @@ const mapStateToProps = (state: State) => {
 }
 
 const mapDispatchToProps = {
-  dispatchPushNotification: pushNotification
+  dispatchPushNotification: pushNotification,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(BattleScreen)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(BattleScreen)

@@ -12,10 +12,11 @@ import loadScatter from "./utils/scatter"
 import App from "./App"
 import registerServiceWorker from "./registerServiceWorker"
 import { loadGlobalConfig } from "./utils/eos"
-import {loadNetwork} from "./modules/wallet/networks"
+import { loadNetwork } from "./modules/wallet/networks"
 
 const httpLink = new HttpLink({
-  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || "http://localhost:3030/graphql",
+  uri:
+    process.env.REACT_APP_GRAPHQL_ENDPOINT || "http://localhost:3030/graphql",
 })
 
 const client = new ApolloClient({
@@ -31,7 +32,7 @@ ReactDOM.render(
       </BrowserRouter>
     </Provider>
   </ApolloProvider>,
-  document.getElementById("root") as HTMLElement
+  document.getElementById("root") as HTMLElement,
 )
 
 // some global inits

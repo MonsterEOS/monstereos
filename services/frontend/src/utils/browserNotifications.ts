@@ -16,9 +16,8 @@ export const requestNotificationPermission = () => {
 
 export const browserNotify = (text: string) => {
   const notification = new Notify("MonsterEOS!", {
-    body: text
+    body: text,
   })
 
   notification.show()
 }
-

@@ -1,13 +1,13 @@
 // @import url('https://fonts.googleapis.com/css?family=Gloria+Hallelujah');
-@import url('https://fonts.googleapis.com/css?family=Montserrat:700|Oswald:400,700|Freckle+Face');
+@import url("https://fonts.googleapis.com/css?family=Montserrat:700|Oswald:400,700|Freckle+Face");
 
 // @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
-@import url('https://cdn.jsdelivr.net/npm/fork-awesome@1.1.0/css/fork-awesome.min.css');
+@import url("https://cdn.jsdelivr.net/npm/fork-awesome@1.1.0/css/fork-awesome.min.css");
 
 @import "node_modules/bulma/sass/utilities/initial-variables";
 @import "node_modules/bulma/sass/utilities/functions";
 
-$logo-font: 'Freckle Face', cursive;
+$logo-font: "Freckle Face", cursive;
 
 .logo {
   font-family: $logo-font;
@@ -18,8 +18,8 @@ $logo-font: 'Freckle Face', cursive;
 $my-blue: rgb(138, 255, 231);
 $my-blue-transparent: rgba(138, 255, 231, 0.75);
 $my-dark-blue: #122055;
-$my-purple: rgb(132,32,118);
-$my-yellow: rgb(242,228,138);
+$my-purple: rgb(132, 32, 118);
+$my-yellow: rgb(242, 228, 138);
 
 @import "./_spacing.scss";
 @import "./_gradients.scss";
@@ -30,7 +30,7 @@ $my-yellow: rgb(242,228,138);
 @import "./_components.scss";
 
 .intro-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   color: $my-blue;
   width: 100%;
   text-transform: uppercase;
@@ -39,7 +39,7 @@ $my-yellow: rgb(242,228,138);
   background-image: map-get($gradients, warm);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  position:relative;
+  position: relative;
   margin-bottom: 0;
 }
 

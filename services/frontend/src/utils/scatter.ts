@@ -2,7 +2,7 @@ import { doLoadScatter, doLoadIdentity } from "../store"
 import ScatterJS from "scatter-js/dist/scatter.esm"
 import eos from "eosjs"
 
-const customWindow = (window as any)
+const customWindow = window as any
 
 const loadScatter = (scatter: any, store: any) => {
   store.dispatch(doLoadScatter(scatter))
@@ -15,15 +15,13 @@ const loadScatter = (scatter: any, store: any) => {
 }
 
 export default (store: any) => {
-
-  ScatterJS.scatter.connect("MonsterEOS")
-    .then((connected: any) => {
-      if (connected) {
-        const scatter = ScatterJS.scatter
-        loadScatter(scatter, store)
-        customWindow.scatter = null
-      }
-    })
+  ScatterJS.scatter.connect("MonsterEOS").then((connected: any) => {
+    if (connected) {
+      const scatter = ScatterJS.scatter
+      loadScatter(scatter, store)
+      customWindow.scatter = null
+    }
+  })
 }
 
 export const getEosAccount = (identity: any) => {
@@ -45,9 +43,9 @@ export const getEosAuthorization = (identity: any) => {
 
   return {
     permission: {
-      authorization: [ `${account.name}@${account.authority}` ]
+      authorization: [`${account.name}@${account.authority}`],
     },
-    account
+    account,
   }
 }
 
@@ -56,4 +54,5 @@ export const getContract = (scatter: any, network: any, contract: string) => {
   return scatter.eos(network, eos, {}).contract(contract)
 }
 
-export const SCATTER_EXTENSION_LINK = "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"
+export const SCATTER_EXTENSION_LINK =
+  "https://chrome.google.com/webstore/detail/scatter/ammjpmhgckkpcamddpolhchgomcojkle"

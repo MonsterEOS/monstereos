@@ -7,18 +7,17 @@ import MonsterCard from "../monsters/MonsterCard"
 import { MonsterProps } from "../monsters/monsters"
 
 interface Props {
-  closeModal: (monsters?: number[]) => void,
+  closeModal: (monsters?: number[]) => void
   myMonsters: MonsterProps[]
 }
 
 interface ReactState {
-  selectedMonsters: number[],
-  monstersOffset: number,
-  monstersLimit: number,
+  selectedMonsters: number[]
+  monstersOffset: number
+  monstersLimit: number
 }
 
 class BattleMonsterPickModal extends React.Component<Props, {}> {
-
   public state: ReactState = {
     selectedMonsters: [],
     monstersOffset: 0,
@@ -26,65 +25,79 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
   }
 
   public render() {
-
     const { closeModal, myMonsters } = this.props
     const { monstersOffset, monstersLimit } = this.state
 
     const monsters = getAvailableMonstersToBattle(myMonsters)
 
     const footerButtons = [
-      <a
-        key="cancel"
-        className="button is-danger"
-        onClick={() => closeModal()}>
+      <a key="cancel" className="button is-danger" onClick={() => closeModal()}>
         Cancel
       </a>,
-      <a
-        key="submit"
-        className="button"
-        onClick={this.handleSubmit}>
+      <a key="submit" className="button" onClick={this.handleSubmit}>
         Submit
-      </a>
+      </a>,
     ]
 
     return (
       <Modal
         title="Pick your Monster to Battle"
         close={() => closeModal()}
-        footerButtons={footerButtons}>
-        <p className="has-text-info"><small><em>Only Alive, Awake and Fed Monsters with more than 30% Energy can Join a Battle</em></small></p>
+        footerButtons={footerButtons}
+      >
+        <p className="has-text-info">
+          <small>
+            <em>
+              Only Alive, Awake and Fed Monsters with more than 30% Energy can
+              Join a Battle
+            </em>
+          </small>
+        </p>
         <div className="columns is-multiline">
-          {monsters.slice(monstersOffset, monstersOffset + monstersLimit)
+          {monsters
+            .slice(monstersOffset, monstersOffset + monstersLimit)
             .map(this.renderMonsterCard)}
         </div>
-        {monsters.length < 1 && <p className="has-text-danger">Ooops... Looks like you have no Monsters available to battle</p>}
+        {monsters.length < 1 && (
+          <p className="has-text-danger">
+            Ooops... Looks like you have no Monsters available to battle
+          </p>
+        )}
 
         {this.renderPagination(monstersOffset, monstersLimit, monsters.length)}
       </Modal>
     )
   }
 
-  private renderPagination = (
-    offset: number,
-    limit: number,
-    total: number) => {
-
+  private renderPagination = (offset: number, limit: number, total: number) => {
     if (offset + limit < total || offset > 0) {
-      return <div className="has-margin-bottom">
+      return (
+        <div className="has-margin-bottom">
           <div className="is-pulled-right">
-            {offset > 0 &&
-              <a className="button has-margin-right"
-                onClick={() => this.setState({monstersOffset: offset - limit})}>
+            {offset > 0 && (
+              <a
+                className="button has-margin-right"
+                onClick={() =>
+                  this.setState({ monstersOffset: offset - limit })
+                }
+              >
                 Back
-              </a>}
-            {offset + limit < total &&
-              <a className="button"
-                onClick={() => this.setState({monstersOffset: offset + limit})}>
-                Next</a>
-            }
+              </a>
+            )}
+            {offset + limit < total && (
+              <a
+                className="button"
+                onClick={() =>
+                  this.setState({ monstersOffset: offset + limit })
+                }
+              >
+                Next
+              </a>
+            )}
           </div>
-          <div style={{clear: "both"}} />
+          <div style={{ clear: "both" }} />
         </div>
+      )
     } else {
       return null
     }
@@ -98,18 +111,21 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
     const customActions = [
       {
         label: isSelected ? "Unselect Monster" : "Select Monster",
-        action: () => this.handleMonsterSelection(monster.id)
-      }
+        action: () => this.handleMonsterSelection(monster.id),
+      },
     ]
 
-    return <MonsterCard
-      key={monster.id}
-      customActions={customActions}
-      monster={monster}
-      selected={isSelected}
-      halfSize
-      hideActions
-      hideLink />
+    return (
+      <MonsterCard
+        key={monster.id}
+        customActions={customActions}
+        monster={monster}
+        selected={isSelected}
+        halfSize
+        hideActions
+        hideLink
+      />
+    )
   }
 
   private handleMonsterSelection = (id: number) => {
@@ -117,17 +133,17 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
 
     console.info(id, selectedMonsters)
 
-    const newSelection = selectedMonsters.indexOf(id) >= 0 ?
-      // deselect monster
-      selectedMonsters.filter((pet) => pet !== id)
-      : // select monster
-      selectedMonsters.concat(id)
+    const newSelection =
+      selectedMonsters.indexOf(id) >= 0
+        ? // deselect monster
+          selectedMonsters.filter(pet => pet !== id)
+        : // select monster
+          selectedMonsters.concat(id)
 
-    this.setState({selectedMonsters: newSelection})
+    this.setState({ selectedMonsters: newSelection })
   }
 
   private handleSubmit = () => {
-
     const { selectedMonsters } = this.state
 
     if (selectedMonsters.length) {
@@ -138,7 +154,7 @@ class BattleMonsterPickModal extends React.Component<Props, {}> {
 
 const mapStateToProps = (state: State) => {
   return {
-    myMonsters: state.myMonsters
+    myMonsters: state.myMonsters,
   }
 }
 

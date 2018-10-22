@@ -1,9 +1,16 @@
 import * as React from "react"
 import { connect } from "react-redux"
-import { State, deleteNotification, Notification, NOTIFICATION_SUCCESS, NOTIFICATION_WARNING, NOTIFICATION_ERROR } from "../../store"
+import {
+  State,
+  deleteNotification,
+  Notification,
+  NOTIFICATION_SUCCESS,
+  NOTIFICATION_WARNING,
+  NOTIFICATION_ERROR,
+} from "../../store"
 
 interface Props {
-  notifications: any,
+  notifications: any
   dispatchDeleteNotification: any
 }
 
@@ -22,7 +29,6 @@ class Toaster extends React.Component<Props, {}> {
   }
 
   public render() {
-
     const { notifications, dispatchDeleteNotification } = this.props
 
     return (
@@ -31,7 +37,7 @@ class Toaster extends React.Component<Props, {}> {
           <Notification
             key={notification.id}
             notification={notification}
-            onDelete={()=> dispatchDeleteNotification(notification.id)}
+            onDelete={() => dispatchDeleteNotification(notification.id)}
           />
         ))}
       </div>
@@ -52,7 +58,7 @@ class Toaster extends React.Component<Props, {}> {
 }
 
 interface NotificationProps {
-  notification: Notification,
+  notification: Notification
   onDelete: any
 }
 
@@ -87,4 +93,7 @@ const mapDispatchToProps = {
   dispatchDeleteNotification: deleteNotification,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Toaster)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Toaster)

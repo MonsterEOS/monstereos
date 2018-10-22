@@ -1,10 +1,10 @@
 import * as React from "react"
 
 interface ModalProps {
-  title: string,
-  close: () => void,
-  children: any,
-  footerButtons?: any[],
+  title: string
+  close: () => void
+  children: any
+  footerButtons?: any[]
 }
 
 const Modal = (props: ModalProps) => (
@@ -15,12 +15,8 @@ const Modal = (props: ModalProps) => (
         <div className="modal-card-title">{props.title}</div>
         <button className="delete" onClick={props.close} aria-label="close" />
       </header>
-      <section className="modal-card-body">
-        {props.children}
-      </section>
-      <footer className="modal-card-foot">
-        {props.footerButtons}
-      </footer>
+      <section className="modal-card-body">{props.children}</section>
+      <footer className="modal-card-foot">{props.footerButtons}</footer>
     </div>
   </div>
 )
