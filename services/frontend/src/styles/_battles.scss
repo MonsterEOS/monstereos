@@ -1,8 +1,9 @@
-$battle_arena_width:  1020px;
+$battle_arena_width: 1020px;
 $battle_arena_height: 600px;
 
 @mixin arena_bg($value) {
-  background: url('../assets/images/arenas/#{$value}.png') no-repeat center center;
+  background: url("../assets/images/arenas/#{$value}.png") no-repeat center
+    center;
   background-size: cover;
 }
 
@@ -23,7 +24,8 @@ $battle_arena_height: 600px;
       margin: 18px;
       @include filter(brightness, 80%);
 
-      &:hover, &.active {
+      &:hover,
+      &.active {
         border: 2px solid $green;
         border-radius: 5%;
         cursor: pointer;
@@ -31,7 +33,6 @@ $battle_arena_height: 600px;
       }
     }
   }
-
 }
 
 .loading-message {
@@ -62,7 +63,7 @@ $battle_arena_height: 600px;
   justify-content: space-around;
   height: 50px;
   background-color: #000;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   padding-right: 105px;
 }
 
@@ -85,7 +86,7 @@ $battle_arena_height: 600px;
   align-items: center;
   background-color: #000000;
   background-size: cover;
-  overflow:hidden;
+  overflow: hidden;
 
   .elements {
     margin-left: 14px;
@@ -97,7 +98,7 @@ $battle_arena_height: 600px;
     height: 100%;
 
     progress {
-      margin-bottom: 6px!important;
+      margin-bottom: 6px !important;
       position: relative;
       width: 275px;
     }
@@ -145,7 +146,8 @@ $battle_arena_height: 600px;
   .enemy-monster {
     cursor: pointer;
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       border: 2px solid $red;
       border-radius: 5%;
     }
@@ -162,7 +164,7 @@ $battle_arena_height: 600px;
 
   .progress-bar {
     width: 48%;
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
   }
 
   .hp-bar-2 {
@@ -174,11 +176,11 @@ $battle_arena_height: 600px;
   padding: 4px 8px;
   height: 32px;
   vertical-align: middle;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 14px;
   text-transform: uppercase;
   color: #fff;
-  text-decoration: none!important;
+  text-decoration: none !important;
 
   img {
     height: 100%;
@@ -201,7 +203,7 @@ $battle_arena_height: 600px;
 
 .attack-button.neutral.active {
   color: #000;
-  background: linear-gradient(45deg, #000 0%,#ccc 100%);
+  background: linear-gradient(45deg, #000 0%, #ccc 100%);
 }
 
 .attack-button.animal {
@@ -209,7 +211,7 @@ $battle_arena_height: 600px;
 }
 
 .attack-button.earth {
-  color: #D2691E;
+  color: #d2691e;
 }
 
 .attack-button.fire {
@@ -240,14 +242,15 @@ $battle_arena_height: 600px;
   color: green;
 }
 
-.pending-attack-button, .confirm-attack-button {
+.pending-attack-button,
+.confirm-attack-button {
   color: #fff;
   border: 4px solid #ccc;
   background: #000;
   height: 120px;
   width: 120px;
   border-radius: 50%;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   text-align: center;
   padding: 20px;
   position: absolute;
@@ -271,7 +274,8 @@ $battle_arena_height: 600px;
     text-transform: capitalize;
   }
 
-  &:hover, &:active {
+  &:hover,
+  &:active {
     color: #fff;
     text-decoration: none;
   }
@@ -287,7 +291,7 @@ $battle_arena_height: 600px;
   border: 2px solid #eee;
   transform: translateX(-50%);
   font-weight: bold;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 30px;
   color: #fff;
   text-shadow: 1px 1px 2px #000;
@@ -303,7 +307,6 @@ $battle_arena_height: 600px;
 /* mobile arena */
 
 @media screen and (max-width: 768px) {
-
   .battle-arena {
     width: 100vw;
     height: 100vh;
@@ -314,7 +317,7 @@ $battle_arena_height: 600px;
     z-index: 100;
     background-color: black;
     flex-direction: column;
-    overflow:hidden;
+    overflow: hidden;
 
     .arena-monster {
       margin: 0;

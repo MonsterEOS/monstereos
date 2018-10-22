@@ -15,21 +15,20 @@ import { loadOrders } from "../../utils/eos"
 // import NewBidModal from "./NewBidModal"
 
 interface Props {
-  eosAccount: any,
-  globalConfig: any,
-  dispatchDoLoadMyMonsters: any,
+  eosAccount: any
+  globalConfig: any
+  dispatchDoLoadMyMonsters: any
 }
 
 interface ReactState {
-  showNewOrderModal: boolean,
-  showNewBidModal: boolean,
-  ordersOffset: number,
-  ordersLimit: number,
-  orders:OrderProps[],
+  showNewOrderModal: boolean
+  showNewBidModal: boolean
+  ordersOffset: number
+  ordersLimit: number
+  orders: OrderProps[]
 }
 
 class MarketScreen extends React.Component<Props, ReactState> {
-
   public state = {
     showNewOrderModal: false,
     showNewBidModal: false,
@@ -49,19 +48,14 @@ class MarketScreen extends React.Component<Props, ReactState> {
   }
 
   public render() {
-
     const { dispatchDoLoadMyMonsters, eosAccount, globalConfig } = this.props
     const { showNewOrderModal, orders, ordersOffset, ordersLimit } = this.state
 
-    const subHeader =
-      <small>
-        {orders.length} orders
-      </small>
+    const subHeader = <small>{orders.length} orders</small>
 
-    const subHeaderFee =
-      <small>
-        Market Fees: {globalConfig.market_fee / 100}%
-      </small>
+    const subHeaderFee = (
+      <small>Market Fees: {globalConfig.market_fee / 100}%</small>
+    )
 
     const refetchOrders = () => {
       setTimeout(() => this.refresh(), 500)
@@ -74,13 +68,14 @@ class MarketScreen extends React.Component<Props, ReactState> {
     const newOrderButton = eosAccount && (
       <a
         className="button is-success is-large"
-        onClick={() => this.setState({showNewOrderModal: true})}>
+        onClick={() => this.setState({ showNewOrderModal: true })}
+      >
         New Order
       </a>
     )
 
     const newOrderClosure = (doRefetch: boolean) => {
-      this.setState({showNewOrderModal: false})
+      this.setState({ showNewOrderModal: false })
       if (doRefetch) {
         refetchOrders()
       }
@@ -106,16 +101,15 @@ class MarketScreen extends React.Component<Props, ReactState> {
         <TitleBar
           title="Monsters Market"
           notMobile
-          menu={[subHeader, subHeaderFee, newOrderButton]} />
-          <OrderList
-            orders={orders.slice(ordersOffset, ordersOffset + ordersLimit)}
-            update={refetchMonsters} />
-          {this.renderPagination(ordersOffset, ordersLimit, orders.length)}
-          {showNewOrderModal &&
-          <NewOrderModal
-            closeModal={newOrderClosure}
-          />}
-          {/* {showNewBidModal &&
+          menu={[subHeader, subHeaderFee, newOrderButton]}
+        />
+        <OrderList
+          orders={orders.slice(ordersOffset, ordersOffset + ordersLimit)}
+          update={refetchMonsters}
+        />
+        {this.renderPagination(ordersOffset, ordersLimit, orders.length)}
+        {showNewOrderModal && <NewOrderModal closeModal={newOrderClosure} />}
+        {/* {showNewBidModal &&
           <NewBidModal
             closeModal={newBidClosure}
           />} */}
@@ -123,41 +117,44 @@ class MarketScreen extends React.Component<Props, ReactState> {
     )
   }
 
-  private renderPagination = (
-    offset: number,
-    limit: number,
-    total: number) => {
-
+  private renderPagination = (offset: number, limit: number, total: number) => {
     if (offset + limit < total || offset > 0) {
-      return <div className="has-margin-bottom">
+      return (
+        <div className="has-margin-bottom">
           <div className="is-pulled-right">
-            {offset > 0 &&
-              <a className="button has-margin-right"
-                onClick={() => this.setState({ordersOffset: offset - limit})}>
+            {offset > 0 && (
+              <a
+                className="button has-margin-right"
+                onClick={() => this.setState({ ordersOffset: offset - limit })}
+              >
                 Back
-              </a>}
-            {offset + limit < total &&
-              <a className="button"
-                onClick={() => this.setState({ordersOffset: offset + limit})}>
-                Next</a>
-            }
+              </a>
+            )}
+            {offset + limit < total && (
+              <a
+                className="button"
+                onClick={() => this.setState({ ordersOffset: offset + limit })}
+              >
+                Next
+              </a>
+            )}
           </div>
-          <div style={{clear: "both"}} />
+          <div style={{ clear: "both" }} />
         </div>
+      )
     } else {
       return null
     }
   }
 
   private refresh = async () => {
-
     const { globalConfig, eosAccount } = this.props
 
     const orders = await loadOrders(globalConfig)
 
     const validOrders = orders.filter(isValidForUser(eosAccount.name))
 
-    this.setState({orders: validOrders})
+    this.setState({ orders: validOrders })
 
     // refresh orders each minute
     this.refreshHandler = setTimeout(this.refresh, 60 * 1000)
@@ -167,24 +164,24 @@ class MarketScreen extends React.Component<Props, ReactState> {
 const OrderList = ({ orders, update }: any) => (
   <div className="columns is-multiline">
     {orders.map((order: any) => (
-      <OrderCard
-        key={order.id}
-        order={order}
-        requestUpdate={update}/>
+      <OrderCard key={order.id} order={order} requestUpdate={update} />
     ))}
   </div>
 )
 
-const isValidForUser = (user:string) => (order:OrderProps) => {
-  return order.user === user || (order.monster.name.length > 0 &&
+const isValidForUser = (user: string) => (order: OrderProps) => {
+  return (
+    order.user === user ||
+    (order.monster.name.length > 0 &&
       (isValidOrder(order) || isValidBid(order)))
+  )
 }
 
-const isValidOrder = (order:OrderProps) => {
+const isValidOrder = (order: OrderProps) => {
   return order.type in [1, 10, 11] && order.monster.owner === order.user
 }
 
-const isValidBid = (order:OrderProps) => {
+const isValidBid = (order: OrderProps) => {
   return order.type in [2, 12] && order.monster.owner !== order.user
 }
 
@@ -201,4 +198,7 @@ const mapDispatchToProps = {
   dispatchDoLoadMyMonsters: doLoadMyMonsters,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MarketScreen)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(MarketScreen)

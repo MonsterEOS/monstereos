@@ -43,11 +43,10 @@ export const pickHash = async (data: any) => {
 
 // generate secret and hash random pair
 export const generateHashInfo = async (pets: number[]) => {
-
   // generate secret
   const data = {
     pets,
-    randoms: generateRandoms()
+    randoms: generateRandoms(),
   }
 
   const secret = await pickHash(data)
@@ -57,7 +56,6 @@ export const generateHashInfo = async (pets: number[]) => {
   console.info("saving hashInfo", secretPair)
   localStorage.setItem(HASH_INFO_KEY, JSON.stringify(secretPair))
   return secretPair
-
 }
 
 // destroy last battle commitment random pair

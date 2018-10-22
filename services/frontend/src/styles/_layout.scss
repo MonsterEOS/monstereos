@@ -1,6 +1,6 @@
 // design/layout
 .navbar-item.is-active {
-  color: $blue!important;
+  color: $blue !important;
 }
 
 // layout
@@ -33,15 +33,18 @@ form {
 }
 
 .greetings {
-  span { margin-left: 6px !important; }
-  color:  rgb(240, 240, 240);
+  span {
+    margin-left: 6px !important;
+  }
+  color: rgb(240, 240, 240);
 }
 
 .level-item span,
 .tabs a,
 .content p,
 .content strong,
-td, th {
+td,
+th {
   color: #dadada !important;
 }
 
@@ -49,7 +52,8 @@ td, th {
 .tabs a,
 .content p,
 .content strong,
-td, th {
+td,
+th {
   color: #dadada !important;
 }
 
@@ -78,8 +82,8 @@ td, th {
   z-index: 9999;
 
   .notification {
-      transition: 0.15s ease-in-out;
-      width: 325px;
+    transition: 0.15s ease-in-out;
+    width: 325px;
   }
 
   .notification.on {
@@ -109,7 +113,7 @@ progress {
   text-align: center;
 
   /* Set the progressbar to relative */
-  position:relative;
+  position: relative;
 }
 
 progress:before {
@@ -172,7 +176,7 @@ progress:before {
 
       .navbar-profile-account {
         margin-top: 5px;
-        font-family: 'Montserrat', sans-serif;
+        font-family: "Montserrat", sans-serif;
         color: $my-blue;
         letter-spacing: -1px;
       }
@@ -189,8 +193,13 @@ progress:before {
   width: 1px;
   border-width: 0 1px 0 0;
   border-right: 1px solid #dbdbdb;
-  border-image:
-  linear-gradient(to bottom, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0)) 1 100%;
+  border-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0),
+      $my-blue-transparent,
+      rgba(0, 0, 0, 0)
+    )
+    1 100%;
 }
 
 .mobile-controls {
@@ -204,7 +213,6 @@ progress:before {
   hr {
     margin: 0 0 8px;
   }
-
 }
 
 .mobile-controls-wrapper {
@@ -233,7 +241,7 @@ progress:before {
   }
 
   span {
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
     font-size: 14px;
     color: $my-blue;
     text-transform: uppercase;
@@ -289,13 +297,17 @@ progress:before {
   }
 }
 
-h1, h2, h3, h4, h5 {
-  font-family: 'Montserrat', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Montserrat", sans-serif;
   font-weight: 700;
   background-image: map-get($gradients, iceblue);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  position:relative;
+  position: relative;
   text-transform: uppercase;
   color: $my-blue;
 }
@@ -314,8 +326,9 @@ h1, h2, h3, h4, h5 {
   background-image: map-get($gradients, warm);
 }
 
-html, body {
-  font-family: 'Oswald', sans-serif;
+html,
+body {
+  font-family: "Oswald", sans-serif;
   background-color: $my-dark-blue;
   color: #eee;
   margin: 0;
@@ -328,24 +341,31 @@ html, body {
 
 .navbar {
   background-color: $my-dark-blue;
-  min-height: 60px; }
+  min-height: 60px;
+}
 
 .navbar .navbar-menu {
   box-shadow: none;
-  border-bottom: 1px solid #eee; }
+  border-bottom: 1px solid #eee;
+}
 
 .navbar-burger {
   color: $my-blue;
-  margin-top: 12px; }
+  margin-top: 12px;
+}
 
 .logo {
-  margin: 12px; }
+  margin: 12px;
+}
 
 .section {
   background-color: $my-dark-blue;
-  padding: 1rem; }
+  padding: 1rem;
+}
 
-.content table, .arena.card, .content.arena-header>.box {
+.content table,
+.arena.card,
+.content.arena-header > .box {
   background: linear-gradient(45deg, #071439 0%, $my-purple 100%);
   color: $my-yellow;
   border-radius: 5px;
@@ -356,8 +376,9 @@ html, body {
 .content table {
   border-collapse: initial;
 
-  td, th {
-    color: $my-yellow!important;
+  td,
+  th {
+    color: $my-yellow !important;
     border: 1px solid $my-yellow;
     border-width: 0 0 1px;
   }
@@ -365,18 +386,18 @@ html, body {
   a {
     color: $my-blue;
   }
-
 }
 
 .rank table {
-  background: linear-gradient(45deg, rgb(40,40,40) 0%, rgb(90,90,90) 100%);
+  background: linear-gradient(45deg, rgb(40, 40, 40) 0%, rgb(90, 90, 90) 100%);
   color: #eee;
   border-radius: 5px;
   border: 1px solid #eee;
   box-shadow: 0px 0px 20px 1px #eee;
 
-  td, th {
-    color: #eee!important;
+  td,
+  th {
+    color: #eee !important;
     border: 1px solid #eee;
     border-width: 0 0 1px;
   }
@@ -400,6 +421,10 @@ hr {
   height: 1px;
   margin: 8px 0 18px;
   background-color: transparent;
-  background-image: linear-gradient(to right, rgba(0,0,0, 0), $my-blue-transparent, rgba(0,0,0, 0));
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    $my-blue-transparent,
+    rgba(0, 0, 0, 0)
+  );
 }
-

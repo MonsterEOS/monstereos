@@ -1,12 +1,17 @@
 import * as React from "react"
-import { State, pushNotification, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from "../../store"
+import {
+  State,
+  pushNotification,
+  NOTIFICATION_SUCCESS,
+  NOTIFICATION_ERROR,
+} from "../../store"
 import { connect } from "react-redux"
 import { trxCreatePet } from "../../utils/eos" // , e2TrxCreatePet } from "../../utils/eos"
 import Modal from "../shared/Modal"
 
 interface Props {
-  closeModal: (doUpdate: boolean) => void,
-  scatter: any,
+  closeModal: (doUpdate: boolean) => void
+  scatter: any
   dispatchPushNotification: any
 }
 
@@ -15,11 +20,9 @@ interface ReactState {
 }
 
 class NewMonsterModal extends React.Component<Props, {}> {
-
   public state: ReactState = { name: "" }
 
   public render() {
-
     const { closeModal } = this.props
 
     const { name } = this.state
@@ -28,22 +31,21 @@ class NewMonsterModal extends React.Component<Props, {}> {
       <a
         key="cancel"
         className="button is-danger"
-        onClick={() => closeModal(false)}>
+        onClick={() => closeModal(false)}
+      >
         Cancel
       </a>,
-      <a
-        key="submit"
-        className="button"
-        onClick={this.createPet}>
+      <a key="submit" className="button" onClick={this.createPet}>
         Submit
-      </a>
+      </a>,
     ]
 
     return (
       <Modal
         title="New Monster"
         close={() => closeModal(false)}
-        footerButtons={footerButtons}>
+        footerButtons={footerButtons}
+      >
         <div className="field">
           <div className="control">
             <input
@@ -51,7 +53,8 @@ class NewMonsterModal extends React.Component<Props, {}> {
               placeholder="New Monster Name"
               type="text"
               onChange={this.handleChangeName}
-              value={name} />
+              value={name}
+            />
           </div>
         </div>
       </Modal>
@@ -59,7 +62,7 @@ class NewMonsterModal extends React.Component<Props, {}> {
   }
 
   private handleChangeName = (event: any) => {
-    this.setState({name: event.target.value})
+    this.setState({ name: event.target.value })
   }
 
   private createPet = () => {
@@ -67,7 +70,10 @@ class NewMonsterModal extends React.Component<Props, {}> {
     const { name } = this.state
 
     if (!name) {
-      return dispatchPushNotification(`Name is required to create a Monster`, NOTIFICATION_ERROR)
+      return dispatchPushNotification(
+        `Name is required to create a Monster`,
+        NOTIFICATION_ERROR,
+      )
     }
 
     // playing with EOSJS2
@@ -76,22 +82,32 @@ class NewMonsterModal extends React.Component<Props, {}> {
     trx(scatter, name)
       .then((res: any) => {
         console.info(`Pet ${name} created successfully`, res)
-        dispatchPushNotification(`Pet ${name} created successfully`, NOTIFICATION_SUCCESS)
+        dispatchPushNotification(
+          `Pet ${name} created successfully`,
+          NOTIFICATION_SUCCESS,
+        )
         closeModal(true)
-      }).catch((err: any) => {
-        dispatchPushNotification(`Fail to create ${name} ${err.eosError}`, NOTIFICATION_ERROR)
+      })
+      .catch((err: any) => {
+        dispatchPushNotification(
+          `Fail to create ${name} ${err.eosError}`,
+          NOTIFICATION_ERROR,
+        )
       })
   }
 }
 
 const mapStateToProps = (state: State) => {
   return {
-    scatter: state.scatter
+    scatter: state.scatter,
   }
 }
 
 const mapDispatchToProps = {
-  dispatchPushNotification: pushNotification
+  dispatchPushNotification: pushNotification,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewMonsterModal)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(NewMonsterModal)

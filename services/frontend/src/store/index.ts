@@ -1,9 +1,13 @@
 import { action as tsAction, ActionType } from "typesafe-actions"
 import { combineReducers, createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
-import {v4 as uuid} from "uuid"
+import { v4 as uuid } from "uuid"
 
-import { network as eosNetwork, loadMonstersByOwner, loadWalletFunds } from "../utils/eos"
+import {
+  network as eosNetwork,
+  loadMonstersByOwner,
+  loadWalletFunds,
+} from "../utils/eos"
 import { MonsterProps } from "../modules/monsters/monsters"
 import { getEosAccount } from "../utils/scatter"
 import { browserNotify } from "../utils/browserNotifications"
@@ -63,13 +67,13 @@ export const initialGlobalConfig = {
   min_hunger_interval: 10800,
   min_sleep_period: 14400,
   market_fee: 125,
-  creation_awake: 1
+  creation_awake: 1,
 }
 
 export interface Notification {
-  id: string,
-  text: string,
-  type: number,
+  id: string
+  text: string
+  type: number
   time: number
 }
 
@@ -90,17 +94,23 @@ const SET_NETWORK = "SET_NETWORK"
 
 // auth actions
 const actionLoadScatter = (scatter: object) => tsAction(LOAD_SCATTER, scatter)
-const actionLoadEosIdentity = (identity: object) => tsAction(LOAD_EOS_IDENTITY, identity)
+const actionLoadEosIdentity = (identity: object) =>
+  tsAction(LOAD_EOS_IDENTITY, identity)
 const actionLogout = () => tsAction(DO_LOGOUT)
 
 // notifications
-const actionPushNotificaction = (notification: Notification) => tsAction(PUSH_NOTIFICATION, notification)
-const actionDeleteNotificaction = (id: string) => tsAction(DELETE_NOTIFICATION, id)
+const actionPushNotificaction = (notification: Notification) =>
+  tsAction(PUSH_NOTIFICATION, notification)
+const actionDeleteNotificaction = (id: string) =>
+  tsAction(DELETE_NOTIFICATION, id)
 
 // read chain actions
-const actionLoadConfig = (config: GlobalConfig) => tsAction(LOAD_GLOBAL_CONFIG, config)
-const actionLoadMyMonsters = (monsters: MonsterProps[]) => tsAction(LOAD_MY_MONSTERS, monsters)
-const actionLoadMyWallet = (myWalletBalance: string) => tsAction(LOAD_MY_WALLET, myWalletBalance)
+const actionLoadConfig = (config: GlobalConfig) =>
+  tsAction(LOAD_GLOBAL_CONFIG, config)
+const actionLoadMyMonsters = (monsters: MonsterProps[]) =>
+  tsAction(LOAD_MY_MONSTERS, monsters)
+const actionLoadMyWallet = (myWalletBalance: string) =>
+  tsAction(LOAD_MY_WALLET, myWalletBalance)
 
 // network actions
 const actionSetNetwork = (myNetwork: string) => tsAction(SET_NETWORK, myNetwork)
@@ -115,7 +125,7 @@ const actions = {
   actionLoadConfig,
   actionLoadMyMonsters,
   actionLoadMyWallet,
-  actionSetNetwork
+  actionSetNetwork,
 }
 type Actions = ActionType<typeof actions>
 
@@ -124,8 +134,11 @@ export const deleteNotification = (id: string) => {
   return actionDeleteNotificaction(id)
 }
 
-export const pushNotification = (text: string, type: number, browserNotification = false) => {
-
+export const pushNotification = (
+  text: string,
+  type: number,
+  browserNotification = false,
+) => {
   if (browserNotification) {
     browserNotify(text)
   }
@@ -134,7 +147,7 @@ export const pushNotification = (text: string, type: number, browserNotification
     id: uuid(),
     time: Date.now(),
     text,
-    type
+    type,
   })
 }
 
@@ -153,10 +166,7 @@ export const doLoadIdentity = (identity: any) => async (dispatch: any) => {
   return true
 }
 
-export const doLoadMyMonsters = () => async (
-  dispatch: any,
-  getState: any,
-) => {
+export const doLoadMyMonsters = () => async (dispatch: any, getState: any) => {
   // autoload monsters
   const { globalConfig, identity } = getState()
   if (identity) {
@@ -166,44 +176,47 @@ export const doLoadMyMonsters = () => async (
   }
 }
 
-export const doLoadMyWallet = () => async (
-  dispatch: any,
-  getState: any,
-) => {
+export const doLoadMyWallet = () => async (dispatch: any, getState: any) => {
   // autoload monsters
   const { identity } = getState()
   if (identity) {
     const account = getEosAccount(identity)
-    const accountWallet = await loadWalletFunds(account) || 0
+    const accountWallet = (await loadWalletFunds(account)) || 0
     dispatch(actionLoadMyWallet(`${accountWallet} EOS`))
   }
 }
 
-export const requestScatterIdentity = () => async (dispatch: any, getState: any) => {
-
+export const requestScatterIdentity = () => async (
+  dispatch: any,
+  getState: any,
+) => {
   console.info("requesting identity")
   const { scatter } = getState()
 
   await scatter.suggestNetwork(eosNetwork)
 
   const requiredFields = {
-      accounts: [eosNetwork]
+    accounts: [eosNetwork],
   }
 
   console.info("getting identity")
-  return getState().scatter.getIdentity(requiredFields)
-  .then((identity: any) => {
-    console.info("identity is ", identity)
-    dispatch(doLoadIdentity(identity))
-    return true
-  }).catch((error: any) => {
-    if (error && error.message) {
-      dispatch(pushNotification(error.message, NOTIFICATION_ERROR))
-    } else {
-      console.error("Fail to get Scatter Identity", error)
-      dispatch(pushNotification("Fail to get Scatter Identity", NOTIFICATION_ERROR))
-    }
-  })
+  return getState()
+    .scatter.getIdentity(requiredFields)
+    .then((identity: any) => {
+      console.info("identity is ", identity)
+      dispatch(doLoadIdentity(identity))
+      return true
+    })
+    .catch((error: any) => {
+      if (error && error.message) {
+        dispatch(pushNotification(error.message, NOTIFICATION_ERROR))
+      } else {
+        console.error("Fail to get Scatter Identity", error)
+        dispatch(
+          pushNotification("Fail to get Scatter Identity", NOTIFICATION_ERROR),
+        )
+      }
+    })
 }
 
 export const doLogout = () => (dispatch: any, getState: any) => {
@@ -212,8 +225,8 @@ export const doLogout = () => (dispatch: any, getState: any) => {
 }
 
 export const setNetwork = (id: string) => {
-    localStorage.setItem("myNetwork", id)
-    return actionSetNetwork(id)
+  localStorage.setItem("myNetwork", id)
+  return actionSetNetwork(id)
 }
 
 // reducer
@@ -260,7 +273,7 @@ const reducers = combineReducers<State, Actions>({
         const notification = action.payload as Notification
         return state.concat(notification)
       case DELETE_NOTIFICATION:
-        return state.filter((item) => item.id !== action.payload)
+        return state.filter(item => item.id !== action.payload)
       default:
         return state
     }
@@ -280,15 +293,15 @@ const reducers = combineReducers<State, Actions>({
       default:
         return state
     }
-  }
+  },
 })
 
-
 // store
-const customWindow = (window as any)
+const customWindow = window as any
 
 // TODO: remove extension for production
-const composeEnhancers = customWindow.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+const composeEnhancers =
+  customWindow.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
 const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 export default store
