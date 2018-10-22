@@ -5,11 +5,11 @@ import { State, doLogout, requestScatterIdentity } from "../../store"
 import { getEosAccount, SCATTER_EXTENSION_LINK } from "../../utils/scatter"
 
 interface Props {
-  scatter: any,
-  identity: any,
-  dispatchDoLogout: any,
-  dispatchRequestScatterIdentity: any,
-  myWalletBalance: string,
+  scatter: any
+  identity: any
+  dispatchDoLogout: any
+  dispatchRequestScatterIdentity: any
+  myWalletBalance: string
 }
 
 interface ReactState {
@@ -20,7 +20,6 @@ class TopMenu extends React.Component<Props, ReactState> {
   public state: ReactState = { activeMenu: false }
 
   public render() {
-
     const { identity } = this.props
     const { activeMenu } = this.state
 
@@ -37,7 +36,8 @@ class TopMenu extends React.Component<Props, ReactState> {
             className="navbar-burger"
             aria-label="menu"
             aria-expanded="false"
-            onClick={() => this.setState({activeMenu: !activeMenu})}>
+            onClick={() => this.setState({ activeMenu: !activeMenu })}
+          >
             <span aria-hidden="true" />
             <span aria-hidden="true" />
             <span aria-hidden="true" />
@@ -63,30 +63,45 @@ class TopMenu extends React.Component<Props, ReactState> {
   }
 
   private greetings(eosAccount: string) {
-    return eosAccount &&
-      <p className="navbar-item greetings">
-        Hello <span><b>{eosAccount}</b></span>!
-      </p>
+    return (
+      eosAccount && (
+        <p className="navbar-item greetings">
+          Hello{" "}
+          <span>
+            <b>{eosAccount}</b>
+          </span>
+          !
+        </p>
+      )
+    )
   }
 
   private helpButton(showText: boolean) {
-    return showText ?
-      (<Link onClick={() => this.setState({activeMenu: false})}
-        className="navbar-item" to="/faq">
+    return showText ? (
+      <Link
+        onClick={() => this.setState({ activeMenu: false })}
+        className="navbar-item"
+        to="/faq"
+      >
         <i className="fa fa-question-circle has-text-info" />
         Help
-      </Link>) :
-      (<Link className="navbar-item help-button" to="/faq">
+      </Link>
+    ) : (
+      <Link className="navbar-item help-button" to="/faq">
         <span className="navbar-item icon is-small">
           <i className="fa fa-2x fa-question-circle has-text-info" />
         </span>
-      </Link>)
+      </Link>
+    )
   }
 
   private homeButton() {
     return (
-      <Link onClick={() => this.setState({activeMenu: false})}
-        className="navbar-item" to="/">
+      <Link
+        onClick={() => this.setState({ activeMenu: false })}
+        className="navbar-item"
+        to="/"
+      >
         Home
       </Link>
     )
@@ -94,8 +109,11 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private myMonstersButton() {
     return (
-      <Link onClick={() => this.setState({activeMenu: false})}
-        className="navbar-item" to="/my-monsters">
+      <Link
+        onClick={() => this.setState({ activeMenu: false })}
+        className="navbar-item"
+        to="/my-monsters"
+      >
         <i className="fa fa-paw" />
         My Monsters
       </Link>
@@ -109,9 +127,14 @@ class TopMenu extends React.Component<Props, ReactState> {
       <div className="navbar-item">
         <div className="field is-grouped">
           <p className="control">
-            <Link onClick={() => this.setState({activeMenu: false})}
-              className="button is-primary" to="/my-wallet">
-              <span className="icon"><i className="fa fa-suitcase" /></span>
+            <Link
+              onClick={() => this.setState({ activeMenu: false })}
+              className="button is-primary"
+              to="/my-wallet"
+            >
+              <span className="icon">
+                <i className="fa fa-suitcase" />
+              </span>
               <span>{myWalletBalance}</span>
             </Link>
           </p>
@@ -122,8 +145,11 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private marketButton() {
     return (
-      <Link onClick={() => this.setState({activeMenu: false})}
-        className="navbar-item" to="/market">
+      <Link
+        onClick={() => this.setState({ activeMenu: false })}
+        className="navbar-item"
+        to="/market"
+      >
         <i className="fa fa-money" />
         Market
       </Link>
@@ -132,8 +158,11 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private rankButton() {
     return (
-      <Link onClick={() => this.setState({activeMenu: false})}
-        className="navbar-item" to="/rank">
+      <Link
+        onClick={() => this.setState({ activeMenu: false })}
+        className="navbar-item"
+        to="/rank"
+      >
         <i className="fa fa-trophy" />
         Rank
       </Link>
@@ -142,8 +171,11 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private arenasButton() {
     return (
-      <Link onClick={() => this.setState({activeMenu: false})}
-        className="navbar-item" to="/arenas">
+      <Link
+        onClick={() => this.setState({ activeMenu: false })}
+        className="navbar-item"
+        to="/arenas"
+      >
         <i className="fa fa-legal" />
         Arenas
       </Link>
@@ -163,23 +195,25 @@ class TopMenu extends React.Component<Props, ReactState> {
 
   private aboutButton() {
     return (
-      <Link onClick={() => this.setState({activeMenu: false})}
-        className="navbar-item" to="/about">
+      <Link
+        onClick={() => this.setState({ activeMenu: false })}
+        className="navbar-item"
+        to="/about"
+      >
         About
       </Link>
     )
   }
 
   private scatterButton() {
-
     const { scatter, dispatchRequestScatterIdentity } = this.props
 
-    return (
-      scatter ?
+    return scatter ? (
       <a className="navbar-item" onClick={dispatchRequestScatterIdentity}>
         Enter with Scatter
       </a>
-      : <a className="navbar-item" href={SCATTER_EXTENSION_LINK} target="_blank">
+    ) : (
+      <a className="navbar-item" href={SCATTER_EXTENSION_LINK} target="_blank">
         Install Scatter Wallet
       </a>
     )
@@ -194,7 +228,10 @@ const mapStateToProps = (state: State) => ({
 
 const mapDispatchToProps = {
   dispatchDoLogout: doLogout,
-  dispatchRequestScatterIdentity: requestScatterIdentity
+  dispatchRequestScatterIdentity: requestScatterIdentity,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TopMenu)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(TopMenu)

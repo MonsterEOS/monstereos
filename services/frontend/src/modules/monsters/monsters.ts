@@ -1,38 +1,41 @@
 import { GlobalConfig } from "../../store"
 
 export interface MonsterAction {
-  action: string,
-  createdAt: number,
-  author: string,
-  block: number,
-  transaction: string,
+  action: string
+  createdAt: number
+  author: string
+  block: number
+  transaction: string
 }
 
 export interface MonsterElement {
-  id: number,
-  name: string,
+  id: number
+  name: string
   ratios: number[]
 }
 
 export interface MonsterProps {
-  id: number,
-  name: string,
-  owner: string,
-  type: number,
-  elements: MonsterElement[],
-  createdAt: number,
-  deathAt: number,
-  hunger: number,
-  health: number,
-  energy: number,
-  lastFeedAt: number,
-  lastAwakeAt: number,
-  lastBedAt: number,
-  isSleeping: boolean,
+  id: number
+  name: string
+  owner: string
+  type: number
+  elements: MonsterElement[]
+  createdAt: number
+  deathAt: number
+  hunger: number
+  health: number
+  energy: number
+  lastFeedAt: number
+  lastAwakeAt: number
+  lastBedAt: number
+  isSleeping: boolean
   actions: MonsterAction[]
 }
 
-export const parseMonstersFromChain = (pet: any, config: GlobalConfig): MonsterProps => {
+export const parseMonstersFromChain = (
+  pet: any,
+  config: GlobalConfig,
+): MonsterProps => {
   const monster = {
     id: pet.id,
     name: pet.name,
@@ -48,7 +51,7 @@ export const parseMonstersFromChain = (pet: any, config: GlobalConfig): MonsterP
     hunger: 100,
     health: 100,
     energy: 100,
-    actions: []
+    actions: [],
   }
 
   return calcMonsterStats(monster, config)
@@ -58,7 +61,6 @@ export const calcMonsterStats = (
   monster: MonsterProps,
   config: GlobalConfig,
 ): MonsterProps => {
-
   if (config) {
     const currentTime = Date.now()
 
@@ -67,17 +69,22 @@ export const calcMonsterStats = (
     monster.deathAt = 0
 
     const hungrySeconds = (currentTime - monster.lastFeedAt) / 1000
-    const hungryPoints = hungrySeconds * config.max_hunger_points / config.hunger_to_zero
+    const hungryPoints =
+      (hungrySeconds * config.max_hunger_points) / config.hunger_to_zero
     monster.hunger = Math.round(config.max_hunger_points - hungryPoints)
     monster.hunger = monster.hunger < 0 ? 0 : monster.hunger
 
-    const effectHpHunger = hungryPoints > config.max_health ?
-      Math.round((hungryPoints - config.max_hunger_points) / config.hunger_hp_modifier) :
-      0
+    const effectHpHunger =
+      hungryPoints > config.max_health
+        ? Math.round(
+            (hungryPoints - config.max_hunger_points) /
+              config.hunger_hp_modifier,
+          )
+        : 0
 
     // calculates energy
     const awakeSeconds = (currentTime - monster.lastAwakeAt) / 1000
-    const awakePoints = 100 * awakeSeconds / (24 * 3600)
+    const awakePoints = (100 * awakeSeconds) / (24 * 3600)
     monster.energy = 100 - awakePoints
 
     // calculates health and death time
@@ -85,10 +92,12 @@ export const calcMonsterStats = (
     if (monster.health <= 0) {
       monster.hunger = monster.health = monster.energy = 0
 
-      monster.deathAt = ((monster.lastFeedAt / 1000) + config.hunger_to_zero
-        + (config.hunger_to_zero * config.hunger_hp_modifier)) * 1000
+      monster.deathAt =
+        (monster.lastFeedAt / 1000 +
+          config.hunger_to_zero +
+          config.hunger_to_zero * config.hunger_hp_modifier) *
+        1000
     }
-
   }
 
   return monster
@@ -104,7 +113,7 @@ export const getCurrentAction = (monster: MonsterProps, ActionType: any) => {
 }
 
 export const monsterModelSrc = (model: string) =>
-  (`/models/monsters/${model}.gltf`)
+  `/models/monsters/${model}.gltf`
 
 export const monsterImageSrc = (typeId: number) =>
-  (`https://raw.githubusercontent.com/MonsterEOS/monster-profile-react-component/master/snapshots/images/${typeId}.png`)
+  `https://raw.githubusercontent.com/MonsterEOS/monster-profile-react-component/master/snapshots/images/${typeId}.png`

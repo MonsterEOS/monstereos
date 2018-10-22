@@ -12,30 +12,29 @@ import NewMonsterModal from "./NewMonsterModal"
 import { MonsterProps } from "./monsters"
 
 interface Props {
-  eosAccount: string,
-  myMonsters: MonsterProps[],
-  globalConfig: any,
+  eosAccount: string
+  myMonsters: MonsterProps[]
+  globalConfig: any
   dispatchDoLoadMyMonsters: any
 }
 
 interface ReactState {
-  showNewMonsterModal: boolean,
-  isLoading: boolean,
-  aliveOffset: number,
-  aliveLimit: number,
-  deadOffset: number,
-  deadLimit: number,
+  showNewMonsterModal: boolean
+  isLoading: boolean
+  aliveOffset: number
+  aliveLimit: number
+  deadOffset: number
+  deadLimit: number
 }
 
 class MyMonstersScreen extends React.Component<Props, ReactState> {
-
   public state = {
     showNewMonsterModal: false,
     isLoading: true,
     aliveOffset: 0,
     aliveLimit: 6,
     deadOffset: 0,
-    deadLimit: 6
+    deadLimit: 6,
   }
 
   private refreshHandler: any = undefined
@@ -49,20 +48,20 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
   }
 
   public render() {
-
     const { eosAccount } = this.props
 
     if (eosAccount) {
       return this.renderMonsters()
     } else {
-      return <PageContainer>
+      return (
+        <PageContainer>
           <div>Ooopss... looks like you are not identified</div>
         </PageContainer>
+      )
     }
   }
 
   private renderMonsters() {
-
     const { myMonsters, dispatchDoLoadMyMonsters } = this.props
     const {
       showNewMonsterModal,
@@ -73,14 +72,13 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
       deadLimit,
     } = this.state
 
-    const subHeader = (<small>
-      You have {myMonsters.length} monsters
-      </small>)
+    const subHeader = <small>You have {myMonsters.length} monsters</small>
 
     const newMonsterButton = (
       <a
         className="button is-success is-large"
-        onClick={() => this.setState({showNewMonsterModal: true})}>
+        onClick={() => this.setState({ showNewMonsterModal: true })}
+      >
         NEW MONSTER
       </a>
     )
@@ -93,7 +91,7 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     }
 
     const newMonsterClosure = (doRefetch: boolean) => {
-      this.setState({showNewMonsterModal: false})
+      this.setState({ showNewMonsterModal: false })
       if (doRefetch) {
         refetchMonsters()
       }
@@ -104,29 +102,52 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
         <TitleBar
           notMobile
           title="My Monsters"
-          menu={[subHeader, newMonsterButton]} />
-        {aliveMonsters && aliveMonsters.length ?
+          menu={[subHeader, newMonsterButton]}
+        />
+        {aliveMonsters && aliveMonsters.length ? (
           <MonstersList
-            monsters={aliveMonsters.slice(aliveOffset, aliveOffset + aliveLimit)}
-            update={refetchMonsters} /> :
-            isLoading ? <p>Loading Monsters...</p> :
-            <p>You currently have no living monsters.</p>}
+            monsters={aliveMonsters.slice(
+              aliveOffset,
+              aliveOffset + aliveLimit,
+            )}
+            update={refetchMonsters}
+          />
+        ) : isLoading ? (
+          <p>Loading Monsters...</p>
+        ) : (
+          <p>You currently have no living monsters.</p>
+        )}
 
-        {this.renderPagination(aliveOffset, aliveLimit, aliveMonsters.length, "alive")}
+        {this.renderPagination(
+          aliveOffset,
+          aliveLimit,
+          aliveMonsters.length,
+          "alive",
+        )}
 
-        {deadMonsters && deadMonsters.length > 0 &&
-          <React.Fragment>
-            <h3>My Dead Monsters</h3>
-            <MonstersList
-              monsters={deadMonsters.slice(deadOffset, deadOffset + deadLimit)}
-              update={refetchMonsters} />
-            {this.renderPagination(deadOffset, deadLimit, deadMonsters.length, "dead")}
-          </React.Fragment>}
+        {deadMonsters &&
+          deadMonsters.length > 0 && (
+            <React.Fragment>
+              <h3>My Dead Monsters</h3>
+              <MonstersList
+                monsters={deadMonsters.slice(
+                  deadOffset,
+                  deadOffset + deadLimit,
+                )}
+                update={refetchMonsters}
+              />
+              {this.renderPagination(
+                deadOffset,
+                deadLimit,
+                deadMonsters.length,
+                "dead",
+              )}
+            </React.Fragment>
+          )}
 
-        {showNewMonsterModal &&
-          <NewMonsterModal
-            closeModal={newMonsterClosure} />
-        }
+        {showNewMonsterModal && (
+          <NewMonsterModal closeModal={newMonsterClosure} />
+        )}
       </PageContainer>
     )
   }
@@ -135,8 +156,8 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
     offset: number,
     limit: number,
     total: number,
-    type: string) => {
-
+    type: string,
+  ) => {
     console.info(type, offset, limit, total)
 
     if (offset + limit < total || offset > 0) {
@@ -148,21 +169,26 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
       const nextObj = {}
       nextObj[prop] = offset + limit
 
-      return <div className="has-margin-bottom">
+      return (
+        <div className="has-margin-bottom">
           <div className="is-pulled-right">
-            {offset > 0 &&
-              <a className="button has-margin-right"
-                onClick={() => this.setState(backObj)}>
+            {offset > 0 && (
+              <a
+                className="button has-margin-right"
+                onClick={() => this.setState(backObj)}
+              >
                 Back
-              </a>}
-            {offset + limit < total &&
-              <a className="button"
-                onClick={() => this.setState(nextObj)}>
-                Next</a>
-            }
+              </a>
+            )}
+            {offset + limit < total && (
+              <a className="button" onClick={() => this.setState(nextObj)}>
+                Next
+              </a>
+            )}
           </div>
-          <div style={{clear: "both"}} />
+          <div style={{ clear: "both" }} />
         </div>
+      )
     } else {
       return null
     }
@@ -170,13 +196,13 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
 
   private refresh = async () => {
     const { dispatchDoLoadMyMonsters } = this.props
-    this.setState({isLoading: true})
+    this.setState({ isLoading: true })
 
     console.info("fetching monsters")
     await dispatchDoLoadMyMonsters()
     console.info("monsters fetched")
 
-    this.setState({isLoading: false})
+    this.setState({ isLoading: false })
 
     // refresh monsters each minute
     this.refreshHandler = setTimeout(this.refresh, 60 * 1000)
@@ -186,10 +212,7 @@ class MyMonstersScreen extends React.Component<Props, ReactState> {
 const MonstersList = ({ monsters, update }: any) => (
   <div className="columns is-multiline">
     {monsters.map((monster: any) => (
-      <MonsterCard
-        key={monster.id}
-        monster={monster}
-        requestUpdate={update} />
+      <MonsterCard key={monster.id} monster={monster} requestUpdate={update} />
     ))}
   </div>
 )
@@ -205,7 +228,10 @@ const mapStateToProps = (state: State) => {
 }
 
 const mapDispatchToProps = {
-  dispatchDoLoadMyMonsters: doLoadMyMonsters
+  dispatchDoLoadMyMonsters: doLoadMyMonsters,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MyMonstersScreen)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(MyMonstersScreen)

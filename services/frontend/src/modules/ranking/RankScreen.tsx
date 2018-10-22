@@ -17,14 +17,13 @@ const RANK_WINNER_PLAYERS = "battle-players"
 const RANK_GRAVEYARD = "graveyard"
 
 interface Props {
-  match: any,
+  match: any
   history: any
 }
 
 class RankScreen extends React.Component<Props, {}> {
-
   public state = {
-    rank: RANK_ELDEST
+    rank: RANK_ELDEST,
   }
 
   public render() {
@@ -38,8 +37,11 @@ class RankScreen extends React.Component<Props, {}> {
   }
 
   private renderMenu = () => {
-
-    const { match: {params: { type } } } = this.props
+    const {
+      match: {
+        params: { type },
+      },
+    } = this.props
 
     const currentType = type || RANK_ELDEST
 
@@ -81,9 +83,13 @@ class RankScreen extends React.Component<Props, {}> {
   }
 
   private renderRankPage = () => {
-    const { match: {params: { type } } } = this.props
+    const {
+      match: {
+        params: { type },
+      },
+    } = this.props
 
-    switch(type) {
+    switch (type) {
       case RANK_ACTIVITY:
         return <TopActivityRank />
       case RANK_WINNER_MONSTERS:
@@ -98,7 +104,6 @@ class RankScreen extends React.Component<Props, {}> {
         return <EldestRank />
     }
   }
-
 }
 
 export default RankScreen

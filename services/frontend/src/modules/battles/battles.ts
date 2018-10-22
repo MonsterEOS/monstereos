@@ -2,53 +2,58 @@ import { GlobalConfig, ENERGY_TO_ZERO } from "../../store"
 import { MonsterProps } from "../monsters/monsters"
 
 export interface BattleCommitment {
-  player: string,
-  commitment: string,
+  player: string
+  commitment: string
   randoms: number[]
 }
 
 export interface Arena {
-  host: string,
-  lastMoveAt: number,
-  mode: number,
-  petsStats: MonsterArenaStats[],
-  startedAt: number,
-  commits: BattleCommitment[],
+  host: string
+  lastMoveAt: number
+  mode: number
+  petsStats: MonsterArenaStats[]
+  startedAt: number
+  commits: BattleCommitment[]
   phase: number
 }
 
 // adjust below vars to have a dummy arena at /arenas/dummy
 export const testDummyArena = (): Arena => {
-
   const player = "leordeveosio"
   const petId = 5612
 
   return {
     host: "dummy",
     mode: 1,
-    startedAt: Date.now() - (1000 * 60 * 5),
-    lastMoveAt: Date.now() - (1000 * 25),
+    startedAt: Date.now() - 1000 * 60 * 5,
+    lastMoveAt: Date.now() - 1000 * 25,
     phase: BATTLE_PHASE_GOING,
-    petsStats: [{
-      pet_id: petId,
-      pet_type: 35,
-      player,
-      hp: 100,
-    }, {
-      pet_id: 1234,
-      pet_type: 99,
-      player: "dummy",
-      hp: 3,
-    }],
-    commits: [{
-      player,
-      commitment: "qwertyuiop",
-      randoms: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
-    },{
-      player: "dummy",
-      commitment: "zxcvbnm",
-      randoms: [0, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-    }]
+    petsStats: [
+      {
+        pet_id: petId,
+        pet_type: 35,
+        player,
+        hp: 100,
+      },
+      {
+        pet_id: 1234,
+        pet_type: 99,
+        player: "dummy",
+        hp: 3,
+      },
+    ],
+    commits: [
+      {
+        player,
+        commitment: "qwertyuiop",
+        randoms: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+      },
+      {
+        player: "dummy",
+        commitment: "zxcvbnm",
+        randoms: [0, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+      },
+    ],
   }
 }
 
@@ -64,9 +69,9 @@ export interface MonsterType {
 }
 
 export interface MonsterArenaStats {
-  pet_id: number,
-  pet_type: number,
-  player: string,
+  pet_id: number
+  pet_type: number
+  player: string
   hp: number
 }
 
@@ -83,7 +88,7 @@ export const parseBattlesFromChain = (data: any): Arena => {
     petsStats: data.pets_stats,
     startedAt: data.started_at * 1000,
     commits: data.commits,
-    phase: BATTLE_PHASE_JOINING
+    phase: BATTLE_PHASE_JOINING,
   }
 
   const requiredPlayers = 2 // by default only 2 players
@@ -120,11 +125,15 @@ export const getBattleText = (arena: Arena) => {
 }
 
 export const getReadyPlayers = (arena: Arena) => {
-  return arena.commits.filter((commit: BattleCommitment) => commit.randoms.length > 0)
+  return arena.commits.filter(
+    (commit: BattleCommitment) => commit.randoms.length > 0,
+  )
 }
 
 export const isPlayerReady = (arena: Arena, player: string) => {
-  const reveal = getReadyPlayers(arena).find((commit: BattleCommitment) => commit.player === player)
+  const reveal = getReadyPlayers(arena).find(
+    (commit: BattleCommitment) => commit.player === player,
+  )
   return !!reveal
 }
 
@@ -148,41 +157,55 @@ export const parseConfigFromChain = (config: any): GlobalConfig => {
     max_hunger_points: config.max_hunger_points,
     min_awake_interval: config.min_awake_interval,
     min_hunger_interval: config.min_hunger_interval,
-    min_sleep_period: config.min_sleep_period
+    min_sleep_period: config.min_sleep_period,
   }
 }
 
 export const getCurrentBattle = (arenas: Arena[], player: string) => {
   return arenas.find((arena: Arena) => {
-    return arena.host === player ||
-      arena.commits.filter((commitment: BattleCommitment) => commitment.player === player).length > 0
+    return (
+      arena.host === player ||
+      arena.commits.filter(
+        (commitment: BattleCommitment) => commitment.player === player,
+      ).length > 0
+    )
   })
 }
 
 export const getAvailableMonstersToBattle = (monsters: MonsterProps[]) => {
-  return monsters.filter((monster: MonsterProps) =>
-    monster.health === 100 &&
-    monster.energy > 30 &&
-    !monster.isSleeping &&
-    !monster.deathAt
+  return monsters.filter(
+    (monster: MonsterProps) =>
+      monster.health === 100 &&
+      monster.energy > 30 &&
+      !monster.isSleeping &&
+      !monster.deathAt,
   )
 }
 
 export const isWatcher = (arena: Arena, identity: string) => {
-  return !arena.commits.find((commit) => commit.player === identity)
+  return !arena.commits.find(commit => commit.player === identity)
 }
 
-export const getBattleCountdown = (arena: Arena, globalConfig: GlobalConfig) => {
+export const getBattleCountdown = (
+  arena: Arena,
+  globalConfig: GlobalConfig,
+) => {
   if (arena.phase !== BATTLE_PHASE_GOING) {
     return 0
   }
 
-  return Math.floor((arena.lastMoveAt +
-    (globalConfig.battle_idle_tolerance * 1000) -
-    Date.now()) / 1000)
+  return Math.floor(
+    (arena.lastMoveAt +
+      globalConfig.battle_idle_tolerance * 1000 -
+      Date.now()) /
+      1000,
+  )
 }
 
-export const battleCountdownText = (arena: Arena, globalConfig: GlobalConfig) => {
+export const battleCountdownText = (
+  arena: Arena,
+  globalConfig: GlobalConfig,
+) => {
   if (arena.phase !== BATTLE_PHASE_GOING) {
     return ""
   }
@@ -190,7 +213,9 @@ export const battleCountdownText = (arena: Arena, globalConfig: GlobalConfig) =>
   const turnTimeLeft = getBattleCountdown(arena, globalConfig)
 
   if (turnTimeLeft > 0) {
-    return `Player ${arena.commits[0].player} has ${turnTimeLeft} seconds to attack`
+    return `Player ${
+      arena.commits[0].player
+    } has ${turnTimeLeft} seconds to attack`
   } else {
     return `Turn is expired. ANYONE CAN ATTACK!`
   }

@@ -1,17 +1,17 @@
 // monster images filters
 // dead monsters must be grayscaled
-@mixin filter($filter-type,$filter-amount) {
-  -webkit-filter: $filter-type+unquote('(#{$filter-amount})');
-  -moz-filter: $filter-type+unquote('(#{$filter-amount})');
-  -ms-filter: $filter-type+unquote('(#{$filter-amount})');
-  -o-filter: $filter-type+unquote('(#{$filter-amount})');
-  filter: $filter-type+unquote('(#{$filter-amount})');
+@mixin filter($filter-type, $filter-amount) {
+  -webkit-filter: $filter-type + unquote("(#{$filter-amount})");
+  -moz-filter: $filter-type + unquote("(#{$filter-amount})");
+  -ms-filter: $filter-type + unquote("(#{$filter-amount})");
+  -o-filter: $filter-type + unquote("(#{$filter-amount})");
+  filter: $filter-type + unquote("(#{$filter-amount})");
 }
 
 @mixin grayscale_element($value) {
-    -webkit-filter: #{"grayscale(#{$value})"};
-    -moz-filter: #{"grayscale(#{$value})"};
-    filter:#{"grayscale(#{$value})"};
+  -webkit-filter: #{"grayscale(#{$value})"};
+  -moz-filter: #{"grayscale(#{$value})"};
+  filter: #{"grayscale(#{$value})"};
 }
 
 // hp animation
@@ -25,12 +25,12 @@
 }
 
 .grayscale {
-    @include grayscale_element(100%);
-    transition: all 200ms ease-in-out;
-    opacity: 0.3;
-    &:hover {
-        @include grayscale_element(30%);
-    }
+  @include grayscale_element(100%);
+  transition: all 200ms ease-in-out;
+  opacity: 0.3;
+  &:hover {
+    @include grayscale_element(30%);
+  }
 }
 
 .sleeping {
@@ -52,7 +52,7 @@
   // max-height: 300px !important;
   width: 250px;
   position: absolute;
-  margin-left: -50px!important;
+  margin-left: -50px !important;
 }
 
 .home-monster {
@@ -65,7 +65,7 @@
 }
 
 .monster-card {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 14px;
   text-shadow: 2px 2px 5px black;
 
@@ -74,7 +74,7 @@
   }
 
   .monster-card-title {
-    font-family: 'Oswald', sans-serif;
+    font-family: "Oswald", sans-serif;
     font-size: 24px;
     color: #fff6bd;
     text-shadow: 2px 2px 5px black;
@@ -93,7 +93,7 @@
       // -webkit-background-clip: text;
       // -webkit-text-fill-color: transparent;
       font-size: 22px;
-      color: 	#DAA520;
+      color: #daa520;
       text-shadow: none;
 
       background-image: map-get($gradients, warm);
@@ -108,25 +108,23 @@
 
   .price {
     font-weight: 700;
-    color: 	#DAA520;
+    color: #daa520;
   }
-
 }
-
 
 .monster-card-stats {
   margin: 0;
   padding: 0;
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
   text-shadow: 2px 2px 5px black;
 
   p {
-    margin-bottom: 2px!important;
+    margin-bottom: 2px !important;
   }
 }
 
 .monster-hp-card {
-  height: 35px!important;
+  height: 35px !important;
 }
 
 .monster-header-link {
@@ -136,6 +134,6 @@
 }
 
 .monster-selected {
-  background-color: $my-purple!important;
-  background: linear-gradient(45deg, #071439 0%, $my-purple 100%)!important;
+  background-color: $my-purple !important;
+  background: linear-gradient(45deg, #071439 0%, $my-purple 100%) !important;
 }

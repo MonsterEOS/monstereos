@@ -22,7 +22,7 @@ import MyWalletScreen from "./modules/wallet/MyWalletScreen"
 class App extends React.Component<{}, {}> {
   public render() {
     return (
-      <Switch >
+      <Switch>
         <React.Fragment>
           <MobileHeader />
           <Toaster />

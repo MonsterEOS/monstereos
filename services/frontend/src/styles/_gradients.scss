@@ -2,14 +2,24 @@
 // Gradient system
 //
 $gradients: () !default;
-$gradients: map-merge((
-    chill: linear-gradient(to bottom, #09e485 0%,#0291e3 100%),
-    warm: linear-gradient(to bottom, #F2CD48 0%,#FD803F 100%),
-    hot: linear-gradient(to bottom, #F9445A 0%,#FD803F 100%),
-    cold: linear-gradient(to bottom, #8019C6 0%,#2F93CC 100%),
-    golden: linear-gradient(35deg, rgb(255,220,56) 0%, rgb(234,230,191) 50%, rgb(255,220,56) 100%),
-    iceblue: linear-gradient(to bottom, rgb(138, 255, 231) 0%,rgb(28, 225, 201) 100%)
-), $gradients);
+$gradients: map-merge(
+  (
+    chill: linear-gradient(to bottom, #09e485 0%, #0291e3 100%),
+    warm: linear-gradient(to bottom, #f2cd48 0%, #fd803f 100%),
+    hot: linear-gradient(to bottom, #f9445a 0%, #fd803f 100%),
+    cold: linear-gradient(to bottom, #8019c6 0%, #2f93cc 100%),
+    golden:
+      linear-gradient(
+        35deg,
+        rgb(255, 220, 56) 0%,
+        rgb(234, 230, 191) 50%,
+        rgb(255, 220, 56) 100%
+      ),
+    iceblue:
+      linear-gradient(to bottom, rgb(138, 255, 231) 0%, rgb(28, 225, 201) 100%),
+  ),
+  $gradients
+);
 
 @mixin border-gradient($parent, $gradient) {
   #{$parent} {
@@ -21,7 +31,6 @@ $gradients: map-merge((
   }
 }
 
-
 // Gradient backgrounds
 @mixin bg-gradient($parent, $gradient) {
   #{$parent} {
@@ -31,8 +40,8 @@ $gradients: map-merge((
 
 // Gradient text
 @mixin text-gradient($gradient) {
-    background-image: $gradient;
-    color:transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
+  background-image: $gradient;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
 }

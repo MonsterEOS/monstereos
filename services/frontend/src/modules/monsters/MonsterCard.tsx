@@ -1,11 +1,13 @@
 import * as React from "react"
 import * as moment from "moment"
+import { MonsterProps, getCurrentAction, MonsterElement } from "./monsters"
 import {
-  MonsterProps,
-  getCurrentAction,
-  MonsterElement,
-} from "./monsters"
-import { State, GlobalConfig, NOTIFICATION_SUCCESS, pushNotification, NOTIFICATION_ERROR } from "../../store"
+  State,
+  GlobalConfig,
+  NOTIFICATION_SUCCESS,
+  pushNotification,
+  NOTIFICATION_ERROR,
+} from "../../store"
 import { connect } from "react-redux"
 import { getEosAccount } from "../../utils/scatter"
 import { trxPet } from "../../utils/eos"
@@ -13,28 +15,26 @@ import { Link } from "react-router-dom"
 import { Monster3DProfile, ActionType } from "react-monstereos-profile"
 
 interface Props {
-  monster: MonsterProps,
-  eosAccount: string,
-  globalConfig: GlobalConfig,
-  requestUpdate?: any,
-  dispatchPushNotification: any,
-  scatter: any,
-  selected?: boolean,
-  hideLink?: boolean,
-  hideActions?: boolean,
-  customActions?: MonsterAction[],
-  halfSize?: boolean,
+  monster: MonsterProps
+  eosAccount: string
+  globalConfig: GlobalConfig
+  requestUpdate?: any
+  dispatchPushNotification: any
+  scatter: any
+  selected?: boolean
+  hideLink?: boolean
+  hideActions?: boolean
+  customActions?: MonsterAction[]
+  halfSize?: boolean
 }
 
 export interface MonsterAction {
-  label: string,
+  label: string
   action: any
 }
 
 class MonsterCard extends React.Component<Props, {}> {
-
   public render() {
-
     const { monster, eosAccount, selected, halfSize } = this.props
 
     const hasControl = eosAccount === monster.owner
@@ -48,9 +48,7 @@ class MonsterCard extends React.Component<Props, {}> {
         <div className={`card monster-card ${selectedClass}`}>
           <div className="card-content">
             <div className="columns is-mobile">
-              <div className="column">
-                {this.render3DProfile()}
-              </div>
+              <div className="column">{this.render3DProfile()}</div>
               <div className="column is-three-fifths">
                 {this.renderHeader()}
                 {!monster.deathAt && this.renderStats()}
@@ -64,11 +62,10 @@ class MonsterCard extends React.Component<Props, {}> {
   }
 
   private render3DProfile() {
-
     const { monster } = this.props
 
     return (
-      <div style={{position: "absolute", marginLeft: -25, width: 160}}>
+      <div style={{ position: "absolute", marginLeft: -25, width: 160 }}>
         <Monster3DProfile
           typeId={monster.type}
           isDead={monster.deathAt > 0}
@@ -82,7 +79,6 @@ class MonsterCard extends React.Component<Props, {}> {
   }
 
   private renderHeader() {
-
     const { monster, hideLink } = this.props
 
     // const createdAt = moment(monster.createdAt)
@@ -94,68 +90,78 @@ class MonsterCard extends React.Component<Props, {}> {
     const deathAtTime = deathAt.format("h:mm:ss a")
     const deathAtIso = deathAt.toLocaleString()
 
-    const aliveDuration = (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
+    const aliveDuration =
+      (monster.deathAt ? monster.deathAt : Date.now()) - monster.createdAt
     const aliveDurationText = moment.duration(aliveDuration).humanize()
 
-    const headerContent =
+    const headerContent = (
       <React.Fragment>
         <div className={`monster-card-title ${monster.deathAt ? "dead" : ""}`}>
           <div>
             <div className="monster-name">{monster.name}</div>
             <div className="monster-status">
-            {monster.deathAt ?
-              <p>
-                Stayed alive for {aliveDurationText}
-              </p>
-              : <p>Has been alive for {aliveDurationText}</p>
-            }
+              {monster.deathAt ? (
+                <p>Stayed alive for {aliveDurationText}</p>
+              ) : (
+                <p>Has been alive for {aliveDurationText}</p>
+              )}
             </div>
           </div>
           <div className="monster-id">#{monster.id}</div>
         </div>
-        { monster.deathAt > 0 &&
-        <div>
-          <p>Death Date:<br/> {deathAtDate}</p>
-          <p>Time of Death:<br/> <time dateTime={deathAtIso}>{deathAtTime}</time></p>
-        </div>
-        }
+        {monster.deathAt > 0 && (
+          <div>
+            <p>
+              Death Date:
+              <br /> {deathAtDate}
+            </p>
+            <p>
+              Time of Death:
+              <br /> <time dateTime={deathAtIso}>{deathAtTime}</time>
+            </p>
+          </div>
+        )}
       </React.Fragment>
+    )
 
     return (
       <div className="monster-card-header">
-        {!hideLink ?
+        {!hideLink ? (
           <Link to={`/monster/${monster.id}`} className="monster-header-link">
             {headerContent}
           </Link>
-          :
+        ) : (
           headerContent
-        }
+        )}
       </div>
     )
   }
 
   private renderStats() {
-
     const { monster } = this.props
 
     return (
       <div className="monster-card-stats">
         <div className="progress-bar red monster-hp-card">
-          <span style={{width: `${monster.health}%`}}>HP</span>
+          <span style={{ width: `${monster.health}%` }}>HP</span>
         </div>
         <p>Food</p>
         <div className="progress-bar blue">
-          <span style={{width: `${monster.hunger}%`}} />
+          <span style={{ width: `${monster.hunger}%` }} />
         </div>
         <p>Energy</p>
         <div className="progress-bar green">
-          <span style={{width: `${monster.energy}%`}} />
+          <span style={{ width: `${monster.energy}%` }} />
         </div>
 
         <div className="level is-mobile has-margin-top">
           {monster.elements.map((e: MonsterElement) => (
             <div key={e.id} className="level-item">
-              <img className="image is-32x32" alt={e.name} src={`/images/elements/${e.name.toLowerCase()}.svg`} />
+              <img
+                className="image is-32x32"
+                alt={e.name}
+                src={`/images/elements/${e.name.toLowerCase()}.svg`}
+              />
             </div>
           ))}
         </div>
@@ -164,7 +170,6 @@ class MonsterCard extends React.Component<Props, {}> {
   }
 
   private renderFooter() {
-
     const { monster, hideActions, customActions } = this.props
 
     let actions: MonsterAction[] = []
@@ -185,9 +190,7 @@ class MonsterCard extends React.Component<Props, {}> {
     return (
       <footer className="card-footer">
         {actions.map((action, index) => (
-          <a key={index}
-            className="card-footer-item"
-            onClick={action.action}>
+          <a key={index} className="card-footer-item" onClick={action.action}>
             {action.label}
           </a>
         ))}
@@ -212,17 +215,29 @@ class MonsterCard extends React.Component<Props, {}> {
   }
 
   private petAction = (action: string, text: string) => {
-    const { scatter, monster, requestUpdate, dispatchPushNotification } = this.props
+    const {
+      scatter,
+      monster,
+      requestUpdate,
+      dispatchPushNotification,
+    } = this.props
 
     trxPet(action, scatter, monster.id)
       .then((res: any) => {
         console.info(`Pet ${monster.id} ${text} successfully`, res)
-        dispatchPushNotification(`Pet ${monster.name} ${text} successfully`, NOTIFICATION_SUCCESS)
+        dispatchPushNotification(
+          `Pet ${monster.name} ${text} successfully`,
+          NOTIFICATION_SUCCESS,
+        )
         if (requestUpdate) {
           requestUpdate()
         }
-      }).catch((err: any) => {
-        dispatchPushNotification(`Fail to ${text} ${monster.name} ${err.eosError}`, NOTIFICATION_ERROR)
+      })
+      .catch((err: any) => {
+        dispatchPushNotification(
+          `Fail to ${text} ${monster.name} ${err.eosError}`,
+          NOTIFICATION_ERROR,
+        )
       })
   }
 }
@@ -233,12 +248,15 @@ const mapStateToProps = (state: State) => {
   return {
     eosAccount,
     globalConfig: state.globalConfig,
-    scatter: state.scatter
+    scatter: state.scatter,
   }
 }
 
 const mapDispatchToProps = {
-  dispatchPushNotification: pushNotification
+  dispatchPushNotification: pushNotification,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MonsterCard)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(MonsterCard)

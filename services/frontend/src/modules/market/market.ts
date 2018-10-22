@@ -1,17 +1,16 @@
 import { MonsterProps } from "../monsters/monsters"
 
 export interface OrderProps {
-  id: number,
-  user: string,
-  monster: MonsterProps,
-  type: number,
-  newOwner: string,
-  value: string,
-  placedAt: number,
-  endsAt: number,
+  id: number
+  user: string
+  monster: MonsterProps
+  type: number
+  newOwner: string
+  value: string
+  placedAt: number
+  endsAt: number
   transferEndsAt: number
 }
-
 
 const deletedMonster = (petId: number, owner: string): MonsterProps => {
   return {
@@ -29,15 +28,19 @@ const deletedMonster = (petId: number, owner: string): MonsterProps => {
     hunger: 100,
     health: 100,
     energy: 100,
-    actions: []
+    actions: [],
   }
 }
 
-export const parseOrderFromChain = (order: any, monsters: MonsterProps[]): OrderProps | undefined => {
-
-  const monster = monsters.find((value: MonsterProps): boolean => {
-    return value.id === order.pet_id
-  })
+export const parseOrderFromChain = (
+  order: any,
+  monsters: MonsterProps[],
+): OrderProps | undefined => {
+  const monster = monsters.find(
+    (value: MonsterProps): boolean => {
+      return value.id === order.pet_id
+    },
+  )
   return {
     id: order.id,
     user: order.user,
@@ -47,7 +50,7 @@ export const parseOrderFromChain = (order: any, monsters: MonsterProps[]): Order
     value: order.value,
     placedAt: order.placed_at * 1000,
     endsAt: order.ends_at * 1000,
-    transferEndsAt: order.transfer_ends_at
+    transferEndsAt: order.transfer_ends_at,
   }
 }
 
@@ -58,10 +61,9 @@ export const amountOfAsset = (asset: string) => {
     console.error("unable to parse asset: ", err)
     return 0
   }
-
 }
 
 export const amountOfAssetPlusFees = (asset: string, marketFee: number) => {
   const amount = amountOfAsset(asset)
-  return amount * (1 + (marketFee / 10000))
+  return amount * (1 + marketFee / 10000)
 }

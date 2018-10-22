@@ -5,10 +5,9 @@ interface Props {
 }
 
 const MonsterActionLabel = (props: Props) => {
-
   const label = { icon: "", text: "", class: "" }
 
-  switch(props.action) {
+  switch (props.action) {
     case "feedpet":
       label.icon = "fa-cutlery"
       label.class = "is-primary"
@@ -37,8 +36,11 @@ const MonsterActionLabel = (props: Props) => {
 
   return (
     <React.Fragment>
-      <span className={`tag ${label.class}`} style={{width: 150, fontSize: 16}}>
-        <i className={`fa ${label.icon}`} style={{marginRight: 5}} />
+      <span
+        className={`tag ${label.class}`}
+        style={{ width: 150, fontSize: 16 }}
+      >
+        <i className={`fa ${label.icon}`} style={{ marginRight: 5 }} />
         {label.text}
       </span>
     </React.Fragment>
