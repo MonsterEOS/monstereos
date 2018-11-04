@@ -1,5 +1,3 @@
 {
-  "app.content1": "To get started, edit",
-  "app.content2": "and save to reload.",
-  "app.title": "Welcome to React"
+  "app.homeScreen.text1": "A Monster Tamagotchi and Battle game for EOS blockchain!"
 }
