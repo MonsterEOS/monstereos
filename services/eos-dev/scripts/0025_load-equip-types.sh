@@ -36,4 +36,3 @@ cd $ROOT_DIR
 ./cleos -u http://eosiodev:8888 push action monstereosio setequiptype '{"id": 31, "type": 20, "defense": 0, "attack": 53, "hp": 0 }' -p monstereosio
 ./cleos -u http://eosiodev:8888 push action monstereosio setequiptype '{"id": 32, "type": 20, "defense": 0, "attack": 56, "hp": 0 }' -p monstereosio
 ./cleos -u http://eosiodev:8888 push action monstereosio setequiptype '{"id": 33, "type": 20, "defense": 0, "attack": 60, "hp": 0 }' -p monstereosio
-sleep .5
