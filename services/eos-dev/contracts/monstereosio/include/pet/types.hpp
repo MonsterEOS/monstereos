@@ -25,6 +25,8 @@ namespace types {
 
   // consumable items types
   const symbol_type CHEST = S(0,CHEST);
+  const symbol_type CHES2 = S(0,CHES2);
+  const symbol_type CHES3 = S(0,CHES3);
   const symbol_type CANDY = S(0,CANDY);
   const symbol_type ENERGY_DRINK = S(0,ENGYD);
   const symbol_type SMALL_HP_POTION = S(0,SHPPT);
@@ -73,6 +75,12 @@ namespace types {
   constexpr element_type ELEMENT_POISON = 7;
   constexpr element_type ELEMENT_UNDEAD = 8;
   constexpr element_type ELEMENT_LIGHTNING = 9;
+
+  // equipment type
+  typedef uint8_t  equipment_type;
+  constexpr equipment_type EQUIP_ARMOR = 10;
+  constexpr equipment_type EQUIP_WEAPON = 20;
+  constexpr equipment_type EQUIP_BOOTS = 30;
 
   // battle skills
   typedef uint8_t skill_type;
@@ -288,6 +296,8 @@ namespace types {
       void initialize_assets() {
         assets = {
           { CHEST, 0 },
+          { CHES2, 0 },
+          { CHES3, 0 },
           { CANDY, 0 },
           { ENERGY_DRINK, 0 },
           { SMALL_HP_POTION, 0 },

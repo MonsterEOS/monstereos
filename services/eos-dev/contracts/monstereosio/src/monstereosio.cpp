@@ -50,10 +50,9 @@ EOSIO_ABI_EX(pet,
   (removebid)
 
   // admins and config setup
-  (addelemttype)
-  (changeelemtt)
-  (addpettype)
-  (changepettyp)
+  (setelemttype)
+  (setpettype)
+  (setequiptype)
   (changecrtol)
   (changebatma)
   (changebatidt)

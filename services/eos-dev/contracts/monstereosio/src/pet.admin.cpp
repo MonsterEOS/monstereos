@@ -70,50 +70,63 @@ void pet::changebatama(uint8_t new_attack_max_factor) {
   _update_pet_config(pc);
 }
 
-void pet::addelemttype(vector<uint8_t> ratios) {
+void pet::setequiptype(uuid id, equipment_type type, uint16_t attack, uint16_t defense, uint16_t hp) {
   require_auth(_self);
 
-  eosio_assert(ratios.size() > 0, "each type must have at least 1 ratio");
+  eosio_assert(type == EQUIP_ARMOR || type == EQUIP_WEAPON || type == EQUIP_BOOTS, "invalid equipment type");
 
-  elements.emplace(_self, [&](auto& r) {
-    r.id     = _next_element_id();
-    r.ratios = ratios;
-  });
+  auto itr = equiptypes.find(id);
+  if (itr == equiptypes.end()) {
+    equiptypes.emplace(_self, [&](auto& r) {
+      r.id = id;
+      r.type = type;
+      r.attack = attack;
+      r.defense = defense;
+      r.hp = hp;
+    });
+  } else {
+    equiptypes.modify(itr, _self, [&](auto& r) {
+      r.id = id;
+      r.type = type;
+      r.attack = attack;
+      r.defense = defense;
+      r.hp = hp;
+    });
+  }
 }
 
-void pet::changeelemtt(uint64_t id, vector<uint8_t> ratios) {
+void pet::setelemttype(uint64_t id, vector<uint8_t> ratios) {
   require_auth(_self);
 
   eosio_assert(ratios.size() > 0, "each type must have at least 1 ratio!");
 
   auto itr_elmt = elements.find(id);
-  eosio_assert(itr_elmt != elements.end(), "E404|Invalid element");
-  st_elements elmt = *itr_elmt;
 
-  elements.modify(itr_elmt, _self, [&](auto& r) { r.ratios = ratios; });
+  if (itr_elmt == elements.end()) {
+    elements.emplace(_self, [&](auto& r) {
+      r.id     = id;
+      r.ratios = ratios;
+    });
+  } else {
+    elements.modify(itr_elmt, _self, [&](auto& r) { r.ratios = ratios; });  
+  }
 }
 
-void pet::addpettype(vector<uint8_t> elements) {
-  require_auth(_self);
-
-  eosio_assert(elements.size() > 0, "each type must have at least 1 element");
-
-  pettypes.emplace(_self, [&](auto& r) {
-    r.id       = _next_pet_type_id();
-    r.elements = elements;
-  });
-}
-
-void pet::changepettyp(uint64_t id, vector<uint8_t> elements) {
+void pet::setpettype(uint64_t id, vector<uint8_t> elements) {
   require_auth(_self);
 
   eosio_assert(elements.size() > 0, "each type must have at least 1 element");
 
   auto itr_pt = pettypes.find(id);
-  eosio_assert(itr_pt != pettypes.end(), "E404|Invalid pet type");
-  st_pet_types pt = *itr_pt;
 
-  pettypes.modify(itr_pt, _self, [&](auto& r) { r.elements = elements; });
+  if (itr_pt == pettypes.end()) {
+    pettypes.emplace(_self, [&](auto& r) {
+      r.id       = id;
+      r.elements = elements;
+    });
+  } else {
+    pettypes.modify(itr_pt, _self, [&](auto& r) { r.elements = elements; });
+  }
 }
 
 void pet::techrevive(uuid pet_id, string memo) {
@@ -139,22 +152,6 @@ uuid pet::_next_id() {
   eosio_assert(pc.last_id > 0, "_next_id overflow detected");
   _update_pet_config(pc);
   return pc.last_id;
-}
-
-uint64_t pet::_next_element_id() {
-  auto pc = _get_pet_config();
-  pc.last_element_id++;
-  eosio_assert(pc.last_element_id > 0, "_next_element_id overflow detected");
-  _update_pet_config(pc);
-  return pc.last_element_id - 1; // zero based id
-}
-
-uint64_t pet::_next_pet_type_id() {
-  auto pc = _get_pet_config();
-  pc.last_pet_type_id++;
-  eosio_assert(pc.last_pet_type_id > 0, "_next_pet_type_id overflow detected");
-  _update_pet_config(pc);
-  return pc.last_pet_type_id - 1; // zero based id
 }
 
 pet::st_pet_config2 pet::_get_pet_config() {

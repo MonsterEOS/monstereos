@@ -14,6 +14,7 @@ function build_chain() {
         /opt/application/scripts/0000_init-chain.sh && \
         /opt/application/scripts/0010_load-elements.sh && \
         /opt/application/scripts/0020_load-pet-types.sh && \
+        /opt/application/scripts/0025_load-equip-types.sh && \
         /opt/application/scripts/0030_load-data.sh"
 
 }

@@ -632,44 +632,6 @@
         }
       ]
     },{
-      "name": "addelemttype",
-      "base": "",
-      "fields": [{
-          "name": "ratios",
-          "type": "uint8[]"
-        }
-      ]
-    },{
-      "name": "changeelemtt",
-      "base": "",
-      "fields": [{
-          "name": "id",
-          "type": "uint64"
-        },{
-          "name": "ratios",
-          "type": "uint8[]"
-        }
-      ]
-    },{
-      "name": "addpettype",
-      "base": "",
-      "fields": [{
-          "name": "elements",
-          "type": "uint8[]"
-        }
-      ]
-    },{
-      "name": "changepettyp",
-      "base": "",
-      "fields": [{
-          "name": "id",
-          "type": "uint64"
-        },{
-          "name": "elements",
-          "type": "uint8[]"
-        }
-      ]
-    },{
       "name": "changecrtol",
       "base": "",
       "fields": [{
@@ -908,20 +870,16 @@
       "type": "removebid",
       "ricardian_contract": ""
     },{
-      "name": "addelemttype",
-      "type": "addelemttype",
+      "name": "setelemttype",
+      "type": "st_elements",
       "ricardian_contract": ""
     },{
-      "name": "changeelemtt",
-      "type": "changeelemtt",
+      "name": "setpettype",
+      "type": "st_pet_types",
       "ricardian_contract": ""
     },{
-      "name": "addpettype",
-      "type": "addpettype",
-      "ricardian_contract": ""
-    },{
-      "name": "changepettyp",
-      "type": "changepettyp",
+      "name": "setequiptype",
+      "type": "st_equiptypes",
       "ricardian_contract": ""
     },{
       "name": "changecrtol",

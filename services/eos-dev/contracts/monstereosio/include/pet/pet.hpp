@@ -32,6 +32,7 @@ public:
     :eosio::contract(self),
     pettypes(_self,_self),
     elements(_self,_self),
+    equiptypes(_self,_self),
     pets(_self,_self),
     orders(_self,_self),
     petinbattles(_self,_self),
@@ -43,6 +44,7 @@ public:
 
     _tb_pet_types pettypes;
     _tb_elements  elements;
+    _tb_equiptypes  equiptypes;
     _tb_pet pets;
     _tb_orders orders;
     _tb_pet_in_battle petinbattles;
@@ -78,10 +80,9 @@ public:
     void removebid(name bidder, uuid pet_id);
 
     // admin/config interactions
-    void addelemttype ( vector<uint8_t> ratios );
-    void changeelemtt ( uint64_t id, vector<uint8_t> ratios );
-    void addpettype   ( vector<uint8_t> elements );
-    void changepettyp ( uint64_t id, vector<uint8_t> elements );
+    void setelemttype ( uint64_t id, vector<uint8_t> ratios );
+    void setpettype   ( uint64_t id, vector<uint8_t> elements );
+    void setequiptype ( uuid id, equipment_type type, uint16_t attack, uint16_t defense, uint16_t hp );
     void changecrtol  ( uint32_t new_interval );
     void changebatma  ( uint16_t new_max_arenas );
     void changebatidt ( uint32_t new_idle_tolerance );

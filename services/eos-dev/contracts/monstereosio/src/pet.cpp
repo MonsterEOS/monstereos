@@ -67,7 +67,7 @@ void pet::createpet(name owner,
         // we are considering only 105 monsters, the type 105 is
         // monstereos devilish icon
         pet.type = (pet.created_at + pet.id + owner + _random(100)) 
-            % (pc.last_pet_type_id - 3); 
+            % 105; 
 
         r = pet;
     });
