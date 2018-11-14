@@ -68,6 +68,7 @@ EOSIO_ABI_EX(pet,
   (openchest)
   (chestreward)
   (issueitem)
+  (issueequip)
   (issueitems)
   (petconsume)
 
