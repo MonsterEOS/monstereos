@@ -467,6 +467,7 @@ namespace types {
     uint16_t  defense;
     uint16_t  hp;
     uuid      equipped_pet;
+    uint32_t  claimed_at;
 
     uint64_t primary_key() const { return id; }
     uint64_t get_by_pet() const { return equipped_pet; }

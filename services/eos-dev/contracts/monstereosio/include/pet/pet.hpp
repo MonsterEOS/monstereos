@@ -33,6 +33,7 @@ public:
     pettypes(_self,_self),
     elements(_self,_self),
     equiptypes(_self,_self),
+    equipments(_self,_self),
     pets(_self,_self),
     orders(_self,_self),
     petinbattles(_self,_self),
@@ -45,6 +46,7 @@ public:
     _tb_pet_types pettypes;
     _tb_elements  elements;
     _tb_equiptypes  equiptypes;
+    _tb_equipments  equipments;
     _tb_pet pets;
     _tb_orders orders;
     _tb_pet_in_battle petinbattles;
@@ -101,6 +103,7 @@ public:
     void openchest    ( name player );
     void petconsume   ( uuid pet_id, symbol_type item );
     void issueitem    ( name player, asset item, string reason );
+    void issueequip   ( name player, uuid itemtype, string reason );
     void issueitems   ( name player, vector<asset> items, string reason );
     void chestreward  ( name owner, uint8_t modifier, string reason );
 

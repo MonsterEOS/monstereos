@@ -52,6 +52,30 @@ void pet::issueitem( name player, asset item, string reason) {
   });
 }
 
+void pet::issueequip( name player, uuid itemtype, string reason) {
+  require_auth(_self);
+
+  auto itr_account = accounts2.find(player);
+  eosio_assert(itr_account != accounts2.end(), "account is not signed up");
+
+  auto itr_et = equiptypes.find(itemtype);
+  eosio_assert(itr_et != equiptypes.end(), "invalid equipment type");
+
+  st_equiptypes equipment_type = *itr_et;
+
+  equipments.emplace(_self, [&](auto &r) {
+    r.id = equipments.available_primary_key();
+    r.owner = player;
+    r.type = equipment_type.type;
+    r.item_id = equipment_type.id;
+    r.attack = equipment_type.attack;
+    r.defense = equipment_type.defense;
+    r.hp = equipment_type.hp;
+    r.equipped_pet = 0;
+    r.claimed_at = 0;
+  });
+}
+
 void pet::issueitems( name player, vector<asset> items, string /* reason */ ) {
   require_auth(_self);
 
@@ -131,6 +155,53 @@ void pet::chestreward(name player, uint8_t modifier, string reason) {
   if (revive_tome) items.emplace_back(asset{1, REVIVE_TOME});
   
   SEND_INLINE_ACTION( *this, issueitems, {_self,N(active)}, {player, items, reason} );
+
+  bool got_boots = false;
+  uuid boots_id = 20;
+  uint8_t chance = 2;
+  while (!got_boots && boots_id > 10) {
+    uint8_t half = chance/2; 
+    got_boots = _roll_and_test(timestamp, primer, half * modifier);
+    chance = chance * 2;
+    boots_id = boots_id - 1;
+  }
+  if (got_boots) {
+    SEND_INLINE_ACTION( *this, issueequip, {_self,N(active)}, {player, boots_id, reason} );
+  }
+
+  bool got_armor = false;
+  uuid armor_id = 10;
+  chance = 2;
+  while (!got_armor && armor_id > 0) {
+    uint8_t half = chance/2; 
+    got_armor = _roll_and_test(timestamp, primer, half * modifier);
+    chance = chance * 2;
+    armor_id = armor_id - 1;
+  }
+  if (got_armor) {
+    SEND_INLINE_ACTION( *this, issueequip, {_self,N(active)}, {player, armor_id, reason} );
+  }
+
+  bool got_weapon = false;
+  uuid weapon_id = 33;
+  chance = 2;
+  while (!got_weapon && weapon_id > 20) {
+    uint8_t half = chance/2;
+    if (weapon_id == 32) half = half + 1;
+    if (weapon_id == 31) half = half + 2;
+    if (weapon_id == 30) half = half + 3;
+
+    got_weapon = _roll_and_test(timestamp, primer, half * modifier);
+    
+    if (weapon_id < 30) {
+      chance = chance * 2;
+    }
+    weapon_id = weapon_id - 1;
+  }
+  if (got_weapon) {
+    SEND_INLINE_ACTION( *this, issueequip, {_self,N(active)}, {player, weapon_id, reason} );
+  }
+  
 }
 
 void pet::petconsume(uuid pet_id, symbol_type item) {

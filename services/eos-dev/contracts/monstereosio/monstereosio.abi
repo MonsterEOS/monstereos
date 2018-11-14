@@ -241,6 +241,10 @@
         {
           "name": "equipped_pet",
           "type": "uuid"
+        },
+        {
+          "name": "claimed_at",
+          "type": "uint32"
         }
       ]
     },{
@@ -749,6 +753,20 @@
         }
       ]
     },{
+      "name": "issueequip",
+      "base": "",
+      "fields": [{
+          "name": "player",
+          "type": "name"
+        },{
+          "name": "itemtype",
+          "type": "uuid"
+        },{
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },{
       "name": "issueitems",
       "base": "",
       "fields": [{
@@ -928,6 +946,10 @@
     },{
       "name": "issueitem",
       "type": "issueitem",
+      "ricardian_contract": ""
+    },{
+      "name": "issueequip",
+      "type": "issueequip",
       "ricardian_contract": ""
     },{
       "name": "issueitems",
