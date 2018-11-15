@@ -71,6 +71,8 @@ EOSIO_ABI_EX(pet,
   (issueequip)
   (issueitems)
   (petconsume)
+  (petequip)
+  (petunequip)
 
   // EXTERNAL ACTIONS - VALIDATE ABOVE:  deposits
   (transfer)

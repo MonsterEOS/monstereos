@@ -106,6 +106,8 @@ public:
     void issueequip   ( name player, uuid itemtype, string reason );
     void issueitems   ( name player, vector<asset> items, string reason );
     void chestreward  ( name owner, uint8_t modifier, string reason );
+    void petequip     ( uuid pet_id, uuid item_id );
+    void petunequip   ( uuid item_id );
 
     private:
 

@@ -204,6 +204,50 @@ void pet::chestreward(name player, uint8_t modifier, string reason) {
   
 }
 
+void pet::petequip(uuid pet_id, uuid item_id) {
+  auto itr_item = equipments.find(item_id);
+  eosio_assert(itr_item != equipments.end(), "invalid equipment");
+  auto item = *itr_item;
+  require_auth(item.owner);
+
+  auto itr_pet = pets.find(pet_id);
+  eosio_assert(itr_pet != pets.end(), "invalid pet");
+  auto pet = *itr_pet;
+  require_auth(pet.owner);
+
+  eosio_assert(pet.owner == item.owner, "invalid pet/item owner");
+
+  auto pet_equips = equipments.get_index<N(bypet)>();
+  auto last_equip_itr = pet_equips.find(pet_id);
+
+  // unequip current item
+  for (; last_equip_itr != pet_equips.end(); last_equip_itr++) {
+    auto equip = *last_equip_itr;
+    if (equip.type == item.type) {
+      pet_equips.modify(last_equip_itr, item.owner, [&](auto &r) {
+        r.equipped_pet = 0;
+      });
+    }
+  }
+
+  // equip new item
+  equipments.modify(itr_item, item.owner, [&](auto &r) {
+    r.equipped_pet = pet_id;
+  });
+}
+
+void pet::petunequip(uuid item_id) {
+  auto itr_item = equipments.find(item_id);
+  eosio_assert(itr_item != equipments.end(), "invalid equipment");
+  auto item = *itr_item;
+  require_auth(item.owner);
+
+  // unequip item
+  equipments.modify(itr_item, item.owner, [&](auto &r) {
+    r.equipped_pet = 0;
+  });
+}
+
 void pet::petconsume(uuid pet_id, symbol_type item) {
 
     auto itr_pet = pets.find(pet_id);

@@ -792,6 +792,25 @@
         }
       ]
     },{
+      "name": "petequip",
+      "base": "",
+      "fields": [{
+          "name": "pet_id",
+          "type": "uuid"
+        },{
+          "name": "item_id",
+          "type": "uuid"
+        }
+      ]
+    },{
+      "name": "petunequip",
+      "base": "",
+      "fields": [{
+          "name": "item_id",
+          "type": "uuid"
+        }
+      ]
+    },{
       "name": "claimskill",
       "base": "",
       "fields": [{
@@ -958,6 +977,14 @@
     },{
       "name": "petconsume",
       "type": "petconsume",
+      "ricardian_contract": ""
+    },{
+      "name": "petequip",
+      "type": "petequip",
+      "ricardian_contract": ""
+    },{
+      "name": "petunequip",
+      "type": "petunequip",
       "ricardian_contract": ""
     },{
       "name": "claimskill",
