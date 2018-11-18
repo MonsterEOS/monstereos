@@ -26,21 +26,23 @@ using std::hash;
 /* ------------ Contract Definition --------- */
 /* ****************************************** */
 
-class pet : public eosio::contract {
+CONTRACT pet : public eosio::contract {
 public:
-    pet(account_name self)
-    :eosio::contract(self),
-    pettypes(_self,_self),
-    elements(_self,_self),
-    equiptypes(_self,_self),
-    equipments(_self,_self),
-    pets(_self,_self),
-    orders(_self,_self),
-    petinbattles(_self,_self),
-    plsinbattles(_self,_self),
-    seed(_self, _self),
-    accounts2(_self, _self),
-    pet_config2(_self,_self)
+    using contract::contract;
+
+    pet(name receiver, name code, datastream<const char*> ds)
+    :contract(receiver, code, ds),
+    pettypes(receiver, receiver.value),
+    elements(receiver, receiver.value),
+    equiptypes(receiver, receiver.value),
+    equipments(receiver, receiver.value),
+    pets(receiver, receiver.value),
+    orders(receiver, receiver.value),
+    petinbattles(receiver, receiver.value),
+    plsinbattles(receiver, receiver.value),
+    seed(receiver, receiver.value),
+    accounts2(receiver, receiver.value),
+    pet_config2(receiver, receiver.value)
     {}
 
     _tb_pet_types pettypes;
@@ -101,7 +103,7 @@ public:
 
     // items
     void openchest    ( name player );
-    void petconsume   ( uuid pet_id, symbol_type item );
+    void petconsume   ( uuid pet_id, symbol item );
     void issueitem    ( name player, asset item, string reason );
     void issueequip   ( name player, uuid itemtype, string reason );
     void issueitems   ( name player, vector<asset> items, string reason );
@@ -137,7 +139,7 @@ public:
         uint16_t last_pet_type_id = 0;
     };
 
-    typedef singleton<N(petconfig2), st_pet_config2> pet_config2_singleton;
+    typedef singleton<"petconfig2"_n, st_pet_config2> pet_config2_singleton;
     pet_config2_singleton pet_config2;
 
     /* ****************************************** */
@@ -165,7 +167,7 @@ public:
 
     // pet transfers
     void _transfer_value (name receiver, asset quantity, string memo);
-    void _handle_transf  (string memo, asset quantity, account_name from);
+    void _handle_transf  (string memo, asset quantity, name from);
     // void _transfer_pet   ( uuid pet_id, name new_owner);
 
 

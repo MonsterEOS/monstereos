@@ -24,32 +24,32 @@ namespace types {
   constexpr uint32_t MINUTE = 60;
 
   // consumable items types
-  const symbol_type CHEST = S(0,CHEST);
-  const symbol_type CHES2 = S(0,CHES2);
-  const symbol_type CHES3 = S(0,CHES3);
-  const symbol_type CANDY = S(0,CANDY);
-  const symbol_type ENERGY_DRINK = S(0,ENGYD);
-  const symbol_type SMALL_HP_POTION = S(0,SHPPT);
-  const symbol_type MEDIUM_HP_POTION = S(0,MHPPT);
-  const symbol_type LARGE_HP_POTION = S(0,LHPPT);
-  const symbol_type TOTAL_HP_POTION = S(0,THPPT);
-  const symbol_type INCREASED_ATTACK_ELIXIR = S(0,IATEL);
-  const symbol_type SUPER_ATTACK_ELIXIR = S(0,SATEL);
-  const symbol_type INCREASED_DEFENSE_ELIXIR = S(0,IDFEL);
-  const symbol_type SUPER_DEFENSE_ELIXIR = S(0,SDFEL);
-  const symbol_type INCREASED_HP_ELIXIR = S(0,IHPEL);
-  const symbol_type SUPER_HP_ELIXIR = S(0,SHPEL);
-  const symbol_type BRONZE_XP_SCROLL = S(0,BRXSC);
-  const symbol_type SILVER_XP_SCROLL = S(0,SVXSC);
-  const symbol_type GOLD_XP_SCROLL = S(0,GLXSC);
-  const symbol_type SUPER_BRONZE_XP_SCROLL = S(0,SBXSC);
-  const symbol_type SUPER_SILVER_XP_SCROLL = S(0,SSXSC);
-  const symbol_type SUPER_GOLD_XP_SCROLL = S(0,SGXSC);
-  const symbol_type REVIVE_TOME = S(0,REVIV);
+  const symbol CHEST = symbol("CHEST", 0);
+  const symbol CHES2 = symbol("CHES2", 0);
+  const symbol CHES3 = symbol("CHES3", 0);
+  const symbol CANDY = symbol("CANDY", 0);
+  const symbol ENERGY_DRINK = symbol("ENGYD", 0);
+  const symbol SMALL_HP_POTION = symbol("SHPPT", 0);
+  const symbol MEDIUM_HP_POTION = symbol("MHPPT", 0);
+  const symbol LARGE_HP_POTION = symbol("LHPPT", 0);
+  const symbol TOTAL_HP_POTION = symbol("THPPT", 0);
+  const symbol INCREASED_ATTACK_ELIXIR = symbol("IATEL", 0);
+  const symbol SUPER_ATTACK_ELIXIR = symbol("SATEL", 0);
+  const symbol INCREASED_DEFENSE_ELIXIR = symbol("IDFEL", 0);
+  const symbol SUPER_DEFENSE_ELIXIR = symbol("SDFEL", 0);
+  const symbol INCREASED_HP_ELIXIR = symbol("IHPEL", 0);
+  const symbol SUPER_HP_ELIXIR = symbol("SHPEL", 0);
+  const symbol BRONZE_XP_SCROLL = symbol("BRXSC", 0);
+  const symbol SILVER_XP_SCROLL = symbol("SVXSC", 0);
+  const symbol GOLD_XP_SCROLL = symbol("GLXSC", 0);
+  const symbol SUPER_BRONZE_XP_SCROLL = symbol("SBXSC", 0);
+  const symbol SUPER_SILVER_XP_SCROLL = symbol("SSXSC", 0);
+  const symbol SUPER_GOLD_XP_SCROLL = symbol("SGXSC", 0);
+  const symbol REVIVE_TOME = symbol("REVIV", 0);
 
   // players actions
-  constexpr uint8_t OPEN_DAILY_CHEST = 1; 
-  
+  constexpr uint8_t OPEN_DAILY_CHEST = 1;
+
   // caps
   constexpr uint8_t MAX_DAILY_ENERGY_DRINKS = 10;
   constexpr uint8_t BATTLE_REQ_ENERGY = 8;
@@ -155,7 +155,7 @@ namespace types {
     uint8_t     turns;
     uint8_t     modifier;
   };
-  
+
   struct st_temp_effect {
     effect_type effect;
     uint32_t    expires_at;
@@ -170,12 +170,14 @@ namespace types {
     skill_type      skill1;
     skill_type      skill2;
     skill_type      skill3;
+    uint8_t         atk;
+    uint8_t         def;
     vector<st_battle_effect> effects;
   };
 
   struct st_commit {
     name player;
-    checksum256 commitment;
+    capi_checksum256 commitment;
     vector<uint8_t> randoms{};
   };
 
@@ -192,8 +194,8 @@ namespace types {
   };
 
   struct st_transfer {
-      account_name from;
-      account_name to;
+      name         from;
+      name         to;
       asset        quantity;
       string       memo;
   };
@@ -243,8 +245,8 @@ namespace types {
       }
   };
 
-  typedef multi_index<N(pets), st_pets,
-      indexed_by<N(byowner), const_mem_fun<st_pets, uint64_t, &st_pets::get_pets_by_owner>>
+  typedef multi_index<"pets"_n, st_pets,
+      indexed_by<"byowner"_n, const_mem_fun<st_pets, uint64_t, &st_pets::get_pets_by_owner>>
   > _tb_pet;
 
   struct st_seed {
@@ -253,7 +255,7 @@ namespace types {
 
     uint64_t primary_key() const { return pk; }
   };
-  typedef multi_index<N(seed), st_seed> _tb_seed;
+  typedef multi_index<"seed"_n, st_seed> _tb_seed;
 
   // @abi table petinbattles i64
   struct st_pet_inbatt {
@@ -261,31 +263,31 @@ namespace types {
 
     uint64_t primary_key() const { return pet_id; }
   };
-  typedef multi_index<N(petinbattles), st_pet_inbatt> _tb_pet_in_battle;
+  typedef multi_index<"petinbattles"_n, st_pet_inbatt> _tb_pet_in_battle;
 
   // @abi table petinbattles i64
   struct st_pls_inbatt {
     name     player;
 
-    auto primary_key() const { return player; }
+    auto primary_key() const { return player.value; }
   };
-  typedef multi_index<N(plsinbattles), st_pls_inbatt> _tb_player_in_battle;
+  typedef multi_index<"plsinbattles"_n, st_pls_inbatt> _tb_player_in_battle;
 
   // @abi table accounts i64
   struct st_account {
       asset    balance;
-      uint64_t primary_key() const { return balance.symbol.name(); }
+      uint64_t primary_key() const { return balance.symbol.code().raw(); }
   };
-  typedef multi_index<N(accounts), st_account> _tb_accounts;
+  typedef multi_index<"accounts"_n, st_account> _tb_accounts;
 
   // @abi table accounts2 i64
   struct st_account2 {
       name                            owner;
-      flat_map<symbol_type, int64_t>  assets;
+      flat_map<symbol, int64_t>       assets;
       flat_map<uint8_t, uint32_t>     actions;
       flat_map<uint8_t, vector<uuid>> house; // future
 
-      uint64_t primary_key() const { return owner; }
+      uint64_t primary_key() const { return owner.value; }
 
       void initialize_actions() {
         actions = {
@@ -320,13 +322,13 @@ namespace types {
         };
       }
 
-      void add_asset(symbol_type symbol, int64_t amount) {
-        auto balance = assets[symbol];
+      void add_asset(symbol sym, int64_t amount) {
+        auto balance = assets[sym];
         balance = balance + amount;
-        assets[symbol] = balance;
+        assets[sym] = balance;
       }
   };
-  typedef multi_index<N(accounts2), st_account2> _tb_accounts2;
+  typedef multi_index<"accounts2"_n, st_account2> _tb_accounts2;
 
   // @abi table elements i64
   struct st_elements {
@@ -335,7 +337,7 @@ namespace types {
 
       uint64_t primary_key() const { return id; }
   };
-  typedef multi_index<N(elements), st_elements> _tb_elements;
+  typedef multi_index<"elements"_n, st_elements> _tb_elements;
 
   // @abi table pettypes i64
   struct st_pet_types {
@@ -344,7 +346,7 @@ namespace types {
 
       uint64_t primary_key() const { return id; }
   };
-  typedef multi_index<N(pettypes), st_pet_types> _tb_pet_types;
+  typedef multi_index<"pettypes"_n, st_pet_types> _tb_pet_types;
 
   // @abi table battles i64
   struct st_battle {
@@ -355,7 +357,7 @@ namespace types {
     vector<st_commit>   commits{};
     vector<st_pet_stat> pets_stats{};
 
-    auto primary_key() const { return host; }
+    auto primary_key() const { return host.value; }
     uint64_t by_started_at() const { return started_at; }
 
     bool pet_exists(uuid& new_pet) {
@@ -388,7 +390,7 @@ namespace types {
         pets_stats.end());
     }
 
-    void add_player(name const& player, checksum256 const& commitment) {
+    void add_player(name const& player, capi_checksum256 const& commitment) {
       st_commit commit{player, commitment};
       commits.emplace_back(commit);
     }
@@ -411,14 +413,25 @@ namespace types {
       }
     }
 
-    void add_pet(uuid const& pet_id, uint8_t const& pet_type, name const& player) {
-      st_pet_stat pet_stat{pet_id, pet_type, player, 100};
+    void add_pet(uuid const& pet_id, uint8_t const& pet_type, name const& player, uint8_t level, uint8_t skill1, uint8_t skill2, uint8_t skill3, uint8_t atk, uint8_t def, uint8_t hp) {
+      st_pet_stat pet_stat{
+        pet_id,
+        pet_type,
+        player,
+        uint8_t(100 + hp),
+        level,
+        skill1,
+        skill2,
+        skill3,
+        atk,
+        def
+      };
       pets_stats.emplace_back(pet_stat);
     }
   };
 
-  typedef multi_index<N(battles), st_battle,
-  indexed_by< N(start), const_mem_fun<st_battle, uint64_t, &st_battle::by_started_at > >
+  typedef multi_index<"battles"_n, st_battle,
+  indexed_by< "start"_n, const_mem_fun<st_battle, uint64_t, &st_battle::by_started_at > >
   > _tb_battle;
 
   // @abi table orders i64
@@ -434,13 +447,13 @@ namespace types {
       uint32_t        transfer_ends_at;
 
       uint64_t primary_key() const { return id; }
-      uint128_t get_by_user_and_pet() const { return utils::combine_ids(user, pet_id); }
+      uint128_t get_by_user_and_pet() const { return utils::combine_ids(user.value, pet_id); }
 
       EOSLIB_SERIALIZE(st_orders, (id)(user)(type)(pet_id)(new_owner)(value)(placed_at)(ends_at)(transfer_ends_at))
   };
 
-  typedef multi_index<N(orders), st_orders,
-      indexed_by<N(by_user_and_pet), const_mem_fun<st_orders, uint128_t, &st_orders::get_by_user_and_pet>>
+  typedef multi_index<"orders"_n, st_orders,
+      indexed_by<"byuserandpet"_n, const_mem_fun<st_orders, uint128_t, &st_orders::get_by_user_and_pet>>
   > _tb_orders;
 
   // EQUIPMENTS
@@ -455,7 +468,7 @@ namespace types {
 
     uint64_t primary_key() const { return id; }
   };
-  typedef multi_index<N(equiptypes), st_equiptypes> _tb_equiptypes;
+  typedef multi_index<"equiptypes"_n, st_equiptypes> _tb_equiptypes;
 
   // @abi table equipments i64
   struct st_equipments {
@@ -472,8 +485,8 @@ namespace types {
     uint64_t primary_key() const { return id; }
     uint64_t get_by_pet() const { return equipped_pet; }
   };
-  typedef multi_index<N(equipments), st_equipments,
-    indexed_by<N(bypet), const_mem_fun<st_equipments, uint64_t, &st_equipments::get_by_pet>>
+  typedef multi_index<"equipments"_n, st_equipments,
+    indexed_by<"bypet"_n, const_mem_fun<st_equipments, uint64_t, &st_equipments::get_by_pet>>
   > _tb_equipments;
 
   // special pet effects
@@ -484,5 +497,5 @@ namespace types {
 
     uint64_t primary_key() const { return pet_id; }
   };
-  typedef multi_index<N(peteffects), st_peteffects> _tb_peteffects;
+  typedef multi_index<"peteffects"_n, st_peteffects> _tb_peteffects;
 }

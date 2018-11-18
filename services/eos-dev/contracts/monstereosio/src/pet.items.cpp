@@ -10,17 +10,17 @@ void pet::openchest(name player) {
 
   require_auth(player);
 
-  auto itr_account = accounts2.find(player);
+  auto itr_account = accounts2.find(player.value);
   eosio_assert(itr_account != accounts2.end(), "account is not signed up");
 
   // add daily chest
   st_account2 account = *itr_account;
   bool is_daily_chest = (now() - account.actions[OPEN_DAILY_CHEST]) >= (24 * HOUR);
   if (is_daily_chest) {
-    SEND_INLINE_ACTION( *this, issueitem, {_self,N(active)}, {player, asset{1, CHEST}, "dailychest"} );
+    SEND_INLINE_ACTION( *this, issueitem, {_self, "active"_n}, {player, asset{1, CHEST}, "dailychest"} );
 
     // updates last received dailychest
-    accounts2.modify(itr_account, 0, [&](auto &r) {
+    accounts2.modify(itr_account, same_payer, [&](auto &r) {
       r.actions[OPEN_DAILY_CHEST] = now();
     });
   } else {
@@ -30,8 +30,8 @@ void pet::openchest(name player) {
   // schedule reward in next 3 secs
   transaction trx{};
   trx.actions.emplace_back(
-      permission_level{_self, N(active)},
-      _self, N(chestreward),
+      permission_level{_self, "active"_n},
+      _self, "chestreward"_n,
       std::make_tuple(player, 1, "openchest")
   );
   trx.delay_sec = 1 + _random(3);
@@ -41,13 +41,13 @@ void pet::openchest(name player) {
 void pet::issueitem( name player, asset item, string reason) {
   require_auth(_self);
 
-  auto itr_account = accounts2.find(player);
+  auto itr_account = accounts2.find(player.value);
   eosio_assert(itr_account != accounts2.end(), "account is not signed up");
 
   eosio_assert(item.is_valid(), "Invalid item issue");
   eosio_assert(item.amount > 0, "Quantity must be positive");
 
-  accounts2.modify(itr_account, 0, [&](auto &r) {
+  accounts2.modify(itr_account, same_payer, [&](auto &r) {
     r.add_asset(item.symbol, item.amount);
   });
 }
@@ -55,7 +55,7 @@ void pet::issueitem( name player, asset item, string reason) {
 void pet::issueequip( name player, uuid itemtype, string reason) {
   require_auth(_self);
 
-  auto itr_account = accounts2.find(player);
+  auto itr_account = accounts2.find(player.value);
   eosio_assert(itr_account != accounts2.end(), "account is not signed up");
 
   auto itr_et = equiptypes.find(itemtype);
@@ -79,10 +79,10 @@ void pet::issueequip( name player, uuid itemtype, string reason) {
 void pet::issueitems( name player, vector<asset> items, string /* reason */ ) {
   require_auth(_self);
 
-  auto itr_account = accounts2.find(player);
+  auto itr_account = accounts2.find(player.value);
   eosio_assert(itr_account != accounts2.end(), "account is not signed up");
 
-  accounts2.modify(itr_account, 0, [&](auto &r) {
+  accounts2.modify(itr_account, same_payer, [&](auto &r) {
     for (auto item : items) {
       eosio_assert(item.is_valid(), "Invalid item issue");
       eosio_assert(item.amount > 0, "Quantity must be positive");
@@ -93,8 +93,8 @@ void pet::issueitems( name player, vector<asset> items, string /* reason */ ) {
 
 void pet::chestreward(name player, uint8_t modifier, string reason) {
   require_auth(_self);
-  
-  auto itr_account = accounts2.find(player);
+
+  auto itr_account = accounts2.find(player.value);
   eosio_assert(itr_account != accounts2.end(), "account is not signed up");
 
   // check chest balance
@@ -103,7 +103,7 @@ void pet::chestreward(name player, uint8_t modifier, string reason) {
   eosio_assert(player_chests >= 1, "player has no chest to open");
 
   // reduce chest balance
-  accounts2.modify(itr_account, 0, [&](auto &r) {
+  accounts2.modify(itr_account, same_payer, [&](auto &r) {
     r.assets[CHEST] = player_chests - 1;
   });
 
@@ -153,33 +153,33 @@ void pet::chestreward(name player, uint8_t modifier, string reason) {
   if (sxp_silver_scroll) items.emplace_back(asset{1, SILVER_XP_SCROLL});
   if (sxp_gold_scroll) items.emplace_back(asset{1, GOLD_XP_SCROLL});
   if (revive_tome) items.emplace_back(asset{1, REVIVE_TOME});
-  
-  SEND_INLINE_ACTION( *this, issueitems, {_self,N(active)}, {player, items, reason} );
+
+  SEND_INLINE_ACTION( *this, issueitems, {_self,"active"_n}, {player, items, reason} );
 
   bool got_boots = false;
   uuid boots_id = 20;
   uint8_t chance = 2;
   while (!got_boots && boots_id > 10) {
-    uint8_t half = chance/2; 
+    uint8_t half = chance/2;
     got_boots = _roll_and_test(timestamp, primer, half * modifier);
     chance = chance * 2;
     boots_id = boots_id - 1;
   }
   if (got_boots) {
-    SEND_INLINE_ACTION( *this, issueequip, {_self,N(active)}, {player, boots_id, reason} );
+    SEND_INLINE_ACTION( *this, issueequip, {_self,"active"_n}, {player, boots_id, reason} );
   }
 
   bool got_armor = false;
   uuid armor_id = 10;
   chance = 2;
   while (!got_armor && armor_id > 0) {
-    uint8_t half = chance/2; 
+    uint8_t half = chance/2;
     got_armor = _roll_and_test(timestamp, primer, half * modifier);
     chance = chance * 2;
     armor_id = armor_id - 1;
   }
   if (got_armor) {
-    SEND_INLINE_ACTION( *this, issueequip, {_self,N(active)}, {player, armor_id, reason} );
+    SEND_INLINE_ACTION( *this, issueequip, {_self,"active"_n}, {player, armor_id, reason} );
   }
 
   bool got_weapon = false;
@@ -192,16 +192,16 @@ void pet::chestreward(name player, uint8_t modifier, string reason) {
     if (weapon_id == 30) half = half + 3;
 
     got_weapon = _roll_and_test(timestamp, primer, half * modifier);
-    
+
     if (weapon_id < 30) {
       chance = chance * 2;
     }
     weapon_id = weapon_id - 1;
   }
   if (got_weapon) {
-    SEND_INLINE_ACTION( *this, issueequip, {_self,N(active)}, {player, weapon_id, reason} );
+    SEND_INLINE_ACTION( *this, issueequip, {_self,"active"_n}, {player, weapon_id, reason} );
   }
-  
+
 }
 
 void pet::petequip(uuid pet_id, uuid item_id) {
@@ -217,7 +217,7 @@ void pet::petequip(uuid pet_id, uuid item_id) {
 
   eosio_assert(pet.owner == item.owner, "invalid pet/item owner");
 
-  auto pet_equips = equipments.get_index<N(bypet)>();
+  auto pet_equips = equipments.get_index<"bypet"_n>();
   auto last_equip_itr = pet_equips.find(pet_id);
 
   // unequip current item
@@ -248,7 +248,7 @@ void pet::petunequip(uuid item_id) {
   });
 }
 
-void pet::petconsume(uuid pet_id, symbol_type item) {
+void pet::petconsume(uuid pet_id, symbol item) {
 
     auto itr_pet = pets.find(pet_id);
     eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
@@ -262,20 +262,20 @@ void pet::petconsume(uuid pet_id, symbol_type item) {
     eosio_assert(!pet.is_sleeping(), "pet is sleeping");
 
     // check the item balance
-    auto itr_account = accounts2.find(pet.owner);
+    auto itr_account = accounts2.find(pet.owner.value);
     eosio_assert(itr_account != accounts2.end(), "pet owner is not signed up");
 
     st_account2 account = *itr_account;
     auto balance = account.assets[item];
     eosio_assert(balance >= 1, "player does not have the item to consume");
-    accounts2.modify(itr_account, 0, [&](auto &r) {
+    accounts2.modify(itr_account, same_payer, [&](auto &r) {
         r.assets[item] = balance - 1;
     });
 
     // execute consumption action here
     if (item == ENERGY_DRINK) {
       eosio_assert(pet.energy_drinks < MAX_DAILY_ENERGY_DRINKS, "you can only consume 10 energy drinks per day");
-      pets.modify(itr_pet, 0, [&](auto &r) {
+      pets.modify(itr_pet, same_payer, [&](auto &r) {
         r.energy_drinks = r.energy_drinks + 1;
         r.energy_used = 0;
       });
@@ -285,5 +285,5 @@ void pet::petconsume(uuid pet_id, symbol_type item) {
 
     // primer roller
     _random(10);
-    
+
 }

@@ -138,7 +138,7 @@ void pet::techrevive(uuid pet_id, string memo) {
   eosio_assert(itr_pet != pets.end(), "E404|Invalid pet");
   st_pets pet = *itr_pet;
 
-  pets.modify(itr_pet, 0, [&](auto& r) {
+  pets.modify(itr_pet, same_payer, [&](auto& r) {
     // r.death_at      = 0;
     r.last_fed_at   = now();
     r.last_bed_at   = r.last_fed_at;

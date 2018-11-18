@@ -1,35 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
-project(monstereosio VERSION 0.3.0)
+project(monstereosio VERSION 0.4.0)
 
-set(EOSIO_DEPENDENCY "1.2")
-set(EOSIO_CDT_DEPENDENCY "1.2")
+find_package(eosio.cdt)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-   set(TEST_BUILD_TYPE "Debug")
-   set(CMAKE_BUILD_TYPE "Release")
-else()
-   set(TEST_BUILD_TYPE ${CMAKE_BUILD_TYPE})
-endif()
+# add_subdirectory(monstereosio)
+# add_contract( pet monstereosion monstereosio.cpp )
 
-if(EOSIO_ROOT STREQUAL "" OR NOT EOSIO_ROOT)
-   set(EOSIO_ROOT "/usr/local/eosio")
-endif()
-
-if(EOSIO_CDT_ROOT STREQUAL "" OR NOT EOSIO_CDT_ROOT)
-   set(EOSIO_CDT_ROOT "/usr/local/eosio.cdt")
-endif()
-
-list(APPEND CMAKE_MODULE_PATH ${EOSIO_CDT_ROOT}/lib/cmake)
-include(EosioWasmToolchain)
-
-### Check the version of wasmsdk
-string(FIND "${EOSIO_CDT_VERSION}" "${EOSIO_CDT_DEPENDENCY}" output)
-
-if (NOT "${output}" EQUAL 0)
-   message(FATAL_ERROR "Incorrect EOSIO.CDT version, please use version ${EOSIO_CDT_DEPENDENCY}.x")
-endif()
-
-include_directories(AFTER ${BOOST_ROOT}/include)
+# include_directories(AFTER ${BOOST_ROOT}/include)
 add_subdirectory(monstereosio)
 
 if (APPLE)
@@ -39,4 +16,4 @@ elseif (UNIX)
 endif()
 set(SECP256K1_ROOT "/usr/local")
 
-include(UnitTestsExternalProject.txt)
+# include(UnitTestsExternalProject.txt)

@@ -4,7 +4,6 @@
 #include "pet.battle.cpp"
 #include "pet.market.cpp"
 #include "pet.items.cpp"
-#include <boost/lexical_cast.hpp>
 
 using namespace utils;
 using namespace types;
@@ -30,8 +29,8 @@ void pet::createpet(name owner,
     // check last pet creation tolerance
     if (pc.creation_tolerance > 0) {
 
-        auto owner_pets = pets.get_index<N(byowner)>();
-        auto last_pet_itr = owner_pets.find(owner);
+        auto owner_pets = pets.get_index<"byowner"_n>();
+        auto last_pet_itr = owner_pets.find(owner.value);
 
         uint32_t last_created_date = 0;
 
@@ -66,7 +65,7 @@ void pet::createpet(name owner,
 
         // we are considering only 105 monsters, the type 105 is
         // monstereos devilish icon
-        pet.type = (pet.created_at + pet.id + owner + _random(100)) 
+        pet.type = (pet.created_at + pet.id + owner.value + _random(100)) 
             % 105; 
 
         r = pet;
@@ -100,7 +99,7 @@ void pet::transferpet(uuid pet_id, name new_owner) {
 
     // require_auth(pet.owner);
 
-    pets.modify(itr_pet, 0, [&](auto &r) {
+    pets.modify(itr_pet, same_payer, [&](auto &r) {
         r.owner = new_owner;
     });
 
@@ -125,12 +124,12 @@ void pet::feedpet(uuid pet_id) {
     eosio_assert(can_eat, "not hungry");
 
     // check and consume candy
-    auto itr_account = accounts2.find(pet.owner);
+    auto itr_account = accounts2.find(pet.owner.value);
     eosio_assert(itr_account != accounts2.end(), "pet owner is not signed up");
     st_account2 account = *itr_account;
     auto player_candies = account.assets[CANDY];
     eosio_assert(player_candies >= 1, "player has no candy to feed");
-    accounts2.modify(itr_account, 0, [&](auto &r) {
+    accounts2.modify(itr_account, same_payer, [&](auto &r) {
         r.assets[CANDY] = player_candies - 1;
     });
 
@@ -278,13 +277,13 @@ void pet::signup(name user) {
 
     require_auth(user);
     
-    auto itr_account = accounts2.find(user);
+    auto itr_account = accounts2.find(user.value);
     eosio_assert(itr_account == accounts2.end(), "you have signed up already");
 
     // check user was an early donator :)
-    _tb_accounts accounts(_self, user);
-    asset new_balance = asset{0,S(4,EOS)};
-    auto itr_balance = accounts.find(new_balance.symbol.name());
+    _tb_accounts accounts(_self, user.value);
+    asset new_balance = asset{0,symbol("EOS",4)};
+    auto itr_balance = accounts.find(new_balance.symbol.code().raw());
     
     // migrates from old account table
     // if (itr_balance != accounts.end()) {
@@ -321,7 +320,7 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
 
     print("\n>>> transfer data quantity >>> ", transfer_data.quantity);
 
-    eosio_assert(transfer_data.quantity.symbol == string_to_symbol(4, "EOS"),
+    eosio_assert(transfer_data.quantity.symbol == symbol("EOS", 4),
     "MonsterEOS only accepts EOS for deposits");
     eosio_assert(transfer_data.quantity.is_valid(), "Invalid token transfer");
     eosio_assert(transfer_data.quantity.amount > 0, "Quantity must be positive");
@@ -335,11 +334,11 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
         _handle_transf(transfer_data.memo, transfer_data.quantity, transfer_data.from);
 
     } else { // in-app transfer
-        _tb_accounts accounts(_self, transfer_data.from);
+        _tb_accounts accounts(_self, transfer_data.from.value);
         asset new_balance;
-        auto itr_balance = accounts.find(transfer_data.quantity.symbol.name());
+        auto itr_balance = accounts.find(transfer_data.quantity.symbol.code().raw());
         if(itr_balance != accounts.end()) {
-            accounts.modify(itr_balance, 0, [&](auto& r){
+            accounts.modify(itr_balance, same_payer, [&](auto& r){
                 // Assumption: total currency issued by eosio.token will not overflow asset
                 r.balance += transfer_data.quantity;
                 new_balance = r.balance;
