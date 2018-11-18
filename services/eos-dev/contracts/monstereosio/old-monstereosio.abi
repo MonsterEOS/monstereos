@@ -15,12 +15,6 @@
     },{
       "new_type_name": "effect_type",
       "type": "uint8"
-    },{
-      "new_type_name": "equipment_type",
-      "type": "uint8"
-    },{
-      "new_type_name": "skill_type",
-      "type": "uint8"
     }
   ],
   "structs": [{

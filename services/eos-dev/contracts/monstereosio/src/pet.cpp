@@ -79,8 +79,6 @@ void pet::destroypet(uuid pet_id) {
     require_auth(pet.owner);
 
     uint8_t level = pet.get_level();
-    string msg = "pet level is 231"; // + boost::lexical_cast<string, uint8_t>(level);
-    print(msg);
 
     // pets.erase( pet );
 

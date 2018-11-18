@@ -26,7 +26,7 @@ using std::hash;
 /* ------------ Contract Definition --------- */
 /* ****************************************** */
 
-CONTRACT pet : public eosio::contract {
+class [[eosio::contract("monstereosio")]] pet : public contract {
 public:
     using contract::contract;
 
@@ -57,12 +57,19 @@ public:
     _tb_accounts2 accounts2;
 
     // pet interactions
+    [[eosio::action]]
     void createpet    ( name owner, string pet_name );
+    [[eosio::action]]
     void feedpet      ( uuid pet_id );
+    [[eosio::action]]
     void bedpet       ( uuid pet_id );
+    [[eosio::action]]
     void awakepet     ( uuid pet_id );
+    [[eosio::action]]
     void destroypet   ( uuid pet_id );
+    [[eosio::action]]
     void transferpet  ( uuid pet_id, name new_owner);
+    [[eosio::action]]
     void claimskill   ( uuid pet_id, uint8_t skill );
 
     // battle interface
@@ -70,45 +77,76 @@ public:
     // void battlejoin   ( name host, name player, checksum256 secret );
     // void battlestart  ( name host, name player, st_pick picks );
     // void battleselpet ( name host, name player, uuid pet_id );
+    [[eosio::action]]
     void battleleave  ( name host, name player );
+    [[eosio::action]]
     void quickbattle  ( battle_mode mode, name player, st_pick picks );
+    [[eosio::action]]
     void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
+    [[eosio::action]]
     void battlefinish ( name host, name winner );
+    [[eosio::action]]
     void battlepfdel  ( uuid pet_id, string reason );
 
     // market interface
+    [[eosio::action]]
     void orderask(uuid pet_id, name new_owner, asset amount, uint32_t until);
+    [[eosio::action]]
     void removeask(name owner, uuid pet_id);
+    [[eosio::action]]
     void claimpet(name old_owner, uuid pet_id, name claimer);
+    [[eosio::action]]
     void bidpet(uuid pet_id, name bidder, asset amount, uint32_t until);
+    [[eosio::action]]
     void removebid(name bidder, uuid pet_id);
 
     // admin/config interactions
+    [[eosio::action]]
     void setelemttype ( uint64_t id, vector<uint8_t> ratios );
+    [[eosio::action]]
     void setpettype   ( uint64_t id, vector<uint8_t> elements );
+    [[eosio::action]]
     void setequiptype ( uuid id, equipment_type type, uint16_t attack, uint16_t defense, uint16_t hp );
+    [[eosio::action]]
     void changecrtol  ( uint32_t new_interval );
+    [[eosio::action]]
     void changebatma  ( uint16_t new_max_arenas );
+    [[eosio::action]]
     void changebatidt ( uint32_t new_idle_tolerance );
+    [[eosio::action]]
     void changebatami ( uint8_t new_attack_min_factor );
+    [[eosio::action]]
     void changebatama ( uint8_t new_attack_max_factor );
+    [[eosio::action]]
     void techrevive   ( uuid pet_id, string reason );
+    [[eosio::action]]
     void changemktfee ( uint64_t new_fee, string reason );
+    [[eosio::action]]
     void changecreawk ( int64_t new_creation_awake, string reason );
+    [[eosio::action]]
     void changehungtz ( uint32_t new_hunger_to_zero, string reason );
 
     // token deposits
+    [[eosio::action]]
     void signup       ( name user );
     void transfer     ( uint64_t sender, uint64_t receiver );
 
     // items
+    [[eosio::action]]
     void openchest    ( name player );
+    [[eosio::action]]
     void petconsume   ( uuid pet_id, symbol item );
+    [[eosio::action]]
     void issueitem    ( name player, asset item, string reason );
+    [[eosio::action]]
     void issueequip   ( name player, uuid itemtype, string reason );
+    [[eosio::action]]
     void issueitems   ( name player, vector<asset> items, string reason );
+    [[eosio::action]]
     void chestreward  ( name owner, uint8_t modifier, string reason );
+    [[eosio::action]]
     void petequip     ( uuid pet_id, uuid item_id );
+    [[eosio::action]]
     void petunequip   ( uuid item_id );
 
     private:
@@ -117,8 +155,7 @@ public:
     /* ------------ Contract Config Data -------- */
     /* ****************************************** */
 
-    // @abi table petconfig2 i64
-    struct st_pet_config2 {
+    struct [[eosio::table("petconfig2")]] st_pet_config2 {
         uuid     last_id = 0;
         int64_t  creation_awake = 1;
         uint64_t market_fee = 100;

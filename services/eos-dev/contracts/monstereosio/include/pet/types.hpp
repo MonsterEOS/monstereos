@@ -204,8 +204,7 @@ namespace types {
   /* ------------ Contract Tables ------------- */
   /* ****************************************** */
 
-  // @abi table pets i64
-  struct st_pets {
+  struct [[eosio::table("pets"), eosio::contract("monstereosio")]] st_pets {
       uuid id;
       name owner;
       string name;
@@ -249,7 +248,7 @@ namespace types {
       indexed_by<"byowner"_n, const_mem_fun<st_pets, uint64_t, &st_pets::get_pets_by_owner>>
   > _tb_pet;
 
-  struct st_seed {
+  struct [[eosio::table("seed"), eosio::contract("monstereosio")]] st_seed {
     uint64_t pk = 1;
     uint32_t last = 1;
 
@@ -257,31 +256,27 @@ namespace types {
   };
   typedef multi_index<"seed"_n, st_seed> _tb_seed;
 
-  // @abi table petinbattles i64
-  struct st_pet_inbatt {
+  struct [[eosio::table("petinbattles"), eosio::contract("monstereosio")]] st_pet_inbatt {
     uuid     pet_id;
 
     uint64_t primary_key() const { return pet_id; }
   };
   typedef multi_index<"petinbattles"_n, st_pet_inbatt> _tb_pet_in_battle;
 
-  // @abi table petinbattles i64
-  struct st_pls_inbatt {
+  struct [[eosio::table("plsinbattles"), eosio::contract("monstereosio")]] st_pls_inbatt {
     name     player;
 
     auto primary_key() const { return player.value; }
   };
   typedef multi_index<"plsinbattles"_n, st_pls_inbatt> _tb_player_in_battle;
 
-  // @abi table accounts i64
-  struct st_account {
+  struct [[eosio::table("accounts"), eosio::contract("monstereosio")]] st_account {
       asset    balance;
       uint64_t primary_key() const { return balance.symbol.code().raw(); }
   };
   typedef multi_index<"accounts"_n, st_account> _tb_accounts;
 
-  // @abi table accounts2 i64
-  struct st_account2 {
+  struct [[eosio::table("accounts2"), eosio::contract("monstereosio")]] st_account2 {
       name                            owner;
       flat_map<symbol, int64_t>       assets;
       flat_map<uint8_t, uint32_t>     actions;
@@ -330,8 +325,7 @@ namespace types {
   };
   typedef multi_index<"accounts2"_n, st_account2> _tb_accounts2;
 
-  // @abi table elements i64
-  struct st_elements {
+  struct [[eosio::table("elements"), eosio::contract("monstereosio")]] st_elements {
       uint64_t id;
       vector<uint8_t> ratios = {};
 
@@ -339,8 +333,7 @@ namespace types {
   };
   typedef multi_index<"elements"_n, st_elements> _tb_elements;
 
-  // @abi table pettypes i64
-  struct st_pet_types {
+  struct [[eosio::table("pettypes"), eosio::contract("monstereosio")]] st_pet_types {
       uint64_t id;
       vector<uint8_t> elements = {};
 
@@ -348,8 +341,7 @@ namespace types {
   };
   typedef multi_index<"pettypes"_n, st_pet_types> _tb_pet_types;
 
-  // @abi table battles i64
-  struct st_battle {
+  struct [[eosio::table("battles"), eosio::contract("monstereosio")]] st_battle {
     name                host;
     battle_mode         mode; // 1: 1v1, 2: 2v2, 3: 3v3 :)
     uint32_t            started_at = 0;
@@ -434,8 +426,7 @@ namespace types {
   indexed_by< "start"_n, const_mem_fun<st_battle, uint64_t, &st_battle::by_started_at > >
   > _tb_battle;
 
-  // @abi table orders i64
-  struct st_orders {
+  struct [[eosio::table("orders"), eosio::contract("monstereosio")]] st_orders {
       uuid            id;
       name            user;
       order_type      type;
@@ -457,9 +448,7 @@ namespace types {
   > _tb_orders;
 
   // EQUIPMENTS
-
-  // @abi table equiptypes i64
-  struct st_equiptypes {
+  struct [[eosio::table("equiptypes"), eosio::contract("monstereosio")]] st_equiptypes {
     uuid      id;
     uint8_t   type;
     uint16_t  attack;
@@ -470,8 +459,7 @@ namespace types {
   };
   typedef multi_index<"equiptypes"_n, st_equiptypes> _tb_equiptypes;
 
-  // @abi table equipments i64
-  struct st_equipments {
+  struct [[eosio::table("equipments"), eosio::contract("monstereosio")]] st_equipments {
     uuid      id;
     name      owner;
     uint8_t   type;
@@ -489,9 +477,7 @@ namespace types {
     indexed_by<"bypet"_n, const_mem_fun<st_equipments, uint64_t, &st_equipments::get_by_pet>>
   > _tb_equipments;
 
-  // special pet effects
-  // @abi table petstates i64
-  struct st_peteffects {
+  struct [[eosio::table("peteffects"), eosio::contract("monstereosio")]] st_peteffects {
     uuid pet_id;
     vector<st_temp_effect> effects;
 
