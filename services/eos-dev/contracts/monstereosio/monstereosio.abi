@@ -117,6 +117,40 @@
         }
       ]
     },{
+      "name": "st_battle_item",
+      "base": "",
+      "fields": [
+        {
+          "name": "item",
+          "type": "symbol"
+        },
+        {
+          "name": "target",
+          "type": "uuid"
+        }
+      ]
+    },{
+      "name": "st_battle_move",
+      "base": "",
+      "fields": [
+        {
+          "name": "pet_id",
+          "type": "uuid"
+        },
+        {
+          "name": "target",
+          "type": "uuid"
+        },
+        {
+          "name": "attack_element",
+          "type": "element_type"
+        },
+        {
+          "name": "skill",
+          "type": "skill_type"
+        }
+      ]
+    },{
       "name": "acc_actions",
       "base": "",
       "fields": [
@@ -530,7 +564,7 @@
         }
       ]
     },{
-      "name": "battleattack",
+      "name": "battlemove",
       "base": "",
       "fields": [{
           "name": "host",
@@ -539,14 +573,11 @@
           "name": "player",
           "type": "name"
         },{
-          "name": "pet_id",
-          "type": "uuid"
+          "name": "moves",
+          "type": "st_battle_move[]"
         },{
-          "name": "pet_enemy_id",
-          "type": "uuid"
-        },{
-          "name": "element",
-          "type": "element_type"
+          "name": "item",
+          "type": "st_battle_item"
         }
       ]
     },{
@@ -881,8 +912,8 @@
       "type": "battleleave",
       "ricardian_contract": ""
     },{
-      "name": "battleattack",
-      "type": "battleattack",
+      "name": "battlemove",
+      "type": "battlemove",
       "ricardian_contract": "---\ntitle: Battle Attack\nsummary: Submit Attack turn of the Battle\nicon: https://monstereos.io/favicon.png#e6479a7f15b9f19775b09703a5973af41e6e6c0eefbe0c09b9f032a286248b74\n---\n\n## Battle Arena Attack Terms & Conditions\n\nI, {{player}}, agree to submit an attack in {{host}} arena,\nusing my pet of id {{pet_id}}, attacking the enemy pet of id\n{{pet_enemy_id}} using the element {{element}}.\n\nI understand that monsters transfers are not reversible after the\n{{$transaction.delay_sec}} seconds or other delay as configured\nby my own permissions.\n\nIf this action fails to be irreversibly confirmed for technical issues\nor failure, I agree that I need to attempt to submit this action again,\nand also the subsequent interactions that I could possibly being submitted\nin this interval.\n"
     },{
       "name": "battlefinish",

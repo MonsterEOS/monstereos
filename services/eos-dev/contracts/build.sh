@@ -13,4 +13,4 @@ cmake ../
 make -j${CORES}
 popd &> /dev/null
 
-cp build/monstereosio/monstereosio.wasm monstereosio/monstereosio.wasm
+cp build/monstereosio.wasm monstereosio/monstereosio.wasm

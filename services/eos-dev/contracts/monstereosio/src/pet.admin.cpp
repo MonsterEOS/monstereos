@@ -154,7 +154,7 @@ uuid pet::_next_id() {
   return pc.last_id;
 }
 
-pet::st_pet_config2 pet::_get_pet_config() {
+st_pet_config2 pet::_get_pet_config() {
   st_pet_config2 pc;
 
   if (pet_config2.exists()) {

@@ -65,8 +65,8 @@ void pet::createpet(name owner,
 
         // we are considering only 105 monsters, the type 105 is
         // monstereos devilish icon
-        pet.type = (pet.created_at + pet.id + owner.value + _random(100)) 
-            % 105; 
+        pet.type = (pet.created_at + pet.id + owner.value + _random(100))
+            % 105;
 
         r = pet;
     });
@@ -198,10 +198,10 @@ void pet::claimskill(uuid pet_id, skill_type skill) {
     require_auth(pet.owner);
 
     uint8_t level = pet.get_level();
-    
+
     bool novice_skill = skill >= 10 && skill < 20 && level >= 10 && pet.skill1 == 0;
     bool medium_skill = skill >= 20 && skill < 30 && level >= 50 && pet.skill2 == 0;
-    bool advanced_skill = skill >= 30 && skill < 40 && level >= 90 && pet.skill3 == 0; 
+    bool advanced_skill = skill >= 30 && skill < 40 && level >= 90 && pet.skill3 == 0;
 
     eosio_assert(novice_skill || medium_skill || advanced_skill, "no available skill to set");
 
@@ -253,7 +253,7 @@ void pet::claimskill(uuid pet_id, skill_type skill) {
         case SKILL_LIGHTNING_ADVANCED:
             element = ELEMENT_LIGHTNING;
             break;
-    } 
+    }
 
     eosio_assert(_is_element_valid(pet.type, element), "invalid element skill");
 
@@ -274,7 +274,7 @@ void pet::claimskill(uuid pet_id, skill_type skill) {
 void pet::signup(name user) {
 
     require_auth(user);
-    
+
     auto itr_account = accounts2.find(user.value);
     eosio_assert(itr_account == accounts2.end(), "you have signed up already");
 
@@ -282,7 +282,7 @@ void pet::signup(name user) {
     _tb_accounts accounts(_self, user.value);
     asset new_balance = asset{0,symbol("EOS",4)};
     auto itr_balance = accounts.find(new_balance.symbol.code().raw());
-    
+
     // migrates from old account table
     // if (itr_balance != accounts.end()) {
     //     accounts2.emplace(user, [&](auto& r){
@@ -308,8 +308,7 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
     print("\n>>> sender >>>", sender, " - name: ", name{sender});
     print("\n>>> receiver >>>", receiver, " - name: ", name{receiver});
 
-    // ??? Don't need to verify because we already did it in EOSIO_ABI_EX ???
-    // eosio_assert(code == N(eosio.token), "I reject your non-eosio.token deposit");
+    eosio_assert(sender == "eosio.token"_n.value, "I reject your non-eosio.token deposit");
 
     auto transfer_data = unpack_action_data<st_transfer>();
     if(transfer_data.from == _self || transfer_data.to != _self) {
@@ -349,7 +348,7 @@ void pet::transfer(uint64_t sender, uint64_t receiver) {
 }
 
 bool pet::_is_element_valid(const uint8_t &pet_type, const element_type &element_id) {
-  const auto& attack_pet_types = pettypes.get(pet_type, "invalid pet type");
+  const auto& attack_pet_types = pettypes.get(pet_type, "invalid pet type!");
   for (const auto& pet_element : attack_pet_types.elements) {
     if (pet_element == element_id) {
       return true;
@@ -390,9 +389,9 @@ bool pet::_is_alive(st_pets &pet, const st_pet_config2 &pc) {
 }
 
 int pet::_random(const int num) {
-  
+
   auto itr_seed = seed.begin();
-  
+
   if (itr_seed == seed.end()) {
     itr_seed = seed.emplace( _self, [&]( auto& r ) { });
   }
