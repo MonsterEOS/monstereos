@@ -37,6 +37,7 @@ public:
     equiptypes(receiver, receiver.value),
     equipments(receiver, receiver.value),
     pets(receiver, receiver.value),
+    peteffects(receiver, receiver.value),
     orders(receiver, receiver.value),
     petinbattles(receiver, receiver.value),
     plsinbattles(receiver, receiver.value),
@@ -53,6 +54,7 @@ public:
     _tb_orders orders;
     _tb_pet_in_battle petinbattles;
     _tb_player_in_battle plsinbattles;
+    _tb_peteffects peteffects;
     _tb_seed seed;
     _tb_accounts2 accounts2;
 

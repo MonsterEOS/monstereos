@@ -33,12 +33,12 @@ namespace types {
   const symbol MEDIUM_HP_POTION = symbol("MHPPT", 0);
   const symbol LARGE_HP_POTION = symbol("LHPPT", 0);
   const symbol TOTAL_HP_POTION = symbol("THPPT", 0);
-  const symbol INCREASED_ATTACK_ELIXIR = symbol("IATEL", 0);
-  const symbol SUPER_ATTACK_ELIXIR = symbol("SATEL", 0);
-  const symbol INCREASED_DEFENSE_ELIXIR = symbol("IDFEL", 0);
-  const symbol SUPER_DEFENSE_ELIXIR = symbol("SDFEL", 0);
-  const symbol INCREASED_HP_ELIXIR = symbol("IHPEL", 0);
-  const symbol SUPER_HP_ELIXIR = symbol("SHPEL", 0);
+  const symbol INCREASED_ATTACK_ORB = symbol("IATOR", 0);
+  const symbol SUPER_ATTACK_ORB = symbol("SATOR", 0);
+  const symbol INCREASED_DEFENSE_ORB = symbol("IDFOR", 0);
+  const symbol SUPER_DEFENSE_ORB = symbol("SDFOR", 0);
+  const symbol INCREASED_HP_ORB = symbol("IHPOR", 0);
+  const symbol SUPER_HP_ORB = symbol("SHPOR", 0);
   const symbol BRONZE_XP_SCROLL = symbol("BRXSC", 0);
   const symbol SILVER_XP_SCROLL = symbol("SVXSC", 0);
   const symbol GOLD_XP_SCROLL = symbol("GLXSC", 0);
@@ -129,12 +129,12 @@ namespace types {
   constexpr effect_type EFFECT_DMGOVT     = 52;
 
   // potions/special effects
-  constexpr effect_type EFFECT_IATEL      = 210;
-  constexpr effect_type EFFECT_SATEL      = 211;
-  constexpr effect_type EFFECT_IDFEL      = 220;
-  constexpr effect_type EFFECT_SDFEL      = 221;
-  constexpr effect_type EFFECT_IHPEL      = 230;
-  constexpr effect_type EFFECT_SHPEL      = 231;
+  constexpr effect_type EFFECT_IATOR      = 210;
+  constexpr effect_type EFFECT_SATOR      = 211;
+  constexpr effect_type EFFECT_IDFOR      = 220;
+  constexpr effect_type EFFECT_SDFOR      = 221;
+  constexpr effect_type EFFECT_IHPOR      = 230;
+  constexpr effect_type EFFECT_SHPOR      = 231;
   constexpr effect_type EFFECT_BRXSC      = 240;
   constexpr effect_type EFFECT_SVXSC      = 241;
   constexpr effect_type EFFECT_GLXSC      = 242;
@@ -301,12 +301,12 @@ namespace types {
           { MEDIUM_HP_POTION, 0 },
           { LARGE_HP_POTION, 0 },
           { TOTAL_HP_POTION, 0 },
-          { INCREASED_ATTACK_ELIXIR, 0 },
-          { SUPER_ATTACK_ELIXIR, 0 },
-          { INCREASED_DEFENSE_ELIXIR, 0 },
-          { SUPER_DEFENSE_ELIXIR, 0 },
-          { INCREASED_HP_ELIXIR, 0 },
-          { SUPER_HP_ELIXIR, 0 },
+          { INCREASED_ATTACK_ORB, 0 },
+          { SUPER_ATTACK_ORB, 0 },
+          { INCREASED_DEFENSE_ORB, 0 },
+          { SUPER_DEFENSE_ORB, 0 },
+          { INCREASED_HP_ORB, 0 },
+          { SUPER_HP_ORB, 0 },
           { BRONZE_XP_SCROLL, 0 },
           { SILVER_XP_SCROLL, 0 },
           { GOLD_XP_SCROLL, 0 },
@@ -482,6 +482,17 @@ namespace types {
     vector<st_temp_effect> effects;
 
     uint64_t primary_key() const { return pet_id; }
+
+    void update_effects(st_temp_effect const& new_effect) {
+      effects.erase(std::remove_if(effects.begin(), effects.end(),
+        [&](auto& e) { 
+          return e.effect == new_effect.effect 
+            || e.expires_at <= now(); 
+        }),
+        effects.end());
+
+      effects.emplace_back(new_effect);
+    }
   };
   typedef multi_index<"peteffects"_n, st_peteffects> _tb_peteffects;
 }

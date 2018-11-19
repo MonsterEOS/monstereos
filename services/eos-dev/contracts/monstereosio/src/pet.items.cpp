@@ -118,12 +118,12 @@ void pet::chestreward(name player, uint8_t modifier, string reason) {
   bool medium_hp_potion = _roll_and_test(timestamp, primer, 1000 * modifier);
   bool large_hp_potion = _roll_and_test(timestamp, primer, 500 * modifier);
   bool total_hp_potion = _roll_and_test(timestamp, primer, 100 * modifier);
-  bool attack_elixir = _roll_and_test(timestamp, primer, 100 * modifier);
-  bool super_attack_elixir = _roll_and_test(timestamp, primer, 50 * modifier);
-  bool defense_elixir = _roll_and_test(timestamp, primer, 100 * modifier);
-  bool super_defense_elixir = _roll_and_test(timestamp, primer, 50 * modifier);
-  bool ihp_elixir = _roll_and_test(timestamp, primer, 100 * modifier);
-  bool super_ihp_elixir = _roll_and_test(timestamp, primer, 50 * modifier);
+  bool attack_orb = _roll_and_test(timestamp, primer, 100 * modifier);
+  bool super_attack_orb = _roll_and_test(timestamp, primer, 50 * modifier);
+  bool defense_orb = _roll_and_test(timestamp, primer, 100 * modifier);
+  bool super_defense_orb = _roll_and_test(timestamp, primer, 50 * modifier);
+  bool ihp_orb = _roll_and_test(timestamp, primer, 100 * modifier);
+  bool super_ihp_orb = _roll_and_test(timestamp, primer, 50 * modifier);
   bool xp_bronze_scroll = _roll_and_test(timestamp, primer, 50 * modifier);
   bool xp_silver_scroll = _roll_and_test(timestamp, primer, 25 * modifier);
   bool xp_gold_scroll = _roll_and_test(timestamp, primer, 10 * modifier);
@@ -140,12 +140,12 @@ void pet::chestreward(name player, uint8_t modifier, string reason) {
   if (medium_hp_potion) items.emplace_back(asset{1, MEDIUM_HP_POTION});
   if (large_hp_potion) items.emplace_back(asset{1, LARGE_HP_POTION});
   if (total_hp_potion) items.emplace_back(asset{1, TOTAL_HP_POTION});
-  if (attack_elixir) items.emplace_back(asset{1, INCREASED_ATTACK_ELIXIR});
-  if (super_attack_elixir) items.emplace_back(asset{1, SUPER_ATTACK_ELIXIR});
-  if (defense_elixir) items.emplace_back(asset{1, INCREASED_DEFENSE_ELIXIR});
-  if (super_defense_elixir) items.emplace_back(asset{1, SUPER_DEFENSE_ELIXIR});
-  if (ihp_elixir) items.emplace_back(asset{1, INCREASED_HP_ELIXIR});
-  if (super_ihp_elixir) items.emplace_back(asset{1, SUPER_HP_ELIXIR});
+  if (attack_orb) items.emplace_back(asset{1, INCREASED_ATTACK_ORB});
+  if (super_attack_orb) items.emplace_back(asset{1, SUPER_ATTACK_ORB});
+  if (defense_orb) items.emplace_back(asset{1, INCREASED_DEFENSE_ORB});
+  if (super_defense_orb) items.emplace_back(asset{1, SUPER_DEFENSE_ORB});
+  if (ihp_orb) items.emplace_back(asset{1, INCREASED_HP_ORB});
+  if (super_ihp_orb) items.emplace_back(asset{1, SUPER_HP_ORB});
   if (xp_bronze_scroll) items.emplace_back(asset{1, BRONZE_XP_SCROLL});
   if (xp_silver_scroll) items.emplace_back(asset{1, SILVER_XP_SCROLL});
   if (xp_gold_scroll) items.emplace_back(asset{1, GOLD_XP_SCROLL});
@@ -279,8 +279,66 @@ void pet::petconsume(uuid pet_id, symbol item) {
         r.energy_drinks = r.energy_drinks + 1;
         r.energy_used = 0;
       });
+    } else if (item == REVIVE_TOME) {
+      pets.modify(itr_pet, same_payer, [&](auto& r) {
+        // r.death_at      = 0;
+        r.last_fed_at   = now();
+        r.last_bed_at   = r.last_fed_at;
+        r.last_awake_at = r.last_fed_at + 1;
+        r.energy_drinks = 0;
+        r.energy_used   = 0;
+      });
     } else {
-      eosio_assert(false, "item not implemented");
+
+      effect_type type = 0;
+      uint32_t expires_at = now() + HOUR;
+      if (item == INCREASED_ATTACK_ORB) {
+        type = EFFECT_IATOR;
+      } else if (item == SUPER_ATTACK_ORB) { 
+        type = EFFECT_SATOR;
+      } else if (item == INCREASED_DEFENSE_ORB) { 
+        type = EFFECT_IDFOR;
+      } else if (item == SUPER_DEFENSE_ORB) { 
+        type = EFFECT_SDFOR;
+      } else if (item == INCREASED_HP_ORB) { 
+        type = EFFECT_IHPOR;
+      } else if (item == SUPER_HP_ORB) { 
+        type = EFFECT_SHPOR;
+      } else if (item == BRONZE_XP_SCROLL) { 
+        type = EFFECT_BRXSC;
+        expires_at = now() + (12 * HOUR);
+      } else if (item == SILVER_XP_SCROLL) { 
+        type = EFFECT_SVXSC;
+        expires_at = now() + (24 * HOUR);
+      } else if (item == GOLD_XP_SCROLL) { 
+        type = EFFECT_GLXSC;
+        expires_at = now() + (48 * HOUR);
+      } else if (item == SUPER_BRONZE_XP_SCROLL) { 
+        type = EFFECT_SBXSC;
+        expires_at = now() + (12 * HOUR);
+      } else if (item == SUPER_SILVER_XP_SCROLL) { 
+        type = EFFECT_SSXSC;
+        expires_at = now() + (24 * HOUR);
+      } else if (item == SUPER_GOLD_XP_SCROLL) { 
+        type = EFFECT_SGXSC;
+        expires_at = now() + (48 * HOUR);
+      } else {
+        eosio_assert(false, "item not implemented");
+      }
+
+      st_temp_effect new_effect{type, expires_at};
+
+      auto itr_effect = peteffects.find(pet_id);
+      if (itr_effect != peteffects.end()) {
+        peteffects.modify(itr_effect, same_payer, [&](auto& r) {
+          r.update_effects(new_effect);
+        });
+      } else {
+        peteffects.emplace(_self, [&](auto& r) {
+          r.pet_id = pet_id;
+          r.effects = {new_effect};
+        });
+      }
     }
 
     // primer roller
