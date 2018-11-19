@@ -183,12 +183,12 @@ void pet::_battle_add_pets(st_battle &battle,
       r.pet_id = pet_id;
     });
 
-    auto pet_equips = equipments.get_index<"bypet"_n>();
-    auto last_equip_itr = pet_equips.find(pet_id);
     uint8_t atk = 0;
     uint8_t def = 0;
     uint8_t hp = 0;
-    // unequip current item
+    
+    auto pet_equips = equipments.get_index<"bypet"_n>();
+    auto last_equip_itr = pet_equips.find(pet_id);
     for (; last_equip_itr != pet_equips.end(); last_equip_itr++) {
       auto equip = *last_equip_itr;
       def += equip.defense;
@@ -196,7 +196,36 @@ void pet::_battle_add_pets(st_battle &battle,
       hp += equip.hp;
     }
 
-    battle.add_pet(pet_id, pet.type, player, pet.get_level(), pet.skill1, pet.skill2, pet.skill3, atk, def, hp);
+    uint8_t atk_mod = 10;
+    uint8_t def_mod = 10;
+    uint8_t hp_mod = 10;
+
+    auto itr_effects = peteffects.find(pet_id);
+    if (itr_effects != peteffects.end()) {
+      auto peteffs = *itr_effects;
+      peteffs.update_effects({});
+      peteffects.modify(itr_effects, same_payer, [&](auto& r) {
+        r.effects = peteffs.effects;
+      });
+
+      for (st_temp_effect e : peteffs.effects) {
+        if (e.effect == EFFECT_IATOR && atk_mod < 15) {
+          atk_mod = 15;
+        } else if (e.effect == EFFECT_SATOR && atk_mod < 20) {
+          atk_mod = 20;
+        } else if (e.effect == EFFECT_IDFOR && def_mod < 15) {
+          def_mod = 15;
+        } else if (e.effect == EFFECT_SDFOR && def_mod < 20) {
+          def_mod = 20;
+        } else if (e.effect == EFFECT_IHPOR && hp_mod < 15) {
+          hp_mod = 15;
+        } else if (e.effect == EFFECT_SHPOR && hp_mod < 20) {
+          hp_mod = 20;
+        }
+      }
+    }
+
+    battle.add_pet(pet_id, pet.type, player, pet.get_level(), pet.skill1, pet.skill2, pet.skill3, atk, def, hp, atk_mod, def_mod, hp_mod);
   }
 }
 

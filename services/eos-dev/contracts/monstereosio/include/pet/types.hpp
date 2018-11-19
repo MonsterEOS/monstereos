@@ -165,13 +165,13 @@ namespace types {
     uuid            pet_id;
     uint8_t         pet_type;
     name            player;
-    uint8_t         hp;
     uint8_t         level;
     skill_type      skill1;
     skill_type      skill2;
     skill_type      skill3;
-    uint8_t         atk;
-    uint8_t         def;
+    uint16_t        hp;
+    uint16_t        atk;
+    uint16_t        def;
     vector<st_battle_effect> effects;
   };
 
@@ -240,7 +240,13 @@ namespace types {
 
       uint8_t get_level() const {
           auto level = floor(sqrt(0.01 * experience));
-          return level = 0 ? 1 : level;
+          if (level == 0) {
+            return 1;
+          } else if (level > 100) {
+            return 100;
+          } else {
+            return level;
+          }
       }
   };
 
@@ -405,18 +411,23 @@ namespace types {
       }
     }
 
-    void add_pet(uuid const& pet_id, uint8_t const& pet_type, name const& player, uint8_t level, uint8_t skill1, uint8_t skill2, uint8_t skill3, uint8_t atk, uint8_t def, uint8_t hp) {
+    void add_pet(uuid const& pet_id, uint8_t const& pet_type, name const& player, uint8_t level, uint8_t skill1, uint8_t skill2, uint8_t skill3, uint8_t atk, uint8_t def, uint8_t hp, uint8_t atk_mod, uint8_t def_mod, uint8_t hp_mod) {
+
+      uint16_t total_hp = floor((100 + (level * 10)) * (hp_mod / 10) * (1 + (hp / 100)));
+      uint16_t total_atk = floor(level * (atk_mod / 10) * (1 + (atk / 100)));
+      uint16_t total_def = floor(level * (def_mod / 10) * (1 + (def / 100)));
+
       st_pet_stat pet_stat{
         pet_id,
         pet_type,
         player,
-        uint8_t(100 + hp),
         level,
         skill1,
         skill2,
         skill3,
-        atk,
-        def
+        total_hp,
+        total_atk,
+        total_def
       };
       pets_stats.emplace_back(pet_stat);
     }
@@ -491,7 +502,7 @@ namespace types {
         }),
         effects.end());
 
-      effects.emplace_back(new_effect);
+      if (new_effect.effect > 0 && new_effect.expires_at > now()) effects.emplace_back(new_effect);
     }
   };
   typedef multi_index<"peteffects"_n, st_peteffects> _tb_peteffects;
