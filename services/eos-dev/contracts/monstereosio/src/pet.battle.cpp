@@ -277,11 +277,10 @@ void pet::battleleave(name host, name player) {
   }
 }
 
-void pet::battleattack(name         host,
-                       name         player,
-                       uuid         pet_id,
-                       uuid         pet_enemy_id,
-                       element_type element_id) {
+void pet::battlemove(name         host,
+                     name         player,
+                     vector<st_battle_move> moves,
+                     st_battle_item item) {
 
   require_auth(player);
 
@@ -295,63 +294,65 @@ void pet::battleattack(name         host,
   // check and rotate turn only if player is not idle
   battle.check_turn_and_rotate(player, pc.battle_idle_tolerance);
 
-  // get current pet and enemy types
-  uint8_t pet_type{0};
-  uint8_t pet_enemy_type_id{0};
-  bool valid_pet = false;
-  for (const auto& pet_stat : battle.pets_stats) {
-    if (pet_stat.pet_id == pet_id) {
-      eosio_assert(pet_stat.player == player, "you cannot control this monster");
-      eosio_assert(pet_stat.hp > 0, "this monster is dead");
-      pet_type = pet_stat.pet_type;
-      valid_pet = true;
-    } else if (pet_stat.pet_id == pet_enemy_id) {
-      pet_enemy_type_id = pet_stat.pet_type;
-    }
-  }
-
-  eosio_assert(valid_pet, "invalid attack");
-
-  eosio_assert(_is_element_valid(pet_type, element_id), "invalid attack element");
-
-  // cross ratio elements to enemy pet elements
-  uint8_t ratio{5}; // default ratio
-  const auto& attack_element = elements.get(element_id, "invalid element");
-  const auto& pet_enemy_types = pettypes.get(pet_enemy_type_id, "invalid pet enemy type");
-  for (const auto& pet_element : pet_enemy_types.elements) {
-    const auto& type_ratio = attack_element.ratios[pet_element];
-    ratio = type_ratio > ratio ? type_ratio : ratio;
-  }
-
-  // random factor to attack
-  // checksum256 result;
-  // sha256( (char *)&battle.commits[0], sizeof(battle.commits[1])*2, &result);
-  // uint8_t factor = (result.hash[1] + result.hash[0] + now()) %
-  //   (pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
-  uint8_t factor = _random(pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
-
-  // damage based on element ratio and factor
-  uint8_t damage = factor * ratio / 10;
-  print("\nattack results ====\nattack damage: ", int{damage},
-    "\nelement ratio: ", int{ratio},
-    "\nattack factor: ", int{factor});
-
-  // updates pet hp and finish attack turn
   std::map<name, uint8_t> alive_pets{};
-  for (auto& pet_stat : battle.pets_stats) {
-    if (pet_stat.pet_id == pet_enemy_id) {
-      pet_stat.hp = damage > pet_stat.hp ? 0 : pet_stat.hp - damage;
+  for (st_battle_move move : moves) {
+    // get current pet and enemy types
+    uint8_t pet_type{0};
+    uint8_t pet_enemy_type_id{0};
+    bool valid_pet = false;
+    for (const auto& pet_stat : battle.pets_stats) {
+      if (pet_stat.pet_id == move.pet_id) {
+        eosio_assert(pet_stat.player == player, "you cannot control this monster");
+        eosio_assert(pet_stat.hp > 0, "this monster is dead");
+        pet_type = pet_stat.pet_type;
+        valid_pet = true;
+      } else if (pet_stat.pet_id == move.target) {
+        pet_enemy_type_id = pet_stat.pet_type;
+      }
     }
 
-    // update alive pets
-    uint8_t alive_counter = pet_stat.hp > 0 ? 1 : 0;
-    auto [it, success] = alive_pets.insert(
-      std::make_pair(pet_stat.player, alive_counter));
-    if (!success) {
-      it-> second = it->second + alive_counter;
+    eosio_assert(valid_pet, "invalid attack");
+
+    eosio_assert(_is_element_valid(pet_type, move.attack_element), "invalid attack element");
+
+    // cross ratio elements to enemy pet elements
+    uint8_t ratio{5}; // default ratio
+    const auto& attack_element = elements.get(move.attack_element, "invalid element");
+    const auto& pet_enemy_types = pettypes.get(pet_enemy_type_id, "invalid pet enemy type");
+    for (const auto& pet_element : pet_enemy_types.elements) {
+      const auto& type_ratio = attack_element.ratios[pet_element];
+      ratio = type_ratio > ratio ? type_ratio : ratio;
     }
 
-    print("\npet: ", pet_stat.pet_id, " - hp: ", int{pet_stat.hp});
+    // random factor to attack
+    // checksum256 result;
+    // sha256( (char *)&battle.commits[0], sizeof(battle.commits[1])*2, &result);
+    // uint8_t factor = (result.hash[1] + result.hash[0] + now()) %
+    //   (pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
+    uint8_t factor = _random(pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
+
+    // damage based on element ratio and factor
+    uint8_t damage = factor * ratio / 10;
+    print("\nattack results ====\nattack damage: ", int{damage},
+      "\nelement ratio: ", int{ratio},
+      "\nattack factor: ", int{factor});
+
+    // updates pet hp and finish attack turn
+    for (auto& pet_stat : battle.pets_stats) {
+      if (pet_stat.pet_id == move.target) {
+        pet_stat.hp = damage > pet_stat.hp ? 0 : pet_stat.hp - damage;
+      }
+
+      // update alive pets
+      uint8_t alive_counter = pet_stat.hp > 0 ? 1 : 0;
+      auto [it, success] = alive_pets.insert(
+        std::make_pair(pet_stat.player, alive_counter));
+      if (!success) {
+        it-> second = it->second + alive_counter;
+      }
+
+      print("\npet: ", pet_stat.pet_id, " - hp: ", int{pet_stat.hp});
+    }
   }
 
   // check battle end

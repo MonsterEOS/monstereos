@@ -84,7 +84,7 @@ public:
     [[eosio::action]]
     void quickbattle  ( battle_mode mode, name player, st_pick picks );
     [[eosio::action]]
-    void battleattack ( name host, name player, uuid pet_id, uuid pet_enemy_id, element_type element );
+    void battlemove ( name host, name player, vector<st_battle_move> moves, st_battle_item item );
     [[eosio::action]]
     void battlefinish ( name host, name winner );
     [[eosio::action]]

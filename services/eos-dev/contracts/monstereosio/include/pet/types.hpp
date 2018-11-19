@@ -193,6 +193,11 @@ namespace types {
     skill_type   skill;
   };
 
+  struct st_battle_item {
+    symbol       item;
+    uuid         target;
+  };
+
   struct st_transfer {
       name         from;
       name         to;

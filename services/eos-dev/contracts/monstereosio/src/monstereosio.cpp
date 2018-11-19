@@ -37,7 +37,7 @@ EOSIO_DISPATCH(pet,
   // (battlestart)
   (quickbattle)
   (battleleave)
-  (battleattack)
+  (battlemove)
   (battlefinish)
   (battlepfdel)
   (claimskill)
