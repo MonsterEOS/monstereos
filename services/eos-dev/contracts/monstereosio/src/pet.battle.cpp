@@ -111,8 +111,8 @@ void pet::quickbattle(battle_mode mode, name player, st_pick picks) {
   eosio_assert(itr_player_battle == plsinbattles.end(), "player is already in another battle");
 
   _tb_battle tb_battles(_self, _self.value);
-  auto idx_battle = tb_battles.template get_index<"start"_n>();
-  auto itr_battle = idx_battle.lower_bound( 0 );
+  auto       idx_battle = tb_battles.template get_index<"start"_n>();
+  auto       itr_battle = idx_battle.lower_bound(0);
 
   auto pc = _get_pet_config();
 
@@ -130,9 +130,9 @@ void pet::quickbattle(battle_mode mode, name player, st_pick picks) {
     _battle_add_pets(battle, player, picks.pets, pc);
 
     tb_battles.emplace(_self, [&](auto& r) {
-      r.host = player;
-      r.mode = mode;
-      r.commits = battle.commits;
+      r.host       = player;
+      r.mode       = mode;
+      r.commits    = battle.commits;
       r.pets_stats = battle.pets_stats;
     });
 
@@ -143,22 +143,18 @@ void pet::quickbattle(battle_mode mode, name player, st_pick picks) {
     _battle_add_pets(battle, player, picks.pets, pc);
 
     idx_battle.modify(itr_battle, same_payer, [&](auto& r) {
-      r.commits = battle.commits;
-      r.pets_stats = battle.pets_stats;
-      r.started_at = now();
+      r.commits      = battle.commits;
+      r.pets_stats   = battle.pets_stats;
+      r.started_at   = now();
       r.last_move_at = now();
     });
   }
 
-  plsinbattles.emplace(_self, [&](auto& r) {
-    r.player = player;
-  });
+  plsinbattles.emplace(_self, [&](auto& r) { r.player = player; });
 }
 
-void pet::_battle_add_pets(st_battle &battle,
-                           name player,
-                           vector<uint64_t> pet_ids,
-                           const st_pet_config2 &pc) {
+void pet::_battle_add_pets(st_battle& battle, name player, vector<uint64_t> pet_ids,
+                           const st_pet_config2& pc) {
 
   for (auto& pet_id : pet_ids) {
 
@@ -173,21 +169,18 @@ void pet::_battle_add_pets(st_battle &battle,
     eosio_assert(pet.has_energy(BATTLE_REQ_ENERGY), "pet has no energy for a battle");
 
     // consume energy
-    pets.modify(itr_pet, same_payer, [&](auto& r) {
-      r.energy_used = r.energy_used + BATTLE_REQ_ENERGY;
-    });
+    pets.modify(itr_pet, same_payer,
+                [&](auto& r) { r.energy_used = r.energy_used + BATTLE_REQ_ENERGY; });
 
     auto itr_pet_battle = petinbattles.find(pet_id);
     eosio_assert(itr_pet_battle == petinbattles.end(), "pet is already in another battle");
-    petinbattles.emplace(_self, [&](auto& r) {
-      r.pet_id = pet_id;
-    });
+    petinbattles.emplace(_self, [&](auto& r) { r.pet_id = pet_id; });
 
     uint8_t atk = 0;
     uint8_t def = 0;
-    uint8_t hp = 0;
-    
-    auto pet_equips = equipments.get_index<"bypet"_n>();
+    uint8_t hp  = 0;
+
+    auto pet_equips     = equipments.get_index<"bypet"_n>();
     auto last_equip_itr = pet_equips.find(pet_id);
     for (; last_equip_itr != pet_equips.end(); last_equip_itr++) {
       auto equip = *last_equip_itr;
@@ -198,15 +191,13 @@ void pet::_battle_add_pets(st_battle &battle,
 
     uint8_t atk_mod = 10;
     uint8_t def_mod = 10;
-    uint8_t hp_mod = 10;
+    uint8_t hp_mod  = 10;
 
     auto itr_effects = peteffects.find(pet_id);
     if (itr_effects != peteffects.end()) {
       auto peteffs = *itr_effects;
       peteffs.update_effects({});
-      peteffects.modify(itr_effects, same_payer, [&](auto& r) {
-        r.effects = peteffs.effects;
-      });
+      peteffects.modify(itr_effects, same_payer, [&](auto& r) { r.effects = peteffs.effects; });
 
       for (st_temp_effect e : peteffs.effects) {
         if (e.effect == EFFECT_IATOR && atk_mod < 15) {
@@ -225,7 +216,8 @@ void pet::_battle_add_pets(st_battle &battle,
       }
     }
 
-    battle.add_pet(pet_id, pet.type, player, pet.get_level(), pet.skill1, pet.skill2, pet.skill3, atk, def, hp, atk_mod, def_mod, hp_mod);
+    battle.add_pet(pet_id, pet.type, player, pet.get_level(), pet.skill1, pet.skill2, pet.skill3,
+                   atk, def, hp, atk_mod, def_mod, hp_mod);
   }
 }
 
@@ -234,7 +226,7 @@ void pet::battleleave(name host, name player) {
   require_auth(player);
 
   _tb_battle tb_battles(_self, _self.value);
-  auto itr_battle = tb_battles.find(host.value);
+  auto       itr_battle = tb_battles.find(host.value);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
 
@@ -246,23 +238,22 @@ void pet::battleleave(name host, name player) {
   for (st_pet_stat ps : battle.pets_stats) {
     auto itr_pet_battle = petinbattles.find(ps.pet_id);
     if (itr_pet_battle != petinbattles.end()) {
-      petinbattles.erase( itr_pet_battle );
+      petinbattles.erase(itr_pet_battle);
     }
 
     // undo used energy
     auto itr_pet = pets.find(ps.pet_id);
-    pets.modify(itr_pet, same_payer, [&](auto& r) {
-      r.energy_used = r.energy_used - BATTLE_REQ_ENERGY;
-    });
+    pets.modify(itr_pet, same_payer,
+                [&](auto& r) { r.energy_used = r.energy_used - BATTLE_REQ_ENERGY; });
   }
 
   auto itr_player_battle = plsinbattles.find(player.value);
   if (itr_player_battle != plsinbattles.end()) {
-    plsinbattles.erase( itr_player_battle );
+    plsinbattles.erase(itr_player_battle);
   }
 
   if (player == host) {
-    tb_battles.erase( itr_battle );
+    tb_battles.erase(itr_battle);
 
     // decrease busy arenas counter
     auto pc = _get_pet_config();
@@ -271,21 +262,18 @@ void pet::battleleave(name host, name player) {
   } else {
     battle.remove_player(player);
     tb_battles.modify(itr_battle, same_payer, [&](auto& r) {
-      r.commits = battle.commits;
+      r.commits    = battle.commits;
       r.pets_stats = battle.pets_stats;
     });
   }
 }
 
-void pet::battlemove(name         host,
-                     name         player,
-                     vector<st_battle_move> moves,
-                     st_battle_item item) {
+void pet::battlemove(name host, name player, vector<st_battle_move> moves, st_battle_item item) {
 
   require_auth(player);
 
   _tb_battle tb_battles(_self, _self.value);
-  auto itr_battle = tb_battles.find(host.value);
+  auto       itr_battle = tb_battles.find(host.value);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
 
@@ -297,17 +285,24 @@ void pet::battlemove(name         host,
   std::map<name, uint8_t> alive_pets{};
   for (st_battle_move move : moves) {
     // get current pet and enemy types
-    uint8_t pet_type{0};
-    uint8_t pet_enemy_type_id{0};
-    bool valid_pet = false;
+    uint8_t  pet_type{0};
+    uint8_t  pet_enemy_type_id{0};
+    uint16_t atk{0};
+    uint16_t def{0};
+    bool     valid_pet = false;
     for (const auto& pet_stat : battle.pets_stats) {
       if (pet_stat.pet_id == move.pet_id) {
         eosio_assert(pet_stat.player == player, "you cannot control this monster");
         eosio_assert(pet_stat.hp > 0, "this monster is dead");
-        pet_type = pet_stat.pet_type;
+        eosio_assert(move.skill == 0 || move.skill == pet_stat.skill1 ||
+                         move.skill == pet_stat.skill2 || move.skill == pet_stat.skill3,
+                     "invalid skill");
+        pet_type  = pet_stat.pet_type;
+        atk       = pet_stat.atk;
         valid_pet = true;
       } else if (pet_stat.pet_id == move.target) {
         pet_enemy_type_id = pet_stat.pet_type;
+        def               = pet_stat.def;
       }
     }
 
@@ -316,12 +311,12 @@ void pet::battlemove(name         host,
     eosio_assert(_is_element_valid(pet_type, move.attack_element), "invalid attack element");
 
     // cross ratio elements to enemy pet elements
-    uint8_t ratio{5}; // default ratio
-    const auto& attack_element = elements.get(move.attack_element, "invalid element");
+    uint8_t     ratio{5}; // default ratio
+    const auto& attack_element  = elements.get(move.attack_element, "invalid element");
     const auto& pet_enemy_types = pettypes.get(pet_enemy_type_id, "invalid pet enemy type");
     for (const auto& pet_element : pet_enemy_types.elements) {
       const auto& type_ratio = attack_element.ratios[pet_element];
-      ratio = type_ratio > ratio ? type_ratio : ratio;
+      ratio                  = type_ratio > ratio ? type_ratio : ratio;
     }
 
     // random factor to attack
@@ -329,13 +324,13 @@ void pet::battlemove(name         host,
     // sha256( (char *)&battle.commits[0], sizeof(battle.commits[1])*2, &result);
     // uint8_t factor = (result.hash[1] + result.hash[0] + now()) %
     //   (pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
-    uint8_t factor = _random(pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
+    uint8_t factor =
+        _random(pc.attack_max_factor + 1 - pc.attack_min_factor) + pc.attack_min_factor;
 
     // damage based on element ratio and factor
-    uint8_t damage = factor * ratio / 10;
-    print("\nattack results ====\nattack damage: ", int{damage},
-      "\nelement ratio: ", int{ratio},
-      "\nattack factor: ", int{factor});
+    uint8_t damage = (factor * ratio / 10)*;
+    print("\nattack results ====\nattack damage: ", int{damage}, "\nelement ratio: ", int{ratio},
+          "\nattack factor: ", int{factor});
 
     // updates pet hp and finish attack turn
     for (auto& pet_stat : battle.pets_stats) {
@@ -345,10 +340,9 @@ void pet::battlemove(name         host,
 
       // update alive pets
       uint8_t alive_counter = pet_stat.hp > 0 ? 1 : 0;
-      auto [it, success] = alive_pets.insert(
-        std::make_pair(pet_stat.player, alive_counter));
+      auto [it, success]    = alive_pets.insert(std::make_pair(pet_stat.player, alive_counter));
       if (!success) {
-        it-> second = it->second + alive_counter;
+        it->second = it->second + alive_counter;
       }
 
       print("\npet: ", pet_stat.pet_id, " - hp: ", int{pet_stat.hp});
@@ -357,7 +351,7 @@ void pet::battlemove(name         host,
 
   // check battle end
   uint8_t players_alive{0};
-  name winner{};
+  name    winner{};
   for (auto const& [player, pets_alive] : alive_pets) {
     if (pets_alive > 0) {
       players_alive++;
@@ -368,14 +362,14 @@ void pet::battlemove(name         host,
   // modify stats and goes to next turn or end battle
   if (players_alive > 1) {
     tb_battles.modify(itr_battle, same_payer, [&](auto& r) {
-      r.pets_stats = battle.pets_stats;
-      r.commits = battle.commits;
+      r.pets_stats   = battle.pets_stats;
+      r.commits      = battle.commits;
       r.last_move_at = now();
     });
   } else {
     // we need an action here?
     print(" and the winner is >>> ", winner);
-    SEND_INLINE_ACTION( *this, battlefinish, {_self,"active"_n}, {host, winner} );
+    SEND_INLINE_ACTION(*this, battlefinish, {_self, "active"_n}, {host, winner});
   }
 }
 
@@ -383,40 +377,39 @@ void pet::battlefinish(name host, name winner) {
   require_auth(_self);
 
   _tb_battle tb_battles(_self, _self.value);
-  auto itr_battle = tb_battles.find(host.value);
+  auto       itr_battle = tb_battles.find(host.value);
   eosio_assert(itr_battle != tb_battles.end(), "battle not found for current host");
   st_battle battle = *itr_battle;
 
   // removes pets from in battle status table
-  for (st_pet_stat &ps : battle.pets_stats) {
+  for (st_pet_stat& ps : battle.pets_stats) {
     auto itr_pet_battle = petinbattles.find(ps.pet_id);
     if (itr_pet_battle != petinbattles.end()) {
-      petinbattles.erase( itr_pet_battle );
+      petinbattles.erase(itr_pet_battle);
     }
 
     // add experience points
     auto itr_pet = pets.find(ps.pet_id);
     if (itr_pet != pets.end()) {
       pets.modify(itr_pet, same_payer, [&](auto& r) {
-        
         // adjust legacy pets
-        if (r.experience > 1500000000) 
+        if (r.experience > 1500000000)
           r.experience = 0;
-        
+
         r.experience = r.experience + (winner == r.owner ? XP_WON : XP_LOST);
       });
     }
   }
 
   // removes players from in battle status table
-  for (st_commit &cmm : battle.commits) {
+  for (st_commit& cmm : battle.commits) {
     auto itr_player_battle = plsinbattles.find(cmm.player.value);
     if (itr_player_battle != plsinbattles.end()) {
-      plsinbattles.erase( itr_player_battle );
+      plsinbattles.erase(itr_player_battle);
     }
   }
 
-  tb_battles.erase( itr_battle );
+  tb_battles.erase(itr_battle);
 
   // decrease busy arenas counter
   auto pc = _get_pet_config();
@@ -425,12 +418,11 @@ void pet::battlefinish(name host, name winner) {
 
   // primer roller
   _random(10);
-
 }
 
 // force removes a pet from petinbattles table
-void pet::battlepfdel( uuid pet_id, string /* reason */ ) {
+void pet::battlepfdel(uuid pet_id, string /* reason */) {
   auto itr_pet_battle = petinbattles.find(pet_id);
   eosio_assert(itr_pet_battle != petinbattles.end(), "Invalid pet battle stat");
-  petinbattles.erase( itr_pet_battle );
+  petinbattles.erase(itr_pet_battle);
 }

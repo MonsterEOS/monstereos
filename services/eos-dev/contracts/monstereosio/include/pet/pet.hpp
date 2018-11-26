@@ -114,22 +114,14 @@ public:
     void transfer     ( uint64_t sender, uint64_t receiver );
 
     // items
-    [[eosio::action]]
-    void openchest    ( name player );
-    [[eosio::action]]
-    void petconsume   ( uuid pet_id, symbol item );
-    [[eosio::action]]
-    void issueitem    ( name player, asset item, string reason );
-    [[eosio::action]]
-    void issueequip   ( name player, uuid itemtype, string reason );
-    [[eosio::action]]
-    void issueitems   ( name player, vector<asset> items, string reason );
-    [[eosio::action]]
-    void chestreward  ( name owner, uint8_t modifier, string reason );
-    [[eosio::action]]
-    void petequip     ( uuid pet_id, uuid item_id );
-    [[eosio::action]]
-    void petunequip   ( uuid item_id );
+    ACTION openchest    ( name player );
+    ACTION petconsume   ( uuid pet_id, symbol item );
+    ACTION issueitem    ( name player, asset item, string reason );
+    ACTION issueequip   ( name player, uuid itemtype, string reason );
+    ACTION issueitems   ( name player, vector<asset> items, string reason );
+    ACTION chestreward  ( name owner, uint8_t modifier, string reason );
+    ACTION petequip     ( uuid pet_id, uuid item_id );
+    ACTION petunequip   ( uuid item_id );
 
     private:
 
